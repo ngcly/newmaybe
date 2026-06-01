@@ -64,8 +64,19 @@ const year = new Date().getFullYear();
           <li><a href={item.href}>{item.label}</a></li>
         ))}
       </ul>
+      <button class="menu-btn" aria-label="菜单" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </nav>
   </header>
+
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    {NAV.map((item) => (
+      <a href={item.href}>{item.label}</a>
+    ))}
+  </div>
 
   <main>
     <slot />
@@ -94,6 +105,26 @@ const year = new Date().getFullYear();
   </footer>
 
   <script>
+    // 汉堡菜单
+    const menuBtn = document.querySelector('.menu-btn') as HTMLButtonElement | null;
+    const mobileMenu = document.getElementById('mobileMenu');
+    const close = () => {
+      menuBtn?.classList.remove('open');
+      mobileMenu?.classList.remove('open');
+      menuBtn?.setAttribute('aria-expanded', 'false');
+      mobileMenu?.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    };
+    menuBtn?.addEventListener('click', () => {
+      const open = menuBtn.classList.toggle('open');
+      mobileMenu?.classList.toggle('open', open);
+      menuBtn.setAttribute('aria-expanded', String(open));
+      mobileMenu?.setAttribute('aria-hidden', String(!open));
+      document.body.style.overflow = open ? 'hidden' : '';
+    });
+    mobileMenu?.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
     // 导航栏滚动细线
     const hdr = document.getElementById('hdr');
     const onScroll = () => hdr?.classList.toggle('scrolled', window.scrollY > 20);
@@ -161,7 +192,40 @@ const year = new Date().getFullYear();
       display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem;
       font-size: .82rem; color: var(--ink-faint); letter-spacing: .04em;
     }
-    @media (max-width: 680px) { .nav-links { display: none; } }
+    .menu-btn {
+      display: none; flex-direction: column; justify-content: center; gap: 5px;
+      width: 32px; height: 32px; background: none; border: none;
+      cursor: pointer; padding: 4px; flex-shrink: 0;
+    }
+    .menu-btn span {
+      display: block; width: 22px; height: 1.5px; background: var(--ink);
+      transition: transform .3s ease, opacity .3s ease;
+      transform-origin: center;
+    }
+    .menu-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .menu-btn.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .menu-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    .mobile-menu {
+      position: fixed; inset: 0; z-index: 99;
+      background: var(--paper);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center; gap: 2.8rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity .35s ease;
+    }
+    .mobile-menu.open { opacity: 1; pointer-events: auto; }
+    .mobile-menu a {
+      font-family: var(--serif-en); font-size: 2rem; font-weight: 400;
+      color: var(--ink); text-decoration: none; letter-spacing: .06em;
+      transition: color .2s;
+    }
+    .mobile-menu a:hover { color: var(--ochre); }
+
+    @media (max-width: 680px) {
+      .nav-links { display: none; }
+      .menu-btn { display: flex; }
+    }
   </style>
 </body>
 </html>
