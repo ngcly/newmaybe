@@ -56,19 +56,6 @@ draft: false
 
 Noto Serif SC 与 Cormorant Garamond 通过 Fontsource npm 包自托管（`@fontsource/noto-serif-sc`、`@fontsource/cormorant-garamond`）。Vite 构建时自动打包 woff2 到 `dist/_astro/`，无任何外部请求。中文字体已按简体字范围拆分，浏览器按需加载。
 
-## 部署到 Cloudflare Pages
-
-1. 把代码推到 GitHub。
-2. Cloudflare Dashboard → Workers & Pages → Create → **Pages** → Connect to Git。
-   ⚠️ 注意选 **Pages** 而非 Workers(纯静态站点用 Pages 更简单)。
-3. 构建配置:
-   - Framework preset: **Astro**
-   - Build command: `npm run build`
-   - Output directory: `dist`
-4. 部署后,Custom domains 里绑定 `newmaybe.com`,DNS 与 SSL 自动处理。
-
-之后每次 `git push` 自动重新部署。
-
 ## 改配色
 
 全部颜色集中在 `src/styles/global.css` 的 `:root`。改那几个变量即可全站换色。

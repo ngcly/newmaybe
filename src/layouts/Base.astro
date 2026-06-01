@@ -73,9 +73,12 @@ const year = new Date().getFullYear();
   </header>
 
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
-    {NAV.map((item) => (
-      <a href={item.href}>{item.label}</a>
-    ))}
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-drawer">
+      {NAV.map((item) => (
+        <a href={item.href}>{item.label}</a>
+      ))}
+    </div>
   </div>
 
   <main>
@@ -123,6 +126,7 @@ const year = new Date().getFullYear();
       document.body.style.overflow = open ? 'hidden' : '';
     });
     mobileMenu?.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+    document.getElementById('mobileOverlay')?.addEventListener('click', close);
     document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
 
     // 导航栏滚动细线
@@ -208,19 +212,33 @@ const year = new Date().getFullYear();
 
     .mobile-menu {
       position: fixed; inset: 0; z-index: 99;
-      background: var(--paper);
-      display: flex; flex-direction: column;
-      justify-content: center; align-items: center; gap: 2.8rem;
-      opacity: 0; pointer-events: none;
-      transition: opacity .35s ease;
+      pointer-events: none;
     }
-    .mobile-menu.open { opacity: 1; pointer-events: auto; }
-    .mobile-menu a {
-      font-family: var(--serif-en); font-size: 2rem; font-weight: 400;
-      color: var(--ink); text-decoration: none; letter-spacing: .06em;
+    .mobile-menu.open { pointer-events: auto; }
+    .mobile-overlay {
+      position: absolute; inset: 0;
+      background: rgba(30, 25, 18, 0.35);
+      opacity: 0; transition: opacity .35s ease;
+    }
+    .mobile-menu.open .mobile-overlay { opacity: 1; }
+    .mobile-drawer {
+      position: absolute; top: 0; right: 0; bottom: 0;
+      width: 72%;
+      background: var(--paper);
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 2rem 2.4rem;
+      transform: translateX(100%);
+      transition: transform .38s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mobile-menu.open .mobile-drawer { transform: translateX(0); }
+    .mobile-drawer a {
+      font-family: var(--serif-en); font-size: 1.5rem; font-weight: 400;
+      color: var(--ink-soft); text-decoration: none; letter-spacing: .06em;
+      padding: 1.1rem 0; border-bottom: 1px solid var(--line);
       transition: color .2s;
     }
-    .mobile-menu a:hover { color: var(--ochre); }
+    .mobile-drawer a:first-child { border-top: 1px solid var(--line); }
+    .mobile-drawer a:hover { color: var(--ochre); }
 
     @media (max-width: 680px) {
       .nav-links { display: none; }
