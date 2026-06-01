@@ -3,7 +3,7 @@ title: 给未完成的事物写一封信
 description: 那些半途而废的草稿、没寄出的信、学到一半的乐器——它们并非失败，而是另一种存在方式。
 pubDate: 2026-04-12
 category: 随笔
-readingTime: 8
+readingTime: 1
 ---
 
 亲爱的，未完成的事物们：

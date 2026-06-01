@@ -3,7 +3,7 @@ title: 城市夜行者的几条街道笔记
 description: 深夜的便利店、空荡的天桥、亮着灯的窗。记录一个习惯独自走路的人，看见的城市侧面。
 pubDate: 2026-03-08
 category: 观察
-readingTime: 6
+readingTime: 1
 ---
 
 城市在白天属于所有人，但深夜，它只属于少数还醒着的人。

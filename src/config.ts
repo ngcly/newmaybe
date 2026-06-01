@@ -1,8 +1,8 @@
 // 站点级别的配置，集中在一处方便修改。
 export const SITE = {
   title: 'newmaybe',
-  tagline: '也许',
-  description: '一个安放文字与念头的角落。慢一点，没关系。',
+  tagline: '新的也许',
+  description: '总会有新的也许。一个安放文字与正在生长的念头的角落，不必急着抵达。',
   url: 'https://newmaybe.com',
   author: 'newmaybe',
   email: 'ningcly00@gmail.com',
