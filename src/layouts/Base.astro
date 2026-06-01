@@ -75,9 +75,20 @@ const year = new Date().getFullYear();
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
     <div class="mobile-overlay" id="mobileOverlay"></div>
     <div class="mobile-drawer">
-      {NAV.map((item) => (
-        <a href={item.href}>{item.label}</a>
-      ))}
+      <div class="drawer-head">
+        <a href="/" class="drawer-logo">{SITE.title}<span class="dot">.</span></a>
+      </div>
+      <nav class="drawer-links">
+        {NAV.map((item, i) => (
+          <a href={item.href}>
+            <span class="drawer-idx">{String(i + 1).padStart(2, '0')}</span>
+            {item.label}
+          </a>
+        ))}
+      </nav>
+      <div class="drawer-foot">
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+      </div>
     </div>
   </div>
 
@@ -225,20 +236,52 @@ const year = new Date().getFullYear();
       position: absolute; top: 0; right: 0; bottom: 0;
       width: 72%;
       background: var(--paper);
-      display: flex; flex-direction: column; justify-content: center;
-      padding: 2rem 2.4rem;
+      border-left: 1px solid var(--line);
+      display: flex; flex-direction: column;
       transform: translateX(100%);
       transition: transform .38s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .mobile-menu.open .mobile-drawer { transform: translateX(0); }
-    .mobile-drawer a {
-      font-family: var(--serif-en); font-size: 1.5rem; font-weight: 400;
+    .drawer-head {
+      height: 72px; flex-shrink: 0;
+      display: flex; align-items: center;
+      padding: 0 2rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .drawer-logo {
+      font-family: var(--serif-en); font-size: 1.3rem; font-weight: 600;
+      letter-spacing: .02em; color: var(--ink); text-decoration: none;
+    }
+    .drawer-logo .dot { color: var(--ochre); }
+    .drawer-links {
+      flex: 1;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 1.5rem 2rem;
+    }
+    .drawer-links a {
+      display: flex; align-items: baseline; gap: 1rem;
+      font-family: var(--serif-cn); font-size: 1.15rem; font-weight: 400;
       color: var(--ink-soft); text-decoration: none; letter-spacing: .06em;
-      padding: 1.1rem 0; border-bottom: 1px solid var(--line);
+      padding: 1rem 0; border-bottom: 1px solid var(--line);
+      transition: color .2s, padding-left .3s ease;
+    }
+    .drawer-links a:first-child { border-top: 1px solid var(--line); }
+    .drawer-links a:hover { color: var(--ochre); padding-left: .4rem; }
+    .drawer-idx {
+      font-family: var(--serif-en); font-style: italic;
+      font-size: .8rem; color: var(--ink-faint); flex-shrink: 0;
+    }
+    .drawer-foot {
+      flex-shrink: 0;
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--line);
+    }
+    .drawer-foot a {
+      font-family: var(--serif-en); font-style: italic;
+      font-size: .82rem; color: var(--ink-faint); text-decoration: none;
       transition: color .2s;
     }
-    .mobile-drawer a:first-child { border-top: 1px solid var(--line); }
-    .mobile-drawer a:hover { color: var(--ochre); }
+    .drawer-foot a:hover { color: var(--ochre); }
 
     @media (max-width: 680px) {
       .nav-links { display: none; }
