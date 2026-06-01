@@ -5,6 +5,14 @@ import Base from '../layouts/Base.astro';
 // 如果以后想用 Markdown 管理，可以仿照 posts 再建一个 content collection。
 const works = [
   {
+    title: '某个还在构思的东西',
+    year: '—',
+    type: '待定',
+    desc: '也许是一本小册子，也许是一段声音，也许什么都不是。',
+    href: '#',
+    status: '构思中',
+  },
+  {
     title: '尚未命名的写作计划',
     year: '2026',
     type: '长期 · 写作',
@@ -13,22 +21,29 @@ const works = [
     status: '进行中',
   },
   {
+    title: '桂乡生活',
+    year: '2026',
+    type: '微信小程序 · 独立开发',
+    desc: '服务于咸宁桂花之乡的生活工具。一方水土一方人，用数字的方式连接家乡的日常。',
+    href: '/#',
+    status: '设计阶段',
+  },
+  {
+    title: '别让你的脑生锈',
+    year: '2026',
+    type: '微信小程序 · 独立开发',
+    desc: '每日一道数学题，像健身一样锻炼成年人的大脑。没有排行榜、没有社交压力，只是安静地让脑子保持锋利。',
+    href: '/#',
+    status: '已上线',
+  },
+  {
     title: 'newmaybe.com',
     year: '2026',
     type: '网站 · 设计',
     desc: '你正在浏览的这个站点本身。用 Astro 搭建，追求克制与缓慢。',
     href: '/about',
     status: '已上线',
-  },
-  // 占位示例，按需替换或删除
-  {
-    title: '某个还在构思的东西',
-    year: '—',
-    type: '待定',
-    desc: '也许是一本小册子，也许是一段声音，也许什么都不是。',
-    href: '#',
-    status: '构思中',
-  },
+  }
 ];
 ---
 
@@ -46,7 +61,12 @@ const works = [
 
       <div class="work-list reveal">
         {works.map((w, i) => (
-          <a href={w.href} class="work-item">
+          <a
+            href={w.href}
+            class="work-item"
+            target={/^(https?:\/\/|www\.)/.test(w.href) ? '_blank' : undefined}
+            rel={/^(https?:\/\/|www\.)/.test(w.href) ? 'noopener noreferrer' : undefined}
+          >
             <span class="idx">{String(i + 1).padStart(2, '0')}</span>
             <div class="work-content">
               <div class="work-top">

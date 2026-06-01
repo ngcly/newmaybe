@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#F7F3EC"/>
-  <text x="4" y="24" font-family="Georgia, serif" font-size="22" font-weight="600" fill="#2B2722">n</text>
-  <circle cx="24" cy="22" r="3" fill="#A8643C"/>
+  <rect width="32" height="32" rx="6" fill="#F7F3EC"/>
+  <text x="13.5" y="24" text-anchor="middle" font-family="Cormorant Garamond, Georgia, 'Times New Roman', serif" font-size="27" font-weight="600" fill="#2B2722">n</text>
+  <circle cx="24.5" cy="11" r="2.9" fill="#A8643C"/>
 </svg>
