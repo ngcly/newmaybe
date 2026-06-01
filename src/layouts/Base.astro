@@ -1,0 +1,167 @@
+---
+import { SITE, NAV } from '../config';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** OG 图路径，相对站点根，如 /og/post-slug.png */
+  image?: string;
+  /** 是否为文章页，影响 og:type */
+  article?: boolean;
+}
+
+const {
+  title,
+  description = SITE.description,
+  image = '/og-default.png',
+  article = false,
+} = Astro.props;
+
+const pageTitle = title ? `${title} · ${SITE.title}` : `${SITE.title} — ${SITE.tagline}`;
+const canonical = new URL(Astro.url.pathname, SITE.url).href;
+const ogImage = new URL(image, SITE.url).href;
+const year = new Date().getFullYear();
+---
+
+<!DOCTYPE html>
+<html lang={SITE.locale}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="generator" content={Astro.generator} />
+
+  <title>{pageTitle}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content={article ? 'article' : 'website'} />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:site_name" content={SITE.title} />
+  <meta property="og:locale" content={SITE.locale} />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
+
+  <!-- RSS 自动发现 -->
+  <link rel="alternate" type="application/rss+xml" title={SITE.title} href="/rss.xml" />
+</head>
+
+<body>
+  <header id="hdr">
+    <nav>
+      <a href="/" class="logo">{SITE.title}<span class="dot">.</span></a>
+      <ul class="nav-links">
+        {NAV.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid reveal">
+        <div class="foot-left">
+          <h4>{SITE.title}<span class="dot">.</span></h4>
+          <p>{SITE.description}</p>
+        </div>
+        <div class="foot-links">
+          {NAV.map((item) => (
+            <a href={item.href}>{item.label}</a>
+          ))}
+          <a href="/rss.xml">RSS</a>
+          <a href={`mailto:${SITE.email}`}>Email</a>
+        </div>
+      </div>
+      <div class="foot-base">
+        <span>© {year} {SITE.url.replace('https://', '')} · 以 Astro 构筑，栖于 Cloudflare</span>
+        <span>Made slowly.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 导航栏滚动细线
+    const hdr = document.getElementById('hdr');
+    const onScroll = () => hdr?.classList.toggle('scrolled', window.scrollY > 20);
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // 滚动进场
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+  </script>
+
+  <style>
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      backdrop-filter: blur(6px);
+      background: rgba(247,243,236,0.7);
+      border-bottom: 1px solid transparent;
+      transition: border-color .4s ease;
+    }
+    header.scrolled { border-bottom: 1px solid var(--line); }
+    nav {
+      display: flex; justify-content: space-between; align-items: center;
+      height: 72px; max-width: var(--max); margin: 0 auto; padding: 0 2rem;
+    }
+    .logo {
+      font-family: var(--serif-en);
+      font-size: 1.5rem; font-weight: 600; letter-spacing: .02em;
+      color: var(--ink); text-decoration: none;
+      display: flex; align-items: baseline; gap: .4rem;
+    }
+    .logo .dot { color: var(--ochre); }
+    .nav-links { display: flex; gap: 2.4rem; list-style: none; }
+    .nav-links a {
+      color: var(--ink-soft); text-decoration: none;
+      font-size: .92rem; letter-spacing: .08em;
+      position: relative; padding-bottom: 2px;
+      transition: color .3s ease;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1px; background: var(--ochre);
+      transition: width .35s ease;
+    }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-links a:hover::after { width: 100%; }
+
+    main { padding-top: 72px; }
+
+    footer { padding: 5rem 0 3rem; margin-top: 4rem; }
+    .foot-grid { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 2rem; }
+    .foot-left h4 { font-family: var(--serif-en); font-size: 1.8rem; font-weight: 600; margin-bottom: .5rem; }
+    .foot-left h4 .dot { color: var(--ochre); }
+    .foot-left p { color: var(--ink-faint); font-size: .95rem; font-weight: 300; max-width: 34ch; }
+    .foot-links { display: flex; gap: 1.6rem; flex-wrap: wrap; }
+    .foot-links a {
+      color: var(--ink-soft); text-decoration: none; font-size: .92rem;
+      letter-spacing: .06em; transition: color .3s;
+    }
+    .foot-links a:hover { color: var(--ochre); }
+    .foot-base {
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line);
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem;
+      font-size: .82rem; color: var(--ink-faint); letter-spacing: .04em;
+    }
+    @media (max-width: 680px) { .nav-links { display: none; } }
+  </style>
+</body>
+</html>

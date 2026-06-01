@@ -1,0 +1,99 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+
+// 在 src/config.ts 里改这些链接即可
+const channels = [
+  { label: 'Email', value: SITE.email, href: `mailto:${SITE.email}`, note: '最稳妥的方式，我会认真读每一封。' },
+  { label: 'RSS', value: '/rss.xml', href: '/rss.xml', note: '订阅更新，不打扰，不催促。' },
+  // 下面是占位，按需改成你的真实账号或删掉
+  { label: '播客 / 其他', value: '待补充', href: '#', note: '如果以后有了，会放在这里。' },
+];
+---
+
+<Base title="联络" description="如果某段文字让你有所触动，欢迎写信来。">
+  <section class="contact">
+    <div class="wrap">
+      <header class="contact-head reveal">
+        <span class="eyebrow">Get in touch</span>
+        <h1>联络<span class="zh">写封信</span></h1>
+        <p class="intro">
+          没有评论区，也没有点赞。如果你想说点什么——
+          无论是回应一段文字，还是只是打个招呼——直接写信给我就好。
+          慢一点回复，但一定会读。
+        </p>
+      </header>
+
+      <div class="channels reveal">
+        {channels.map((c) => (
+          <a href={c.href} class="channel">
+            <div class="channel-main">
+              <span class="channel-label">{c.label}</span>
+              <span class="channel-value">{c.value}</span>
+            </div>
+            <p class="channel-note">{c.note}</p>
+            <span class="arrow">→</span>
+          </a>
+        ))}
+      </div>
+
+      <p class="ps reveal">
+        P.S. 这里没有任何表单，因为我不想收集你的任何数据。
+        一封朴素的邮件，就很好。
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact { padding: 5rem 0 7rem; }
+  .contact-head { max-width: 60ch; margin: 0 auto 4rem; text-align: center; }
+  .eyebrow {
+    font-family: var(--serif-en); font-style: italic; font-size: 1.1rem;
+    color: var(--ochre); letter-spacing: .05em; display: block; margin-bottom: 1rem;
+  }
+  .contact-head h1 {
+    font-weight: 500; font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.15; color: var(--ink); margin-bottom: 1.8rem;
+  }
+  .contact-head h1 .zh {
+    font-family: var(--serif-cn); font-size: .55em; color: var(--ink-faint);
+    font-weight: 400; margin-left: .6rem;
+  }
+  .contact-head .intro {
+    font-size: 1.15rem; line-height: 1.9; color: var(--ink-soft); font-weight: 300;
+  }
+
+  .channels { max-width: 56ch; margin: 0 auto; }
+  .channel {
+    display: grid; grid-template-columns: 1fr auto;
+    grid-template-areas: 'main arrow' 'note arrow';
+    gap: .3rem 1rem; align-items: center;
+    padding: 2rem 0; border-top: 1px solid var(--line);
+    text-decoration: none; transition: padding-left .4s ease;
+  }
+  .channel:last-child { border-bottom: 1px solid var(--line); }
+  .channel:hover { padding-left: 1rem; }
+  .channel-main { grid-area: main; display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .channel-label {
+    font-family: var(--serif-en); font-style: italic; font-size: 1.05rem; color: var(--ochre);
+  }
+  .channel-value { font-size: 1.3rem; color: var(--ink); font-weight: 400; transition: color .3s; }
+  .channel:hover .channel-value { color: var(--ochre); }
+  .channel-note { grid-area: note; font-size: .95rem; color: var(--ink-faint); font-weight: 300; }
+  .arrow {
+    grid-area: arrow; font-size: 1.4rem; color: var(--ink-faint);
+    transition: transform .3s, color .3s;
+  }
+  .channel:hover .arrow { transform: translateX(6px); color: var(--ochre); }
+
+  .ps {
+    max-width: 56ch; margin: 3.5rem auto 0; text-align: center;
+    font-family: var(--serif-en); font-style: italic;
+    font-size: 1.05rem; color: var(--ink-faint); line-height: 1.8;
+  }
+
+  @media (max-width: 680px) {
+    .channel-value { font-size: 1.15rem; }
+  }
+</style>

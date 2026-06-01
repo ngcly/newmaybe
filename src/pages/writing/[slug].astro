@@ -1,0 +1,95 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+// 为每篇文章生成一个静态页面
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+type Props = { post: CollectionEntry<'posts'> };
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const longDate = post.data.pubDate.toLocaleDateString('zh-CN', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+---
+
+<Base title={post.data.title} description={post.data.description} article={true}>
+  <article class="article">
+    <div class="wrap">
+      <header class="article-head reveal">
+        <a href="/writing" class="back">← 返回书写</a>
+        <span class="cat">{post.data.category}</span>
+        <h1>{post.data.title}</h1>
+        <div class="meta">
+          <time datetime={post.data.pubDate.toISOString()}>{longDate}</time>
+          {post.data.readingTime && <span> · 约 {post.data.readingTime} 分钟</span>}
+        </div>
+      </header>
+
+      <div class="prose reveal">
+        <Content />
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .article { padding: 4rem 0 2rem; }
+  .article-head { max-width: 65ch; margin: 0 auto 3.5rem; text-align: center; }
+  .back {
+    display: inline-block; font-family: var(--serif-en); font-style: italic;
+    color: var(--ink-faint); text-decoration: none; font-size: 1rem;
+    margin-bottom: 2.5rem; letter-spacing: .03em; transition: color .3s;
+  }
+  .back:hover { color: var(--ochre); }
+  .cat {
+    display: block; font-family: var(--serif-en); font-style: italic;
+    color: var(--ochre); font-size: 1.05rem; margin-bottom: 1rem; letter-spacing: .05em;
+  }
+  .article-head h1 {
+    font-weight: 500; font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1.25; color: var(--ink); margin-bottom: 1.4rem;
+  }
+  .meta { color: var(--ink-faint); font-size: .95rem; letter-spacing: .04em; }
+  .meta time { font-family: var(--serif-en); font-style: italic; }
+
+  /* 正文排版 —— 文艺向：窄栏、宽行高、首字微调 */
+  .prose { max-width: 65ch; margin: 0 auto; }
+  .prose :global(p) {
+    font-size: 1.12rem; line-height: 1.95; color: var(--ink-soft);
+    margin-bottom: 1.6rem; font-weight: 300;
+  }
+  .prose :global(h2) {
+    font-family: var(--serif-cn); font-weight: 500; font-size: 1.6rem;
+    color: var(--ink); margin: 3rem 0 1.2rem;
+  }
+  .prose :global(h3) {
+    font-weight: 500; font-size: 1.3rem; color: var(--ink); margin: 2.4rem 0 1rem;
+  }
+  .prose :global(blockquote) {
+    border-left: 2px solid var(--ochre); padding-left: 1.5rem;
+    margin: 2rem 0; font-style: italic; color: var(--ink);
+    font-size: 1.18rem; line-height: 1.8;
+  }
+  .prose :global(a) { color: var(--ochre); text-decoration: none; border-bottom: 1px solid var(--line); }
+  .prose :global(a:hover) { border-color: var(--ochre); }
+  .prose :global(img) { max-width: 100%; border-radius: 2px; margin: 2rem 0; }
+  .prose :global(code) {
+    font-family: ui-monospace, monospace; font-size: .9em;
+    background: var(--paper-deep); padding: .15em .4em; border-radius: 3px;
+  }
+  .prose :global(pre) {
+    background: var(--paper-deep); padding: 1.4rem; border-radius: 4px;
+    overflow-x: auto; margin: 2rem 0; border: 1px solid var(--line);
+  }
+  .prose :global(pre code) { background: none; padding: 0; }
+  .prose :global(hr) { border: none; border-top: 1px solid var(--line); margin: 3rem 0; }
+</style>

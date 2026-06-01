@@ -1,0 +1,18 @@
+# build output
+dist/
+
+# dependencies
+node_modules/
+
+# astro
+.astro/
+
+# env
+.env
+.env.*
+!.env.example
+
+# editors
+.DS_Store
+.idea/
+*.iml

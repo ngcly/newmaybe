@@ -1,0 +1,127 @@
+---
+import Base from '../layouts/Base.astro';
+
+// 作品 / 项目数据 —— 往这个数组里加条目即可。
+// 如果以后想用 Markdown 管理，可以仿照 posts 再建一个 content collection。
+const works = [
+  {
+    title: '尚未命名的写作计划',
+    year: '2026',
+    type: '长期 · 写作',
+    desc: '一个关于城市夜行与独处的系列随笔，仍在缓慢推进中。',
+    href: '/writing',
+    status: '进行中',
+  },
+  {
+    title: 'newmaybe.com',
+    year: '2026',
+    type: '网站 · 设计',
+    desc: '你正在浏览的这个站点本身。用 Astro 搭建，追求克制与缓慢。',
+    href: '/about',
+    status: '已上线',
+  },
+  // 占位示例，按需替换或删除
+  {
+    title: '某个还在构思的东西',
+    year: '—',
+    type: '待定',
+    desc: '也许是一本小册子，也许是一段声音，也许什么都不是。',
+    href: '#',
+    status: '构思中',
+  },
+];
+---
+
+<Base title="作品" description="一些做过的、正在做的、和也许会做的事。">
+  <section class="work">
+    <div class="wrap">
+      <header class="work-head reveal">
+        <span class="eyebrow">Selected Work</span>
+        <h1>作品<span class="zh">做过的事</span></h1>
+        <p class="intro">
+          一些做过的、正在做的、和也许会做的事。
+          这里不追求数量，只放一些自己还愿意回头看的。
+        </p>
+      </header>
+
+      <div class="work-list reveal">
+        {works.map((w, i) => (
+          <a href={w.href} class="work-item">
+            <span class="idx">{String(i + 1).padStart(2, '0')}</span>
+            <div class="work-content">
+              <div class="work-top">
+                <h2>{w.title}</h2>
+                <span class="status">{w.status}</span>
+              </div>
+              <p class="work-desc">{w.desc}</p>
+              <div class="work-meta">
+                <span>{w.type}</span>
+                <span class="dot-sep">·</span>
+                <span>{w.year}</span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .work { padding: 5rem 0 7rem; }
+  .work-head { max-width: 60ch; margin: 0 auto 4.5rem; text-align: center; }
+  .eyebrow {
+    font-family: var(--serif-en); font-style: italic; font-size: 1.1rem;
+    color: var(--ochre); letter-spacing: .05em; display: block; margin-bottom: 1rem;
+  }
+  .work-head h1 {
+    font-weight: 500; font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.15; color: var(--ink); margin-bottom: 1.8rem;
+  }
+  .work-head h1 .zh {
+    font-family: var(--serif-cn); font-size: .55em; color: var(--ink-faint);
+    font-weight: 400; margin-left: .6rem;
+  }
+  .work-head .intro {
+    font-size: 1.15rem; line-height: 1.9; color: var(--ink-soft); font-weight: 300;
+  }
+
+  .work-list { max-width: var(--max); margin: 0 auto; }
+  .work-item {
+    display: grid; grid-template-columns: 60px 1fr; gap: 2rem;
+    padding: 2.6rem 0; border-top: 1px solid var(--line);
+    text-decoration: none; transition: padding-left .4s ease;
+  }
+  .work-item:last-child { border-bottom: 1px solid var(--line); }
+  .work-item:hover { padding-left: 1rem; }
+  .idx {
+    font-family: var(--serif-en); font-style: italic; font-size: 1.5rem;
+    color: var(--ink-faint); line-height: 1.2;
+  }
+  .work-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .work-item h2 {
+    font-weight: 500; font-size: 1.7rem; color: var(--ink);
+    line-height: 1.3; transition: color .3s;
+  }
+  .work-item:hover h2 { color: var(--ochre); }
+  .status {
+    font-family: var(--serif-en); font-style: italic; font-size: .9rem;
+    color: var(--ochre); border: 1px solid var(--line); border-radius: 2px;
+    padding: .2rem .7rem; white-space: nowrap;
+  }
+  .work-desc {
+    font-size: 1.05rem; line-height: 1.85; color: var(--ink-soft);
+    font-weight: 300; margin: .9rem 0; max-width: 58ch;
+  }
+  .work-meta {
+    font-family: var(--serif-en); font-style: italic;
+    font-size: .95rem; color: var(--ink-faint); display: flex; gap: .6rem; align-items: center;
+  }
+  .dot-sep { color: var(--line); }
+
+  @media (max-width: 680px) {
+    .work-item { grid-template-columns: 1fr; gap: .6rem; }
+    .idx { font-size: 1.2rem; }
+    .work-item h2 { font-size: 1.4rem; }
+  }
+</style>

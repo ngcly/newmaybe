@@ -1,0 +1,93 @@
+---
+import { SITE } from '../config';
+---
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">Perhaps, and perhaps not.</div>
+    <h1>
+      <span class="word" style="animation-delay:.35s">在</span><span class="word" style="animation-delay:.45s">不确定</span><span class="word" style="animation-delay:.55s">里，</span><br />
+      <span class="word accent" style="animation-delay:.7s">也许</span><span class="word" style="animation-delay:.8s">藏着</span><span class="word" style="animation-delay:.9s">答案。</span>
+    </h1>
+    <p class="lede">我在这里记录文字、收集所思、安放尚未完成的念头。这是一片缓慢的角落，欢迎你停留片刻。</p>
+    <div class="hero-meta">
+      <a href="/writing">阅读近作 →</a>
+      <span class="scroll-hint">向下 <span class="arr"></span></span>
+    </div>
+  </div>
+  <div class="hero-stamp">Est. {SITE.startYear} · {SITE.url.replace('https://', '')}</div>
+</section>
+
+<style>
+  .hero {
+    min-height: calc(100vh - 72px);
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative;
+  }
+  .hero-eyebrow {
+    font-family: var(--serif-en);
+    font-style: italic; font-size: 1.15rem;
+    color: var(--ochre); letter-spacing: .04em;
+    margin-bottom: 1.5rem;
+    opacity: 0; transform: translateY(20px);
+    animation: rise .9s ease forwards .2s;
+  }
+  .hero h1 {
+    font-weight: 500;
+    font-size: clamp(2.8rem, 7vw, 5.6rem);
+    line-height: 1.12; letter-spacing: -.01em;
+    margin-bottom: 2rem; max-width: 14ch;
+  }
+  .hero h1 .word {
+    display: inline-block;
+    opacity: 0; transform: translateY(28px);
+    animation: rise 1s cubic-bezier(.2,.7,.3,1) forwards;
+  }
+  .hero h1 .accent {
+    color: var(--ochre); font-style: italic;
+    font-family: var(--serif-en); font-weight: 500;
+  }
+  .hero p.lede {
+    font-size: 1.18rem; color: var(--ink-soft);
+    max-width: 48ch; line-height: 1.9; font-weight: 300;
+    opacity: 0; transform: translateY(20px);
+    animation: rise 1s ease forwards .9s;
+  }
+  .hero-meta {
+    margin-top: 3.5rem; display: flex; align-items: center; gap: 1.5rem;
+    opacity: 0; animation: fade 1.2s ease forwards 1.2s;
+  }
+  .hero-meta a {
+    font-family: var(--serif-en); font-size: 1.05rem;
+    color: var(--ink); text-decoration: none;
+    border: 1px solid var(--ink); border-radius: 2px;
+    padding: .7rem 1.8rem; letter-spacing: .05em;
+    transition: all .35s ease;
+  }
+  .hero-meta a:hover { background: var(--ink); color: var(--paper); }
+  .hero-meta .scroll-hint {
+    font-size: .85rem; color: var(--ink-faint);
+    letter-spacing: .12em; display: flex; align-items: center; gap: .6rem;
+  }
+  .hero-meta .scroll-hint .arr {
+    display: inline-block; width: 30px; height: 1px;
+    background: var(--ink-faint); position: relative;
+  }
+  .hero-meta .scroll-hint .arr::after {
+    content: ''; position: absolute; right: 0; top: -2px;
+    width: 5px; height: 5px;
+    border-right: 1px solid var(--ink-faint);
+    border-bottom: 1px solid var(--ink-faint); transform: rotate(-45deg);
+  }
+  .hero-stamp {
+    position: absolute; right: 2rem; bottom: 3rem;
+    font-family: var(--serif-en); font-style: italic;
+    color: var(--ink-faint); font-size: .95rem;
+    writing-mode: vertical-rl; letter-spacing: .15em;
+    opacity: 0; animation: fade 1.4s ease forwards 1.4s;
+  }
+  @media (max-width: 680px) {
+    .hero-stamp { display: none; }
+    .hero-meta { flex-direction: column; align-items: flex-start; }
+  }
+</style>

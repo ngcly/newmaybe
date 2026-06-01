@@ -1,0 +1,14 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/PostList.astro';
+
+const posts = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<Base title="书写" description="全部文字与随笔。">
+  <div style="padding-top: 4rem;">
+    <PostList posts={posts} heading="Writing" headingCn="全部书写" showMore={false} />
+  </div>
+</Base>

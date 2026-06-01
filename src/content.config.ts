@@ -1,0 +1,18 @@
+import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
+
+// Astro 6：使用 Content Layer API 的 glob loader（旧的 type:'content' 已移除）
+const posts = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/posts' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),          // frontmatter 写 "2026-05-20" 即可
+    updatedDate: z.coerce.date().optional(),
+    category: z.string().default('随笔'),  // 显示在标题下，如 随笔 / 观察
+    readingTime: z.number().optional(),    // 预计阅读分钟数
+    draft: z.boolean().default(false),     // true = 草稿，不在列表显示
+  }),
+});
+
+export const collections = { posts };

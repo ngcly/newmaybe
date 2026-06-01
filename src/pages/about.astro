@@ -1,0 +1,119 @@
+---
+import Base from '../layouts/Base.astro';
+import QuoteBand from '../components/QuoteBand.astro';
+---
+
+<Base title="关于" description="关于 newmaybe，以及写下这些文字的人。">
+  <section class="about">
+    <div class="wrap">
+      <header class="about-head reveal">
+        <span class="eyebrow">About</span>
+        <h1>关于<span class="zh">这片角落</span></h1>
+      </header>
+
+      <div class="about-body reveal">
+        <p class="lead">
+          newmaybe 是一个安放文字与念头的地方。名字取自一种心境——
+          许多事并非确定的「是」或「否」，而是悬而未决的「也许」。
+          我喜欢那种留白，那种尚未抵达的状态。
+        </p>
+
+        <p>
+          我在这里写随笔、记录观察、收集一些半成形的想法。
+          它们大多缓慢、零散，不追求结论。如果说有什么主题，
+          大概是关于如何在快速的世界里，为自己保留一点慢的权利。
+        </p>
+
+        <p>
+          这个站点本身也是一次缓慢的尝试：用最朴素的方式搭建，
+          没有弹窗、没有追踪、没有催促你停留的小花招。
+          只有文字，和愿意停下来读它的人。
+        </p>
+
+        <div class="signature">
+          <span class="line"></span>
+          <span class="name">newmaybe</span>
+        </div>
+      </div>
+
+      <div class="facets reveal">
+        <div class="facet">
+          <span class="num">01</span>
+          <h3>关于书写</h3>
+          <p>不定期更新。想到什么写什么，长短不论，真诚为先。</p>
+        </div>
+        <div class="facet">
+          <span class="num">02</span>
+          <h3>关于节奏</h3>
+          <p>慢，是这里唯一坚持的事。没有日更压力，没有热点追逐。</p>
+        </div>
+        <div class="facet">
+          <span class="num">03</span>
+          <h3>关于联络</h3>
+          <p>如果某段文字让你有所触动，欢迎写信来。<a href="/contact">联络方式在此</a>。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <QuoteBand
+    text={'文字是慢的，\n所以它能留住一些快会冲走的东西。'}
+    cite="— 关于为何而写"
+  />
+</Base>
+
+<style>
+  .about { padding: 5rem 0 6rem; }
+  .about-head { text-align: center; margin-bottom: 4rem; }
+  .eyebrow {
+    font-family: var(--serif-en); font-style: italic; font-size: 1.1rem;
+    color: var(--ochre); letter-spacing: .05em; display: block; margin-bottom: 1rem;
+  }
+  .about-head h1 {
+    font-weight: 500; font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.15; color: var(--ink);
+  }
+  .about-head h1 .zh {
+    font-family: var(--serif-cn); font-size: .55em; color: var(--ink-faint);
+    font-weight: 400; margin-left: .6rem;
+  }
+
+  .about-body { max-width: 60ch; margin: 0 auto 5rem; }
+  .about-body .lead {
+    font-size: 1.35rem; line-height: 1.85; color: var(--ink);
+    font-weight: 300; margin-bottom: 2rem;
+  }
+  .about-body p {
+    font-size: 1.1rem; line-height: 1.95; color: var(--ink-soft);
+    font-weight: 300; margin-bottom: 1.6rem;
+  }
+  .signature { margin-top: 3rem; display: flex; align-items: center; gap: 1.2rem; }
+  .signature .line { flex: 0 0 48px; height: 1px; background: var(--ochre); }
+  .signature .name {
+    font-family: var(--serif-en); font-style: italic; font-size: 1.3rem; color: var(--ink);
+  }
+
+  .facets {
+    max-width: var(--max); margin: 0 auto;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem;
+    padding-top: 4rem; border-top: 1px solid var(--line);
+  }
+  .facet .num {
+    font-family: var(--serif-en); font-style: italic; font-size: 1.4rem;
+    color: var(--ochre); display: block; margin-bottom: .8rem;
+  }
+  .facet h3 {
+    font-family: var(--serif-cn); font-weight: 500; font-size: 1.25rem;
+    color: var(--ink); margin-bottom: .7rem;
+  }
+  .facet p {
+    font-size: 1rem; line-height: 1.8; color: var(--ink-soft); font-weight: 300;
+  }
+  .facet a { color: var(--ochre); text-decoration: none; border-bottom: 1px solid var(--line); }
+  .facet a:hover { border-color: var(--ochre); }
+
+  @media (max-width: 680px) {
+    .facets { grid-template-columns: 1fr; gap: 2.4rem; }
+    .about-body .lead { font-size: 1.2rem; }
+  }
+</style>

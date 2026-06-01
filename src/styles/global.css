@@ -1,0 +1,108 @@
+/* ──────────────────────────────────────────
+   newmaybe · 全局样式
+   文艺 editorial 风格：米纸底 / 墨色 / 赭石点缀
+   ────────────────────────────────────────── */
+
+/* 自托管字体（via Fontsource）—— Vite 构建时自动打包 woff2，无外部请求 */
+@import '@fontsource/cormorant-garamond/latin-400.css';
+@import '@fontsource/cormorant-garamond/latin-400-italic.css';
+@import '@fontsource/cormorant-garamond/latin-600.css';
+@import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
+@import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
+@import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
+@import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
+@import '@fontsource/noto-serif-sc/latin-300.css';
+@import '@fontsource/noto-serif-sc/latin-400.css';
+@import '@fontsource/noto-serif-sc/latin-500.css';
+@import '@fontsource/noto-serif-sc/latin-600.css';
+
+:root {
+  /* 文艺低饱和配色 */
+  --paper:      #F7F3EC;   /* 米纸底 */
+  --paper-deep: #EFE9DE;   /* 略深的米色 */
+  --ink:        #2B2722;   /* 墨黑 */
+  --ink-soft:   #5B5349;   /* 暖灰墨 */
+  --ink-faint:  #968B7C;   /* 淡墨 */
+  --ochre:      #A8643C;   /* 赭石 —— 唯一的主点缀色 */
+  --ochre-deep: #8A4F2E;
+  --line:       #D9CFBF;   /* 细线 */
+
+  --serif-cn: 'Noto Serif SC', 'Songti SC', serif;
+  --serif-en: 'Cormorant Garamond', 'Noto Serif SC', serif;
+
+  --max: 1080px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif-cn);
+  font-weight: 400;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(168,100,60,0.025) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(43,39,34,0.02) 0%, transparent 45%);
+  overflow-x: hidden;
+}
+
+/* 颗粒质感叠层 */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9999;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 2rem; }
+
+a { color: var(--ochre); }
+
+/* 分隔横线 */
+.rule { height: 1px; background: var(--line); margin: 0 2rem; }
+
+/* 滚动进场 */
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.3,1);
+}
+.reveal.in { opacity: 1; transform: translateY(0); }
+
+@keyframes rise { to { opacity: 1; transform: translateY(0); } }
+@keyframes fade { to { opacity: 1; } }
+
+/* 文章正文排版（文章详情页用） */
+.prose {
+  max-width: 65ch; margin: 0 auto;
+  font-size: 1.12rem; line-height: 1.85; font-weight: 300;
+  color: var(--ink-soft);
+}
+.prose h2 { font-family: var(--serif-en); font-weight: 600; font-size: 1.8rem; color: var(--ink); margin: 2.6rem 0 1rem; }
+.prose h3 { font-weight: 500; font-size: 1.4rem; color: var(--ink); margin: 2rem 0 .8rem; }
+.prose p { margin-bottom: 1.4rem; }
+.prose a { color: var(--ochre); text-decoration: none; border-bottom: 1px solid var(--line); }
+.prose a:hover { border-color: var(--ochre); }
+.prose blockquote {
+  border-left: 2px solid var(--ochre);
+  padding-left: 1.4rem; margin: 1.8rem 0;
+  color: var(--ink); font-style: italic;
+}
+.prose img { max-width: 100%; border-radius: 2px; margin: 1.8rem 0; }
+.prose code {
+  font-family: ui-monospace, monospace; font-size: .9em;
+  background: var(--paper-deep); padding: .15em .4em; border-radius: 3px;
+}
+/* 首字下沉 —— 给文章首段一点书卷气 */
+.prose > p:first-of-type::first-letter {
+  font-family: var(--serif-en); font-size: 3.4rem; line-height: .8;
+  float: left; margin: .1em .12em 0 0; color: var(--ochre); font-weight: 600;
+}
+
+@media (max-width: 680px) {
+  .prose { font-size: 1.05rem; }
+}
