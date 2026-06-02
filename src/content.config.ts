@@ -12,6 +12,7 @@ const posts = defineCollection({
     category: z.string().default('随笔'),  // 显示在标题下，如 随笔 / 观察
     readingTime: z.number().optional(),    // 预计阅读分钟数
     draft: z.boolean().default(false),     // true = 草稿，不在列表显示
+    watermark: z.string().optional(),       // 诗歌水印字，如 '雨'、'月'
   }),
 });
 

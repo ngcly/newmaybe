@@ -19,6 +19,9 @@ const { Content } = await render(post);
 const longDate = post.data.pubDate.toLocaleDateString('zh-CN', {
   year: 'numeric', month: 'long', day: 'numeric',
 });
+
+const isPoetry = post.data.category === '诗歌';
+const watermark = post.data.watermark;
 ---
 
 <Base title={post.data.title} description={post.data.description} article={true}>
@@ -34,9 +37,18 @@ const longDate = post.data.pubDate.toLocaleDateString('zh-CN', {
         </div>
       </header>
 
-      <div class="prose reveal">
-        <Content />
-      </div>
+      {isPoetry ? (
+        <div class="poem-wrap">
+          {watermark && <span class="watermark" aria-hidden="true">{watermark}</span>}
+          <div class="prose">
+            <Content />
+          </div>
+        </div>
+      ) : (
+        <div class="prose">
+          <Content />
+        </div>
+      )}
     </div>
   </article>
 </Base>
@@ -92,4 +104,61 @@ const longDate = post.data.pubDate.toLocaleDateString('zh-CN', {
   }
   .prose :global(pre code) { background: none; padding: 0; }
   .prose :global(hr) { border: none; border-top: 1px solid var(--line); margin: 3rem 0; }
+
+  /* ── 诗歌专属排版 ── */
+  .poem-wrap {
+    position: relative;
+    max-width: 65ch;
+    margin: 0 auto;
+  }
+  .watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--serif-cn);
+    font-size: 22rem;
+    color: var(--ink);
+    opacity: 0.032;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+    line-height: 1;
+  }
+  .poem-wrap .prose {
+    position: relative;
+    z-index: 1;
+    max-width: 36ch;
+    margin: 0 auto;
+  }
+  /* 去掉首字下沉 */
+  .poem-wrap .prose :global(p:first-of-type::first-letter) {
+    font-size: inherit;
+    line-height: inherit;
+    float: none;
+    margin: 0;
+    color: inherit;
+    font-weight: inherit;
+  }
+  /* 诗行：居中、字距、实色 */
+  .poem-wrap .prose :global(p) {
+    text-align: center;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    font-size: 1.15rem;
+    line-height: 2.2;
+    font-weight: 400;
+    margin-bottom: 0;
+  }
+  /* 节间距 */
+  .poem-wrap .prose :global(p + p) {
+    margin-top: 2.6rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+
+  @media (max-width: 680px) {
+    .watermark { font-size: 14rem; }
+    .poem-wrap .prose :global(p) { font-size: 1.05rem; }
+  }
 </style>

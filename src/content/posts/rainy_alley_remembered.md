@@ -5,6 +5,7 @@ pubDate: 2025-10-10
 category: 诗歌
 readingTime: 1
 draft: false
+watermark: 雨
 ---
 
 我还撑着油纸伞，  
