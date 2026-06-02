@@ -1,7 +1,7 @@
 ---
 title: 素年锦时
 description: 那些年我们一起追的女孩，结局是全部失去。年华里来去匆匆，多少人成为梦中。
-pubDate: 2025-09-15
+pubDate: 2012-07-08
 category: 故事
 readingTime: 25
 draft: false
