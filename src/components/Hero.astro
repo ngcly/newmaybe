@@ -6,8 +6,8 @@ import { SITE } from '../config';
   <div class="wrap">
     <div class="hero-eyebrow">Always a new maybe.</div>
     <h1>
-      <span class="word" style="animation-delay:.35s">总会有</span><span class="word accent" style="animation-delay:.5s">新的</span><span class="word accent" style="animation-delay:.62s">也许，</span><br />
-      <span class="word" style="animation-delay:.78s">不必</span><span class="word" style="animation-delay:.88s">急着</span><span class="word" style="animation-delay:.98s">抵达。</span>
+      <span class="word" style="animation-delay:.22s">总会有</span><span class="word accent" style="animation-delay:.32s">新的</span><span class="word accent" style="animation-delay:.42s">也许，</span><br />
+      <span class="word" style="animation-delay:.52s">不必</span><span class="word" style="animation-delay:.58s">急着</span><span class="word" style="animation-delay:.64s">抵达。</span>
     </h1>
     <p class="lede">我在这里记录文字、收集所思、安放正在生长的念头。一切都还没有定论，而这正是它温柔的地方。慢慢来。</p>
     <div class="hero-meta">
@@ -30,7 +30,7 @@ import { SITE } from '../config';
     color: var(--ochre); letter-spacing: .04em;
     margin-bottom: 1.5rem;
     opacity: 0; transform: translateY(20px);
-    animation: rise .9s ease forwards .2s;
+    animation: rise .6s ease forwards .12s;
   }
   .hero h1 {
     font-weight: 500;
@@ -41,7 +41,7 @@ import { SITE } from '../config';
   .hero h1 .word {
     display: inline-block;
     opacity: 0; transform: translateY(28px);
-    animation: rise 1s cubic-bezier(.2,.7,.3,1) forwards;
+    animation: rise .65s cubic-bezier(.2,.7,.3,1) forwards;
   }
   .hero h1 .accent {
     color: var(--ochre); font-style: italic;
@@ -51,11 +51,11 @@ import { SITE } from '../config';
     font-size: 1.18rem; color: var(--ink-soft);
     max-width: 48ch; line-height: 1.9; font-weight: 300;
     opacity: 0; transform: translateY(20px);
-    animation: rise 1s ease forwards .9s;
+    animation: rise .65s ease forwards .58s;
   }
   .hero-meta {
     margin-top: 3.5rem; display: flex; align-items: center; gap: 1.5rem;
-    opacity: 0; animation: fade 1.2s ease forwards 1.2s;
+    opacity: 0; animation: fade .8s ease forwards .72s;
   }
   .hero-meta a {
     font-family: var(--serif-en); font-size: 1.05rem;
@@ -79,7 +79,14 @@ import { SITE } from '../config';
     font-family: var(--serif-en); font-style: italic;
     color: var(--ink-faint); font-size: .95rem;
     writing-mode: vertical-rl; letter-spacing: .15em;
-    opacity: 0; animation: fade 1.4s ease forwards 1.4s;
+    opacity: 0; animation: fade .85s ease forwards .85s;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-eyebrow, .hero h1 .word, .hero p.lede, .hero-meta, .hero-stamp {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
   }
   @media (max-width: 680px) {
     .hero-stamp { display: none; }

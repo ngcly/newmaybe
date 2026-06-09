@@ -98,33 +98,3 @@ a { color: var(--ochre); }
 @keyframes rise { to { opacity: 1; transform: translateY(0); } }
 @keyframes fade { to { opacity: 1; } }
 
-/* 文章正文排版（文章详情页用） */
-.prose {
-  max-width: 65ch; margin: 0 auto;
-  font-size: 1.12rem; line-height: 1.85; font-weight: 300;
-  color: var(--ink-soft);
-}
-.prose h2 { font-family: var(--serif-en); font-weight: 600; font-size: 1.8rem; color: var(--ink); margin: 2.6rem 0 1rem; }
-.prose h3 { font-weight: 500; font-size: 1.4rem; color: var(--ink); margin: 2rem 0 .8rem; }
-.prose p { margin-bottom: 1.4rem; }
-.prose a { color: var(--ochre); text-decoration: none; border-bottom: 1px solid var(--line); }
-.prose a:hover { border-color: var(--ochre); }
-.prose blockquote {
-  border-left: 2px solid var(--ochre);
-  padding-left: 1.4rem; margin: 1.8rem 0;
-  color: var(--ink); font-style: italic;
-}
-.prose img { max-width: 100%; border-radius: 2px; margin: 1.8rem 0; }
-.prose code {
-  font-family: ui-monospace, monospace; font-size: .9em;
-  background: var(--paper-deep); padding: .15em .4em; border-radius: 3px;
-}
-/* 首字下沉 —— 给文章首段一点书卷气 */
-.prose > p:first-of-type::first-letter {
-  font-family: var(--serif-en); font-size: 3.4rem; line-height: .8;
-  float: left; margin: .1em .12em 0 0; color: var(--ochre); font-weight: 600;
-}
-
-@media (max-width: 680px) {
-  .prose { font-size: 1.05rem; }
-}

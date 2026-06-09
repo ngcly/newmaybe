@@ -24,7 +24,8 @@ const isPoetry = post.data.category === '诗歌';
 const watermark = post.data.watermark;
 ---
 
-<Base title={post.data.title} description={post.data.description} article={true}>
+<Base title={post.data.title} description={post.data.description} image={`/og/${post.id}.png`} article={true}>
+  <div id="reading-bar" aria-hidden="true"></div>
   <article class="article">
     <div class="wrap">
       <header class="article-head reveal">
@@ -161,4 +162,31 @@ const watermark = post.data.watermark;
     .watermark { font-size: 14rem; }
     .poem-wrap .prose :global(p) { font-size: 1.05rem; }
   }
+
+  #reading-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    width: 0%;
+    background: var(--ochre);
+    z-index: 200;
+    transition: width 80ms linear;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #reading-bar { transition: none; }
+  }
 </style>
+
+<script>
+  const bar = document.getElementById('reading-bar');
+  if (bar) {
+    const update = () => {
+      const scrolled = window.scrollY;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = total > 0 ? `${(scrolled / total) * 100}%` : '0%';
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  }
+</script>
