@@ -3,7 +3,7 @@ title: 走笔观影
 description: 大学日子平淡如水，偶尔怀念远方的故人旧事，也渐渐学会了做一个生活的观众。
 pubDate: 2012-12-21
 category: 随笔
-readingTime: 3
+readingTime: 6
 draft: false
 ---
 

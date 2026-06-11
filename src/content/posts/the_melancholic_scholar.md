@@ -3,7 +3,7 @@ title: 颓唐书生
 description: 一个失意的大学青年，在颓唐的日常与深夜的回忆之间，反复练习假装已经放下。
 pubDate: 2014-04-20
 category: 小说
-readingTime: 6
+readingTime: 9
 draft: false
 ---
 

@@ -3,7 +3,7 @@ title: 痴人说梦
 description: 那些年少的侧脸、未完成的对话，以及一个在梦中反复出现的你。
 pubDate: 2015-11-10
 category: 散文
-readingTime: 2
+readingTime: 4
 draft: false
 ---
 

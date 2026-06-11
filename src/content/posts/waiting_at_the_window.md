@@ -3,7 +3,7 @@ title: 车窗里的等待
 description: 在武汉拥堵的车流中，一双被尾灯映红的眼睛，凝视着这座繁华而陌生的城市，以及那个无处安放的自己。
 pubDate: 2013-10-12
 category: 散文
-readingTime: 4
+readingTime: 2
 draft: false
 ---
 
