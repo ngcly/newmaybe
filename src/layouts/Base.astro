@@ -28,6 +28,7 @@ const year = new Date().getFullYear();
 <html lang={SITE.locale}>
 <head>
   <meta charset="UTF-8" />
+  <script is:inline>document.documentElement.classList.add('js');</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="generator" content={Astro.generator} />
@@ -42,6 +43,8 @@ const year = new Date().getFullYear();
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonical} />
   <meta property="og:image" content={ogImage} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:site_name" content={SITE.title} />
   <meta property="og:locale" content={SITE.locale} />
 
@@ -224,8 +227,11 @@ const year = new Date().getFullYear();
     .mobile-menu {
       position: fixed; inset: 0; z-index: 99;
       pointer-events: none;
+      /* 关闭态对键盘 / 读屏完全隐藏，延迟等抽屉滑出动画结束 */
+      visibility: hidden;
+      transition: visibility 0s .4s;
     }
-    .mobile-menu.open { pointer-events: auto; }
+    .mobile-menu.open { pointer-events: auto; visibility: visible; transition: visibility 0s; }
     .mobile-overlay {
       position: absolute; inset: 0;
       background: rgba(30, 25, 18, 0.35);
@@ -234,7 +240,7 @@ const year = new Date().getFullYear();
     .mobile-menu.open .mobile-overlay { opacity: 1; }
     .mobile-drawer {
       position: absolute; top: 0; right: 0; bottom: 0;
-      width: 35%;
+      width: min(78%, 320px);
       background: var(--paper);
       border-left: 1px solid var(--line);
       display: flex; flex-direction: column;

@@ -23,16 +23,16 @@ const fmt = (d: Date) =>
 
     {posts.map((post) => (
       <article class="post reveal">
-        <a href={`/writing/${post.id}`} class="date-link">
+        <a href={`/writing/${post.id}`}>
           <span class="date">{fmt(post.data.pubDate)}</span>
-        </a>
-        <a href={`/writing/${post.id}`} class="body-link">
-          <h3>{post.data.title}</h3>
-          <p>{post.data.description}</p>
-          <span class="tag">
-            {post.data.category}
-            {post.data.readingTime && ` · ${post.data.readingTime} 分钟`}
-          </span>
+          <div class="post-body">
+            <h3>{post.data.title}</h3>
+            <p>{post.data.description}</p>
+            <span class="tag">
+              {post.data.category}
+              {post.data.readingTime && ` · ${post.data.readingTime} 分钟`}
+            </span>
+          </div>
         </a>
       </article>
     ))}
@@ -61,9 +61,13 @@ const fmt = (d: Date) =>
   .section-head .more:hover { border-color: var(--ochre); }
 
   .post {
-    display: grid; grid-template-columns: 130px 1fr; gap: 2.5rem;
     padding: 2.2rem 0; border-top: 1px solid var(--line);
-    align-items: baseline; transition: padding-left .4s ease;
+    transition: padding-left .4s ease;
+  }
+  .post > a {
+    display: grid; grid-template-columns: 130px 1fr; gap: 2.5rem;
+    align-items: baseline;
+    text-decoration: none; color: inherit;
   }
   .post:last-child { border-bottom: 1px solid var(--line); }
   .post:hover { padding-left: 1rem; }
@@ -82,10 +86,8 @@ const fmt = (d: Date) =>
     font-family: var(--serif-en); font-style: italic;
     font-size: .92rem; color: var(--ink-faint);
   }
-  .post a { text-decoration: none; color: inherit; display: block; }
-
   @media (max-width: 680px) {
-    .post { grid-template-columns: 1fr; gap: .5rem; }
+    .post > a { grid-template-columns: 1fr; gap: .5rem; }
     .post .date { font-size: .95rem; }
   }
 </style>

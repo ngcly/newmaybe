@@ -1,3 +1,7 @@
 # 静态资源（含 Fontsource 字体，均有内容哈希）
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# OG 分享图（构建期生成，无内容哈希，只做短期缓存）
+/og/*
+  Cache-Control: public, max-age=86400

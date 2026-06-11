@@ -28,11 +28,11 @@ npm run astro           # Run astro CLI directly
 
 - **`config.ts`**: Centralized site metadata (title, tagline, author, nav items, URLs). Edit here to change site title, author info, navigation menu, and locale settings.
 
-- **`content.config.ts`**: Content Layer API schema for blog posts. Defines the markdown frontmatter schema with fields: `title`, `description`, `pubDate`, `category`, `readingTime`, `draft`.
+- **`content.config.ts`**: Content Layer API schema for blog posts. Defines the markdown frontmatter schema with fields: `title`, `description`, `pubDate`, `updatedDate`, `category`, `readingTime`, `draft`, `watermark` (single character shown as a background watermark on poetry posts).
 
 - **`content/posts/`**: Where blog post `.md` files live. Filenames become URL slugs. Draft posts (`draft: true`) are excluded from listings and RSS.
 
-- **`layouts/Base.astro`**: Global layout providing `<head>` (SEO/OG tags), fixed header with navigation, and footer with links. Embeds scroll-triggered animations and header scroll detection.
+- **`layouts/Base.astro`**: Global layout providing `<head>` (SEO/OG tags), fixed header with navigation, mobile drawer menu, and footer with links. Embeds scroll-triggered animations and header scroll detection. An inline script adds a `js` class to `<html>` so `.reveal` animations only hide content when JS is available.
 
 - **`components/`**:
   - `Hero.astro`: Landing section with animated intro text and tagline. Uses staggered word-level animations.
@@ -42,7 +42,8 @@ npm run astro           # Run astro CLI directly
 - **`pages/`**: Astro file-based routing:
   - `index.astro`: Homepage showing 3 most recent posts.
   - `writing/index.astro`: Full writing archive.
-  - `writing/[slug].astro`: Individual post detail page with full prose typography.
+  - `writing/[slug].astro`: Individual post detail page with full prose typography, a reading progress bar, and dedicated poetry layout (centered lines, optional watermark character) for posts with `category: 诗歌`.
+  - `og/[slug].png.ts`: Per-post OG share images (1200×630 PNG) generated at build time with satori + sharp, using the same editorial palette and fonts.
   - `about.astro`, `contact.astro`, `work.astro`: Static pages.
   - `rss.xml.js`: RSS feed generation.
 
@@ -50,9 +51,9 @@ npm run astro           # Run astro CLI directly
 
 ### Public Files (`public/`)
 
-- `fonts/`: Unused (fonts are self-hosted via Fontsource npm packages, bundled by Vite at build time).
-- `_headers`: Cloudflare caching headers for fonts and `_astro/*` assets.
-- `favicon.svg`, `og-default.png`: Brand assets.
+- `_headers`: Cloudflare caching headers for `_astro/*` assets (fonts are self-hosted via Fontsource npm packages, bundled by Vite at build time) and `/og/*` share images.
+- `_redirects`: Cloudflare Pages redirects (currently empty).
+- `favicon.svg`, `favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`, `og-default.png`: Brand assets.
 
 ## Key Architecture Patterns
 
@@ -86,7 +87,7 @@ npm run astro           # Run astro CLI directly
 
 - **`astro.config.mjs`**: Site URL, integrations (sitemap, RSS). No SSR adapter (pure SSG).
 - **`tsconfig.json`**: Extends Astro strict config.
-- **`package.json`**: Minimal dependencies—only `astro`, `@astrojs/rss`, `@astrojs/sitemap`.
+- **`package.json`**: Minimal dependencies—`astro`, `@astrojs/rss`, `@astrojs/sitemap`, plus `satori` + `sharp` for build-time OG image generation and Fontsource font packages as devDependencies.
 
 ## Development Notes
 
@@ -105,6 +106,7 @@ npm run astro           # Run astro CLI directly
    ```
 3. Write content in markdown.
 4. Set `draft: true` to hide from listings/RSS until ready.
+5. For poetry, set `category: 诗歌` (enables centered poem layout) and optionally `watermark: 雨` (single character rendered as a faint background watermark).
 
 ### Customizing Colors
 Edit `:root` variables in `src/styles/global.css`:

@@ -3,13 +3,14 @@ import Base from '../layouts/Base.astro';
 
 // 作品 / 项目数据 —— 往这个数组里加条目即可。
 // 如果以后想用 Markdown 管理，可以仿照 posts 再建一个 content collection。
+// href 为 null 的条目（如暂无网页的小程序）渲染为纯文本，不生成链接
 const works = [
   {
     title: '某个还在构思的东西',
     year: '—',
     type: '待定',
     desc: '也许是一本小册子，也许是一段声音，也许什么都不是。',
-    href: '#',
+    href: null,
     status: '构思中',
   },
   {
@@ -25,7 +26,7 @@ const works = [
     year: '2026',
     type: '微信小程序 · 独立开发',
     desc: '服务于咸宁桂花之乡的生活工具。一方水土一方人，用数字的方式连接家乡的日常。',
-    href: '/#',
+    href: null,
     status: '设计阶段',
   },
   {
@@ -33,7 +34,7 @@ const works = [
     year: '2026',
     type: '微信小程序 · 独立开发',
     desc: '每日一道数学题，像健身一样锻炼成年人的大脑。没有排行榜、没有社交压力，只是安静地让脑子保持锋利。',
-    href: '/#',
+    href: null,
     status: '已上线',
   },
   {
@@ -60,28 +61,32 @@ const works = [
       </header>
 
       <div class="work-list reveal">
-        {works.map((w, i) => (
-          <a
-            href={w.href}
-            class="work-item"
-            target={/^(https?:\/\/|www\.)/.test(w.href) ? '_blank' : undefined}
-            rel={/^(https?:\/\/|www\.)/.test(w.href) ? 'noopener noreferrer' : undefined}
-          >
-            <span class="idx">{String(i + 1).padStart(2, '0')}</span>
-            <div class="work-content">
-              <div class="work-top">
-                <h2>{w.title}</h2>
-                <span class="status">{w.status}</span>
+        {works.map((w, i) => {
+          const external = w.href != null && /^(https?:\/\/|www\.)/.test(w.href);
+          const El = w.href ? 'a' : 'div';
+          return (
+            <El
+              href={w.href ?? undefined}
+              class="work-item"
+              target={external ? '_blank' : undefined}
+              rel={external ? 'noopener noreferrer' : undefined}
+            >
+              <span class="idx">{String(i + 1).padStart(2, '0')}</span>
+              <div class="work-content">
+                <div class="work-top">
+                  <h2>{w.title}</h2>
+                  <span class="status">{w.status}</span>
+                </div>
+                <p class="work-desc">{w.desc}</p>
+                <div class="work-meta">
+                  <span>{w.type}</span>
+                  <span class="dot-sep">·</span>
+                  <span>{w.year}</span>
+                </div>
               </div>
-              <p class="work-desc">{w.desc}</p>
-              <div class="work-meta">
-                <span>{w.type}</span>
-                <span class="dot-sep">·</span>
-                <span>{w.year}</span>
-              </div>
-            </div>
-          </a>
-        ))}
+            </El>
+          );
+        })}
       </div>
     </div>
   </section>
@@ -113,7 +118,7 @@ const works = [
     text-decoration: none; transition: padding-left .4s ease;
   }
   .work-item:last-child { border-bottom: 1px solid var(--line); }
-  .work-item:hover { padding-left: 1rem; }
+  a.work-item:hover { padding-left: 1rem; }
   .idx {
     font-family: var(--serif-en); font-style: italic; font-size: 1.5rem;
     color: var(--ink-faint); line-height: 1.2;
@@ -123,7 +128,7 @@ const works = [
     font-weight: 500; font-size: 1.7rem; color: var(--ink);
     line-height: 1.3; transition: color .3s;
   }
-  .work-item:hover h2 { color: var(--ochre); }
+  a.work-item:hover h2 { color: var(--ochre); }
   .status {
     font-family: var(--serif-en); font-style: italic; font-size: .9rem;
     color: var(--ochre); border: 1px solid var(--line); border-radius: 2px;

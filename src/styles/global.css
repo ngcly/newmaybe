@@ -49,7 +49,9 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
 
 body {
   background: var(--paper);
@@ -88,12 +90,15 @@ a { color: var(--ochre); }
 /* 分隔横线 */
 .rule { height: 1px; background: var(--line); margin: 0 2rem; }
 
-/* 滚动进场 */
-.reveal {
+/* 滚动进场 —— 仅在 JS 可用时隐藏初始态，禁用 JS 也能读到全部内容 */
+html.js .reveal {
   opacity: 0; transform: translateY(30px);
   transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.3,1);
 }
-.reveal.in { opacity: 1; transform: translateY(0); }
+html.js .reveal.in { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  html.js .reveal { opacity: 1; transform: none; transition: none; }
+}
 
 @keyframes rise { to { opacity: 1; transform: translateY(0); } }
 @keyframes fade { to { opacity: 1; } }

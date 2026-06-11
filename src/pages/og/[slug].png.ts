@@ -1,4 +1,4 @@
-import type { APIRoute } from 'astro';
+import type { APIRoute, InferGetStaticPropsType } from 'astro';
 import { getCollection } from 'astro:content';
 import satori from 'satori';
 import sharp from 'sharp';
@@ -22,8 +22,10 @@ export async function getStaticPaths() {
   }));
 }
 
-export const GET: APIRoute = async ({ props }) => {
-  const { title, description, category } = (props as any).post.data;
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+export const GET: APIRoute<Props> = async ({ props }) => {
+  const { title, description, category } = props.post.data;
 
   const titleFontSize = title.length > 14 ? 48 : title.length > 8 ? 60 : 72;
 
@@ -100,7 +102,7 @@ export const GET: APIRoute = async ({ props }) => {
                     marginBottom: '40px',
                     flexShrink: 0,
                   },
-                  children: description.length > 60 ? description.slice(0, 58) + '…' : description,
+                  children: description.length > 60 ? description.slice(0, 59) + '…' : description,
                 },
               },
               // Footer
@@ -163,7 +165,7 @@ export const GET: APIRoute = async ({ props }) => {
 
   const png = await sharp(Buffer.from(svg)).png().toBuffer();
 
-  return new Response(png, {
+  return new Response(new Uint8Array(png), {
     headers: { 'Content-Type': 'image/png' },
   });
 };
