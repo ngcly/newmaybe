@@ -4,10 +4,10 @@ import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import PostList from '../components/PostList.astro';
 import QuoteBand from '../components/QuoteBand.astro';
+import { sortPostsForDisplay } from '../lib/posts';
 
-// 取所有非草稿文章，按日期倒序，首页只展示最近 3 篇
-const posts = (await getCollection('posts', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+// 取所有非草稿文章，按编辑权重排序，首页只展示前 3 篇
+const posts = sortPostsForDisplay(await getCollection('posts', ({ data }) => !data.draft))
   .slice(0, 3);
 ---
 

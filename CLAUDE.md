@@ -28,7 +28,7 @@ npm run astro           # Run astro CLI directly
 
 - **`config.ts`**: Centralized site metadata (title, tagline, author, nav items, URLs). Edit here to change site title, author info, navigation menu, and locale settings.
 
-- **`content.config.ts`**: Content Layer API schema for blog posts. Defines the markdown frontmatter schema with fields: `title`, `description`, `pubDate`, `updatedDate`, `category`, `readingTime`, `draft`, `watermark` (single character shown as a background watermark on poetry posts).
+- **`content.config.ts`**: Content Layer API schema for blog posts. Defines the markdown frontmatter schema with fields: `title`, `description`, `pubDate`, `updatedDate`, `category`, `readingTime`, `weight`, `draft`, `watermark` (single character shown as a background watermark on poetry posts).
 
 - **`content/posts/`**: Where blog post `.md` files live. Filenames become URL slugs. Draft posts (`draft: true`) are excluded from listings and RSS.
 
@@ -61,7 +61,7 @@ npm run astro           # Run astro CLI directly
 - Posts are markdown files in `src/content/posts/` with frontmatter metadata.
 - Uses Astro 6's **Content Layer API** with `glob` loader (replaces older `type: 'content'`).
 - Draft filtering: `getCollection('posts', ({ data }) => !data.draft)` to exclude draft posts.
-- Posts are sorted by `pubDate` descending (newest first).
+- Writing lists are sorted by `weight` descending first, then `pubDate` descending. RSS remains chronological by `pubDate` descending.
 
 ### Styling Approach
 - **No CSS frameworks**: All custom CSS. Editorial/minimalist aesthetic.
@@ -101,6 +101,7 @@ npm run astro           # Run astro CLI directly
    pubDate: 2026-06-01
    category: 随笔
    readingTime: 8
+   weight: 0
    draft: false
    ---
    ```
@@ -130,4 +131,3 @@ Changes propagate to `Base.astro` layout automatically.
 - **Markdown is the source of truth**: All post content lives as markdown. Astro renders at build time.
 - **Astro 6 breaking change**: Content Layer API with `glob` loader (old `type: 'content'` removed). If upgrading, ensure loader usage in `content.config.ts`.
 - **Static site constraints**: No dynamic data fetching at runtime. All content must be known at build time. RSS, sitemap, and post pages all pre-generated.
-

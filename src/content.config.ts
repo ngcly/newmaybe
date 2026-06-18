@@ -11,6 +11,7 @@ const posts = defineCollection({
     updatedDate: z.coerce.date().optional(),
     category: z.string().default('随笔'),  // 显示在标题下，如 随笔 / 观察
     readingTime: z.number().optional(),    // 预计阅读分钟数
+    weight: z.number().default(0),          // 列表展示权重，数值越高越靠前；同权重按日期倒序
     draft: z.boolean().default(false),     // true = 草稿，不在列表显示
     watermark: z.string().optional(),       // 诗歌水印字，如 '雨'、'月'
   }),
