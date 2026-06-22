@@ -49,9 +49,12 @@ const watermark = post.data.watermark;
         <a href="/writing" class="back">← 返回书写</a>
         <span class="cat">{post.data.category}</span>
         {isPoetry && (
-          <button class="layout-toggle" id="layoutToggle" title="切换版式" aria-label="切换诗歌版式">
-            <span class="toggle-txt">竖排</span>
-          </button>
+          <div class="layout-toggle-minimal" id="layoutToggle" role="button" tabindex="0" title="切换版式" aria-label="切换诗歌版式">
+            <span class="label">版式：</span>
+            <span class="opt opt-vert">竖</span>
+            <span class="divider">/</span>
+            <span class="opt opt-horiz">横</span>
+          </div>
         )}
         <h1 transition:name={`post-title-${post.id}`}>{post.data.title}</h1>
         <div class="meta">
@@ -164,18 +167,22 @@ const watermark = post.data.watermark;
     margin-bottom: 2.5rem; letter-spacing: .03em; transition: color .3s;
   }
   .back:hover { color: var(--ochre); }
-  .layout-toggle {
-    display: inline-flex; align-items: center; gap: .4rem;
-    background: none; border: 1px solid var(--line); border-radius: 2px;
-    padding: .25rem .8rem; cursor: pointer; margin-bottom: 1.2rem;
-    font-family: var(--serif-cn); font-size: .88rem; color: var(--ink-faint);
-    letter-spacing: .1em; transition: color .3s, border-color .3s;
+  .layout-toggle-minimal {
+    display: inline-flex; align-items: center;
+    font-family: var(--serif-cn); font-size: 0.85rem; color: var(--ink-faint);
+    cursor: pointer; user-select: none; margin-bottom: 1.5rem;
+    transition: color 0.3s;
   }
-  .layout-toggle:hover { color: var(--ochre); border-color: var(--ochre); }
-  .layout-toggle.is-vertical .toggle-txt::before { content: '横排'; }
-  .layout-toggle:not(.is-vertical) .toggle-txt::before { content: '竖排'; }
-  .layout-toggle .toggle-txt { display: none; }
-  .layout-toggle .toggle-txt::before { display: inline; }
+  .layout-toggle-minimal .opt {
+    transition: color 0.3s, font-weight 0.3s; padding: 0 0.25rem;
+  }
+  .layout-toggle-minimal:not(.is-vertical) .opt-horiz,
+  .layout-toggle-minimal.is-vertical .opt-vert {
+    color: var(--ochre); font-weight: 500;
+  }
+  .layout-toggle-minimal .opt:hover { color: var(--ink); }
+  .layout-toggle-minimal .divider { color: var(--line); margin: 0 0.1rem; }
+  .layout-toggle-minimal .label { margin-right: 0.1rem; }
   .cat {
     display: block; font-family: var(--serif-en); font-style: italic;
     color: var(--ochre); font-size: 1.05rem; margin-bottom: 1rem; letter-spacing: .05em;
@@ -265,49 +272,72 @@ const watermark = post.data.watermark;
 
   /* ── 竖排版式 ── */
   .poem-wrap.vertical {
-    max-width: min(90vw, 680px);
-    /* 纯 CSS 渐变绘制的古典纵向信笺格暗纹 */
+    max-width: 100%;
+    width: fit-content;
+    margin: 0 auto;
+    /* 极微弱的“东方信笺纸红栏线”：使用极淡的朱砂红 */
     background-image: repeating-linear-gradient(
-      90deg,
+      -90deg,
       transparent,
-      transparent calc(2em + 4px),
-      color-mix(in srgb, var(--ochre) 12%, transparent) calc(2em + 4px),
-      color-mix(in srgb, var(--ochre) 12%, transparent) calc(2em + 5px)
+      transparent calc(2.5rem - 1px),
+      rgba(197, 61, 49, 0.07) calc(2.5rem - 1px),
+      rgba(197, 61, 49, 0.07) 2.5rem
     );
-    padding: 2.5rem 1.5rem;
-    border: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+    background-position: right 1.25rem top 0;
+    padding: 3rem 2rem;
+    border: 1px solid rgba(197, 61, 49, 0.15); /* 赭红外框 */
     border-radius: 2px;
+    box-shadow: inset 0 0 40px rgba(197, 61, 49, 0.02);
   }
+
+  :root.dark .poem-wrap.vertical {
+    /* 暗色模式下降低红色格线的对比度，改用极淡的暗红色 */
+    background-image: repeating-linear-gradient(
+      -90deg,
+      transparent,
+      transparent calc(2.5rem - 1px),
+      rgba(230, 80, 70, 0.05) calc(2.5rem - 1px),
+      rgba(230, 80, 70, 0.05) 2.5rem
+    );
+    border-color: rgba(230, 80, 70, 0.12);
+  }
+
   .poem-wrap.vertical .watermark {
     writing-mode: vertical-rl;
     font-size: 16rem;
   }
+
   .poem-wrap.vertical .prose {
     writing-mode: vertical-rl;
     text-orientation: mixed;
     direction: rtl;
     max-width: none;
-    max-height: 70vh;
-    overflow-y: auto;
-    /* 隐藏滚动条但保留可滚动性 */
-    scrollbar-width: none;
+    height: 60vh;
+    max-height: 650px;
+    overflow-x: auto; /* 必须是横向滚动！从右往左流淌 */
+    overflow-y: hidden;
+    scrollbar-width: none; /* 隐藏滚动条 */
+    padding-right: 1.25rem; /* 让首列诗句完美居中于首个红格中 */
   }
   .poem-wrap.vertical .prose::-webkit-scrollbar { display: none; }
+
   .poem-wrap.vertical .prose :global(p) {
     text-align: start;
-    letter-spacing: 0.25em;
-    line-height: 2.0;
-    font-size: 1.18rem;
+    letter-spacing: 0.35em; /* 竖排古典字间距偏宽 */
+    line-height: 2.5rem; /* 强制行高为 2.5rem 以对齐红格 */
+    font-size: 1.15rem;
     margin-bottom: 0;
     writing-mode: vertical-rl;
   }
+  
+  /* 竖排下的诗节间距：腾出格线空间 */
   .poem-wrap.vertical .prose :global(p + p) {
     margin-top: 0;
     padding-top: 0;
     border-top: none;
-    margin-right: 2rem;
-    padding-right: 2rem;
-    border-right: 1px solid var(--line);
+    margin-right: 2.5rem; /* 空出整整一列红格 */
+    padding-right: 0;
+    border-right: none;
   }
 
   @media (prefers-reduced-motion: no-preference) {
