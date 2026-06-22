@@ -95,8 +95,26 @@ import QuoteBand from '../components/QuoteBand.astro';
 
   .facets {
     max-width: var(--max); margin: 0 auto;
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem;
+    display: grid; grid-template-columns: repeat(3, 1fr);
     padding-top: 4rem; border-top: 1px solid var(--line);
+  }
+  .facet {
+    padding: 1.5rem 2.2rem;
+    border-radius: 4px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 0.4s ease,
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .facet + .facet {
+    border-left: 1px solid var(--line);
+  }
+  .facet:hover {
+    transform: translateY(-4px);
+    background-color: var(--paper-deep);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.02);
+  }
+  :root.dark .facet:hover {
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
   }
   .facet .num {
     font-family: var(--serif-en); font-style: italic; font-size: 1.4rem;
@@ -113,7 +131,14 @@ import QuoteBand from '../components/QuoteBand.astro';
   .facet a:hover { border-color: var(--ochre); }
 
   @media (max-width: 680px) {
-    .facets { grid-template-columns: 1fr; gap: 2.4rem; }
+    .facets { grid-template-columns: 1fr; gap: 1.5rem; }
+    .facet { padding: 1.5rem 1rem; }
+    .facet + .facet {
+      border-left: none;
+      border-top: 1px solid var(--line);
+      padding-top: 2rem;
+      border-radius: 0;
+    }
     .about-body .lead { font-size: 1.2rem; }
   }
 </style>

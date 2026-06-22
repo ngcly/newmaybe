@@ -22,11 +22,11 @@ const fmt = (d: Date) =>
     </div>
 
     {posts.map((post) => (
-      <article class="post reveal">
+      <article class="post reveal" data-category={post.data.category}>
         <a href={`/writing/${post.id}`}>
-          <span class="date">{fmt(post.data.pubDate)}</span>
+          <span class="date" transition:name={`post-date-${post.id}`}>{fmt(post.data.pubDate)}</span>
           <div class="post-body">
-            <h3>{post.data.title}</h3>
+            <h3 transition:name={`post-title-${post.id}`}>{post.data.title}</h3>
             <p>{post.data.description}</p>
             <span class="tag">
               {post.data.category}
@@ -62,14 +62,26 @@ const fmt = (d: Date) =>
 
   .post {
     padding: 2.2rem 0; border-top: 1px solid var(--line);
-    transition: padding-left .4s ease;
+    transition: padding-left .4s ease, opacity .45s ease, transform .45s cubic-bezier(0.16, 1, 0.3, 1), max-height .45s ease, padding-top .45s ease, padding-bottom .45s ease, border-color .45s ease;
+    overflow: hidden;
+    max-height: 250px;
+  }
+  .post.hidden {
+    opacity: 0;
+    transform: translateY(15px);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-color: transparent;
+    pointer-events: none;
   }
   .post > a {
     display: grid; grid-template-columns: 130px 1fr; gap: 2.5rem;
     align-items: baseline;
     text-decoration: none; color: inherit;
   }
-  .post:last-child { border-bottom: 1px solid var(--line); }
+  .post:last-child { border-bottom: 1px solid var(--line); transition: border-bottom-color .45s ease; }
+  .post.hidden:last-child { border-bottom-color: transparent; }
   .post:hover { padding-left: 1rem; }
   .post .date {
     font-family: var(--serif-en); color: var(--ink-faint);

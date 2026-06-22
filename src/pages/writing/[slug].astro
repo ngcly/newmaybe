@@ -2,18 +2,35 @@
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import { sortPostsForDisplay } from '../../lib/posts';
 
 // 为每篇文章生成一个静态页面
 export async function getStaticPaths() {
-  const posts = await getCollection('posts', ({ data }) => !data.draft);
-  return posts.map((post) => ({
-    params: { slug: post.id },
-    props: { post },
-  }));
+  const posts = sortPostsForDisplay(await getCollection('posts', ({ data }) => !data.draft));
+  return posts.map((post, index) => {
+    // 列表是降序排列（最新/权重最高的排在最前）
+    // 上一篇（列表上一项，即较新的文章）是前一项 index - 1
+    // 下一篇（列表下一项，即较旧的文章）是后一项 index + 1
+    const prevPost = index > 0 ? posts[index - 1] : null;
+    const nextPost = index < posts.length - 1 ? posts[index + 1] : null;
+    
+    return {
+      params: { slug: post.id },
+      props: {
+        post,
+        prev: prevPost ? { id: prevPost.id, title: prevPost.data.title } : null,
+        next: nextPost ? { id: nextPost.id, title: nextPost.data.title } : null,
+      },
+    };
+  });
 }
 
-type Props = { post: CollectionEntry<'posts'> };
-const { post } = Astro.props;
+type Props = {
+  post: CollectionEntry<'posts'>;
+  prev: { id: string; title: string } | null;
+  next: { id: string; title: string } | null;
+};
+const { post, prev, next } = Astro.props;
 const { Content } = await render(post);
 
 const longDate = post.data.pubDate.toLocaleDateString('zh-CN', {
@@ -31,9 +48,9 @@ const watermark = post.data.watermark;
       <header class="article-head reveal">
         <a href="/writing" class="back">← 返回书写</a>
         <span class="cat">{post.data.category}</span>
-        <h1>{post.data.title}</h1>
+        <h1 transition:name={`post-title-${post.id}`}>{post.data.title}</h1>
         <div class="meta">
-          <time datetime={post.data.pubDate.toISOString()}>{longDate}</time>
+          <time datetime={post.data.pubDate.toISOString()} transition:name={`post-date-${post.id}`}>{longDate}</time>
           {post.data.readingTime && <span> · 约 {post.data.readingTime} 分钟</span>}
         </div>
       </header>
@@ -50,8 +67,62 @@ const watermark = post.data.watermark;
           <Content />
         </div>
       )}
+
+      <!-- Prev/Next Navigation Links -->
+      {(prev || next) && (
+        <nav class="post-nav reveal">
+          <div class="nav-prev">
+            {prev && (
+              <a href={`/writing/${prev.id}`}>
+                <span class="nav-label">← 上一篇</span>
+                <span class="nav-title">{prev.title}</span>
+              </a>
+            )}
+          </div>
+          <div class="nav-next">
+            {next && (
+              <a href={`/writing/${next.id}`}>
+                <span class="nav-label">下一篇 →</span>
+                <span class="nav-title">{next.title}</span>
+              </a>
+            )}
+          </div>
+        </nav>
+      )}
     </div>
   </article>
+
+  {isPoetry && (
+    <script is:inline>
+      const setupImmersiveScroll = () => {
+        let lastScrollY = window.scrollY;
+        const hdr = document.getElementById('hdr');
+        if (!hdr) return;
+
+        const onScrollPoetry = () => {
+          const currentScrollY = window.scrollY;
+          if (currentScrollY > 100 && currentScrollY > lastScrollY) {
+            hdr.style.transform = 'translateY(-100%)';
+            hdr.style.opacity = '0';
+            hdr.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+          } else {
+            hdr.style.transform = 'translateY(0)';
+            hdr.style.opacity = '1';
+          }
+          lastScrollY = currentScrollY;
+        };
+
+        if (window._onScrollPoetry) {
+          window.removeEventListener('scroll', window._onScrollPoetry);
+        }
+        window.addEventListener('scroll', onScrollPoetry, { passive: true });
+        window._onScrollPoetry = onScrollPoetry;
+      };
+
+      setupImmersiveScroll();
+      document.addEventListener('astro:page-load', setupImmersiveScroll);
+    </script>
+  )}
 </Base>
 
 <style>
@@ -120,11 +191,12 @@ const watermark = post.data.watermark;
     font-family: var(--serif-cn);
     font-size: 22rem;
     color: var(--ink);
-    opacity: 0.032;
+    opacity: 0;
     pointer-events: none;
     user-select: none;
     z-index: 0;
     line-height: 1;
+    animation: ink-fade 3s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
   }
   .poem-wrap .prose {
     position: relative;
@@ -149,9 +221,69 @@ const watermark = post.data.watermark;
     border-top: 1px solid var(--line);
   }
 
+  /* ── 上一篇 / 下一篇 导航 ── */
+  .post-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    max-width: 65ch;
+    margin: 4.5rem auto 1rem;
+    padding-top: 2.2rem;
+    border-top: 1px solid var(--line);
+  }
+  .post-nav a {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s ease;
+  }
+  .nav-prev a {
+    align-items: flex-start;
+  }
+  .nav-next a {
+    align-items: flex-end;
+    text-align: right;
+  }
+  .post-nav .nav-label {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--ochre);
+    margin-bottom: 0.4rem;
+  }
+  .post-nav .nav-title {
+    font-size: 1.1rem;
+    color: var(--ink);
+    font-weight: 500;
+    line-height: 1.4;
+    transition: color 0.3s ease;
+  }
+  .post-nav a:hover .nav-title {
+    color: var(--ochre);
+  }
+  .nav-prev a:hover {
+    transform: translateX(-4px);
+  }
+  .nav-next a:hover {
+    transform: translateX(4px);
+  }
+
   @media (max-width: 680px) {
     .watermark { font-size: 14rem; }
     .poem-wrap .prose :global(p) { font-size: 1.05rem; }
+    .post-nav {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      text-align: left;
+    }
+    .nav-next a {
+      align-items: flex-start;
+      text-align: left;
+    }
+    .nav-next a:hover {
+      transform: translateX(-4px);
+    }
   }
 
   #reading-bar {
@@ -170,14 +302,27 @@ const watermark = post.data.watermark;
 </style>
 
 <script>
-  const bar = document.getElementById('reading-bar');
-  if (bar) {
+  function setupReadingBar() {
+    // 清理上一次残留的滚动监听，防止导航到非文章页后仍报错或漏电
+    if ((window as any)._onScrollReadingBar) {
+      window.removeEventListener('scroll', (window as any)._onScrollReadingBar);
+      delete (window as any)._onScrollReadingBar;
+    }
+
+    const bar = document.getElementById('reading-bar');
+    if (!bar) return;
+
     const update = () => {
       const scrolled = window.scrollY;
       const total = document.documentElement.scrollHeight - window.innerHeight;
       bar.style.width = total > 0 ? `${(scrolled / total) * 100}%` : '0%';
     };
+
     window.addEventListener('scroll', update, { passive: true });
+    (window as any)._onScrollReadingBar = update;
     update();
   }
+
+  // 绑定初次载入与 View Transitions 页面切换
+  document.addEventListener('astro:page-load', setupReadingBar);
 </script>

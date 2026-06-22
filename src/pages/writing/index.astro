@@ -5,10 +5,94 @@ import PostList from '../../components/PostList.astro';
 import { sortPostsForDisplay } from '../../lib/posts';
 
 const posts = sortPostsForDisplay(await getCollection('posts', ({ data }) => !data.draft));
+const categories = ['全部', ...new Set(posts.map((post) => post.data.category))];
 ---
 
 <Base title="书写" description="全部文字与随笔。">
   <div style="padding-top: 4rem;">
+    <div class="category-filter reveal">
+      {categories.map((cat, idx) => (
+        <button class={`filter-btn ${idx === 0 ? 'active' : ''}`} data-category={cat}>
+          {cat}
+        </button>
+      ))}
+    </div>
     <PostList posts={posts} heading="Writing" headingCn="全部书写" showMore={false} />
   </div>
 </Base>
+
+<script>
+  function setupFilters() {
+    const buttons = document.querySelectorAll('.filter-btn');
+    const posts = document.querySelectorAll('.post');
+
+    buttons.forEach(btn => {
+      // Remove previous listener to avoid duplicates if setupFilters runs twice
+      const clickHandler = () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const selectedCat = btn.getAttribute('data-category');
+
+        posts.forEach(post => {
+          const postCat = post.getAttribute('data-category');
+          if (selectedCat === '全部' || postCat === selectedCat) {
+            post.classList.remove('hidden');
+          } else {
+            post.classList.add('hidden');
+          }
+        });
+      };
+      
+      // Clean up previous event listeners by replacing the element or using a flag
+      btn.removeEventListener('click', (btn as any)._onClick);
+      btn.addEventListener('click', clickHandler);
+      (btn as any)._onClick = clickHandler;
+    });
+  }
+
+  // Bind immediately on page load and on transitions
+  document.addEventListener('astro:page-load', setupFilters);
+</script>
+
+<style>
+  .category-filter {
+    display: flex;
+    justify-content: center;
+    gap: 1.8rem;
+    margin: 0 auto 1.5rem;
+    max-width: var(--max);
+    padding: 0 2rem;
+  }
+  .filter-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--serif-cn);
+    font-size: 1.05rem;
+    color: var(--ink-faint);
+    padding: 0.2rem 0.5rem;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+  .filter-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 1.5px;
+    background: var(--ochre);
+    transition: width 0.3s ease;
+  }
+  .filter-btn.active {
+    color: var(--ink);
+  }
+  .filter-btn.active::after {
+    width: 100%;
+  }
+  .filter-btn:hover {
+    color: var(--ochre);
+  }
+</style>
