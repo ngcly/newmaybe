@@ -48,6 +48,11 @@ const watermark = post.data.watermark;
       <header class="article-head reveal">
         <a href="/writing" class="back">← 返回书写</a>
         <span class="cat">{post.data.category}</span>
+        {isPoetry && (
+          <button class="layout-toggle" id="layoutToggle" title="切换版式" aria-label="切换诗歌版式">
+            <span class="toggle-txt">竖排</span>
+          </button>
+        )}
         <h1 transition:name={`post-title-${post.id}`}>{post.data.title}</h1>
         <div class="meta">
           <time datetime={post.data.pubDate.toISOString()} transition:name={`post-date-${post.id}`}>{longDate}</time>
@@ -122,6 +127,31 @@ const watermark = post.data.watermark;
       setupImmersiveScroll();
       document.addEventListener('astro:page-load', setupImmersiveScroll);
     </script>
+
+    <script is:inline>
+      // 竖排/横排切换 —— 用 localStorage 记住用户偏好，View Transitions 后也不丢失
+      const LAYOUT_KEY = 'poetry-layout';
+      const applyPoetryLayout = () => {
+        const poemWrap = document.querySelector('.poem-wrap');
+        const toggle = document.getElementById('layoutToggle');
+        if (!poemWrap || !toggle) return;
+        const isVertical = localStorage.getItem(LAYOUT_KEY) === 'vertical';
+        poemWrap.classList.toggle('vertical', isVertical);
+        toggle.classList.toggle('is-vertical', isVertical);
+      };
+      applyPoetryLayout();
+      document.addEventListener('astro:page-load', applyPoetryLayout);
+      document.addEventListener('astro:after-swap', applyPoetryLayout);
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('#layoutToggle');
+        if (!btn) return;
+        const poemWrap = document.querySelector('.poem-wrap');
+        if (!poemWrap) return;
+        const nowVertical = poemWrap.classList.toggle('vertical');
+        btn.classList.toggle('is-vertical', nowVertical);
+        localStorage.setItem(LAYOUT_KEY, nowVertical ? 'vertical' : 'horizontal');
+      });
+    </script>
   )}
 </Base>
 
@@ -134,6 +164,18 @@ const watermark = post.data.watermark;
     margin-bottom: 2.5rem; letter-spacing: .03em; transition: color .3s;
   }
   .back:hover { color: var(--ochre); }
+  .layout-toggle {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: none; border: 1px solid var(--line); border-radius: 2px;
+    padding: .25rem .8rem; cursor: pointer; margin-bottom: 1.2rem;
+    font-family: var(--serif-cn); font-size: .88rem; color: var(--ink-faint);
+    letter-spacing: .1em; transition: color .3s, border-color .3s;
+  }
+  .layout-toggle:hover { color: var(--ochre); border-color: var(--ochre); }
+  .layout-toggle.is-vertical .toggle-txt::before { content: '横排'; }
+  .layout-toggle:not(.is-vertical) .toggle-txt::before { content: '竖排'; }
+  .layout-toggle .toggle-txt { display: none; }
+  .layout-toggle .toggle-txt::before { display: inline; }
   .cat {
     display: block; font-family: var(--serif-en); font-style: italic;
     color: var(--ochre); font-size: 1.05rem; margin-bottom: 1rem; letter-spacing: .05em;
@@ -219,6 +261,58 @@ const watermark = post.data.watermark;
     margin-top: 2.6rem;
     padding-top: 2rem;
     border-top: 1px solid var(--line);
+  }
+
+  /* ── 竖排版式 ── */
+  .poem-wrap.vertical {
+    max-width: min(90vw, 680px);
+    /* 纯 CSS 渐变绘制的古典纵向信笺格暗纹 */
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent calc(2em + 4px),
+      color-mix(in srgb, var(--ochre) 12%, transparent) calc(2em + 4px),
+      color-mix(in srgb, var(--ochre) 12%, transparent) calc(2em + 5px)
+    );
+    padding: 2.5rem 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+    border-radius: 2px;
+  }
+  .poem-wrap.vertical .watermark {
+    writing-mode: vertical-rl;
+    font-size: 16rem;
+  }
+  .poem-wrap.vertical .prose {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    direction: rtl;
+    max-width: none;
+    max-height: 70vh;
+    overflow-y: auto;
+    /* 隐藏滚动条但保留可滚动性 */
+    scrollbar-width: none;
+  }
+  .poem-wrap.vertical .prose::-webkit-scrollbar { display: none; }
+  .poem-wrap.vertical .prose :global(p) {
+    text-align: start;
+    letter-spacing: 0.25em;
+    line-height: 2.0;
+    font-size: 1.18rem;
+    margin-bottom: 0;
+    writing-mode: vertical-rl;
+  }
+  .poem-wrap.vertical .prose :global(p + p) {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    margin-right: 2rem;
+    padding-right: 2rem;
+    border-right: 1px solid var(--line);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .poem-wrap { transition: background-image 0.4s ease; }
+    .poem-wrap .prose { transition: writing-mode 0s, max-height 0.5s ease; }
   }
 
   /* ── 上一篇 / 下一篇 导航 ── */

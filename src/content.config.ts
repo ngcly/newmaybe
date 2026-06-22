@@ -17,4 +17,15 @@ const posts = defineCollection({
   }),
 });
 
-export const collections = { posts };
+// 念头碎片集 —— 轻短的灵感、句子、随手记
+const fragments = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/fragments' }),
+  schema: z.object({
+    pubDate: z.coerce.date(),            // 记录日期
+    mood: z.string().optional(),         // 心情/氛围词，如 '雨天'、'凌晨三点'
+    location: z.string().optional(),     // 地点，如 '咸宁'、'高铁上'
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { posts, fragments };

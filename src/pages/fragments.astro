@@ -1,0 +1,210 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { render } from 'astro:content';
+
+const fragments = (await getCollection('fragments', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Base title="念头" description="一些来不及展开的句子，半成形的念头，以及那些闪过便消失的瞬间。">
+  <section class="fragments-page">
+    <div class="wrap">
+      <header class="frag-head reveal">
+        <span class="eyebrow">Fragments</span>
+        <h1>念头<span class="zh">碎片集</span></h1>
+        <p class="intro">来不及展开的句子，半成形的念头，以及那些闪过便消失的瞬间。</p>
+      </header>
+
+      <div class="timeline">
+        {fragments.map(async (frag, i) => {
+          const { Content } = await render(frag);
+          return (
+            <article class="frag-card reveal" style={`animation-delay: ${i * 0.06}s`}>
+              <div class="frag-aside">
+                <time class="frag-date">{fmtDate(frag.data.pubDate)}</time>
+                {(frag.data.mood || frag.data.location) && (
+                  <div class="frag-meta">
+                    {frag.data.location && <span class="meta-loc">📍 {frag.data.location}</span>}
+                    {frag.data.mood && <span class="meta-mood">{frag.data.mood}</span>}
+                  </div>
+                )}
+              </div>
+              <div class="frag-body">
+                <Content />
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .fragments-page { padding: 5rem 0 7rem; }
+
+  .frag-head { max-width: 60ch; margin: 0 auto 5rem; text-align: center; }
+  .eyebrow {
+    font-family: var(--serif-en); font-style: italic; font-size: 1.1rem;
+    color: var(--ochre); letter-spacing: .05em; display: block; margin-bottom: 1rem;
+  }
+  .frag-head h1 {
+    font-weight: 500; font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.15; color: var(--ink); margin-bottom: 1.8rem;
+  }
+  .frag-head h1 .zh {
+    font-family: var(--serif-cn); font-size: .55em; color: var(--ink-faint);
+    font-weight: 400; margin-left: .6rem;
+  }
+  .frag-head .intro {
+    font-size: 1.1rem; line-height: 1.9; color: var(--ink-soft); font-weight: 300;
+  }
+
+  /* 时间轴容器 */
+  .timeline {
+    max-width: 740px;
+    margin: 0 auto;
+    position: relative;
+  }
+  /* 左侧纵线 */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 148px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--line);
+  }
+
+  /* 碎片卡片 */
+  .frag-card {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 0 2.5rem;
+    padding: 2rem 0 2rem;
+    position: relative;
+  }
+  /* 时间轴节点圆点 */
+  .frag-card::before {
+    content: '';
+    position: absolute;
+    left: 144px;
+    top: 2.6rem;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 1.5px solid var(--ochre);
+    transition: background 0.3s ease;
+    z-index: 1;
+  }
+  .frag-card:hover::before {
+    background: var(--ochre);
+  }
+
+  /* 左栏：日期 + 元信息 */
+  .frag-aside {
+    text-align: right;
+    padding-top: .2rem;
+  }
+  .frag-date {
+    display: block;
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: .9rem;
+    color: var(--ink-faint);
+    line-height: 1.6;
+    letter-spacing: .02em;
+  }
+  .frag-meta {
+    margin-top: .5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .2rem;
+  }
+  .meta-loc, .meta-mood {
+    font-family: var(--serif-cn);
+    font-size: .8rem;
+    color: var(--ink-faint);
+    opacity: .75;
+  }
+  .meta-loc { font-size: .78rem; }
+
+  /* 右栏：正文 */
+  .frag-body {
+    padding: 1.4rem 1.8rem;
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    position: relative;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.3s ease;
+  }
+  /* 小三角，使卡片指向时间轴 */
+  .frag-body::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 1.5rem;
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 7px solid var(--line);
+    transition: border-right-color 0.3s ease;
+  }
+  .frag-body::after {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 1.5rem;
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 7px solid var(--paper-deep);
+  }
+  .frag-card:hover .frag-body {
+    transform: translateX(4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    border-color: color-mix(in srgb, var(--ochre) 25%, var(--line));
+  }
+  .frag-card:hover .frag-body::before {
+    border-right-color: color-mix(in srgb, var(--ochre) 25%, var(--line));
+  }
+  :root.dark .frag-card:hover .frag-body {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+  .frag-body :global(p) {
+    font-size: 1.08rem;
+    line-height: 1.95;
+    color: var(--ink-soft);
+    font-weight: 300;
+    margin: 0;
+  }
+  .frag-body :global(p + p) {
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 680px) {
+    .timeline::before { display: none; }
+    .frag-card {
+      grid-template-columns: 1fr;
+      gap: .8rem;
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--line);
+    }
+    .frag-card::before { display: none; }
+    .frag-aside { text-align: left; }
+    .frag-meta { align-items: flex-start; }
+    .frag-body::before, .frag-body::after { display: none; }
+    .frag-card:hover .frag-body { transform: none; }
+  }
+</style>

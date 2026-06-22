@@ -1,12 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
 import { SITE } from '../config';
-
-// 在 src/config.ts 里改这些链接即可
-const channels = [
-  { label: 'Email', value: SITE.email, href: `mailto:${SITE.email}`, note: '最稳妥的方式，我会认真读每一封。' },
-  { label: 'RSS', value: '/rss.xml', href: '/rss.xml', note: '订阅更新，不打扰，不催促。' },
-];
 ---
 
 <Base title="联络" description="如果某段文字让你有所触动，欢迎写信来。">
@@ -22,17 +16,43 @@ const channels = [
         </p>
       </header>
 
-      <div class="channels reveal">
-        {channels.map((c) => (
-          <a href={c.href} class="channel">
-            <div class="channel-main">
-              <span class="channel-label">{c.label}</span>
-              <span class="channel-value">{c.value}</span>
+      <!-- 3D 折叠信封 -->
+      <div class="envelope-wrap reveal">
+        <a href={`mailto:${SITE.email}`} class="envelope" aria-label={`发送邮件给 ${SITE.email}`}>
+          <!-- 信封口盖 -->
+          <div class="flap">
+            <div class="flap-inner">
+              <!-- 口盖正面（关闭状态可见面）—— V 形折痕纹理 -->
             </div>
-            <p class="channel-note">{c.note}</p>
-            <span class="arrow">→</span>
-          </a>
-        ))}
+          </div>
+          <!-- 信封主体 -->
+          <div class="env-body">
+            <!-- 隐藏的"信纸"，hover 时从内部升起 -->
+            <div class="letter">
+              <div class="letter-content">
+                <span class="letter-eyebrow">一封信，认真读</span>
+                <span class="letter-email">{SITE.email}</span>
+                <span class="letter-cta">点击寄出 →</span>
+              </div>
+            </div>
+            <!-- 信封底部左右折边纹 -->
+            <div class="env-left-fold"></div>
+            <div class="env-right-fold"></div>
+          </div>
+        </a>
+        <p class="env-hint">悬浮开启信封 · 点击寄信</p>
+      </div>
+
+      <!-- RSS 订阅 -->
+      <div class="channels reveal">
+        <a href="/rss.xml" class="channel">
+          <div class="channel-main">
+            <span class="channel-label">RSS</span>
+            <span class="channel-value">/rss.xml</span>
+          </div>
+          <p class="channel-note">订阅更新，不打扰，不催促。</p>
+          <span class="arrow">→</span>
+        </a>
       </div>
 
       <p class="ps reveal">
@@ -62,7 +82,172 @@ const channels = [
     font-size: 1.15rem; line-height: 1.9; color: var(--ink-soft); font-weight: 300;
   }
 
-  .channels { max-width: 56ch; margin: 0 auto; }
+  /* ── 3D 信封 ── */
+  .envelope-wrap {
+    max-width: 460px;
+    margin: 0 auto 3rem;
+    text-align: center;
+  }
+  .env-hint {
+    font-family: var(--serif-en); font-style: italic;
+    font-size: .88rem; color: var(--ink-faint); margin-top: 1rem;
+    letter-spacing: .04em; transition: opacity .3s;
+  }
+  .envelope-wrap:hover .env-hint { opacity: 0; }
+
+  .envelope {
+    display: block;
+    width: 100%;
+    aspect-ratio: 7 / 4.5;
+    position: relative;
+    perspective: 900px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* 信封主体 */
+  .env-body {
+    position: absolute;
+    inset: 0;
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  /* 左侧折痕 */
+  .env-left-fold {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 0;
+    border-bottom: 160px solid var(--paper);
+    border-right: 230px solid transparent;
+    opacity: .35;
+    pointer-events: none;
+  }
+  /* 右侧折痕 */
+  .env-right-fold {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 0; height: 0;
+    border-bottom: 160px solid var(--paper);
+    border-left: 230px solid transparent;
+    opacity: .35;
+    pointer-events: none;
+  }
+
+  /* 信封口盖 */
+  .flap {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 55%;
+    transform-origin: top center;
+    transform: rotateX(0deg);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    z-index: 10;
+  }
+  .envelope:hover .flap {
+    transform: rotateX(-165deg);
+  }
+  .flap-inner {
+    position: absolute;
+    inset: 0;
+    /* V 形折痕：两侧三角 + 底部三角 */
+    background:
+      linear-gradient(135deg, var(--paper-deep) 50%, transparent 50%),
+      linear-gradient(-135deg, var(--paper-deep) 50%, transparent 50%);
+    background-size: 50% 100%;
+    background-position: left, right;
+    background-repeat: no-repeat;
+    border-bottom: 1px solid var(--line);
+  }
+  /* 口盖背面（翻开后可见） */
+  .flap-inner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--ochre) 8%, var(--paper-deep));
+    transform: rotateX(180deg);
+    backface-visibility: visible;
+  }
+
+  /* 信纸（从信封内部浮现） */
+  .letter {
+    position: absolute;
+    bottom: 10%;
+    left: 8%;
+    right: 8%;
+    height: 80%;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(60%);
+    transition: transform 0.5s 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.5s 0.15s ease;
+    box-shadow: none;
+    z-index: 5;
+  }
+  .envelope:hover .letter {
+    transform: translateY(0%);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.07);
+  }
+  :root.dark .envelope:hover .letter {
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+  }
+  .letter-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    padding: 1rem;
+    text-align: center;
+  }
+  .letter-eyebrow {
+    font-family: var(--serif-cn);
+    font-size: .82rem;
+    color: var(--ink-faint);
+    letter-spacing: .12em;
+  }
+  .letter-email {
+    font-family: var(--serif-en);
+    font-size: 1.1rem;
+    color: var(--ink);
+    font-weight: 400;
+    letter-spacing: .04em;
+    transition: color .3s;
+  }
+  .envelope:hover .letter-email { color: var(--ochre); }
+  .letter-cta {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: .88rem;
+    color: var(--ochre);
+    margin-top: .2rem;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.3s 0.35s ease, transform 0.3s 0.35s ease;
+  }
+  .envelope:hover .letter-cta {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flap { transition: none; }
+    .letter { transition: none; }
+    .letter-cta { transition: none; }
+    .envelope:hover .flap { transform: none; }
+    .envelope:hover .letter { transform: translateY(0%); }
+  }
+
+  /* ── RSS 订阅行 ── */
+  .channels { max-width: 460px; margin: 0 auto; }
   .channel {
     display: grid; grid-template-columns: 1fr auto;
     grid-template-areas: 'main arrow' 'note arrow';
@@ -93,5 +278,7 @@ const channels = [
 
   @media (max-width: 680px) {
     .channel-value { font-size: 1.15rem; }
+    .envelope { aspect-ratio: 5 / 4; }
   }
 </style>
+
