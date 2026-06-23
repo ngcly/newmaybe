@@ -17,7 +17,7 @@ const posts = defineCollection({
   }),
 });
 
-// 念头碎片集 —— 轻短的灵感、句子、随手记
+// 念头落叶集 —— 轻短的灵感、句子、随手记
 const fragments = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/fragments' }),
   schema: z.object({

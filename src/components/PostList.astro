@@ -6,9 +6,10 @@ interface Props {
   heading?: string;
   headingCn?: string;
   showMore?: boolean;
+  showHeading?: boolean;
 }
 
-const { posts, heading = 'Writing', headingCn = '近期书写', showMore = true } = Astro.props;
+const { posts, heading = 'Writing', headingCn = '近期文字', showMore = true, showHeading = true } = Astro.props;
 
 const fmt = (d: Date) =>
   d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
@@ -16,10 +17,12 @@ const fmt = (d: Date) =>
 
 <section class="section" id="writing">
   <div class="wrap">
-    <div class="section-head reveal">
-      <h2>{heading}<span class="cn">{headingCn}</span></h2>
-      {showMore && <a href="/writing" class="more">全部文字 →</a>}
-    </div>
+    {showHeading && (
+      <div class="section-head reveal">
+        <h2>{heading}<span class="cn">{headingCn}</span></h2>
+        {showMore && <a href="/writing" class="more">全部文字 →</a>}
+      </div>
+    )}
 
     {posts.map((post) => (
       <article class="post reveal" data-category={post.data.category}>

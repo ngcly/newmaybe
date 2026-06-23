@@ -8,8 +8,12 @@ const posts = sortPostsForDisplay(await getCollection('posts', ({ data }) => !da
 const categories = ['全部', ...new Set(posts.map((post) => post.data.category))];
 ---
 
-<Base title="书写" description="全部文字与随笔。">
+<Base title="文字" description="全部文字与随笔。">
   <div style="padding-top: 4rem;">
+    <header class="writing-head reveal">
+      <span class="eyebrow">Writing</span>
+      <h1>文字<span class="zh">全部文章</span></h1>
+    </header>
     <div class="category-filter reveal">
       {categories.map((cat, idx) => (
         <button class={`filter-btn ${idx === 0 ? 'active' : ''}`} data-category={cat}>
@@ -17,7 +21,7 @@ const categories = ['全部', ...new Set(posts.map((post) => post.data.category)
         </button>
       ))}
     </div>
-    <PostList posts={posts} heading="Writing" headingCn="全部书写" showMore={false} />
+    <PostList posts={posts} showMore={false} showHeading={false} />
   </div>
 </Base>
 
@@ -56,6 +60,24 @@ const categories = ['全部', ...new Set(posts.map((post) => post.data.category)
 </script>
 
 <style>
+  .writing-head {
+    text-align: center;
+    margin: 0 auto 3rem;
+    max-width: var(--max);
+    padding: 0 2rem;
+  }
+  .eyebrow {
+    font-family: var(--serif-en), serif; font-style: italic; font-size: 1.1rem;
+    color: var(--ochre); letter-spacing: .05em; display: block; margin-bottom: 1rem;
+  }
+  .writing-head h1 {
+    font-weight: 500; font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.15; color: var(--ink);
+  }
+  .writing-head h1 .zh {
+    font-family: var(--serif-cn), serif; font-size: .55em; color: var(--ink-faint);
+    font-weight: 400; margin-left: .6rem;
+  }
   .category-filter {
     display: flex;
     justify-content: center;

@@ -15,7 +15,7 @@ const fmtDate = (d: Date) =>
     <div class="wrap">
       <header class="frag-head reveal">
         <span class="eyebrow">Fragments</span>
-        <h1>念头<span class="zh">碎片集</span></h1>
+        <h1>念头<span class="zh">落叶集</span></h1>
         <p class="intro">来不及展开的句子，半成形的念头，以及那些闪过便消失的瞬间。</p>
       </header>
 
@@ -97,14 +97,16 @@ const fmtDate = (d: Date) =>
     top: 2.6rem;
     width: 9px;
     height: 9px;
-    border-radius: 50%;
+    border-radius: 2px;
+    transform: rotate(45deg);
     background: var(--paper);
     border: 1.5px solid var(--ochre);
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 1;
   }
   .frag-card:hover::before {
     background: var(--ochre);
+    transform: rotate(45deg) scale(1.25);
   }
 
   /* 左栏：日期 + 元信息 */

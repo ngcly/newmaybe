@@ -48,7 +48,7 @@ const works = [
 ];
 ---
 
-<Base title="作品" description="一些做过的、正在做的、和也许会做的事。">
+<Base title="作品" description="作品、项目与正在推进的事。">
   <section class="work">
     <div class="wrap">
       <header class="work-head reveal">
@@ -124,6 +124,10 @@ const works = [
   }
   .work-item:last-child { border-bottom: 1px solid var(--line); }
   
+  div.work-item {
+    cursor: default;
+    opacity: .75;
+  }
   a.work-item:hover {
     transform: translateY(-4px);
     background-color: var(--paper-deep);
@@ -147,9 +151,9 @@ const works = [
   }
   a.work-item:hover h2 { color: var(--ochre); }
   .status {
-    font-family: var(--serif-en); font-style: italic; font-size: .9rem;
+    font-family: var(--serif-cn); font-size: .85rem;
     color: var(--ochre); border: 1px solid var(--line); border-radius: 2px;
-    padding: .2rem .7rem; white-space: nowrap;
+    padding: .2rem .7rem; white-space: nowrap; font-weight: 300;
   }
   .work-desc {
     font-size: 1.05rem; line-height: 1.85; color: var(--ink-soft);

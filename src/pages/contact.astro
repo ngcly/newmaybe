@@ -50,7 +50,10 @@ import { SITE } from '../config';
             </svg>
           </div>
         </a>
-        <p class="env-hint">悬浮开启信封 · 点击寄信</p>
+        <p class="env-hint">
+          <span class="hint-hover">悬浮开启信封 · 点击寄信</span>
+          <span class="hint-touch">点击开启信封，发送邮件</span>
+        </p>
       </div>
 
       <!-- RSS 订阅 -->
@@ -104,6 +107,11 @@ import { SITE } from '../config';
     letter-spacing: .04em; transition: opacity .3s;
   }
   .envelope-wrap:hover .env-hint { opacity: 0; }
+  .hint-touch { display: none; }
+  @media (hover: none) {
+    .hint-hover { display: none; }
+    .hint-touch { display: inline; }
+  }
 
   .envelope {
     display: block;
