@@ -92,7 +92,13 @@ body {
     radial-gradient(circle at 20% 30%, rgba(168,100,60,0.025) 0%, transparent 40%),
     radial-gradient(circle at 80% 70%, rgba(43,39,34,0.02) 0%, transparent 45%);
   overflow-x: hidden;
-  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body, header, footer, .post, .frag-body, .work-item, .facet, .theme-toggle, .menu-btn, .mobile-drawer, .filter-btn, .post-nav a, .poem-wrap, .rule {
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (prefers-color-scheme: dark) {

@@ -69,6 +69,9 @@ const watermark = post.data.watermark;
           <div class="prose">
             <Content />
           </div>
+          <div class="scroll-hint-poetry" id="poetryScrollHint" aria-hidden="true">
+            <span class="hint-arrow">←</span> 左右滑动阅读
+          </div>
         </div>
       ) : (
         <div class="prose">
@@ -141,6 +144,31 @@ const watermark = post.data.watermark;
         const isVertical = localStorage.getItem(LAYOUT_KEY) === 'vertical';
         poemWrap.classList.toggle('vertical', isVertical);
         toggle.classList.toggle('is-vertical', isVertical);
+
+        // Bind scroll event to hide the hint once scrolled
+        const prose = poemWrap.querySelector('.prose');
+        const hint = document.getElementById('poetryScrollHint');
+        if (prose && hint) {
+          if (isVertical) {
+            hint.style.opacity = '';
+            hint.style.pointerEvents = '';
+            const handleScroll = () => {
+              if (Math.abs(prose.scrollLeft) > 12) {
+                hint.style.opacity = '0';
+                hint.style.pointerEvents = 'none';
+                prose.removeEventListener('scroll', handleScroll);
+              }
+            };
+            if (prose._onScrollPoetryHint) {
+              prose.removeEventListener('scroll', prose._onScrollPoetryHint);
+            }
+            prose.addEventListener('scroll', handleScroll);
+            prose._onScrollPoetryHint = handleScroll;
+          } else {
+            hint.style.opacity = '0';
+            hint.style.pointerEvents = 'none';
+          }
+        }
       };
       applyPoetryLayout();
       document.addEventListener('astro:page-load', applyPoetryLayout);
@@ -153,6 +181,7 @@ const watermark = post.data.watermark;
         const nowVertical = poemWrap.classList.toggle('vertical');
         btn.classList.toggle('is-vertical', nowVertical);
         localStorage.setItem(LAYOUT_KEY, nowVertical ? 'vertical' : 'horizontal');
+        applyPoetryLayout();
       });
     </script>
   )}
@@ -422,6 +451,27 @@ const watermark = post.data.watermark;
   }
   @media (prefers-reduced-motion: reduce) {
     #reading-bar { transition: none; }
+  }
+
+  .scroll-hint-poetry {
+    display: none;
+    font-family: var(--serif-cn);
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    text-align: center;
+    margin-top: 1.8rem;
+    letter-spacing: 0.1em;
+    animation: fade-hint-po 2s infinite alternate;
+    width: 100%;
+    opacity: 0.8;
+    transition: opacity 0.5s ease;
+  }
+  @keyframes fade-hint-po {
+    0% { opacity: 0.35; transform: translateX(3px); }
+    100% { opacity: 0.85; transform: translateX(-3px); }
+  }
+  .poem-wrap.vertical .scroll-hint-poetry {
+    display: block;
   }
 </style>
 

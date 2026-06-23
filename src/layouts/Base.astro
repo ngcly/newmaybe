@@ -23,6 +23,14 @@ const pageTitle = title ? `${title} · ${SITE.title}` : `${SITE.title} — ${SIT
 const canonical = new URL(Astro.url.pathname, SITE.url).href;
 const ogImage = new URL(image, SITE.url).href;
 const year = new Date().getFullYear();
+
+const currentPath = Astro.url.pathname;
+const isActive = (href: string) => {
+  if (href === '/') return currentPath === '/' || currentPath === '';
+  const pathPart = currentPath.endsWith('/') ? currentPath.slice(0, -1) : currentPath;
+  const hrefPart = href.endsWith('/') ? href.slice(0, -1) : href;
+  return pathPart === hrefPart || pathPart.startsWith(hrefPart + '/');
+};
 ---
 
 <!DOCTYPE html>
@@ -93,7 +101,7 @@ const year = new Date().getFullYear();
       <a href="/" class="logo">{SITE.title}<span class="dot">.</span></a>
       <ul class="nav-links">
         {NAV.map((item) => (
-          <li><a href={item.href}>{item.label}</a></li>
+          <li><a href={item.href} class={isActive(item.href) ? 'active' : ''}>{item.label}</a></li>
         ))}
       </ul>
       <button class="theme-toggle" id="themeToggle" aria-label="切换主题" title="切换主题">
@@ -115,7 +123,7 @@ const year = new Date().getFullYear();
       </div>
       <nav class="drawer-links">
         {NAV.map((item, i) => (
-          <a href={item.href}>
+          <a href={item.href} class={isActive(item.href) ? 'active' : ''}>
             <span class="drawer-idx">{String(i + 1).padStart(2, '0')}</span>
             {item.label}
           </a>
@@ -266,8 +274,12 @@ const year = new Date().getFullYear();
       width: 0; height: 1px; background: var(--ochre);
       transition: width .35s ease;
     }
-    .nav-links a:hover { color: var(--ink); }
-    .nav-links a:hover::after { width: 100%; }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--ink); }
+    .nav-links a.active { color: var(--ochre); }
+    .nav-links a:hover::after,
+    .nav-links a.active::after { width: 100%; }
+    .nav-links a.active::after { background: var(--ochre); }
 
     .theme-toggle {
       background: none; border: none; cursor: pointer;
@@ -380,7 +392,8 @@ const year = new Date().getFullYear();
       transition: color .2s, padding-left .3s ease;
     }
     .drawer-links a:first-child { border-top: 1px solid var(--line); }
-    .drawer-links a:hover { color: var(--ochre); padding-left: .4rem; }
+    .drawer-links a:hover,
+    .drawer-links a.active { color: var(--ochre); padding-left: .4rem; }
     .drawer-idx {
       font-family: var(--serif-en); font-style: italic;
       font-size: .8rem; color: var(--ink-faint); flex-shrink: 0;

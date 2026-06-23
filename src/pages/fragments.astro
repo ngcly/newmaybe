@@ -198,14 +198,34 @@ const fmtDate = (d: Date) =>
   @media (max-width: 680px) {
     .timeline::before { display: none; }
     .frag-card {
-      grid-template-columns: 1fr;
-      gap: .8rem;
-      padding: 1.5rem 0;
-      border-top: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      background: var(--paper-deep);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0;
+      margin-bottom: 2rem;
     }
     .frag-card::before { display: none; }
-    .frag-aside { text-align: left; }
-    .frag-meta { align-items: flex-start; }
+    .frag-aside {
+      order: -1;
+      text-align: left;
+      padding: 1rem 1.2rem 0.6rem;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .frag-meta {
+      margin-top: 0;
+      flex-direction: row;
+      gap: 0.6rem;
+    }
+    .frag-body {
+      padding: 1.2rem;
+      background: none;
+      border: none;
+    }
     .frag-body::before, .frag-body::after { display: none; }
     .frag-card:hover .frag-body { transform: none; }
   }

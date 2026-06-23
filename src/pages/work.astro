@@ -35,6 +35,7 @@ const works = [
     type: '微信小程序 · 独立开发',
     desc: '每日一道数学题，像健身一样锻炼成年人的大脑。没有排行榜、没有社交压力，只是安静地让脑子保持锋利。',
     href: null,
+    qrcode: '/images/qrcode-rustbrain.png',
     status: '已上线',
   },
   {
@@ -63,33 +64,204 @@ const works = [
       <div class="work-list reveal">
         {works.map((w, i) => {
           const external = w.href != null && /^(https?:\/\/|www\.)/.test(w.href);
-          const El = w.href ? 'a' : 'div';
+          const hasQrcode = w.qrcode != null;
           return (
-            <El
-              href={w.href ?? undefined}
-              class="work-item"
-              target={external ? '_blank' : undefined}
-              rel={external ? 'noopener noreferrer' : undefined}
-            >
-              <span class="idx">{String(i + 1).padStart(2, '0')}</span>
-              <div class="work-content">
-                <div class="work-top">
-                  <h2>{w.title}</h2>
-                  <span class="status">{w.status}</span>
+            <>
+              {w.href ? (
+                <a
+                  href={w.href}
+                  class="work-item"
+                  target={external ? '_blank' : undefined}
+                  rel={external ? 'noopener noreferrer' : undefined}
+                >
+                  <span class="idx">{String(i + 1).padStart(2, '0')}</span>
+                  <div class="work-content">
+                    <div class="work-top">
+                      <h2>{w.title}</h2>
+                      <span class="status">{w.status}</span>
+                    </div>
+                    <p class="work-desc">{w.desc}</p>
+                    <div class="work-meta">
+                      <span>{w.type}</span>
+                      <span class="dot-sep">·</span>
+                      <span>{w.year}</span>
+                    </div>
+                  </div>
+                </a>
+              ) : hasQrcode ? (
+                <button
+                  class="work-item has-qrcode"
+                  data-qrcode={w.qrcode}
+                  data-title={w.title}
+                  data-desc={w.desc}
+                  type="button"
+                >
+                  <span class="idx">{String(i + 1).padStart(2, '0')}</span>
+                  <div class="work-content">
+                    <div class="work-top">
+                      <h2>{w.title}</h2>
+                      <span class="status">{w.status}</span>
+                    </div>
+                    <p class="work-desc">{w.desc}</p>
+                    <div class="work-meta">
+                      <span>{w.type}</span>
+                      <span class="dot-sep">·</span>
+                      <span>{w.year}</span>
+                    </div>
+                  </div>
+                </button>
+              ) : (
+                <div class="work-item">
+                  <span class="idx">{String(i + 1).padStart(2, '0')}</span>
+                  <div class="work-content">
+                    <div class="work-top">
+                      <h2>{w.title}</h2>
+                      <span class="status">{w.status}</span>
+                    </div>
+                    <p class="work-desc">{w.desc}</p>
+                    <div class="work-meta">
+                      <span>{w.type}</span>
+                      <span class="dot-sep">·</span>
+                      <span>{w.year}</span>
+                    </div>
+                  </div>
                 </div>
-                <p class="work-desc">{w.desc}</p>
-                <div class="work-meta">
-                  <span>{w.type}</span>
-                  <span class="dot-sep">·</span>
-                  <span>{w.year}</span>
-                </div>
-              </div>
-            </El>
+              )}
+            </>
           );
         })}
       </div>
     </div>
   </section>
+
+  <!-- 二维码弹窗 Modal -->
+  <div class="qr-modal" id="qrModal" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
+    <div class="qr-modal-overlay" id="qrModalOverlay"></div>
+    <div class="qr-modal-card">
+      <button class="qr-modal-close" id="qrModalClose" aria-label="关闭弹窗">×</button>
+      <div class="qr-modal-content">
+        <h3 id="modalTitle"></h3>
+        <p class="qr-modal-desc" id="modalDesc"></p>
+        <div class="qr-code-wrapper">
+          <img id="modalQrImg" src="" alt="小程序二维码" />
+          <div class="qr-svg-placeholder" id="modalQrPlaceholder">
+            <svg viewBox="0 0 100 100" width="100%" height="100%">
+              <rect x="0" y="0" width="100" height="100" fill="var(--paper)" />
+              <rect x="10" y="10" width="25" height="25" fill="var(--ink)" stroke="var(--paper)" stroke-width="2" />
+              <rect x="15" y="15" width="15" height="15" fill="var(--paper)" />
+              <rect x="18" y="18" width="9" height="9" fill="var(--ink)" />
+              
+              <rect x="65" y="10" width="25" height="25" fill="var(--ink)" stroke="var(--paper)" stroke-width="2" />
+              <rect x="70" y="15" width="15" height="15" fill="var(--paper)" />
+              <rect x="73" y="18" width="9" height="9" fill="var(--ink)" />
+              
+              <rect x="10" y="65" width="25" height="25" fill="var(--ink)" stroke="var(--paper)" stroke-width="2" />
+              <rect x="15" y="70" width="15" height="15" fill="var(--paper)" />
+              <rect x="18" y="73" width="9" height="9" fill="var(--ink)" />
+              
+              <rect x="40" y="10" width="5" height="15" fill="var(--ochre)" />
+              <rect x="40" y="30" width="10" height="5" fill="var(--ink)" />
+              <rect x="55" y="10" width="5" height="5" fill="var(--ink)" />
+              <rect x="50" y="20" width="5" height="15" fill="var(--ink)" />
+              <rect x="10" y="45" width="15" height="5" fill="var(--ink)" />
+              <rect x="30" y="40" width="5" height="10" fill="var(--ochre)" />
+              
+              <rect x="40" y="45" width="20" height="20" fill="var(--ink)" />
+              <rect x="45" y="50" width="10" height="10" fill="var(--paper)" />
+              
+              <rect x="65" y="40" width="10" height="5" fill="var(--ink)" />
+              <rect x="80" y="40" width="10" height="15" fill="var(--ink)" />
+              <rect x="65" y="50" width="5" height="25" fill="var(--ochre)" />
+              <rect x="75" y="60" width="15" height="5" fill="var(--ink)" />
+              <rect x="75" y="70" width="5" height="15" fill="var(--ink)" />
+              <rect x="85" y="75" width="5" height="10" fill="var(--ink)" />
+              
+              <rect x="40" y="70" width="15" height="5" fill="var(--ink)" />
+              <rect x="45" y="80" width="15" height="10" fill="var(--ink)" />
+              <rect x="30" y="80" width="5" height="5" fill="var(--ink)" />
+            </svg>
+          </div>
+        </div>
+        <p class="qr-modal-hint">微信扫一扫，或在微信内搜索小程序名称</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function setupQrModal() {
+      const modal = document.getElementById('qrModal');
+      const overlay = document.getElementById('qrModalOverlay');
+      const closeBtn = document.getElementById('qrModalClose');
+      const titleEl = document.getElementById('modalTitle');
+      const descEl = document.getElementById('modalDesc');
+      const qrImg = document.getElementById('modalQrImg') as HTMLImageElement | null;
+      const qrPlaceholder = document.getElementById('modalQrPlaceholder');
+
+      if (!modal) return;
+
+      if (qrImg) {
+        qrImg.onerror = () => {
+          qrImg.style.display = 'none';
+          if (qrPlaceholder) qrPlaceholder.style.display = 'block';
+        };
+        qrImg.onload = () => {
+          qrImg.style.display = 'block';
+          if (qrPlaceholder) qrPlaceholder.style.display = 'none';
+        };
+      }
+
+      const open = (title: string, desc: string, qrcode: string) => {
+        if (titleEl) titleEl.textContent = title;
+        if (descEl) descEl.textContent = desc;
+        if (qrImg) {
+          qrImg.style.display = 'none';
+          if (qrPlaceholder) qrPlaceholder.style.display = 'block';
+          qrImg.src = qrcode;
+        }
+        
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      };
+
+      const close = () => {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      };
+
+      document.querySelectorAll('.work-item.has-qrcode').forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          const el = e.currentTarget as HTMLElement | null;
+          if (!el) return;
+          const title = el.getAttribute('data-title') || '';
+          const desc = el.getAttribute('data-desc') || '';
+          const qrcode = el.getAttribute('data-qrcode') || '';
+          open(title, desc, qrcode);
+        });
+      });
+
+      overlay?.addEventListener('click', close);
+      closeBtn?.addEventListener('click', close);
+
+      const handleEsc = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') close();
+      };
+      document.addEventListener('keydown', handleEsc);
+      
+      (window as any)._cleanupQrModal = () => {
+        document.removeEventListener('keydown', handleEsc);
+      };
+    }
+
+    document.addEventListener('astro:page-load', () => {
+      if ((window as any)._cleanupQrModal) {
+        (window as any)._cleanupQrModal();
+      }
+      setupQrModal();
+    });
+  </script>
 </Base>
 
 <style>
@@ -128,16 +300,19 @@ const works = [
     cursor: default;
     opacity: .75;
   }
-  a.work-item:hover {
+  a.work-item:hover,
+  button.work-item:hover {
     transform: translateY(-4px);
     background-color: var(--paper-deep);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
     border-color: transparent;
   }
-  a.work-item:hover + .work-item {
+  a.work-item:hover + .work-item,
+  button.work-item:hover + .work-item {
     border-top-color: transparent;
   }
-  :root.dark a.work-item:hover {
+  :root.dark a.work-item:hover,
+  :root.dark button.work-item:hover {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   }
   .idx {
@@ -149,7 +324,8 @@ const works = [
     font-weight: 500; font-size: 1.7rem; color: var(--ink);
     line-height: 1.3; transition: color .3s;
   }
-  a.work-item:hover h2 { color: var(--ochre); }
+  a.work-item:hover h2,
+  button.work-item:hover h2 { color: var(--ochre); }
   .status {
     font-family: var(--serif-cn); font-size: .85rem;
     color: var(--ochre); border: 1px solid var(--line); border-radius: 2px;
@@ -172,5 +348,130 @@ const works = [
     }
     .idx { font-size: 1.2rem; }
     .work-item h2 { font-size: 1.4rem; }
+  }
+
+  /* ── 二维码弹窗 Styles ── */
+  .qr-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+  }
+  .qr-modal.open {
+    pointer-events: auto;
+    opacity: 1;
+    visibility: visible;
+  }
+  .qr-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(30, 25, 18, 0.45);
+    backdrop-filter: blur(4px);
+  }
+  .qr-modal-card {
+    position: relative;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    width: min(90%, 380px);
+    padding: 2.5rem 2rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+    transform: scale(0.95) translateY(10px);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 10;
+  }
+  :root.dark .qr-modal-card {
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  }
+  .qr-modal.open .qr-modal-card {
+    transform: scale(1) translateY(0);
+  }
+  .qr-modal-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--ink-faint);
+    cursor: pointer;
+    transition: color 0.3s;
+    line-height: 1;
+  }
+  .qr-modal-close:hover {
+    color: var(--ochre);
+  }
+  .qr-modal-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .qr-modal-content h3 {
+    font-family: var(--serif-cn);
+    font-weight: 500;
+    font-size: 1.4rem;
+    color: var(--ink);
+    margin-bottom: 0.6rem;
+  }
+  .qr-modal-desc {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin-bottom: 1.8rem;
+    max-width: 28ch;
+  }
+  .qr-code-wrapper {
+    width: 180px;
+    height: 180px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0.5rem;
+    background: var(--paper-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .qr-code-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    display: none;
+  }
+  .qr-svg-placeholder {
+    width: 100%;
+    height: 100%;
+  }
+  .qr-modal-hint {
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Button work-item overrides ── */
+  button.work-item {
+    background: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    width: calc(100% + 3rem);
+    text-align: left;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    cursor: pointer;
+  }
+  a.work-item.has-qrcode:hover h2 {
+    color: var(--ochre);
+  }
+  button.work-item:hover h2 {
+    color: var(--ochre);
   }
 </style>
