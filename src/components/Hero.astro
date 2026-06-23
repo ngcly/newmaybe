@@ -4,12 +4,12 @@ import { SITE } from '../config';
 
 <section class="hero">
   <div class="wrap">
-    <div class="hero-eyebrow">Always a new maybe.</div>
+    <div class="hero-eyebrow">Sparse. Still.</div>
     <h1>
-      <span class="word" style="animation-delay:.22s">总会有</span><span class="word accent" style="animation-delay:.32s">新的</span><span class="word accent" style="animation-delay:.42s">也许，</span><br />
-      <span class="word" style="animation-delay:.52s">不必</span><span class="word" style="animation-delay:.58s">急着</span><span class="word" style="animation-delay:.64s">抵达。</span>
+      <span class="word" style="animation-delay:.22s">以</span><span class="word accent" style="animation-delay:.32s">留白，</span><br />
+      <span class="word" style="animation-delay:.42s">给念头</span><span class="word" style="animation-delay:.52s">余地。</span>
     </h1>
-    <p class="lede">我在这里记录文字、收集所思、安放正在生长的念头。一切都还没有定论，而这正是它温柔的地方。慢慢来。</p>
+    <p class="lede">我在这里写字、记事、安放那些还没成形的念头。一切都还有余地，而这正是它温柔的地方。慢慢来。</p>
     <div class="hero-meta">
       <a href="/writing">阅读近作 →</a>
       <span class="scroll-hint">往下读 <span class="arr">↓</span></span>
@@ -35,7 +35,7 @@ import { SITE } from '../config';
   .hero h1 {
     font-weight: 500;
     font-size: clamp(2.8rem, 7vw, 5.6rem);
-    line-height: 1.12; letter-spacing: -.01em;
+    line-height: 1.25; letter-spacing: 0.05em;
     margin-bottom: 2rem; max-width: 14ch;
   }
   .hero h1 .word {
@@ -44,8 +44,8 @@ import { SITE } from '../config';
     animation: rise .65s cubic-bezier(.2,.7,.3,1) forwards;
   }
   .hero h1 .accent {
-    color: var(--ochre); font-style: italic;
-    font-family: var(--serif-en); font-weight: 500;
+    color: var(--ochre);
+    font-weight: 500;
   }
   .hero p.lede {
     font-size: 1.18rem; color: var(--ink-soft);

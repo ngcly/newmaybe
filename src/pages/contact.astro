@@ -1,12 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
 import { SITE } from '../config';
-
-// 在 src/config.ts 里改这些链接即可
-const channels = [
-  { label: 'Email', value: SITE.email, href: `mailto:${SITE.email}`, note: '最稳妥的方式，我会认真读每一封。' },
-  { label: 'RSS', value: '/rss.xml', href: '/rss.xml', note: '订阅更新，不打扰，不催促。' },
-];
 ---
 
 <Base title="联络" description="如果某段文字让你有所触动，欢迎写信来。">
@@ -14,7 +8,7 @@ const channels = [
     <div class="wrap">
       <header class="contact-head reveal">
         <span class="eyebrow">Get in touch</span>
-        <h1>联络<span class="zh">写封信</span></h1>
+        <h1>联络<span class="zh">见信如晤</span></h1>
         <p class="intro">
           没有评论区，也没有点赞。如果你想说点什么——
           无论是回应一段文字，还是只是打个招呼——直接写信给我就好。
@@ -22,17 +16,56 @@ const channels = [
         </p>
       </header>
 
-      <div class="channels reveal">
-        {channels.map((c) => (
-          <a href={c.href} class="channel">
-            <div class="channel-main">
-              <span class="channel-label">{c.label}</span>
-              <span class="channel-value">{c.value}</span>
+      <!-- 3D 折叠信封 -->
+      <div class="envelope-wrap reveal">
+        <a href={`mailto:${SITE.email}`} class="envelope" aria-label={`发送邮件给 ${SITE.email}`}>
+          <!-- 信封背面 -->
+          <div class="env-back"></div>
+          
+          <!-- 隐藏的"信纸"，hover 时从内部升起 -->
+          <div class="letter">
+            <div class="letter-content">
+              <span class="letter-eyebrow">一封信，认真读</span>
+              <span class="letter-email">{SITE.email}</span>
+              <span class="letter-cta">点击寄出 →</span>
             </div>
-            <p class="channel-note">{c.note}</p>
-            <span class="arrow">→</span>
-          </a>
-        ))}
+          </div>
+
+          <!-- 信封正面 (盖在信纸前面，使用 SVG 绘制经典的米纸边折纹理) -->
+          <div class="env-front">
+            <svg viewBox="0 0 460 295" width="100%" height="100%" preserveAspectRatio="none" fill="none">
+              <!-- 左折边 -->
+              <polygon points="0,0 230,147.5 0,295" fill="var(--paper-deep)" opacity="0.98" stroke="var(--line)" stroke-width="0.5" />
+              <!-- 右折边 -->
+              <polygon points="460,0 230,147.5 460,295" fill="var(--paper-deep)" opacity="0.98" stroke="var(--line)" stroke-width="0.5" />
+              <!-- 下折边 -->
+              <polygon points="0,295 230,135 460,295" fill="var(--paper)" stroke="var(--line)" stroke-width="0.5" />
+            </svg>
+          </div>
+
+          <!-- 信封口盖 (最上面，翻开时去到最底层，使用 SVG 绘制开口三角) -->
+          <div class="flap">
+            <svg viewBox="0 0 460 162.25" width="100%" height="100%" preserveAspectRatio="none" fill="none">
+              <polygon points="0,0 460,0 230,162.25" fill="var(--paper-deep)" stroke="var(--line)" stroke-width="0.5" />
+            </svg>
+          </div>
+        </a>
+        <p class="env-hint">
+          <span class="hint-hover">悬浮开启信封 · 点击寄信</span>
+          <span class="hint-touch">点击开启信封，发送邮件</span>
+        </p>
+      </div>
+
+      <!-- RSS 订阅 -->
+      <div class="channels reveal">
+        <a href="/rss.xml" class="channel">
+          <div class="channel-main">
+            <span class="channel-label">RSS</span>
+            <span class="channel-value">/rss.xml</span>
+          </div>
+          <p class="channel-note">订阅更新，不打扰，不催促。</p>
+          <span class="arrow">→</span>
+        </a>
       </div>
 
       <p class="ps reveal">
@@ -62,7 +95,158 @@ const channels = [
     font-size: 1.15rem; line-height: 1.9; color: var(--ink-soft); font-weight: 300;
   }
 
-  .channels { max-width: 56ch; margin: 0 auto; }
+  /* ── 3D 信封 ── */
+  .envelope-wrap {
+    max-width: 400px;
+    margin: 9.5rem auto 3.5rem;
+    text-align: center;
+  }
+  .env-hint {
+    font-family: var(--serif-en); font-style: italic;
+    font-size: .88rem; color: var(--ink-faint); margin-top: 1rem;
+    letter-spacing: .04em; transition: opacity .3s;
+  }
+  .envelope-wrap:hover .env-hint { opacity: 0; }
+  .hint-touch { display: none; }
+  @media (hover: none) {
+    .hint-hover { display: none; }
+    .hint-touch { display: inline; }
+  }
+
+  .envelope {
+    display: block;
+    width: 100%;
+    aspect-ratio: 7 / 4.5;
+    position: relative;
+    perspective: 900px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* 信封背面 */
+  .env-back {
+    position: absolute;
+    inset: 0;
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    z-index: 1;
+  }
+
+  /* 信纸 */
+  .letter {
+    position: absolute;
+    bottom: 5%;
+    left: 8%;
+    right: 8%;
+    height: 85%;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    z-index: 2;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.35s ease;
+    transform: translateY(0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .envelope:hover .letter {
+    transform: translateY(-55%); /* 从信封顶部开口滑出 */
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.05);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.35s,
+                box-shadow 0.45s ease 0.35s;
+  }
+  :root.dark .envelope:hover .letter {
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.25);
+  }
+
+  /* 信封正面 */
+  .env-front {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .env-front svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* 信封口盖 */
+  .flap {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 55%;
+    transform-origin: top center;
+    transform: rotateX(0deg);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
+                z-index 0s 0.35s;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .flap svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .envelope:hover .flap {
+    transform: rotateX(-170deg);
+    z-index: 1; /* 翻开后移到信纸与信封背面后方 */
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                z-index 0s 0.15s;
+  }
+
+  .letter-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    padding: 1rem;
+    text-align: center;
+  }
+  .letter-eyebrow {
+    font-family: var(--serif-cn);
+    font-size: .82rem;
+    color: var(--ink-faint);
+    letter-spacing: .12em;
+  }
+  .letter-email {
+    font-family: var(--serif-en);
+    font-size: 1.1rem;
+    color: var(--ink);
+    font-weight: 400;
+    letter-spacing: .04em;
+    transition: color .3s;
+  }
+  .envelope:hover .letter-email { color: var(--ochre); }
+  .letter-cta {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: .88rem;
+    color: var(--ochre);
+    margin-top: .2rem;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .envelope:hover .letter-cta {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease 0.55s, transform 0.3s ease 0.55s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flap { transition: none; }
+    .letter { transition: none; }
+    .letter-cta { transition: none; }
+    .envelope:hover .flap { transform: none; }
+    .envelope:hover .letter { transform: translateY(0); }
+  }
+
+  /* ── RSS 订阅行 ── */
+  .channels { max-width: 460px; margin: 0 auto; }
   .channel {
     display: grid; grid-template-columns: 1fr auto;
     grid-template-areas: 'main arrow' 'note arrow';
@@ -93,5 +277,9 @@ const channels = [
 
   @media (max-width: 680px) {
     .channel-value { font-size: 1.15rem; }
+    .envelope-wrap {
+      margin: 8.5rem auto 3rem;
+    }
   }
 </style>
+

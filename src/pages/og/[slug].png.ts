@@ -5,14 +5,23 @@ import sharp from 'sharp';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-// Load once at module level — shared across all static page builds
+// Lazy-loaded on first GET call — avoids blocking worker thread at module evaluation time
 // satori uses opentype.js which supports TTF/OTF/WOFF but not WOFF2
-const fontNoto = readFileSync(
-  join(process.cwd(), 'node_modules/@fontsource/noto-serif-sc/files/noto-serif-sc-chinese-simplified-400-normal.woff')
-);
-const fontCormorant = readFileSync(
-  join(process.cwd(), 'node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-600-normal.woff')
-);
+let fontNoto: Buffer | null = null;
+let fontCormorant: Buffer | null = null;
+function loadFonts() {
+  if (!fontNoto) {
+    fontNoto = readFileSync(
+      join(process.cwd(), 'node_modules/@fontsource/noto-serif-sc/files/noto-serif-sc-chinese-simplified-400-normal.woff')
+    );
+  }
+  if (!fontCormorant) {
+    fontCormorant = readFileSync(
+      join(process.cwd(), 'node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-600-normal.woff')
+    );
+  }
+  return { fontNoto: fontNoto!, fontCormorant: fontCormorant! };
+}
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts', ({ data }) => !data.draft);
@@ -25,6 +34,7 @@ export async function getStaticPaths() {
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
 export const GET: APIRoute<Props> = async ({ props }) => {
+  const { fontNoto, fontCormorant } = loadFonts();
   const { title, description, category } = props.post.data;
 
   const titleFontSize = title.length > 14 ? 48 : title.length > 8 ? 60 : 72;

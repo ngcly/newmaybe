@@ -13,9 +13,9 @@ import QuoteBand from '../components/QuoteBand.astro';
 
       <div class="about-body reveal">
         <p class="lead">
-          newmaybe （我不会告诉你这是咸宁话“牛迈壁”的音译🤭）是一个安放文字与念头的地方。名字由两个词组成——
-          new，是「还会有新的」；maybe，是「不必现在就确定」。
-          合起来，是一种温柔的盼望：总会有新的也许，而我不急着抵达它。
+          newmaybe 是一个安放文字与念头的地方。名字由两个词组成——
+          new，是「空白里藏着新的可能」；maybe，是「不必给出答案」。
+          合起来，是留白的态度：给念头余地，给时间空间。
         </p>
 
         <p>
@@ -39,7 +39,7 @@ import QuoteBand from '../components/QuoteBand.astro';
       <div class="facets reveal">
         <div class="facet">
           <span class="num">01</span>
-          <h3>关于书写</h3>
+          <h3>关于文字</h3>
           <p>不定期更新。想到什么写什么，长短不论，真诚为先。</p>
         </div>
         <div class="facet">
@@ -57,7 +57,7 @@ import QuoteBand from '../components/QuoteBand.astro';
   </section>
 
   <QuoteBand
-      text={'每一次写下，\n都是给未来的自己，留一个新的也许。'}
+      text={'每一次写下，\n都是给未来的自己，存一处余地。'}
     cite="— 关于为何而写"
   />
 </Base>
@@ -95,8 +95,26 @@ import QuoteBand from '../components/QuoteBand.astro';
 
   .facets {
     max-width: var(--max); margin: 0 auto;
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem;
+    display: grid; grid-template-columns: repeat(3, 1fr);
     padding-top: 4rem; border-top: 1px solid var(--line);
+  }
+  .facet {
+    padding: 1.5rem 2.2rem;
+    border-radius: 4px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 0.4s ease,
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .facet + .facet {
+    border-left: 1px solid var(--line);
+  }
+  .facet:hover {
+    transform: translateY(-4px);
+    background-color: var(--paper-deep);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.02);
+  }
+  :root.dark .facet:hover {
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
   }
   .facet .num {
     font-family: var(--serif-en); font-style: italic; font-size: 1.4rem;
@@ -113,7 +131,14 @@ import QuoteBand from '../components/QuoteBand.astro';
   .facet a:hover { border-color: var(--ochre); }
 
   @media (max-width: 680px) {
-    .facets { grid-template-columns: 1fr; gap: 2.4rem; }
+    .facets { grid-template-columns: 1fr; gap: 1.5rem; }
+    .facet { padding: 1.5rem 1rem; }
+    .facet + .facet {
+      border-left: none;
+      border-top: 1px solid var(--line);
+      padding-top: 2rem;
+      border-radius: 0;
+    }
     .about-body .lead { font-size: 1.2rem; }
   }
 </style>

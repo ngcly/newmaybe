@@ -1,6 +1,7 @@
 ---
 import { SITE, NAV } from '../config';
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title?: string;
@@ -22,13 +23,59 @@ const pageTitle = title ? `${title} · ${SITE.title}` : `${SITE.title} — ${SIT
 const canonical = new URL(Astro.url.pathname, SITE.url).href;
 const ogImage = new URL(image, SITE.url).href;
 const year = new Date().getFullYear();
+
+const currentPath = Astro.url.pathname;
+const isActive = (href: string) => {
+  if (href === '/') return currentPath === '/' || currentPath === '';
+  const pathPart = currentPath.endsWith('/') ? currentPath.slice(0, -1) : currentPath;
+  const hrefPart = href.endsWith('/') ? href.slice(0, -1) : href;
+  return pathPart === hrefPart || pathPart.startsWith(hrefPart + '/');
+};
 ---
 
 <!DOCTYPE html>
 <html lang={SITE.locale}>
 <head>
   <meta charset="UTF-8" />
-  <script is:inline>document.documentElement.classList.add('js');</script>
+  <script is:inline>
+    document.documentElement.classList.add('js');
+    const applyTheme = () => {
+      const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      } else {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+      }
+    };
+    applyTheme();
+    
+    // 在 View Transitions 交换 DOM 前同步主题类名，防止由于系统暗色偏好引发的瞬间闪烁
+    document.addEventListener('astro:before-swap', (ev) => {
+      const isDark = document.documentElement.classList.contains('dark');
+      if (isDark) {
+        ev.newDocument.documentElement.classList.add('dark');
+        ev.newDocument.documentElement.classList.remove('light');
+      } else {
+        ev.newDocument.documentElement.classList.add('light');
+        ev.newDocument.documentElement.classList.remove('dark');
+      }
+    });
+
+    document.addEventListener('astro:after-swap', applyTheme);
+
+    // 在 DOM 交换完成后立即应用诗歌版式偏好，防止横竖排闪烁
+    document.addEventListener('astro:after-swap', () => {
+      const poemWrap = document.querySelector('.poem-wrap');
+      if (!poemWrap) return;
+      const isVertical = localStorage.getItem('poetry-layout') === 'vertical';
+      poemWrap.classList.toggle('vertical', isVertical);
+      const toggle = document.getElementById('layoutToggle');
+      if (toggle) toggle.classList.toggle('is-vertical', isVertical);
+    });
+  </script>
+  <ClientRouter />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="generator" content={Astro.generator} />
@@ -64,9 +111,12 @@ const year = new Date().getFullYear();
       <a href="/" class="logo">{SITE.title}<span class="dot">.</span></a>
       <ul class="nav-links">
         {NAV.map((item) => (
-          <li><a href={item.href}>{item.label}</a></li>
+          <li><a href={item.href} class={isActive(item.href) ? 'active' : ''}>{item.label}</a></li>
         ))}
       </ul>
+      <button class="theme-toggle" id="themeToggle" aria-label="切换主题" title="切换主题">
+        <span class="mode-icon"></span>
+      </button>
       <button class="menu-btn" aria-label="菜单" aria-expanded="false">
         <span></span>
         <span></span>
@@ -83,7 +133,7 @@ const year = new Date().getFullYear();
       </div>
       <nav class="drawer-links">
         {NAV.map((item, i) => (
-          <a href={item.href}>
+          <a href={item.href} class={isActive(item.href) ? 'active' : ''}>
             <span class="drawer-idx">{String(i + 1).padStart(2, '0')}</span>
             {item.label}
           </a>
@@ -122,39 +172,94 @@ const year = new Date().getFullYear();
   </footer>
 
   <script>
-    // 汉堡菜单
-    const menuBtn = document.querySelector('.menu-btn') as HTMLButtonElement | null;
-    const mobileMenu = document.getElementById('mobileMenu');
-    const close = () => {
-      menuBtn?.classList.remove('open');
-      mobileMenu?.classList.remove('open');
-      menuBtn?.setAttribute('aria-expanded', 'false');
-      mobileMenu?.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    };
-    menuBtn?.addEventListener('click', () => {
-      const open = menuBtn.classList.toggle('open');
-      mobileMenu?.classList.toggle('open', open);
-      menuBtn.setAttribute('aria-expanded', String(open));
-      mobileMenu?.setAttribute('aria-hidden', String(!open));
-      document.body.style.overflow = open ? 'hidden' : '';
-    });
-    mobileMenu?.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
-    document.getElementById('mobileOverlay')?.addEventListener('click', close);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
-
-    // 导航栏滚动细线
-    const hdr = document.getElementById('hdr');
-    const onScroll = () => hdr?.classList.toggle('scrolled', window.scrollY > 20);
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    // 滚动进场
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    function setupPage() {
+      // 汉堡菜单
+      const menuBtn = document.querySelector('.menu-btn') as HTMLButtonElement | null;
+      const mobileMenu = document.getElementById('mobileMenu');
+      const close = () => {
+        menuBtn?.classList.remove('open');
+        mobileMenu?.classList.remove('open');
+        menuBtn?.setAttribute('aria-expanded', 'false');
+        mobileMenu?.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      };
+      menuBtn?.addEventListener('click', () => {
+        const open = menuBtn.classList.toggle('open');
+        mobileMenu?.classList.toggle('open', open);
+        menuBtn.setAttribute('aria-expanded', String(open));
+        mobileMenu?.setAttribute('aria-hidden', String(!open));
+        document.body.style.overflow = open ? 'hidden' : '';
       });
-    }, { threshold: 0.15 });
-    document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+      mobileMenu?.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+      document.getElementById('mobileOverlay')?.addEventListener('click', close);
+
+      // Keydown 监听器清理与绑定
+      if ((document as any)._handleEscape) {
+        document.removeEventListener('keydown', (document as any)._handleEscape);
+      }
+      const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
+      document.addEventListener('keydown', handleEscape);
+      (document as any)._handleEscape = handleEscape;
+
+      // 导航栏滚动细线清理与绑定
+      const hdr = document.getElementById('hdr');
+      if ((window as any)._onScroll) {
+        window.removeEventListener('scroll', (window as any)._onScroll);
+      }
+      const onScroll = () => hdr?.classList.toggle('scrolled', window.scrollY > 20);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      (window as any)._onScroll = onScroll;
+      onScroll();
+
+      // 清理诗歌沉浸式滚动监听器，仅在非诗歌页面上执行（诗歌页由 is:inline 脚本重建）
+      if ((window as any)._onScrollPoetry && !document.querySelector('.poem-wrap')) {
+        window.removeEventListener('scroll', (window as any)._onScrollPoetry);
+        delete (window as any)._onScrollPoetry;
+        if (hdr) {
+          hdr.style.transform = '';
+          hdr.style.opacity = '';
+          hdr.style.transition = '';
+        }
+      }
+
+      // 清理诗歌版式点击监听器，仅在非诗歌页面上执行
+      if ((window as any)._handleLayoutClick && !document.querySelector('.poem-wrap')) {
+        document.removeEventListener('click', (window as any)._handleLayoutClick);
+        delete (window as any)._handleLayoutClick;
+      }
+
+      // 滚动进场
+      if ((window as any)._revealObserver) {
+        (window as any)._revealObserver.disconnect();
+      }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.15 });
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+      (window as any)._revealObserver = io;
+
+      // 暗色模式手动切换
+      const themeToggle = document.getElementById('themeToggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          const isDark = document.documentElement.classList.contains('dark');
+          if (isDark) {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+            localStorage.setItem('theme', 'light');
+          } else {
+            document.documentElement.classList.remove('light');
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+          }
+        });
+      }
+    }
+
+    // 初次加载与视图切换后重新绑定
+    document.addEventListener('astro:page-load', setupPage);
   </script>
 
   <style>
@@ -176,8 +281,15 @@ const year = new Date().getFullYear();
       color: var(--ink); text-decoration: none;
       display: flex; align-items: baseline; gap: .4rem;
     }
-    .logo .dot { color: var(--ochre); }
-    .nav-links { display: flex; gap: 2.4rem; list-style: none; }
+    .logo .dot {
+      color: var(--ochre);
+      display: inline-block;
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .logo:hover .dot {
+      transform: scale(1.4) translateY(-1px);
+    }
+    .nav-links { display: flex; gap: 2.4rem; list-style: none; margin-left: auto; }
     .nav-links a {
       color: var(--ink-soft); text-decoration: none;
       font-size: .92rem; letter-spacing: .08em;
@@ -189,8 +301,43 @@ const year = new Date().getFullYear();
       width: 0; height: 1px; background: var(--ochre);
       transition: width .35s ease;
     }
-    .nav-links a:hover { color: var(--ink); }
-    .nav-links a:hover::after { width: 100%; }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--ink); }
+    .nav-links a.active { color: var(--ochre); }
+    .nav-links a:hover::after,
+    .nav-links a.active::after { width: 100%; }
+    .nav-links a.active::after { background: var(--ochre); }
+
+    .theme-toggle {
+      background: none; border: none; cursor: pointer;
+      padding: 6px; display: flex; align-items: center; justify-content: center;
+      margin-left: 2.4rem; transition: color 0.3s ease;
+    }
+    .theme-toggle .mode-icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid var(--ink-soft);
+      background: linear-gradient(90deg, var(--ink-soft) 50%, transparent 50%);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
+      transform-origin: center;
+    }
+    :root.dark .theme-toggle .mode-icon {
+      border-color: var(--ink-soft);
+      background: linear-gradient(90deg, var(--ink-soft) 50%, transparent 50%);
+      transform: rotate(180deg);
+    }
+    .theme-toggle:hover .mode-icon {
+      border-color: var(--ochre);
+      background: linear-gradient(90deg, var(--ochre) 50%, transparent 50%);
+      transform: rotate(180deg);
+    }
+    :root.dark .theme-toggle:hover .mode-icon {
+      border-color: var(--ochre);
+      background: linear-gradient(90deg, var(--ochre) 50%, transparent 50%);
+      transform: rotate(0deg);
+    }
 
     main { padding-top: 72px; }
 
@@ -272,7 +419,8 @@ const year = new Date().getFullYear();
       transition: color .2s, padding-left .3s ease;
     }
     .drawer-links a:first-child { border-top: 1px solid var(--line); }
-    .drawer-links a:hover { color: var(--ochre); padding-left: .4rem; }
+    .drawer-links a:hover,
+    .drawer-links a.active { color: var(--ochre); padding-left: .4rem; }
     .drawer-idx {
       font-family: var(--serif-en); font-style: italic;
       font-size: .8rem; color: var(--ink-faint); flex-shrink: 0;
@@ -291,6 +439,7 @@ const year = new Date().getFullYear();
 
     @media (max-width: 680px) {
       .nav-links { display: none; }
+      .theme-toggle { margin-left: auto; margin-right: 0.5rem; }
       .menu-btn { display: flex; }
     }
   </style>

@@ -2,18 +2,35 @@
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import { sortPostsForDisplay } from '../../lib/posts';
 
 // 为每篇文章生成一个静态页面
 export async function getStaticPaths() {
-  const posts = await getCollection('posts', ({ data }) => !data.draft);
-  return posts.map((post) => ({
-    params: { slug: post.id },
-    props: { post },
-  }));
+  const posts = sortPostsForDisplay(await getCollection('posts', ({ data }) => !data.draft));
+  return posts.map((post, index) => {
+    // 列表是降序排列（最新/权重最高的排在最前）
+    // 上一篇（列表上一项，即较新的文章）是前一项 index - 1
+    // 下一篇（列表下一项，即较旧的文章）是后一项 index + 1
+    const prevPost = index > 0 ? posts[index - 1] : null;
+    const nextPost = index < posts.length - 1 ? posts[index + 1] : null;
+    
+    return {
+      params: { slug: post.id },
+      props: {
+        post,
+        prev: prevPost ? { id: prevPost.id, title: prevPost.data.title } : null,
+        next: nextPost ? { id: nextPost.id, title: nextPost.data.title } : null,
+      },
+    };
+  });
 }
 
-type Props = { post: CollectionEntry<'posts'> };
-const { post } = Astro.props;
+type Props = {
+  post: CollectionEntry<'posts'>;
+  prev: { id: string; title: string } | null;
+  next: { id: string; title: string } | null;
+};
+const { post, prev, next } = Astro.props;
 const { Content } = await render(post);
 
 const longDate = post.data.pubDate.toLocaleDateString('zh-CN', {
@@ -29,11 +46,19 @@ const watermark = post.data.watermark;
   <article class="article">
     <div class="wrap">
       <header class="article-head reveal">
-        <a href="/writing" class="back">← 返回书写</a>
+        <a href="/writing" class="back">← 返回文字</a>
         <span class="cat">{post.data.category}</span>
-        <h1>{post.data.title}</h1>
+        {isPoetry && (
+          <div class="layout-toggle-minimal" id="layoutToggle" role="button" tabindex="0" title="切换版式" aria-label="切换诗歌版式">
+            <span class="label">版式：</span>
+            <span class="opt opt-vert">竖</span>
+            <span class="divider">/</span>
+            <span class="opt opt-horiz">横</span>
+          </div>
+        )}
+        <h1 transition:name={`post-title-${post.id}`}>{post.data.title}</h1>
         <div class="meta">
-          <time datetime={post.data.pubDate.toISOString()}>{longDate}</time>
+          <time datetime={post.data.pubDate.toISOString()} transition:name={`post-date-${post.id}`}>{longDate}</time>
           {post.data.readingTime && <span> · 约 {post.data.readingTime} 分钟</span>}
         </div>
       </header>
@@ -44,14 +69,123 @@ const watermark = post.data.watermark;
           <div class="prose">
             <Content />
           </div>
+          <div class="scroll-hint-poetry" id="poetryScrollHint" aria-hidden="true">
+            <span class="hint-arrow">←</span> 左右滑动阅读
+          </div>
         </div>
       ) : (
         <div class="prose">
           <Content />
         </div>
       )}
+
+      <!-- Prev/Next Navigation Links -->
+      {(prev || next) && (
+        <nav class="post-nav reveal">
+          <div class="nav-prev">
+            {prev && (
+              <a href={`/writing/${prev.id}`}>
+                <span class="nav-label">← 上一篇</span>
+                <span class="nav-title">{prev.title}</span>
+              </a>
+            )}
+          </div>
+          <div class="nav-next">
+            {next && (
+              <a href={`/writing/${next.id}`}>
+                <span class="nav-label">下一篇 →</span>
+                <span class="nav-title">{next.title}</span>
+              </a>
+            )}
+          </div>
+        </nav>
+      )}
     </div>
   </article>
+
+  {isPoetry && (
+    <script is:inline>
+      const setupImmersiveScroll = () => {
+        let lastScrollY = window.scrollY;
+        const hdr = document.getElementById('hdr');
+        if (!hdr) return;
+
+        const onScrollPoetry = () => {
+          const currentScrollY = window.scrollY;
+          if (currentScrollY > 100 && currentScrollY > lastScrollY) {
+            hdr.style.transform = 'translateY(-100%)';
+            hdr.style.opacity = '0';
+            hdr.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+          } else {
+            hdr.style.transform = 'translateY(0)';
+            hdr.style.opacity = '1';
+          }
+          lastScrollY = currentScrollY;
+        };
+
+        if (window._onScrollPoetry) {
+          window.removeEventListener('scroll', window._onScrollPoetry);
+        }
+        window.addEventListener('scroll', onScrollPoetry, { passive: true });
+        window._onScrollPoetry = onScrollPoetry;
+      };
+
+      setupImmersiveScroll();
+
+      // 竖排/横排切换 —— 用 localStorage 记住用户偏好，View Transitions 后也不丢失
+      const LAYOUT_KEY = 'poetry-layout';
+      const applyPoetryLayout = () => {
+        const poemWrap = document.querySelector('.poem-wrap');
+        const toggle = document.getElementById('layoutToggle');
+        if (!poemWrap || !toggle) return;
+        const isVertical = localStorage.getItem(LAYOUT_KEY) === 'vertical';
+        poemWrap.classList.toggle('vertical', isVertical);
+        toggle.classList.toggle('is-vertical', isVertical);
+
+        // Bind scroll event to hide the hint once scrolled
+        const prose = poemWrap.querySelector('.prose');
+        const hint = document.getElementById('poetryScrollHint');
+        if (prose && hint) {
+          if (isVertical) {
+            hint.style.opacity = '';
+            hint.style.pointerEvents = '';
+            const handleScroll = () => {
+              if (Math.abs(prose.scrollLeft) > 12) {
+                hint.style.opacity = '0';
+                hint.style.pointerEvents = 'none';
+                prose.removeEventListener('scroll', handleScroll);
+              }
+            };
+            if (prose._onScrollPoetryHint) {
+              prose.removeEventListener('scroll', prose._onScrollPoetryHint);
+            }
+            prose.addEventListener('scroll', handleScroll);
+            prose._onScrollPoetryHint = handleScroll;
+          } else {
+            hint.style.opacity = '0';
+            hint.style.pointerEvents = 'none';
+          }
+        }
+      };
+      applyPoetryLayout();
+
+      if (window._handleLayoutClick) {
+        document.removeEventListener('click', window._handleLayoutClick);
+      }
+      const handleLayoutClick = (e) => {
+        const btn = e.target.closest('#layoutToggle');
+        if (!btn) return;
+        const poemWrap = document.querySelector('.poem-wrap');
+        if (!poemWrap) return;
+        const nowVertical = poemWrap.classList.toggle('vertical');
+        btn.classList.toggle('is-vertical', nowVertical);
+        localStorage.setItem(LAYOUT_KEY, nowVertical ? 'vertical' : 'horizontal');
+        applyPoetryLayout();
+      };
+      document.addEventListener('click', handleLayoutClick);
+      window._handleLayoutClick = handleLayoutClick;
+    </script>
+  )}
 </Base>
 
 <style>
@@ -63,6 +197,22 @@ const watermark = post.data.watermark;
     margin-bottom: 2.5rem; letter-spacing: .03em; transition: color .3s;
   }
   .back:hover { color: var(--ochre); }
+  .layout-toggle-minimal {
+    display: inline-flex; align-items: center;
+    font-family: var(--serif-cn); font-size: 0.85rem; color: var(--ink-faint);
+    cursor: pointer; user-select: none; margin-bottom: 1.5rem;
+    transition: color 0.3s;
+  }
+  .layout-toggle-minimal .opt {
+    transition: color 0.3s, font-weight 0.3s; padding: 0 0.25rem;
+  }
+  .layout-toggle-minimal:not(.is-vertical) .opt-horiz,
+  .layout-toggle-minimal.is-vertical .opt-vert {
+    color: var(--ochre); font-weight: 500;
+  }
+  .layout-toggle-minimal .opt:hover { color: var(--ink); }
+  .layout-toggle-minimal .divider { color: var(--line); margin: 0 0.1rem; }
+  .layout-toggle-minimal .label { margin-right: 0.1rem; }
   .cat {
     display: block; font-family: var(--serif-en); font-style: italic;
     color: var(--ochre); font-size: 1.05rem; margin-bottom: 1rem; letter-spacing: .05em;
@@ -120,11 +270,12 @@ const watermark = post.data.watermark;
     font-family: var(--serif-cn);
     font-size: 22rem;
     color: var(--ink);
-    opacity: 0.032;
+    opacity: 0;
     pointer-events: none;
     user-select: none;
     z-index: 0;
     line-height: 1;
+    animation: ink-fade 3s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
   }
   .poem-wrap .prose {
     position: relative;
@@ -149,9 +300,144 @@ const watermark = post.data.watermark;
     border-top: 1px solid var(--line);
   }
 
+  /* ── 竖排版式 ── */
+  .poem-wrap.vertical {
+    max-width: 100%;
+    width: fit-content;
+    margin: 0 auto;
+    /* 极微弱的“东方信笺纸红栏线”：使用极淡的朱砂红 */
+    background-image: repeating-linear-gradient(
+      -90deg,
+      transparent,
+      transparent calc(2.5rem - 1px),
+      rgba(197, 61, 49, 0.07) calc(2.5rem - 1px),
+      rgba(197, 61, 49, 0.07) 2.5rem
+    );
+    background-position: right 1.25rem top 0;
+    padding: 3rem 2rem;
+    border: 1px solid rgba(197, 61, 49, 0.15); /* 赭红外框 */
+    border-radius: 2px;
+    box-shadow: inset 0 0 40px rgba(197, 61, 49, 0.02);
+  }
+
+  :root.dark .poem-wrap.vertical {
+    /* 暗色模式下降低红色格线的对比度，改用极淡的暗红色 */
+    background-image: repeating-linear-gradient(
+      -90deg,
+      transparent,
+      transparent calc(2.5rem - 1px),
+      rgba(230, 80, 70, 0.05) calc(2.5rem - 1px),
+      rgba(230, 80, 70, 0.05) 2.5rem
+    );
+    border-color: rgba(230, 80, 70, 0.12);
+  }
+
+  .poem-wrap.vertical .watermark {
+    writing-mode: vertical-rl;
+    font-size: 16rem;
+  }
+
+  .poem-wrap.vertical .prose {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    direction: rtl;
+    max-width: none;
+    height: 60vh;
+    max-height: 650px;
+    overflow-x: auto; /* 必须是横向滚动！从右往左流淌 */
+    overflow-y: hidden;
+    scrollbar-width: none; /* 隐藏滚动条 */
+    padding-right: 1.25rem; /* 让首列诗句完美居中于首个红格中 */
+  }
+  .poem-wrap.vertical .prose::-webkit-scrollbar { display: none; }
+
+  .poem-wrap.vertical .prose :global(p) {
+    text-align: start;
+    letter-spacing: 0.35em; /* 竖排古典字间距偏宽 */
+    line-height: 2.5rem; /* 强制行高为 2.5rem 以对齐红格 */
+    font-size: 1.15rem;
+    margin-bottom: 0;
+    writing-mode: vertical-rl;
+  }
+  
+  /* 竖排下的诗节间距：腾出格线空间 */
+  .poem-wrap.vertical .prose :global(p + p) {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    margin-right: 2.5rem; /* 空出整整一列红格 */
+    padding-right: 0;
+    border-right: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .poem-wrap { transition: background-image 0.4s ease; }
+    .poem-wrap .prose { transition: writing-mode 0s, max-height 0.5s ease; }
+  }
+
+  /* ── 上一篇 / 下一篇 导航 ── */
+  .post-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    max-width: 65ch;
+    margin: 4.5rem auto 1rem;
+    padding-top: 2.2rem;
+    border-top: 1px solid var(--line);
+  }
+  .post-nav a {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s ease;
+  }
+  .nav-prev a {
+    align-items: flex-start;
+  }
+  .nav-next a {
+    align-items: flex-end;
+    text-align: right;
+  }
+  .post-nav .nav-label {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--ochre);
+    margin-bottom: 0.4rem;
+  }
+  .post-nav .nav-title {
+    font-size: 1.1rem;
+    color: var(--ink);
+    font-weight: 500;
+    line-height: 1.4;
+    transition: color 0.3s ease;
+  }
+  .post-nav a:hover .nav-title {
+    color: var(--ochre);
+  }
+  .nav-prev a:hover {
+    transform: translateX(-4px);
+  }
+  .nav-next a:hover {
+    transform: translateX(4px);
+  }
+
   @media (max-width: 680px) {
     .watermark { font-size: 14rem; }
     .poem-wrap .prose :global(p) { font-size: 1.05rem; }
+    .post-nav {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      text-align: left;
+    }
+    .nav-next a {
+      align-items: flex-start;
+      text-align: left;
+    }
+    .nav-next a:hover {
+      transform: translateX(-4px);
+    }
   }
 
   #reading-bar {
@@ -167,17 +453,57 @@ const watermark = post.data.watermark;
   @media (prefers-reduced-motion: reduce) {
     #reading-bar { transition: none; }
   }
+
+  .scroll-hint-poetry {
+    display: none;
+    font-family: var(--serif-cn);
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    text-align: center;
+    margin-top: 1.8rem;
+    letter-spacing: 0.1em;
+    animation: fade-hint-po 2s infinite alternate;
+    width: 100%;
+    opacity: 0.8;
+    transition: opacity 0.5s ease;
+  }
+  @keyframes fade-hint-po {
+    0% { opacity: 0.35; transform: translateX(3px); }
+    100% { opacity: 0.85; transform: translateX(-3px); }
+  }
+  .poem-wrap.vertical .scroll-hint-poetry {
+    display: block;
+  }
 </style>
 
 <script>
-  const bar = document.getElementById('reading-bar');
-  if (bar) {
+  function setupReadingBar() {
+    // 清理上一次残留的滚动监听，防止导航到非文章页后仍报错或漏电
+    if ((window as any)._onScrollReadingBar) {
+      window.removeEventListener('scroll', (window as any)._onScrollReadingBar);
+      delete (window as any)._onScrollReadingBar;
+    }
+
+    const bar = document.getElementById('reading-bar');
+    if (!bar) return;
+
+    let rafPending = false;
     const update = () => {
-      const scrolled = window.scrollY;
-      const total = document.documentElement.scrollHeight - window.innerHeight;
-      bar.style.width = total > 0 ? `${(scrolled / total) * 100}%` : '0%';
+      if (rafPending) return;
+      rafPending = true;
+      requestAnimationFrame(() => {
+        rafPending = false;
+        const scrolled = window.scrollY;
+        const total = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = total > 0 ? `${(scrolled / total) * 100}%` : '0%';
+      });
     };
+
     window.addEventListener('scroll', update, { passive: true });
+    (window as any)._onScrollReadingBar = update;
     update();
   }
+
+  // 绑定初次载入与 View Transitions 页面切换
+  document.addEventListener('astro:page-load', setupReadingBar);
 </script>

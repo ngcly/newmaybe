@@ -4,7 +4,7 @@ interface Props {
   cite?: string;
 }
 const {
-  text = '我们都是还未写完的句子，\n而每个「也许」，都是一个新的开头。',
+  text = '我们都是尚未写完的句子，\n留白处，才是温柔所在。',
   cite = '— 写在 newmaybe 的开篇',
 } = Astro.props;
 const lines = text.split('\n');
@@ -22,7 +22,7 @@ const lines = text.split('\n');
 
 <style>
   .quote-band {
-    background: var(--paper-deep); padding: 6rem 0;
+    background: var(--paper-deep); padding: 4.5rem 0;
     border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
   }
   blockquote { max-width: 60ch; margin: 0 auto; text-align: center; position: relative; }
