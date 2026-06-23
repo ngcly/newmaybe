@@ -131,7 +131,6 @@ const watermark = post.data.watermark;
       };
 
       setupImmersiveScroll();
-      document.addEventListener('astro:page-load', setupImmersiveScroll);
     </script>
 
     <script is:inline>
@@ -171,9 +170,10 @@ const watermark = post.data.watermark;
         }
       };
       applyPoetryLayout();
-      document.addEventListener('astro:page-load', applyPoetryLayout);
-      document.addEventListener('astro:after-swap', applyPoetryLayout);
-      document.addEventListener('click', (e) => {
+      if (window._handleLayoutClick) {
+        document.removeEventListener('click', window._handleLayoutClick);
+      }
+      const handleLayoutClick = (e) => {
         const btn = e.target.closest('#layoutToggle');
         if (!btn) return;
         const poemWrap = document.querySelector('.poem-wrap');
@@ -182,7 +182,9 @@ const watermark = post.data.watermark;
         btn.classList.toggle('is-vertical', nowVertical);
         localStorage.setItem(LAYOUT_KEY, nowVertical ? 'vertical' : 'horizontal');
         applyPoetryLayout();
-      });
+      };
+      document.addEventListener('click', handleLayoutClick);
+      window._handleLayoutClick = handleLayoutClick;
     </script>
   )}
 </Base>
@@ -486,10 +488,16 @@ const watermark = post.data.watermark;
     const bar = document.getElementById('reading-bar');
     if (!bar) return;
 
+    let rafPending = false;
     const update = () => {
-      const scrolled = window.scrollY;
-      const total = document.documentElement.scrollHeight - window.innerHeight;
-      bar.style.width = total > 0 ? `${(scrolled / total) * 100}%` : '0%';
+      if (rafPending) return;
+      rafPending = true;
+      requestAnimationFrame(() => {
+        rafPending = false;
+        const scrolled = window.scrollY;
+        const total = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = total > 0 ? `${(scrolled / total) * 100}%` : '0%';
+      });
     };
 
     window.addEventListener('scroll', update, { passive: true });

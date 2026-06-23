@@ -33,7 +33,8 @@ interface PostReport {
 }
 
 function parseFrontmatter(raw: string): { fm: Frontmatter; body: string } | null {
-  const match = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  const normalized = raw.replace(/\r\n/g, '\n');
+  const match = normalized.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
   if (!match) return null;
   const fmBlock = match[1];
   const body = match[2].trim();
@@ -44,7 +45,7 @@ function parseFrontmatter(raw: string): { fm: Frontmatter; body: string } | null
     if (keyMatch) {
       currentKey = keyMatch[1];
       const val = keyMatch[2].trim();
-      fm[currentKey] = val === 'true' ? true : val === 'false' ? false : val;
+      fm[currentKey] = val === 'true' ? true : val === 'false' ? false : /^\d+(\.\d+)?$/.test(val) ? Number(val) : val;
     }
   }
   return { fm: fm as unknown as Frontmatter, body };

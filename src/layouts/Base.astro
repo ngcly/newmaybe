@@ -64,6 +64,16 @@ const isActive = (href: string) => {
     });
 
     document.addEventListener('astro:after-swap', applyTheme);
+
+    // 在 DOM 交换完成后立即应用诗歌版式偏好，防止横竖排闪烁
+    document.addEventListener('astro:after-swap', () => {
+      const poemWrap = document.querySelector('.poem-wrap');
+      if (!poemWrap) return;
+      const isVertical = localStorage.getItem('poetry-layout') === 'vertical';
+      poemWrap.classList.toggle('vertical', isVertical);
+      const toggle = document.getElementById('layoutToggle');
+      if (toggle) toggle.classList.toggle('is-vertical', isVertical);
+    });
   </script>
   <ClientRouter />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -201,8 +211,8 @@ const isActive = (href: string) => {
       (window as any)._onScroll = onScroll;
       onScroll();
 
-      // 清理诗歌沉浸式滚动监听器，防止在非诗歌页面上残留生效
-      if ((window as any)._onScrollPoetry) {
+      // 清理诗歌沉浸式滚动监听器，仅在非诗歌页面上执行（诗歌页由 is:inline 脚本重建）
+      if ((window as any)._onScrollPoetry && !document.querySelector('.poem-wrap')) {
         window.removeEventListener('scroll', (window as any)._onScrollPoetry);
         delete (window as any)._onScrollPoetry;
         if (hdr) {
@@ -212,13 +222,23 @@ const isActive = (href: string) => {
         }
       }
 
+      // 清理诗歌版式点击监听器，仅在非诗歌页面上执行
+      if ((window as any)._handleLayoutClick && !document.querySelector('.poem-wrap')) {
+        document.removeEventListener('click', (window as any)._handleLayoutClick);
+        delete (window as any)._handleLayoutClick;
+      }
+
       // 滚动进场
+      if ((window as any)._revealObserver) {
+        (window as any)._revealObserver.disconnect();
+      }
       const io = new IntersectionObserver((entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
         });
       }, { threshold: 0.15 });
       document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+      (window as any)._revealObserver = io;
 
       // 暗色模式手动切换
       const themeToggle = document.getElementById('themeToggle');
