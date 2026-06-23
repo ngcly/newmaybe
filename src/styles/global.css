@@ -87,6 +87,7 @@ body {
   font-family: var(--serif-cn);
   font-weight: 400;
   line-height: 1.8;
+  letter-spacing: 0.02em;
   -webkit-font-smoothing: antialiased;
   background-image:
     radial-gradient(circle at 20% 30%, rgba(168,100,60,0.025) 0%, transparent 40%),
@@ -134,6 +135,7 @@ body::before {
 .wrap { max-width: var(--max); margin: 0 auto; padding: 0 2rem; }
 
 a { color: var(--ochre); }
+p { text-align: justify; text-justify: inter-character; }
 
 /* 分隔横线 */
 .rule { height: 1px; background: var(--line); margin: 0 2rem; }
