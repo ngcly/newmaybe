@@ -131,9 +131,7 @@ const watermark = post.data.watermark;
       };
 
       setupImmersiveScroll();
-    </script>
 
-    <script is:inline>
       // 竖排/横排切换 —— 用 localStorage 记住用户偏好，View Transitions 后也不丢失
       const LAYOUT_KEY = 'poetry-layout';
       const applyPoetryLayout = () => {
@@ -170,6 +168,7 @@ const watermark = post.data.watermark;
         }
       };
       applyPoetryLayout();
+
       if (window._handleLayoutClick) {
         document.removeEventListener('click', window._handleLayoutClick);
       }
