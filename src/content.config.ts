@@ -28,4 +28,17 @@ const fragments = defineCollection({
   }),
 });
 
-export const collections = { posts, fragments };
+// 拾遗集 —— 经典语句、片段摘录与随感
+const excerpts = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/excerpts' }),
+  schema: z.object({
+    author: z.string(),                  // 原作者
+    source: z.string().optional(),       // 出处书名/篇名
+    pubDate: z.coerce.date(),            // 摘录日期
+    tags: z.array(z.string()).optional(), // 标签
+    comment: z.string().optional(),      // 个人短评/随感
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { posts, fragments, excerpts };

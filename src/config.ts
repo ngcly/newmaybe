@@ -13,8 +13,9 @@ export const SITE = {
 // 导航项，header 与 footer 共用
 export const NAV = [
   { label: '文字', href: '/writing' },
-  { label: '作品', href: '/work' },
   { label: '念头', href: '/fragments' },
+  { label: '拾遗', href: '/excerpts' },
+  { label: '作品', href: '/work' },
   { label: '关于', href: '/about' },
   { label: '联络', href: '/contact' },
 ];
