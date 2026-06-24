@@ -1,0 +1,184 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+const memories = (await getCollection('memories', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// 按分类分组
+const categories: Record<string, typeof memories> = {};
+memories.forEach((mem) => {
+  const cat = mem.data.category || '未分类';
+  if (!categories[cat]) {
+    categories[cat] = [];
+  }
+  categories[cat].push(mem);
+});
+---
+
+<Base title="记忆" description="长期沉淀的概念与知识库，常青树思考档案。">
+  <section class="memory-page">
+    <div class="wrap">
+      <header class="page-head reveal">
+        <span class="eyebrow">Archived Memory</span>
+        <h1>记忆<span class="zh">档案库</span></h1>
+        <p class="intro">这里是长期沉淀、不再轻易更改的常青树知识库。通过严谨的版本迭代，记录核心准则与概念。</p>
+      </header>
+
+      <div class="categories-container">
+        {Object.entries(categories).map(([cat, items]) => (
+          <div class="cat-section reveal">
+            <h2 class="cat-title">{cat}</h2>
+            <div class="memory-list">
+              {items.map((item) => (
+                <a href={`/memory/${item.id}`} class="memory-item">
+                  <div class="item-main">
+                    <span class="item-title">{item.data.title}</span>
+                    <span class="item-version">v{item.data.version}</span>
+                  </div>
+                  <span class="arrow">→</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .memory-page {
+    padding: 5rem 0 7rem;
+  }
+
+  .page-head {
+    max-width: 60ch;
+    margin: 0 auto 5rem;
+    text-align: center;
+  }
+  .eyebrow {
+    font-family: var(--serif-en), serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--ochre);
+    letter-spacing: .05em;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .page-head h1 {
+    font-weight: 500;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 1.8rem;
+  }
+  .page-head h1 .zh {
+    font-family: var(--serif-cn), serif;
+    font-size: .55em;
+    color: var(--ink-faint);
+    font-weight: 400;
+    margin-left: .6rem;
+  }
+  .page-head .intro {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+
+  /* 分类区块 */
+  .categories-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .cat-section {
+    border-top: 1px solid var(--line);
+    padding-top: 2rem;
+  }
+
+  .cat-title {
+    font-family: var(--serif-cn), serif;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--ochre);
+    margin-bottom: 1.8rem;
+  }
+
+  /* 记忆项列表 */
+  .memory-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+
+  .memory-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--paper-deep);
+    padding: 1.2rem 1.6rem;
+    text-decoration: none;
+    transition: background 0.3s ease, padding-left 0.3s ease;
+  }
+
+  .memory-item:hover {
+    background: color-mix(in srgb, var(--paper) 40%, var(--paper-deep));
+    padding-left: 2rem;
+  }
+
+  .item-main {
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem;
+  }
+
+  .item-title {
+    font-family: var(--serif-cn), serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .item-version {
+    font-family: var(--serif-en), serif;
+    font-size: 0.78rem;
+    color: var(--ochre);
+    font-style: italic;
+    background: color-mix(in srgb, var(--ochre) 8%, transparent);
+    padding: 0.1rem 0.4rem;
+    border-radius: 2px;
+  }
+
+  .arrow {
+    color: var(--ink-faint);
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+  .memory-item:hover .arrow {
+    transform: translateX(4px);
+    color: var(--ochre);
+  }
+
+  @media (max-width: 680px) {
+    .memory-page {
+      padding: 3.5rem 0 5rem;
+    }
+    .page-head {
+      margin-bottom: 3.5rem;
+    }
+    .memory-item {
+      padding: 1rem 1.2rem;
+    }
+    .categories-container {
+      gap: 3rem;
+    }
+  }
+</style>

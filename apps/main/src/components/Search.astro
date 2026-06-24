@@ -1,0 +1,364 @@
+---
+// 极简 Cmd+K 搜索组件
+---
+
+<div id="search-overlay" class="search-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="全局搜索">
+  <div class="search-modal reveal-modal">
+    <div class="search-header">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="search-input" placeholder="输入关键字搜索文字、笔记、拾遗..." autocomplete="off" />
+      <span class="esc-badge">ESC</span>
+    </div>
+    
+    <div id="search-results" class="search-results">
+      <div class="search-empty">输入关键字开始搜索...</div>
+    </div>
+    
+    <div class="search-footer">
+      <span class="kbd-tip"><kbd>⌘K</kbd> 唤起</span>
+      <span class="kbd-tip"><kbd>↑↓</kbd> 选择</span>
+      <span class="kbd-tip"><kbd>Enter</kbd> 打开</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  let pagefind: any = null;
+  const overlay = document.getElementById('search-overlay') as HTMLElement;
+  const input = document.getElementById('search-input') as HTMLInputElement;
+  const resultsContainer = document.getElementById('search-results') as HTMLElement;
+
+  // 1. 初始化 Pagefind (仅在弹窗打开时懒加载)
+  async function initPagefind() {
+    if (pagefind) return true;
+    try {
+      // 动态导入编译生成的 pagefind.js (使用 window.location.origin 绕过 Vite 开发服务器的静态依赖分析)
+      // @ts-ignore
+      pagefind = await import(/* @vite-ignore */ `${window.location.origin}/pagefind/pagefind.js`);
+      await pagefind.init();
+      return true;
+    } catch (e) {
+      console.warn('Pagefind is not initialized yet (runs after production build).', e);
+      resultsContainer.innerHTML = '<div class="search-error">搜索索引未就绪。请确保执行了生产构建 (npm run build)。</div>';
+      return false;
+    }
+  }
+
+  // 2. 打开弹窗
+  async function openSearch() {
+    overlay.style.display = 'flex';
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => input.focus(), 50);
+    
+    // 打开时开始初始化 pagefind
+    await initPagefind();
+  }
+
+  // 3. 关闭弹窗
+  function closeSearch() {
+    overlay.style.display = 'none';
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    input.value = '';
+    resultsContainer.innerHTML = '<div class="search-empty">输入关键字开始搜索...</div>';
+  }
+
+  // 4. 执行搜索
+  let debounceTimeout: any;
+  async function handleSearch() {
+    const query = input.value.trim();
+    if (!query) {
+      resultsContainer.innerHTML = '<div class="search-empty">输入关键字开始搜索...</div>';
+      return;
+    }
+
+    if (!pagefind) {
+      const ready = await initPagefind();
+      if (!ready) return;
+    }
+
+    resultsContainer.innerHTML = '<div class="search-loading">搜索中...</div>';
+
+    // 搜索接口防抖
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(async () => {
+      try {
+        const searchResult = await pagefind.search(query);
+        if (searchResult.results.length === 0) {
+          resultsContainer.innerHTML = '<div class="search-empty">未找到匹配的结果。</div>';
+          return;
+        }
+
+        // 仅展示前 8 条结果
+        const limitedResults = searchResult.results.slice(0, 8);
+        const resolvedData = await Promise.all(limitedResults.map((r: any) => r.data()));
+        
+        resultsContainer.innerHTML = '';
+        resolvedData.forEach((data: any) => {
+          const item = document.createElement('a');
+          item.href = data.url;
+          item.className = 'search-result-item';
+          
+          // 渲染卡片 HTML
+          item.innerHTML = `
+            <div class="result-meta">
+              <span class="result-title">${data.meta.title || '无标题'}</span>
+            </div>
+            <p class="result-excerpt">${data.excerpt}</p>
+          `;
+          
+          resultsContainer.appendChild(item);
+        });
+
+        // 绑定键盘上下选择
+        setupKeyboardNavigation();
+
+      } catch (e) {
+        console.error('Error during search:', e);
+        resultsContainer.innerHTML = '<div class="search-error">搜索过程中出错。</div>';
+      }
+    }, 200);
+  }
+
+  // 5. 键盘导航 (↑↓ 选择，Enter 进入)
+  function setupKeyboardNavigation() {
+    const items = resultsContainer.querySelectorAll('.search-result-item');
+    let activeIndex = -1;
+
+    // 清理之前的选中状态
+    items.forEach(el => el.classList.remove('active'));
+
+    input.onkeydown = (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = (activeIndex + 1) % items.length;
+        updateActiveItem();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = (activeIndex - 1 + items.length) % items.length;
+        updateActiveItem();
+      } else if (e.key === 'Enter') {
+        if (activeIndex >= 0 && activeIndex < items.length) {
+          e.preventDefault();
+          (items[activeIndex] as HTMLAnchorElement).click();
+        }
+      }
+    };
+
+    function updateActiveItem() {
+      items.forEach((item, idx) => {
+        if (idx === activeIndex) {
+          item.classList.add('active');
+          item.scrollIntoView({ block: 'nearest' });
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }
+  }
+
+  // 6. 全局监听
+  function setupListeners() {
+    // 监听快捷键 Cmd+K / Ctrl+K
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        if (overlay.style.display === 'flex') {
+          closeSearch();
+        } else {
+          openSearch();
+        }
+      }
+      if (e.key === 'Escape' && overlay.style.display === 'flex') {
+        closeSearch();
+      }
+    });
+
+    // 绑定搜索框输入
+    input.addEventListener('input', handleSearch);
+
+    // 点击蒙层关闭
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closeSearch();
+      }
+    });
+
+    // 绑定导航栏放大镜图标触发
+    const searchBtn = document.getElementById('search-nav-trigger');
+    if (searchBtn) {
+      searchBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openSearch();
+      });
+    }
+  }
+
+  // 支持 View Transitions 的生命周期绑定
+  document.addEventListener('astro:page-load', () => {
+    setupListeners();
+  });
+</script>
+
+<style>
+  .search-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(43, 39, 34, 0.4);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    z-index: 10000;
+    padding: 12vh 2rem 2rem;
+  }
+  :root.dark .search-overlay {
+    background: rgba(15, 14, 13, 0.5);
+  }
+
+  /* 浮窗设计 */
+  .search-modal {
+    width: 100%;
+    max-width: 620px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    box-shadow: 0 24px 64px rgba(43, 39, 34, 0.12);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  :root.dark .search-modal {
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* 搜索框头部 */
+  .search-header {
+    display: flex;
+    align-items: center;
+    padding: 0 1.2rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-deep);
+  }
+  .search-icon {
+    width: 1.15rem;
+    height: 1.15rem;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+  }
+  #search-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: var(--serif-cn), serif;
+    font-size: 1.12rem;
+    color: var(--ink);
+    padding: 1.2rem 1rem;
+    outline: none;
+  }
+  #search-input::placeholder {
+    color: var(--ink-faint);
+    opacity: 0.8;
+  }
+  .esc-badge {
+    font-size: 0.72rem;
+    font-family: var(--serif-en), serif;
+    color: var(--ink-faint);
+    border: 1px solid var(--line);
+    padding: 0.15rem 0.35rem;
+    border-radius: 3px;
+    opacity: 0.7;
+  }
+
+  /* 搜索结果 */
+  .search-results {
+    max-height: 380px;
+    overflow-y: auto;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  /* 状态信息 */
+  .search-empty, .search-loading, .search-error {
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--ink-faint);
+    padding: 3rem 0;
+    font-family: var(--serif-cn), serif;
+  }
+  .search-error {
+    color: var(--ochre);
+  }
+
+  /* 结果卡片 */
+  .search-result-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1rem 1.2rem;
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+  .search-result-item:hover, .search-result-item.active {
+    border-color: var(--ochre);
+    background: var(--paper);
+    transform: translateX(3px);
+  }
+
+  .result-title {
+    font-family: var(--serif-cn), serif;
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+  
+  .result-excerpt {
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin: 0;
+    text-align: justify;
+  }
+  /* Pagefind 命中的高亮词 */
+  .result-excerpt :global(mark) {
+    background: color-mix(in srgb, var(--ochre) 12%, transparent);
+    color: var(--ochre-deep);
+    font-weight: 500;
+    padding: 0 0.15rem;
+    border-radius: 2px;
+  }
+
+  /* 底部状态 */
+  .search-footer {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0.8rem 1.2rem;
+    border-top: 1px solid var(--line);
+    background: var(--paper-deep);
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    font-family: var(--serif-cn), serif;
+  }
+  .kbd-tip kbd {
+    font-family: var(--serif-en), serif;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 0.05rem 0.25rem;
+    border-radius: 2px;
+    margin-right: 0.2rem;
+  }
+</style>

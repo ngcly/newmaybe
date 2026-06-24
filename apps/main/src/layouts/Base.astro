@@ -2,6 +2,7 @@
 import { SITE, NAV } from '../config';
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
+import Search from '../components/Search.astro';
 
 interface Props {
   title?: string;
@@ -114,6 +115,11 @@ const isActive = (href: string) => {
           <li><a href={item.href} class={isActive(item.href) ? 'active' : ''}>{item.label}</a></li>
         ))}
       </ul>
+      <button class="search-nav-btn" id="search-nav-trigger" aria-label="搜索" title="搜索 (⌘K)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-nav-icon">
+          <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
       <button class="theme-toggle" id="themeToggle" aria-label="切换主题" title="切换主题">
         <span class="mode-icon"></span>
       </button>
@@ -170,6 +176,8 @@ const isActive = (href: string) => {
       </div>
     </div>
   </footer>
+
+  <Search />
 
   <script>
     function setupPage() {
@@ -308,6 +316,22 @@ const isActive = (href: string) => {
     .nav-links a.active::after { width: 100%; }
     .nav-links a.active::after { background: var(--ochre); }
 
+    .search-nav-btn {
+      background: none; border: none; cursor: pointer;
+      padding: 6px; display: flex; align-items: center; justify-content: center;
+      margin-left: 2.4rem; color: var(--ink-soft);
+      transition: color 0.3s ease, transform 0.2s ease;
+    }
+    .search-nav-btn:hover {
+      color: var(--ink);
+      transform: scale(1.05);
+    }
+    .search-nav-icon {
+      width: 17px;
+      height: 17px;
+      color: var(--ink-soft);
+    }
+
     .theme-toggle {
       background: none; border: none; cursor: pointer;
       padding: 6px; display: flex; align-items: center; justify-content: center;
@@ -439,7 +463,8 @@ const isActive = (href: string) => {
 
     @media (max-width: 680px) {
       .nav-links { display: none; }
-      .theme-toggle { margin-left: auto; margin-right: 0.5rem; }
+      .search-nav-btn { margin-left: auto; margin-right: 0.5rem; }
+      .theme-toggle { margin-left: 0; margin-right: 0.5rem; }
       .menu-btn { display: flex; }
     }
   </style>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>思考的经纬 · newmaybe 知识网络</title>
+  <style>
+    /* 极致美学的纸底墨色，继承主站设计系统 */
+    :root {
+      --paper:      #F7F3EC;   /* 米纸底 */
+      --paper-deep: #EFE9DE;   /* 略深的米色 */
+      --ink:        #2B2722;   /* 墨黑 */
+      --ink-soft:   #5B5349;   /* 暖灰墨 */
+      --ink-faint:  #968B7C;   /* 淡墨 */
+      --ochre:      #A8643C;   /* 赭石 */
+      --line:       #D9CFBF;   /* 细线 */
+      
+      --serif-cn: 'Noto Serif SC', 'Songti SC', serif;
+      --serif-en: 'Cormorant Garamond', serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper:      #1E1B18;   /* 墨纸底 */
+        --paper-deep: #262320;   /* 略亮的墨纸 */
+        --ink:        #E8E0D5;   /* 暖白墨 */
+        --ink-soft:   #B5A99A;   /* 灰暖墨 */
+        --ink-faint:  #7A7065;   /* 淡暖墨 */
+        --ochre:      #C4814E;   /* 赭石 */
+        --line:       #3A3430;   /* 暗线 */
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background-color: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif-cn);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(168,100,60,0.02) 0%, transparent 45%),
+        radial-gradient(circle at 80% 70%, rgba(43,39,34,0.015) 0%, transparent 45%);
+    }
+
+    /* 顶部叠加控制头 */
+    .graph-header {
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
+      z-index: 10;
+      max-width: 420px;
+      background: rgba(247, 243, 236, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1.6rem;
+      box-shadow: 0 10px 30px rgba(43, 39, 34, 0.04);
+      transition: background-color 0.5s, border-color 0.5s, box-shadow 0.5s;
+    }
+    :root.dark .graph-header {
+      background: rgba(30, 27, 24, 0.75);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+    .back-btn {
+      display: inline-block;
+      font-size: 0.85rem;
+      color: var(--ink-faint);
+      text-decoration: none;
+      margin-bottom: 0.8rem;
+      transition: color 0.3s;
+    }
+    .back-btn:hover {
+      color: var(--ochre);
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 0.6rem;
+      letter-spacing: 0.05em;
+    }
+    .desc {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--ink-soft);
+      margin-bottom: 1.2rem;
+    }
+
+    /* 图例 Legend */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem 1.2rem;
+      border-top: 1px dashed var(--line);
+      padding-top: 1rem;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    
+    /* 节点颜色对应关系 */
+    .dot-posts { background-color: var(--ink); border: 1px solid var(--line); }
+    .dot-notes { background-color: var(--ochre); }
+    .dot-memories { background-color: var(--ink-soft); }
+    .dot-excerpts { background-color: var(--ink-faint); }
+    .dot-fragments { background-color: var(--line); }
+
+    /* 全屏 SVG 图谱容器 */
+    svg {
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+    svg:active {
+      cursor: grabbing;
+    }
+
+    /* D3 样式 */
+    .link {
+      stroke: var(--line);
+      stroke-opacity: 0.45;
+      stroke-width: 1px;
+      transition: stroke-opacity 0.3s, stroke-width 0.3s, stroke 0.3s;
+    }
+    .link.highlighted {
+      stroke: var(--ochre);
+      stroke-opacity: 0.85;
+      stroke-width: 1.8px;
+    }
+
+    .node circle {
+      stroke: var(--paper);
+      stroke-width: 2px;
+      cursor: pointer;
+      transition: r 0.3s ease, fill-opacity 0.3s, stroke 0.3s;
+    }
+    .node.dimmed circle, .node.dimmed text {
+      opacity: 0.22;
+    }
+    .node.active circle {
+      stroke: var(--ochre);
+      stroke-width: 3px;
+    }
+
+    .node text {
+      font-family: var(--serif-cn), serif;
+      font-size: 11px;
+      fill: var(--ink-soft);
+      pointer-events: none;
+      transition: opacity 0.3s, fill 0.3s, font-size 0.3s;
+      opacity: 0.85;
+    }
+    .node:hover text, .node.active text {
+      fill: var(--ink);
+      font-size: 13px;
+      opacity: 1;
+      font-weight: 500;
+    }
+
+    /* 悬停细节卡片 */
+    .detail-card {
+      position: absolute;
+      bottom: 2rem;
+      left: 2rem;
+      right: 2rem;
+      max-width: 500px;
+      margin: 0 auto;
+      background: rgba(247, 243, 236, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1.2rem;
+      box-shadow: 0 12px 36px rgba(43, 39, 34, 0.08);
+      display: none;
+      animation: fadeIn 0.25s ease-out forwards;
+      z-index: 10;
+    }
+    :root.dark .detail-card {
+      background: rgba(30, 27, 24, 0.85);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .detail-type {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: var(--ochre);
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.05em;
+    }
+    .detail-title {
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 0.4rem;
+    }
+    .detail-tip {
+      font-size: 0.76rem;
+      color: var(--ink-faint);
+    }
+
+    @media (max-width: 680px) {
+      .graph-header {
+        top: 1rem; left: 1rem; right: 1rem;
+        max-width: none;
+        padding: 1.2rem;
+      }
+      .legend { display: none; }
+      .detail-card {
+        bottom: 1rem; left: 1rem; right: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 控制台面板 -->
+  <header class="graph-header">
+    <a href="https://newmaybe.com" class="back-btn">← 返回主站 newmaybe.com</a>
+    <h1>思考的经纬</h1>
+    <p class="desc">这是您的数字花园关联图谱。每一个圆点代表一个想法、一篇文章、一个念头，线段代表它们之间的连接。双击任意节点可跳转阅读。</p>
+    
+    <div class="legend">
+      <div class="legend-item"><span class="dot dot-posts"></span>文章 (Writing)</div>
+      <div class="legend-item"><span class="dot dot-notes"></span>笔记 (Note)</div>
+      <div class="legend-item"><span class="dot dot-memories"></span>记忆 (Memory)</div>
+      <div class="legend-item"><span class="dot dot-excerpts"></span>拾遗 (Excerpt)</div>
+      <div class="legend-item"><span class="dot dot-fragments"></span>念头 (Fragment)</div>
+    </div>
+  </header>
+
+  <!-- 关系网图容器 -->
+  <svg id="graph"></svg>
+
+  <!-- 浮动详情面板 -->
+  <div id="detail-card" class="detail-card">
+    <div id="detail-type" class="detail-type">Note</div>
+    <div id="detail-title" class="detail-title">想法的生成</div>
+    <div class="detail-tip">双击该圆点跳转主域查看全文 ↗</div>
+  </div>
+
+  <!-- D3 全局动态运行代码 -->
+  <script is:inline type="module">
+    import * as d3 from 'https://esm.sh/d3@7';
+
+    const svg = d3.select("#graph");
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    
+    // 主容器，供缩放平移使用
+    const g = svg.append("g");
+
+    // 绑定缩放手势 (Zoom & Pan)
+    const zoom = d3.zoom()
+      .scaleExtent([0.3, 3])
+      .on("zoom", (event) => {
+        g.attr("transform", event.transform);
+      });
+    svg.call(zoom);
+
+    // 解决自适应视口大小
+    window.addEventListener("resize", () => {
+      simulation.force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
+      simulation.alpha(0.3).restart();
+    });
+
+    // 提取颜色（配合 CSS 变量进行 D3 渲染）
+    const getThemeColor = (name) => 
+      getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+    const colors = {
+      posts: () => getThemeColor('--ink'),
+      notes: () => getThemeColor('--ochre'),
+      memories: () => getThemeColor('--ink-soft'),
+      excerpts: () => getThemeColor('--ink-faint'),
+      fragments: () => getThemeColor('--line')
+    };
+
+    const nodeRadii = {
+      posts: 12,
+      notes: 10,
+      memories: 9,
+      excerpts: 8,
+      fragments: 7
+    };
+
+    const typeLabels = {
+      posts: '文章 / Writing',
+      notes: '笔记 / Note',
+      memories: '记忆 / Memory',
+      excerpts: '拾遗 / Excerpt',
+      fragments: '念头 / Fragment'
+    };
+
+    // 1. 获取图谱数据
+    d3.json('/graph-data.json').then((data) => {
+      const { nodes, links } = data;
+
+      // 物理力仿真模拟器
+      const simulation = d3.forceSimulation(nodes)
+        .force("link", d3.forceLink(links).id(d => d.id).distance(120))
+        .force("charge", d3.forceManyBody().strength(-240))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("collision", d3.forceCollide().radius(d => nodeRadii[d.group] + 25));
+
+      // 2. 绘制连线
+      const link = g.append("g")
+        .selectAll("line")
+        .data(links)
+        .join("line")
+        .attr("class", "link");
+
+      // 3. 绘制节点容器
+      const node = g.append("g")
+        .selectAll(".node")
+        .data(nodes)
+        .join("g")
+        .attr("class", "node")
+        .call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended)
+        );
+
+      // 4. 为节点绘制圆形徽章
+      node.append("circle")
+        .attr("r", d => nodeRadii[d.group])
+        .attr("fill", d => colors[d.group]())
+        .on("mouseover", handleMouseOver)
+        .on("mouseout", handleMouseOut)
+        .on("dblclick", (event, d) => {
+          window.open(d.url, '_blank');
+        });
+
+      // 5. 绘制文字标签
+      node.append("text")
+        .attr("dx", d => nodeRadii[d.group] + 6)
+        .attr("dy", 4)
+        .text(d => d.title);
+
+      // 6. 物理时间步进更新位置
+      simulation.on("tick", () => {
+        link
+          .attr("x1", d => d.source.x)
+          .attr("y1", d => d.source.y)
+          .attr("x2", d => d.target.x)
+          .attr("y2", d => d.target.y);
+
+        node
+          .attr("transform", d => `translate(${d.x},${d.y})`);
+      });
+
+      // 7. 交互悬浮高亮逻辑
+      const detailCard = document.getElementById("detail-card");
+      const detailType = document.getElementById("detail-type");
+      const detailTitle = document.getElementById("detail-title");
+
+      function handleMouseOver(event, d) {
+        const adjacentNodeIds = new Set();
+        adjacentNodeIds.add(d.id);
+
+        // 查找所有相连的连线，并高亮它们
+        link.classed("highlighted", (l) => {
+          if (l.source.id === d.id || l.target.id === d.id) {
+            adjacentNodeIds.add(l.source.id);
+            adjacentNodeIds.add(l.target.id);
+            return true;
+          }
+          return false;
+        });
+
+        // 虚化所有非直接关联的节点
+        node.classed("dimmed", n => !adjacentNodeIds.has(n.id));
+        d3.select(event.currentTarget.parentNode).classed("active", true);
+
+        // 弹出详情卡片
+        detailType.innerText = typeLabels[d.group];
+        detailTitle.innerText = d.title;
+        detailCard.style.display = "block";
+      }
+
+      function handleMouseOut(event, d) {
+        link.classed("highlighted", false);
+        node.classed("dimmed", false);
+        d3.select(event.currentTarget.parentNode).classed("active", false);
+        detailCard.style.display = "none";
+      }
+
+      // 8. 拖动处理函数
+      function dragstarted(event, d) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+
+      function dragged(event, d) {
+        d.fx = event.x;
+        d.fy = event.y;
+      }
+
+      function dragended(event, d) {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }
+
+      // 暗色模式切换时，动态更新 SVG 节点颜色
+      const observer = new MutationObserver(() => {
+        node.selectAll("circle").attr("fill", d => colors[d.group]());
+      });
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    });
+  </script>
+</body>
+</html>

@@ -2,8 +2,21 @@ import type { APIRoute, InferGetStaticPropsType } from 'astro';
 import { getCollection } from 'astro:content';
 import satori from 'satori';
 import sharp from 'sharp';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+
+// 解决 Monorepo 依赖提升导致的 node_modules 路径变化问题
+function findHoistedFile(relPath: string) {
+  let current = process.cwd();
+  while (true) {
+    const full = join(current, relPath);
+    if (existsSync(full)) return full;
+    const parent = join(current, '..');
+    if (parent === current) break;
+    current = parent;
+  }
+  return join(process.cwd(), relPath);
+}
 
 // Lazy-loaded on first GET call — avoids blocking worker thread at module evaluation time
 // satori uses opentype.js which supports TTF/OTF/WOFF but not WOFF2
@@ -12,12 +25,12 @@ let fontCormorant: Buffer | null = null;
 function loadFonts() {
   if (!fontNoto) {
     fontNoto = readFileSync(
-      join(process.cwd(), 'node_modules/@fontsource/noto-serif-sc/files/noto-serif-sc-chinese-simplified-400-normal.woff')
+      findHoistedFile('node_modules/@fontsource/noto-serif-sc/files/noto-serif-sc-chinese-simplified-400-normal.woff')
     );
   }
   if (!fontCormorant) {
     fontCormorant = readFileSync(
-      join(process.cwd(), 'node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-600-normal.woff')
+      findHoistedFile('node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-600-normal.woff')
     );
   }
   return { fontNoto: fontNoto!, fontCormorant: fontCormorant! };

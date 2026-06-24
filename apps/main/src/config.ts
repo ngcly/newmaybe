@@ -14,6 +14,8 @@ export const SITE = {
 export const NAV = [
   { label: '文字', href: '/writing' },
   { label: '念头', href: '/fragments' },
+  { label: '笔记', href: '/notes' },
+  { label: '记忆', href: '/memory' },
   { label: '拾遗', href: '/excerpts' },
   { label: '作品', href: '/work' },
   { label: '关于', href: '/about' },
