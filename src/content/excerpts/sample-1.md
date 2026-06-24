@@ -1,6 +1,6 @@
 ---
 author: 佚名
-pubDate: 2026-06-24
+pubDate: 2025-06-24
 tags: [状态, 生活]
 comment: 理想而又浪漫的生活
 ---
