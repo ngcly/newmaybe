@@ -57,6 +57,25 @@ Pages 部署成功后，Cloudflare 会分配一个默认的 `*.pages.dev` 域名
 3. 点击 **设置自定义域 (Set up a custom domain)**，输入您对应的域名（如 `graph.newmaybe.com`），点击继续。
 4. Cloudflare 会自动为您配置 DNS 解析并签发 SSL 证书。
 
+### 第四步：绑定 Cloudflare Workers AI (⚠️ AI 域特别配置)
+
+AI 域的免 Key 体验通过 Cloudflare Pages Functions 调用 Cloudflare Workers AI 大模型。为了使该接口正常工作，请在 Cloudflare 仪表盘中为 `newmaybe-ai` 项目绑定 Workers AI 权限：
+
+1. 进入 `newmaybe-ai` 项目页面，点击顶部的 **设置 (Settings)** 选项卡。
+2. 在左侧边栏选择 **函数 (Functions)**，向下滚动到 **AI 绑定 (AI bindings)** 区域。
+3. 点击 **添加绑定 (Add binding)**：
+   * **变量名称 (Variable name)**: 输入 `AI` (必须全部大写，以对应后端代码中的 `context.env.AI` 命名)。
+4. 点击 **保存 (Save)**。
+5. **重新部署以生效**：绑定保存后，必须重新触发一次 `newmaybe-ai` 的部署（或者点击 "重新构建部署"），Pages Functions 才能获得 `context.env.AI` 接口的访问权限。
+
+#### 💡 Workers AI 模型回退机制说明
+部署成功后，系统在服务端会尝试依次运行以下模型：
+* **首选模型**：`@cf/qwen/qwen1.5-14b-chat` (千问 14B 对中文语义理解和文学润色有极佳的表现)。
+* **备用模型**：若首选模型调用异常或超出并发配额，自动回退到 `@cf/meta/llama-3-8b-instruct` 以确保服务高可用。
+
+#### 🌸 独立自定义 API 接入 (非必需)
+除内置的免费 Workers AI 外，我们在 AI 界面控制面板中集成了 **“大模型协议化直连模式”**。读者如果需要无限次使用，可自行在控制面板填入自己的 API Key（如 OpenAI、Gemini、DeepSeek、Kimi、通义千问、硅基流动等）。该配置完全保存在读者的浏览器本地 `localStorage`，直接从浏览器发起网络请求，不会经过中转服务器，安全性及独立性极佳。
+
 ---
 
 ## 💡 为什么这种模式能正常编译？
