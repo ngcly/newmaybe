@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import WorkCardInner from '../components/WorkCardInner.astro';
+import { resolveSubdomain } from '../config';
 
 // 作品 / 项目数据 —— 往这个数组里加条目即可。
 // 如果以后想用 Markdown 管理，可以仿照 posts 再建一个 content collection。
@@ -110,7 +111,7 @@ const works = [
           return (
             <>
               {w.href ? (
-                <a href={w.href} class="work-item" target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
+                <a href={external ? resolveSubdomain(w.href) : w.href} class="work-item" target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
                   {inner}
                 </a>
               ) : hasQrcode ? (

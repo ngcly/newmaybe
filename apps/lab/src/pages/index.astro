@@ -1,10 +1,29 @@
+---
+const isDev = import.meta.env.DEV;
+const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
+---
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>创意实验室 · newmaybe 实验层</title>
+  <script is:inline>
+    (function() {
+      const match = document.cookie.match(/theme=(dark|light)/);
+      const theme = (match && match[1]) || localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.classList.add(theme);
+    })();
+  </script>
+  <title>网页物理交互与感官艺术博物馆 · newmaybe 实验层</title>
   <style>
+    @import '@fontsource/cormorant-garamond/latin-400.css';
+    @import '@fontsource/cormorant-garamond/latin-400-italic.css';
+    @import '@fontsource/cormorant-garamond/latin-600.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
+
     :root {
       --paper:      #F7F3EC;
       --paper-deep: #EFE9DE;
@@ -19,7 +38,7 @@
     }
 
     @media (prefers-color-scheme: dark) {
-      :root {
+      :root:not(.light) {
         --paper:      #1E1B18;
         --paper-deep: #262320;
         --ink:        #E8E0D5;
@@ -28,6 +47,26 @@
         --ochre:      #C4814E;
         --line:       #3A3430;
       }
+    }
+
+    :root.dark {
+      --paper:      #1E1B18;
+      --paper-deep: #262320;
+      --ink:        #E8E0D5;
+      --ink-soft:   #B5A99A;
+      --ink-faint:  #7A7065;
+      --ochre:      #C4814E;
+      --line:       #3A3430;
+    }
+
+    :root.light {
+      --paper:      #F7F3EC;
+      --paper-deep: #EFE9DE;
+      --ink:        #2B2722;
+      --ink-soft:   #5B5349;
+      --ink-faint:  #968B7C;
+      --ochre:      #A8643C;
+      --line:       #D9CFBF;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -41,7 +80,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 2rem;
+      padding: 4rem 2rem;
       background-image:
         radial-gradient(circle at 10% 20%, rgba(168,100,60,0.02) 0%, transparent 45%),
         radial-gradient(circle at 90% 80%, rgba(43,39,34,0.015) 0%, transparent 45%);
@@ -49,7 +88,7 @@
 
     .container {
       width: 100%;
-      max-width: 800px;
+      max-width: 960px;
       display: flex;
       flex-direction: column;
       gap: 3.5rem;
@@ -75,12 +114,13 @@
       font-weight: 500;
       line-height: 1.2;
       margin-bottom: 1rem;
+      letter-spacing: 0.05em;
     }
     .intro {
       font-size: 1rem;
       color: var(--ink-soft);
       line-height: 1.8;
-      max-width: 60ch;
+      max-width: 68ch;
       margin: 0 auto;
       font-weight: 300;
     }
@@ -88,7 +128,7 @@
     /* 实验网格 */
     .lab-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
       gap: 2rem;
     }
 
@@ -102,7 +142,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 240px;
+      min-height: 260px;
       transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
                   box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
                   border-color 0.3s ease;
@@ -156,28 +196,33 @@
       padding-top: 1rem;
     }
 
+    @media (max-width: 768px) {
+      .lab-grid {
+        grid-template-columns: 1fr;
+      }
+    }
     @media (max-width: 680px) {
       body { padding: 3rem 1rem; }
       .container { gap: 2.5rem; }
-      .lab-card { padding: 1.6rem; min-height: 200px; }
+      .lab-card { padding: 1.6rem; min-height: 220px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <a href="https://newmaybe.com" class="back-btn">← 返回主展厅 newmaybe.com</a>
-      <h1>创意实验室</h1>
-      <p class="intro">这里是 newmaybe 探索交互前沿、前瞻脑力激荡与情感连结的心灵试验场。探索不确定性的艺术魅力。</p>
+      <a href={mainSiteUrl} class="back-btn">← 返回主展厅 newmaybe.com</a>
+      <h1>物理交互与感官艺术博物馆</h1>
+      <p class="intro">这里是 newmaybe 探索网页作为艺术材质的试验场。在这里，网页不只是死板的信息容器，而可以被感知、抚摸、倾听与冥想。在这里找到最解压而优雅的心流瞬间。</p>
     </header>
 
     <div class="lab-grid">
       <!-- 实验一 -->
       <a href="/zen-writer" class="lab-card">
         <div>
-          <span class="card-meta">Experiment #01 · 沉浸心智</span>
+          <span class="card-meta">Exhibit #01 · 沉浸心智</span>
           <h2 class="card-title">禅意写作空间</h2>
-          <p class="card-desc">纯净至极的全屏输入白板。内置雨声与风声白噪音，键盘输入时周围控制条自动淡出，让您进入绝对心流的文字创作状态。</p>
+          <p class="card-desc">纯净至极的全屏输入白板。内置雨声与风声白噪音，键盘输入时周围控制条自动淡出，让您进入绝对心流的文字创作状态，并支持一键跨域导出。</p>
         </div>
         <div class="card-foot">
           <span>HTML5 Audio + 沉浸式动效</span>
@@ -188,12 +233,38 @@
       <!-- 实验二 -->
       <a href="/floating-verse" class="lab-card">
         <div>
-          <span class="card-meta">Experiment #02 · 物理交互</span>
+          <span class="card-meta">Exhibit #02 · 物理交互</span>
           <h2 class="card-title">随风诗词画布</h2>
           <p class="card-desc">将诗词文字打碎为在夜空中静静漂浮的粒子，鼠标滑过产生平滑物理排斥波动，移开后徐徐聚合重组，隐喻脑海中半成形的灵感流淌。</p>
         </div>
         <div class="card-foot">
           <span>HTML5 Canvas + 粒子物理引擎</span>
+          <span>开启实验 →</span>
+        </div>
+      </a>
+
+      <!-- 实验三 -->
+      <a href="/audio-zen" class="lab-card">
+        <div>
+          <span class="card-meta">Exhibit #03 · 视听冥想</span>
+          <h2 class="card-title">视听冥想空间</h2>
+          <p class="card-desc">通过磬（Singing Bowl）声释放压力。点击屏幕敲击磬圈，发出空灵正弦泛音，Canvas 实时涟漪扩散，可伴随大自然风雨的呼唤进行呼吸冥想。</p>
+        </div>
+        <div class="card-foot">
+          <span>Web Audio API + 交互波纹</span>
+          <span>开启实验 →</span>
+        </div>
+      </a>
+
+      <!-- 实验四 -->
+      <a href="/ink-flow" class="lab-card">
+        <div>
+          <span class="card-meta">Exhibit #04 · 网页材质</span>
+          <h2 class="card-title">水墨生成流体</h2>
+          <p class="card-desc">将纸墨香气融入网页流体物理。鼠标拖动会渲染如水墨落于宣纸般的飘散烟雾粒子轨迹，提供墨汁厚度、色调控制与一键清空重绘。</p>
+        </div>
+        <div class="card-foot">
+          <span>Generative Flow + 流体渲染</span>
           <span>开启实验 →</span>
         </div>
       </a>

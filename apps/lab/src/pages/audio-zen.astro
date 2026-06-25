@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script is:inline>
+    (function() {
+      const match = document.cookie.match(/theme=(dark|light)/);
+      const theme = (match && match[1]) || localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.classList.add(theme);
+    })();
+  </script>
+  <title>视听冥想空间 · newmaybe 实验 03</title>
+  <style>
+    @import '@fontsource/cormorant-garamond/latin-400.css';
+    @import '@fontsource/cormorant-garamond/latin-400-italic.css';
+    @import '@fontsource/cormorant-garamond/latin-600.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
+
+    :root {
+      --paper:      #F7F3EC;
+      --paper-deep: #EFE9DE;
+      --ink:        #2B2722;
+      --ink-soft:   #5B5349;
+      --ink-faint:  #968B7C;
+      --ochre:      #A8643C;
+      --line:       #D9CFBF;
+      --serif-cn: 'Noto Serif SC', 'Songti SC', serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not(.light) {
+        --paper:      #1E1B18;
+        --paper-deep: #262320;
+        --ink:        #E8E0D5;
+        --ink-soft:   #B5A99A;
+        --ink-faint:  #7A7065;
+        --ochre:      #C4814E;
+        --line:       #3A3430;
+      }
+    }
+
+    :root.dark {
+      --paper:      #1E1B18;
+      --paper-deep: #262320;
+      --ink:        #E8E0D5;
+      --ink-soft:   #B5A99A;
+      --ink-faint:  #7A7065;
+      --ochre:      #C4814E;
+      --line:       #3A3430;
+    }
+
+    :root.light {
+      --paper:      #F7F3EC;
+      --paper-deep: #EFE9DE;
+      --ink:        #2B2722;
+      --ink-soft:   #5B5349;
+      --ink-faint:  #968B7C;
+      --ochre:      #A8643C;
+      --line:       #D9CFBF;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background-color: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif-cn), serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: background-color 0.5s;
+    }
+
+    header {
+      position: absolute;
+      top: 2rem;
+      left: 3rem;
+      z-index: 100;
+    }
+    .back-link {
+      font-size: 0.9rem;
+      color: var(--ink-faint);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .back-link:hover {
+      color: var(--ochre);
+    }
+
+    /* 全屏 Canvas */
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: pointer;
+    }
+
+    /* 下部控制栏 */
+    .meditation-controls {
+      position: absolute;
+      bottom: 2rem;
+      left: 0;
+      right: 0;
+      width: fit-content;
+      margin: 0 auto;
+      background: rgba(239, 233, 222, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0.8rem 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      box-shadow: 0 4px 20px rgba(43, 39, 34, 0.03);
+      z-index: 100;
+    }
+    :root.dark .meditation-controls {
+      background: rgba(38, 35, 32, 0.7);
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--ink-soft);
+    }
+
+    .audio-btn {
+      background: none;
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+      cursor: pointer;
+      font-size: 0.76rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 3px;
+      font-family: var(--serif-cn), serif;
+      transition: all 0.3s;
+    }
+    .audio-btn.active, .audio-btn:hover {
+      background-color: var(--ochre);
+      color: var(--paper);
+      border-color: var(--ochre);
+    }
+
+    /* 悬浮引导说明 */
+    .overlay-tip {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      text-align: center;
+      font-weight: 300;
+      font-size: 1.1rem;
+      color: var(--ink-soft);
+      transition: opacity 1s ease-in-out;
+      animation: pulse 3s infinite ease-in-out;
+      z-index: 5;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.75; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/#" class="back-link">← 返回实验室</a>
+  </header>
+
+  <!-- 视听渲染画布 -->
+  <canvas id="canvas"></canvas>
+
+  <div class="overlay-tip" id="overlayTip">
+    敲击屏幕 · 扣响铜磬<br/>
+    <span style="font-size: 0.85rem; color: var(--ink-faint); margin-top: 0.5rem; display: block;">听泛音在心海荡起涟漪</span>
+  </div>
+
+  <!-- 下方控制 -->
+  <div class="meditation-controls">
+    <div class="control-item">
+      <span>自然背景音：</span>
+      <button class="audio-btn" id="rainBtn">山雨 🌧</button>
+      <button class="audio-btn" id="windBtn">松风 🍃</button>
+    </div>
+    <div class="control-item">
+      <span>磬音大小：</span>
+      <input type="range" id="volumeSlider" min="0" max="100" value="50" style="width: 80px; accent-color: var(--ochre); cursor: pointer;" aria-label="调节磬声音量" />
+    </div>
+  </div>
+
+  <script is:inline>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    const ripples = [];
+    const maxRipples = 6;
+    let strikeVolume = 0.5;
+
+    // Web Audio Synthesizer
+    let audioCtx = null;
+    let rainNode = null;
+    let windNode = null;
+
+    function initAudio() {
+      if (audioCtx) return;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContextClass();
+    }
+
+    // 磬声频率泛音模型
+    // 铜磬拥有深沉的基频，以及多个高频谐振泛音，相互干涉形成典型的铜磬空灵感
+    const bowlHarmonics = [146.8, 220.0, 293.7, 440.0, 587.3, 734.0, 880.0]; // 基准 D3 及对应纯律泛音
+
+    function playSingingBowl() {
+      initAudio();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      const now = audioCtx.currentTime;
+      
+      // 总音量控制器
+      const masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0, now);
+      masterGain.gain.linearRampToValueAtTime(strikeVolume * 0.4, now + 0.05); // 快速起音
+      masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 12.0);        // 极长指数衰减 (12 秒)
+      masterGain.connect(audioCtx.destination);
+
+      bowlHarmonics.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        // 不同的泛音衰减速度不同，高频衰减快，中低频衰减慢
+        const decayTime = 12.0 / (idx * 0.5 + 1);
+        const relativeVolume = idx === 0 ? 1.0 : (0.8 / (idx + 1)); // 基频最高，谐振音递减
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq + (Math.random() - 0.5) * 1.5, now); // 微调失谐创造饱满干涉音色
+        
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(relativeVolume, now + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + decayTime);
+
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(now);
+        osc.stop(now + decayTime + 1.0);
+      });
+    }
+
+    // 雨声与风声白噪音生成
+    function createNoiseBuffer() {
+      const bufferSize = 2 * audioCtx.sampleRate;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      return buffer;
+    }
+
+    function toggleRain() {
+      initAudio();
+      if (rainNode) {
+        rainNode.stop();
+        rainNode = null;
+        document.getElementById('rainBtn').classList.remove('active');
+        return;
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = createNoiseBuffer();
+      noise.loop = true;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 620;
+      filter.Q.value = 1.0;
+
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.12;
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start();
+
+      rainNode = { stop: () => { try { noise.stop(); } catch(e){} } };
+      document.getElementById('rainBtn').classList.add('active');
+    }
+
+    function toggleWind() {
+      initAudio();
+      if (windNode) {
+        windNode.stop();
+        windNode = null;
+        document.getElementById('windBtn').classList.remove('active');
+        return;
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = createNoiseBuffer();
+      noise.loop = true;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 160;
+
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.07;
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start();
+
+      // 风力摆动起伏振荡
+      const osc = audioCtx.createOscillator();
+      const oscGain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 0.07;
+      oscGain.gain.value = 75;
+
+      osc.connect(oscGain);
+      oscGain.connect(filter.frequency);
+      osc.start();
+
+      windNode = { stop: () => { try { noise.stop(); osc.stop(); } catch(e){} } };
+      document.getElementById('windBtn').classList.add('active');
+    }
+
+    // 涟漪波纹对象
+    class Ripple {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.radius = 0;
+        this.maxRadius = Math.max(width, height) * 0.7;
+        this.opacity = 1.0;
+        this.speed = 1.8;
+      }
+
+      update() {
+        this.radius += this.speed;
+        // 涟漪逐渐淡出，且扩散速度因阻尼稍微减慢
+        this.opacity = 1.0 - (this.radius / this.maxRadius);
+      }
+
+      draw() {
+        if (this.opacity <= 0) return;
+        ctx.strokeStyle = getThemeColor('--ochre');
+        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = this.opacity * 0.25;
+
+        // 绘制两个微小间隔的波圈代表干涉涟漪
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, Math.max(0, this.radius - 20), 0, Math.PI * 2);
+        ctx.stroke();
+        
+        ctx.globalAlpha = 1.0;
+      }
+    }
+
+    // 获取颜色配置
+    const getThemeColor = (name) => 
+      getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+    // 交互点击
+    canvas.addEventListener('click', (e) => {
+      // 隐去说明文字
+      const tip = document.getElementById('overlayTip');
+      if (tip) {
+        tip.style.opacity = '0';
+        setTimeout(() => tip.remove(), 1000);
+      }
+
+      // 生成涟漪
+      ripples.push(new Ripple(e.clientX, e.clientY));
+      if (ripples.length > maxRipples) {
+        ripples.shift();
+      }
+
+      // 响磬
+      playSingingBowl();
+    });
+
+    // 绘制循环
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+
+      // 在中心绘制一个大而浅的禅意正念圈 (Enso)
+      ctx.strokeStyle = getThemeColor('--line');
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.35;
+      ctx.beginPath();
+      // 经典稍有偏置不完美的Enso线段
+      ctx.arc(width / 2, height / 2, Math.min(width, height) * 0.22, 0, Math.PI * 1.9);
+      ctx.stroke();
+      ctx.globalAlpha = 1.0;
+
+      // 渲染涟漪波纹
+      ripples.forEach((r, idx) => {
+        r.update();
+        r.draw();
+        if (r.opacity <= 0) {
+          ripples.splice(idx, 1);
+        }
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    // 监听调优与控件
+    document.getElementById('rainBtn').addEventListener('click', toggleRain);
+    document.getElementById('windBtn').addEventListener('click', toggleWind);
+    document.getElementById('volumeSlider').addEventListener('input', (e) => {
+      strikeVolume = e.target.value / 100;
+    });
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    draw();
+  </script>
+</body>
+</html>

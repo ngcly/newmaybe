@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { fetchAllContent, retrieveRelevantDocs, buildSystemPrompt, type ContentItem } from './utils/rag';
 
 interface Message {
   id: string;
@@ -7,6 +8,37 @@ interface Message {
   timestamp: string;
   references?: { type: string; title: string; url: string }[];
 }
+
+type ProviderType = 'free' | 'openai' | 'gemini';
+
+interface Suggestion {
+  name: string;
+  url: string;
+  model: string;
+}
+
+const SUGGESTIONS: Suggestion[] = [
+  { name: 'DeepSeek 官方', url: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
+  { name: '硅基流动 (SiliconFlow)', url: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V3' },
+  { name: '月之暗面 (Kimi)', url: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k' },
+  { name: '阿里通义千问', url: 'https://dashscope.aliyuncs.com/compatible-mode/v1', model: 'qwen-plus' },
+  { name: '智谱 AI (GLM)', url: 'https://open.bigmodel.cn/api/paas/v1', model: 'glm-4-flash' },
+  { name: 'OpenAI 官方', url: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
+  { name: 'Gemini 官方', url: 'https://generativelanguage.googleapis.com', model: 'gemini-2.5-flash' },
+];
+
+const resolveSubdomain = (url: string) => {
+  const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  if (!isLocal) return url;
+  
+  if (url.includes('graph.newmaybe.com')) return 'http://localhost:4322';
+  if (url.includes('tools.newmaybe.com')) return 'http://localhost:4323';
+  if (url.includes('ai.newmaybe.com')) return 'http://localhost:4324';
+  if (url.includes('lab.newmaybe.com')) return 'http://localhost:4325';
+  if (url.includes('studio.newmaybe.com')) return 'http://localhost:4326';
+  if (url.includes('newmaybe.com')) return 'http://localhost:4321';
+  return url;
+};
 
 export default function App() {
   const [messages, setMessages] = useState<Message[]>([
@@ -19,14 +51,47 @@ export default function App() {
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  
+  // 推理配置状态
+  const [provider, setProvider] = useState<ProviderType>('free');
+  const [model, setModel] = useState('workers-ai');
   const [apiKey, setApiKey] = useState('');
+  const [customBaseUrl, setCustomBaseUrl] = useState('');
   const [showConfig, setShowConfig] = useState(false);
+  
+  // RAG 语料库
+  const [allContent, setAllContent] = useState<ContentItem[]>([]);
+  const [freeTurnsLeft, setFreeTurnsLeft] = useState(5);
+  
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // 加载本地 API Key
+  // 初始化配置与数据拉取
   useEffect(() => {
+    // 加载本地 API 密钥与服务商配置
+    const savedProvider = localStorage.getItem('newmaybe_ai_provider') as ProviderType | null;
+    const savedModel = localStorage.getItem('newmaybe_ai_model');
     const savedKey = localStorage.getItem('newmaybe_api_key');
+    const savedBaseUrl = localStorage.getItem('newmaybe_custom_base_url');
+
+    if (savedProvider) setProvider(savedProvider);
+    if (savedModel) {
+      setModel(savedModel);
+    } else if (savedProvider === 'gemini') {
+      setModel('gemini-2.5-flash');
+    } else if (savedProvider === 'openai') {
+      setModel('gpt-4o-mini');
+    }
     if (savedKey) setApiKey(savedKey);
+    if (savedBaseUrl) setCustomBaseUrl(savedBaseUrl);
+
+    // 获取 RAG 全文库
+    fetchAllContent().then(data => {
+      setAllContent(data);
+    });
+
+    // 检查每日免费额度
+    const limitStatus = checkFreeTurns();
+    setFreeTurnsLeft(limitStatus.remaining);
   }, []);
 
   // 滚动到底部
@@ -34,61 +99,102 @@ export default function App() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  const saveApiKey = (key: string) => {
+  // 1. 额度控制助手
+  const checkFreeTurns = (): { ok: boolean; remaining: number } => {
+    const limitJson = localStorage.getItem('newmaybe_free_turns_limit');
+    const today = new Date().toDateString();
+    
+    if (limitJson) {
+      try {
+        const { date, count } = JSON.parse(limitJson);
+        if (date === today) {
+          if (count >= 5) {
+            return { ok: false, remaining: 0 };
+          }
+          return { ok: true, remaining: 5 - count };
+        }
+      } catch (e) {}
+    }
+    return { ok: true, remaining: 5 };
+  };
+
+  const decrementFreeTurns = (): number => {
+    const limitJson = localStorage.getItem('newmaybe_free_turns_limit');
+    const today = new Date().toDateString();
+    let count = 0;
+    if (limitJson) {
+      try {
+        const parsed = JSON.parse(limitJson);
+        if (parsed.date === today) {
+          count = parsed.count;
+        }
+      } catch (e) {}
+    }
+    count += 1;
+    localStorage.setItem('newmaybe_free_turns_limit', JSON.stringify({ date: today, count }));
+    return 5 - count;
+  };
+
+  // 保存模型设置
+  const saveConfig = (p: ProviderType, m: string, key: string, baseUrl: string) => {
+    setProvider(p);
+    setModel(m);
     setApiKey(key);
+    setCustomBaseUrl(baseUrl);
+    localStorage.setItem('newmaybe_ai_provider', p);
+    localStorage.setItem('newmaybe_ai_model', m);
     localStorage.setItem('newmaybe_api_key', key);
+    localStorage.setItem('newmaybe_custom_base_url', baseUrl);
     setShowConfig(false);
   };
 
-  // 模拟 Agent 智能检索响应
-  const getAgentResponse = (query: string): { text: string; refs?: { type: string; title: string; url: string }[] } => {
-    const q = query.toLowerCase();
-    
-    if (q.includes('慢阅读') || q.includes('slow')) {
-      return {
-        text: '关于「慢阅读 (Slow Reading)」，您的档案库（v1.0.0）记录道：这是一种有意识地降低阅读速度以实现深入理解、批判性思考和审美享受的阅读态度。在信息洪流中，慢阅读是一种主动的撤退和反抗。它要求“无任务”的沉浸感，并允许阅读后产生的想法在时间中慢慢沉淀，化作“落叶”落入您的数字花园中。',
-        refs: [{ type: '记忆', title: '慢阅读 (Slow Reading)', url: 'https://newmaybe.com/memory/slow-reading' }]
-      };
-    }
-    
-    if (q.includes('隐私') || q.includes('privacy')) {
-      return {
-        text: '根据您在「隐私优先原则」档案（v1.0.2）中的记录，隐私优先是系统底层的核心约束。其实践包括：1) 零追踪：拒绝引入类似 Google Analytics 的第三方代码；2) 静态生成 (SSG)：消除服务端动态追踪的可能；3) 零 Cookie 运行：完全匿名化读者的浏览路径。',
-        refs: [{ type: '记忆', title: '隐私优先原则', url: 'https://newmaybe.com/memory/privacy-first' }]
-      };
-    }
-    
-    if (q.includes('追踪') || q.includes('tracking')) {
-      return {
-        text: '您在笔记《对抗现代互联网的追踪机制》中探讨过：现代互联网的追踪无处不在，对抗追踪不是退缩，而是一种尊重的表达。在主站中，您通过使用 Pagefind 本地索引实现纯静态搜索、使用 Cloudflare Web Analytics 进行无 Cookie 统计、以及全面使用 Vanilla CSS 保持精简，把选择权完全交还给了读者。',
-        refs: [
-          { type: '笔记', title: '对抗现代互联网的追踪机制', url: 'https://newmaybe.com/notes/anti-tracking' },
-          { type: '记忆', title: '隐私优先原则', url: 'https://newmaybe.com/memory/privacy-first' }
-        ]
-      };
-    }
+  // 清除配置/注销 Key
+  const clearConfig = () => {
+    setProvider('free');
+    setModel('workers-ai');
+    setApiKey('');
+    setCustomBaseUrl('');
+    localStorage.removeItem('newmaybe_ai_provider');
+    localStorage.removeItem('newmaybe_ai_model');
+    localStorage.removeItem('newmaybe_api_key');
+    localStorage.removeItem('newmaybe_custom_base_url');
+    setShowConfig(false);
+  };
 
-    if (q.includes('花园') || q.includes('garden')) {
-      return {
-        text: '在笔记《数字花园的生长机制》中，您将网站定义为一个“持续生长的生命系统”。它遵循三个核心准则：1) 先记录，后整理（快速捕获灵感）；2) 永远允许未完成（笔记可以长期处于半成品草稿状态）；3) 链接优于分类（利用 Connections 建立网状脉络，而不是强行用文件夹分类）。',
-        refs: [
-          { type: '笔记', title: '数字花园的生长机制', url: 'https://newmaybe.com/notes/digital-garden' }
-        ]
-      };
-    }
+  // 获取动态节点数量统计
+  const getStats = () => {
+    const defaultStats = { posts: 12, notes: 2, memories: 2, excerpts: 3, fragments: 1 };
+    if (allContent.length === 0) return defaultStats;
 
     return {
-      text: `我已经检索了您的知识库。根据您的数字花园配置，您的文字、笔记和摘录均共享同一套 Markdown 内容中枢。
-
-如果您配置了自定义 API Key（支持 OpenAI/Gemini），我可以借助底层大模型进行更加深度的发散推理。当前本地模拟状态下，您可以向我提问关于：“慢阅读”、“隐私优先”、“数字花园” 或 “对抗追踪” 的核心思想。`,
-      refs: [
-        { type: '主站', title: 'newmaybe.com', url: 'https://newmaybe.com' }
-      ]
+      posts: allContent.filter(item => item.type === 'posts').length,
+      notes: allContent.filter(item => item.type === 'notes').length,
+      memories: allContent.filter(item => item.type === 'memories').length,
+      excerpts: allContent.filter(item => item.type === 'excerpts').length,
+      fragments: allContent.filter(item => item.type === 'fragments').length,
     };
   };
 
-  const handleSend = () => {
+  const stats = getStats();
+
+  // 发送消息与推理主流程
+  const handleSend = async () => {
     if (!inputText.trim()) return;
+
+    // A. 免费体验模式下的频次拦截
+    if (provider === 'free') {
+      const limitStatus = checkFreeTurns();
+      if (!limitStatus.ok) {
+        setMessages(prev => [...prev, {
+          id: `limit-error-${Date.now()}`,
+          role: 'assistant',
+          text: '您好，今日免费对话额度（5次）已用完。免费模式旨在提供基础的体验，若要解除限制，您可以点击左下角配置您个人的 Gemini 或 OpenAI API 密钥（您的密钥将仅保存在本地浏览器中，十分安全）。',
+          timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+        }]);
+        setInputText('');
+        return;
+      }
+    }
 
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
@@ -101,67 +207,298 @@ export default function App() {
     setInputText('');
     setIsTyping(true);
 
-    // 模拟思考延迟 (1.2秒)
-    setTimeout(() => {
-      const response = getAgentResponse(userMessage.text);
-      const assistantMessage: Message = {
-        id: `msg-${Date.now() + 1}`,
+    try {
+      // B. 执行本地 RAG 搜索引擎检索匹配文章
+      const matchedDocs = retrieveRelevantDocs(userMessage.text, allContent);
+      const references = matchedDocs.map(item => ({
+        type: item.doc.type === 'posts' ? '文章' : item.doc.type === 'notes' ? '笔记' : item.doc.type === 'memories' ? '记忆' : item.doc.type === 'excerpts' ? '拾遗' : '念头',
+        title: item.doc.title,
+        url: item.doc.url
+      }));
+
+      // C. 组装 System Prompt (包含 RAG 上下文)
+      const systemPromptContent = buildSystemPrompt(matchedDocs.map(m => m.doc));
+
+      // D. 构建多轮对话上下文结构
+      const promptHistory = [
+        { role: 'system', content: systemPromptContent },
+        ...messages.filter(m => m.id !== 'welcome').map(m => ({
+          role: m.role,
+          content: m.text
+        })),
+        { role: 'user', content: userMessage.text }
+      ];
+
+      let replyText = '';
+
+      if (provider === 'free') {
+        // 调用 Cloudflare Workers AI 后端代理接口
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: promptHistory })
+        });
+        const data = await res.json() as any;
+        if (!res.ok || data.error) {
+          throw new Error(data.error || '后端接口响应错误');
+        }
+        replyText = data.text;
+        
+        // 扣减额度并更新状态
+        const left = decrementFreeTurns();
+        setFreeTurnsLeft(left);
+
+      } else if (provider === 'gemini') {
+        // 直连 Gemini 兼容接口 (浏览器前端调用)
+        const geminiMessages = promptHistory
+          .filter(m => m.role !== 'system')
+          .map(m => ({
+            role: m.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: m.content }]
+          }));
+
+        const baseUrl = customBaseUrl || 'https://generativelanguage.googleapis.com';
+        const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+
+        const res = await fetch(`${cleanBaseUrl}/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: geminiMessages,
+            systemInstruction: {
+              parts: [{ text: systemPromptContent }]
+            }
+          })
+        });
+        const data = await res.json() as any;
+        if (!res.ok || data.error) {
+          throw new Error(data.error?.message || data.error || 'Gemini 接口调用出错');
+        }
+        replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || '未能获取回复，请重试。';
+
+      } else if (provider === 'openai') {
+        // 直连 OpenAI 兼容接口 (浏览器前端调用)
+        const baseUrl = customBaseUrl || 'https://api.openai.com/v1';
+        const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+
+        const res = await fetch(`${cleanBaseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: promptHistory.map(m => ({
+              role: m.role,
+              content: m.content
+            }))
+          })
+        });
+        const data = await res.json() as any;
+        if (!res.ok || data.error) {
+          throw new Error(data.error?.message || data.error || 'OpenAI 兼容接口调用出错');
+        }
+        replyText = data.choices?.[0]?.message?.content || '未能获取回复，请重试。';
+      }
+
+      setMessages(prev => [...prev, {
+        id: `msg-${Date.now()}`,
         role: 'assistant',
-        text: response.text,
-        references: response.refs,
+        text: replyText,
+        references: references,
         timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-      };
-      setMessages(prev => [...prev, assistantMessage]);
+      }]);
+
+    } catch (err: any) {
+      console.error(err);
+      setMessages(prev => [...prev, {
+        id: `msg-error-${Date.now()}`,
+        role: 'assistant',
+        text: `【错误反馈】AI 连接发生故障：${err.message || err}。请确保您的 API 密钥配置正确，或者检查网络连接（自带 Key 直连可能需要特殊网络环境支持）。`,
+        timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+      }]);
+    } finally {
       setIsTyping(false);
-    }, 1200);
+    }
   };
 
   return (
     <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-[var(--paper)]">
       
       {/* 左侧控制栏 */}
-      <aside className="w-full md:w-80 bg-[var(--paper-deep)] border-b md:border-b-0 md:border-r border-[var(--line)] flex flex-col p-6 shrink-0 transition-colors duration-500 overflow-y-auto">
+      <aside className="w-full md:w-80 bg-[color-mix(in_srgb,var(--paper-deep)_80%,transparent)] backdrop-blur-md border-b md:border-b-0 md:border-r border-[var(--line)] flex flex-col p-6 shrink-0 transition-colors duration-500 overflow-y-auto">
         <div className="mb-6">
-          <a href="https://newmaybe.com" className="text-xl font-semibold tracking-wide flex items-baseline gap-1 text-[var(--ink)] no-underline">
+          <a href={resolveSubdomain("https://newmaybe.com")} className="text-xl font-semibold tracking-wide flex items-baseline gap-1 text-[var(--ink)] no-underline">
             newmaybe<span className="text-[var(--ochre)] font-serif">.ai</span>
           </a>
           <p className="text-xs text-[var(--ink-faint)] mt-2">智能层 · 个人知识 Agent 终端</p>
         </div>
 
         {/* 状态统计 */}
-        <div className="bg-[var(--paper)] border border-[var(--line)] rounded p-4 mb-6">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)] mb-3">知识图谱索引状态</h4>
-          <ul className="text-xs text-[var(--ink-soft)] space-y-2 list-none">
-            <li className="flex justify-between"><span>🌲 文章节点 (Writing)</span> <span className="font-semibold">9 篇</span></li>
-            <li className="flex justify-between"><span>🌱 笔记节点 (Note)</span> <span className="font-semibold">2 篇</span></li>
-            <li className="flex justify-between"><span>🌳 记忆节点 (Memory)</span> <span className="font-semibold">2 个</span></li>
-            <li className="flex justify-between"><span>📖 拾遗节点 (Excerpt)</span> <span className="font-semibold">3 条</span></li>
-            <li className="flex justify-between"><span>🍂 念头节点 (Fragment)</span> <span className="font-semibold">1 个</span></li>
+        <div className="bg-[var(--paper)] border border-[var(--line)] rounded p-4 mb-5">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)] mb-2.5">知识图谱索引状态</h4>
+          <ul className="text-xs text-[var(--ink-soft)] space-y-1.5 list-none">
+            <li className="flex justify-between"><span>🌲 文章节点 (Writing)</span> <span className="font-semibold">{stats.posts} 篇</span></li>
+            <li className="flex justify-between"><span>🌱 笔记节点 (Note)</span> <span className="font-semibold">{stats.notes} 篇</span></li>
+            <li className="flex justify-between"><span>🌳 记忆节点 (Memory)</span> <span className="font-semibold">{stats.memories} 个</span></li>
+            <li className="flex justify-between"><span>📖 拾遗节点 (Excerpt)</span> <span className="font-semibold">{stats.excerpts} 条</span></li>
+            <li className="flex justify-between"><span>🍂 念头节点 (Fragment)</span> <span className="font-semibold">{stats.fragments} 个</span></li>
           </ul>
+        </div>
+
+        {/* 创意写作同伴快捷指令 */}
+        <div className="bg-[var(--paper)] border border-[var(--line)] rounded p-4 mb-5">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)] mb-2.5">创意写作快捷指令</h4>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => {
+                setInputText('【文字留白诊断】\n\n请帮我分析以下文字的段落节奏、密度与留白美感，并给出优化润色建议：\n\n「在此替换为你的文字」');
+              }}
+              className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-[11px] text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
+            >
+              ✍ 文字留白诊断
+            </button>
+            <button
+              onClick={() => {
+                setInputText('【古典意象润色】\n\n请将以下这段大白话或描述，润色为富有东方古典意境、诗意画面感和衬线质感的唯美句子：\n\n「在此替换为你的描述」');
+              }}
+              className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-[11px] text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
+            >
+              🍃 古典意象润色
+            </button>
+            <button
+              onClick={() => {
+                setInputText('【灵感词汇发散】\n\n请以这个词或念头为中心，为我发散相关的古典隐喻、感官连结与散文联想意象：\n\n「在此替换为你的核心词」');
+              }}
+              className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-[11px] text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
+            >
+              💡 灵感词汇发散
+            </button>
+            <button
+              onClick={() => {
+                setInputText('【念头共鸣启发】\n\n这是我最近写下或脑海中闪现的一个念头：\n\n「在此替换为你的念头/想法」\n\n请在林的数字花园中寻找与我产生共鸣的相似随笔、笔记或想法，并与我开启一场跨越时空的文字共鸣探讨。');
+              }}
+              className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-[11px] text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
+            >
+              🌸 念头共鸣启发
+            </button>
+          </div>
         </div>
 
         {/* 大模型配置面板 */}
         <div className="mt-auto pt-4 border-t border-[var(--line)]">
           {showConfig ? (
             <div className="flex flex-col gap-3">
-              <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">自定义 API 密钥 (保存于本地)</label>
-              <input
-                type="password"
-                placeholder="输入 API 密钥..."
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
+              <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">接口协议模式</label>
+              <select
+                value={provider}
+                onChange={(e) => {
+                  const val = e.target.value as ProviderType;
+                  setProvider(val);
+                  if (val === 'gemini') {
+                    setCustomBaseUrl('https://generativelanguage.googleapis.com');
+                    setModel('gemini-2.5-flash');
+                  } else if (val === 'openai') {
+                    setCustomBaseUrl('https://api.openai.com/v1');
+                    setModel('gpt-4o-mini');
+                  } else {
+                    setCustomBaseUrl('');
+                    setModel('workers-ai');
+                  }
+                }}
                 className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
-              />
-              <div className="flex gap-2">
+              >
+                <option value="free">Cloudflare Workers AI (免费体验)</option>
+                <option value="openai">OpenAI 兼容协议 (自定义/国内模型)</option>
+                <option value="gemini">Gemini 协议 (自定义/官方)</option>
+              </select>
+
+              {provider !== 'free' && (
+                <>
+                  <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">API Base URL</label>
+                  <input
+                    type="text"
+                    value={customBaseUrl}
+                    onChange={(e) => setCustomBaseUrl(e.target.value)}
+                    placeholder={provider === 'openai' ? 'https://api.openai.com/v1' : 'https://generativelanguage.googleapis.com'}
+                    className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
+                  />
+
+                  <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">推理模型 (Model Name)</label>
+                  <input
+                    type="text"
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    placeholder={provider === 'openai' ? 'gpt-4o-mini' : 'gemini-2.5-flash'}
+                    className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
+                  />
+
+                  {/* 一键填入助手 */}
+                  <div className="border border-[var(--line)] rounded p-2.5 bg-[var(--paper)]/50">
+                    <span className="block text-[9px] font-semibold text-[var(--ochre)] tracking-wider uppercase mb-1.5">💡 常用服务快速填制</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {SUGGESTIONS
+                        .filter(s => {
+                          if (provider === 'gemini') return s.url.includes('generativelanguage');
+                          return !s.url.includes('generativelanguage');
+                        })
+                        .map((s, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => {
+                              setCustomBaseUrl(s.url);
+                              setModel(s.model);
+                            }}
+                            className="text-[10px] bg-[var(--paper-deep)] hover:bg-[var(--line)] border border-[var(--line)] text-[var(--ink-soft)] px-1.5 py-0.5 rounded cursor-pointer transition-colors"
+                          >
+                            {s.name}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+
+                  <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">API 密钥 (API Key)</label>
+                  <input
+                    type="password"
+                    placeholder="输入 API Key..."
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
+                  />
+                </>
+              )}
+
+              <div className="flex gap-2 mt-1">
                 <button
-                  onClick={() => saveApiKey(apiKey)}
-                  className="flex-grow bg-[var(--ochre)] text-[var(--paper)] py-1.5 rounded text-xs font-medium cursor-pointer"
+                  onClick={() => saveConfig(provider, model, apiKey, customBaseUrl)}
+                  className="flex-grow bg-[var(--ochre)] text-[var(--paper)] py-1.5 rounded text-xs font-medium cursor-pointer hover:bg-[var(--ochre-deep)] transition-colors"
                 >
                   保存
                 </button>
+                {apiKey && (
+                  <button
+                    onClick={clearConfig}
+                    className="px-2 border border-red-200 text-red-500 py-1.5 rounded text-xs cursor-pointer hover:bg-red-50/20"
+                  >
+                    注销
+                  </button>
+                )}
                 <button
-                  onClick={() => setShowConfig(false)}
-                  className="px-3 border border-[var(--line)] text-[var(--ink-soft)] py-1.5 rounded text-xs cursor-pointer"
+                  onClick={() => {
+                    // 恢复已保存的设置
+                    const savedProvider = localStorage.getItem('newmaybe_ai_provider') as ProviderType | null || 'free';
+                    const savedModel = localStorage.getItem('newmaybe_ai_model') || 'workers-ai';
+                    const savedKey = localStorage.getItem('newmaybe_api_key') || '';
+                    const savedBaseUrl = localStorage.getItem('newmaybe_custom_base_url') || '';
+                    setProvider(savedProvider);
+                    setModel(savedModel);
+                    setApiKey(savedKey);
+                    setCustomBaseUrl(savedBaseUrl);
+                    setShowConfig(false);
+                  }}
+                  className="px-3 border border-[var(--line)] text-[var(--ink-soft)] py-1.5 rounded text-xs cursor-pointer hover:bg-[var(--paper)] transition-colors"
                 >
                   取消
                 </button>
@@ -171,19 +508,29 @@ export default function App() {
             <div className="flex flex-col gap-2">
               <div className="flex justify-between items-center text-xs">
                 <span className="text-[var(--ink-faint)]">推理模式:</span>
-                <span className="font-semibold text-[var(--ochre)]">{apiKey ? '实时 API 交互' : '本地中枢模拟'}</span>
+                <span className="font-semibold text-[var(--ochre)]">
+                  {provider === 'free' && 'Workers AI (免费模式)'}
+                  {provider === 'openai' && `OpenAI 兼容 / ${model}`}
+                  {provider === 'gemini' && `Gemini 兼容 / ${model}`}
+                </span>
               </div>
+              {provider === 'free' && (
+                <div className="flex justify-between items-center text-xs border-b border-dashed border-[var(--line)] pb-2 mb-1">
+                  <span className="text-[var(--ink-faint)]">今日体验额度:</span>
+                  <span className="font-semibold text-[var(--ink-soft)]">{freeTurnsLeft} / 5 次</span>
+                </div>
+              )}
               <button
                 onClick={() => setShowConfig(true)}
                 className="w-full text-center border border-[var(--line)] hover:border-[var(--ochre)] text-[var(--ink-soft)] hover:text-[var(--ochre)] py-2 rounded text-xs transition-all cursor-pointer bg-[var(--paper)]/50"
               >
-                配置推理引擎 API Key
+                配置推理引擎 / API Key
               </button>
             </div>
           )}
         </div>
 
-        <a href="https://newmaybe.com" className="text-xs text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors no-underline mt-6 block md:hidden">
+        <a href={resolveSubdomain("https://newmaybe.com")} className="text-xs text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors no-underline mt-6 block md:hidden">
           ← 返回主站 newmaybe.com
         </a>
       </aside>
@@ -191,12 +538,12 @@ export default function App() {
       {/* 右侧聊天区域 */}
       <section className="flex-grow flex flex-col h-full overflow-hidden">
         {/* 聊天头部 */}
-        <header className="h-16 border-b border-[var(--line)] bg-[var(--paper)] flex items-center justify-between px-6 shrink-0 transition-colors duration-500">
+        <header className="h-16 border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--paper)_80%,transparent)] backdrop-blur-md flex items-center justify-between px-6 shrink-0 transition-colors duration-500">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <span className="text-sm font-semibold text-[var(--ink)]">思考 Agent 终端</span>
           </div>
-          <a href="https://newmaybe.com" className="text-xs text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors no-underline hidden md:block">
+          <a href={resolveSubdomain("https://newmaybe.com")} className="text-xs text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors no-underline hidden md:block">
             ← 返回主站 newmaybe.com
           </a>
         </header>
@@ -217,7 +564,8 @@ export default function App() {
                     : 'bg-[var(--paper)] border-[var(--line)] text-[var(--ink)] rounded-bl-none shadow-sm'
                 }`}
               >
-                {msg.text}
+                {/* 格式化输出回答文本 */}
+                <div className="whitespace-pre-wrap">{msg.text}</div>
                 
                 {/* 知识来源引证 */}
                 {msg.references && msg.references.length > 0 && (
@@ -236,6 +584,39 @@ export default function App() {
                         </a>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* 如果是助手的回答，且非错误，提供发送到卡片加工厂/海报工作室/思维沙盒的功能 */}
+                {msg.role === 'assistant' && msg.id !== 'welcome' && !msg.id.includes('error') && (
+                  <div className="mt-4 pt-2.5 border-t border-dashed border-[var(--line)] flex gap-2 justify-end">
+                    <button
+                      onClick={() => {
+                        window.open(`${resolveSubdomain('https://tools.newmaybe.com')}?content=${encodeURIComponent(msg.text)}`, '_blank');
+                      }}
+                      className="px-2 py-1 rounded text-[10px] border border-[var(--line)] bg-[var(--paper-deep)] hover:bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-all hover:scale-[1.03] active:scale-[0.97]"
+                      title="将此回答发送到卡片生成器"
+                    >
+                      ✨ 发送至卡片加工厂
+                    </button>
+                    <button
+                      onClick={() => {
+                        window.open(`${resolveSubdomain('https://studio.newmaybe.com')}?quote=${encodeURIComponent(msg.text)}`, '_blank');
+                      }}
+                      className="px-2 py-1 rounded text-[10px] border border-[var(--line)] bg-[var(--paper-deep)] hover:bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-all hover:scale-[1.03] active:scale-[0.97]"
+                      title="将此回答发送到海报生成器"
+                    >
+                      🎨 发送至海报工作室
+                    </button>
+                    <button
+                      onClick={() => {
+                        window.open(`${resolveSubdomain('https://graph.newmaybe.com')}?add_node=${encodeURIComponent(msg.text)}`, '_blank');
+                      }}
+                      className="px-2 py-1 rounded text-[10px] border border-[var(--line)] bg-[var(--paper-deep)] hover:bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-all hover:scale-[1.03] active:scale-[0.97]"
+                      title="将此回答发送到思维沙盒"
+                    >
+                      🌐 发送至思维沙盒
+                    </button>
                   </div>
                 )}
               </div>

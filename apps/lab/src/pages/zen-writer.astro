@@ -1,10 +1,28 @@
+---
+const isDev = import.meta.env.DEV;
+---
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script is:inline>
+    (function() {
+      const match = document.cookie.match(/theme=(dark|light)/);
+      const theme = (match && match[1]) || localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.classList.add(theme);
+    })();
+  </script>
   <title>禅意写作空间 · newmaybe 实验 01</title>
   <style>
+    @import '@fontsource/cormorant-garamond/latin-400.css';
+    @import '@fontsource/cormorant-garamond/latin-400-italic.css';
+    @import '@fontsource/cormorant-garamond/latin-600.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
+
     :root {
       --paper:      #F7F3EC;
       --paper-deep: #EFE9DE;
@@ -18,7 +36,7 @@
     }
 
     @media (prefers-color-scheme: dark) {
-      :root {
+      :root:not(.light) {
         --paper:      #1E1B18;
         --paper-deep: #262320;
         --ink:        #E8E0D5;
@@ -27,6 +45,26 @@
         --ochre:      #C4814E;
         --line:       #3A3430;
       }
+    }
+
+    :root.dark {
+      --paper:      #1E1B18;
+      --paper-deep: #262320;
+      --ink:        #E8E0D5;
+      --ink-soft:   #B5A99A;
+      --ink-faint:  #7A7065;
+      --ochre:      #C4814E;
+      --line:       #3A3430;
+    }
+
+    :root.light {
+      --paper:      #F7F3EC;
+      --paper-deep: #EFE9DE;
+      --ink:        #2B2722;
+      --ink-soft:   #5B5349;
+      --ink-faint:  #968B7C;
+      --ochre:      #A8643C;
+      --line:       #D9CFBF;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -100,7 +138,7 @@
       font-family: var(--serif-cn), serif;
       transition: all 0.3s;
     }
-    .audio-btn.active {
+    .audio-btn.active, .audio-btn:hover {
       background-color: var(--ochre);
       color: var(--paper);
       border-color: var(--ochre);
@@ -172,15 +210,27 @@
       pointer-events: none;
     }
 
+    /* 聚焦输入状态或打字状态下直接淡出隐藏，防软键盘遮挡碰撞 */
+    body:has(#editor:focus) header,
+    body:has(#editor:focus) .control-panel,
+    body:has(#editor:focus) footer {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
     @media (max-width: 680px) {
       header { top: 1rem; left: 1.5rem; }
-      .control-panel { top: 4rem; left: 1.5rem; right: 1.5rem; justify-content: space-between; }
-      .editor-container { padding: 8rem 1.5rem 3rem; }
+      .control-panel { top: 4rem; left: 0.5rem; right: 0.5rem; padding: 0.5rem; flex-wrap: wrap; justify-content: center; gap: 0.8rem; }
+      .editor-container { padding: 11rem 1.5rem 3rem; }
       footer { bottom: 1rem; left: 1.5rem; right: 1.5rem; }
     }
   </style>
 </head>
 <body>
+  <!-- 用于传递环境变量给客户端 JS -->
+  <div id="subdomain-config" data-dev={isDev ? "true" : "false"} style="display: none;"></div>
+
   <!-- 头部返回 -->
   <header>
     <a href="/#" class="back-link">← 返回实验室</a>
@@ -196,6 +246,12 @@
       <span>白噪音</span>
       <button class="audio-btn" id="rainBtn" data-type="rain">雨声 🌧</button>
       <button class="audio-btn" id="windBtn" data-type="wind">微风 🍃</button>
+    </div>
+    <div class="panel-item" style="border-left: 1px solid var(--line); padding-left: 1rem; gap: 0.5rem;">
+      <span style="font-size: 0.72rem; color: var(--ink-faint);">导出:</span>
+      <button class="audio-btn" id="sendToCardBtn" title="发送至卡片加工厂">卡片</button>
+      <button class="audio-btn" id="sendToStudioBtn" title="发送至海报工作室">海报</button>
+      <button class="audio-btn" id="sendToGraphBtn" title="发送至思维沙盒">沙盒</button>
     </div>
   </div>
 
@@ -243,12 +299,23 @@
       body.classList.remove('is-typing');
     });
 
-    // 恢复草稿
-    const savedDraft = localStorage.getItem('newmaybe_zen_draft');
-    if (savedDraft) {
-      editor.value = savedDraft;
-      const count = savedDraft.replace(/[\s\p{P}]/gu, '').length;
+    // 恢复草稿或读取 URL 传参
+    const params = new URLSearchParams(window.location.search);
+    const draftParam = params.get('draft');
+    
+    if (draftParam) {
+      editor.value = draftParam;
+      const count = draftParam.replace(/[\s\p{P}]/gu, '').length;
       wordCount.innerText = `字数: ${count}`;
+      localStorage.setItem('newmaybe_zen_draft', draftParam);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      const savedDraft = localStorage.getItem('newmaybe_zen_draft');
+      if (savedDraft) {
+        editor.value = savedDraft;
+        const count = savedDraft.replace(/[\s\p{P}]/gu, '').length;
+        wordCount.innerText = `字数: ${count}`;
+      }
     }
 
     // 2. 动态调节字号
@@ -372,6 +439,37 @@
         windNode = startWind();
         this.classList.add('active');
       }
+    });
+
+    // 绑定子域导出跳转
+    const isDev = document.getElementById("subdomain-config").getAttribute("data-dev") === "true";
+    const resolveSubdomain = (url) => {
+      if (!isDev) return url;
+      if (url.startsWith('https://newmaybe.com')) return 'http://localhost:4321';
+      if (url.startsWith('https://graph.newmaybe.com')) return 'http://localhost:4322';
+      if (url.startsWith('https://tools.newmaybe.com')) return 'http://localhost:4323';
+      if (url.startsWith('https://ai.newmaybe.com')) return 'http://localhost:4324';
+      if (url.startsWith('https://lab.newmaybe.com')) return 'http://localhost:4325';
+      if (url.startsWith('https://studio.newmaybe.com')) return 'http://localhost:4326';
+      return url;
+    };
+
+    document.getElementById('sendToCardBtn').addEventListener('click', () => {
+      const text = editor.value.trim();
+      if (!text) return alert("请先写点什么再进行卡片转换吧...");
+      window.open(`${resolveSubdomain('https://tools.newmaybe.com')}?content=${encodeURIComponent(text)}`, '_blank');
+    });
+
+    document.getElementById('sendToStudioBtn').addEventListener('click', () => {
+      const text = editor.value.trim();
+      if (!text) return alert("请先写点什么再进行海报排版吧...");
+      window.open(`${resolveSubdomain('https://studio.newmaybe.com')}?quote=${encodeURIComponent(text)}`, '_blank');
+    });
+
+    document.getElementById('sendToGraphBtn').addEventListener('click', () => {
+      const text = editor.value.trim();
+      if (!text) return alert("请先写点什么再进行思维沙盒连结吧...");
+      window.open(`${resolveSubdomain('https://graph.newmaybe.com')}?add_node=${encodeURIComponent(text)}`, '_blank');
     });
   </script>
 </body>

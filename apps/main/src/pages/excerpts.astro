@@ -23,7 +23,7 @@ const fmtDate = (d: Date) =>
         {excerpts.map(async (excerpt, i) => {
           const { Content } = await render(excerpt);
           return (
-            <article class="excerpt-card reveal" style={`animation-delay: ${i * 0.06}s`}>
+            <article id={excerpt.id} class="excerpt-card reveal" style={`animation-delay: ${i * 0.06}s`}>
               <div class="quote-mark">“</div>
               <div class="excerpt-body">
                 <Content />
@@ -104,7 +104,23 @@ const fmtDate = (d: Date) =>
     position: relative;
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
                 box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                border-color 0.3s ease;
+                border-color 0.3s ease,
+                background-color 0.4s ease;
+  }
+
+  .excerpt-card:target {
+    border-color: var(--ochre);
+    box-shadow: 0 0 0 1px var(--ochre);
+    animation: targetExcerptHighlight 2.5s ease-out forwards;
+  }
+
+  @keyframes targetExcerptHighlight {
+    0% {
+      background-color: color-mix(in srgb, var(--ochre) 10%, var(--paper-deep));
+    }
+    100% {
+      background-color: var(--paper-deep);
+    }
   }
 
   .excerpt-card:hover {

@@ -15,7 +15,7 @@ const fmtDate = (d: Date) =>
     <div class="wrap">
       <header class="frag-head reveal">
         <span class="eyebrow">Fragments</span>
-        <h1>念头<span class="zh">落叶集</span></h1>
+        <h1>念头<span class="zh">碎片集</span></h1>
         <p class="intro">来不及展开的句子，半成形的念头，以及那些闪过便消失的瞬间。</p>
       </header>
 
@@ -23,7 +23,7 @@ const fmtDate = (d: Date) =>
         {fragments.map(async (frag, i) => {
           const { Content } = await render(frag);
           return (
-            <article class="frag-card reveal" style={`animation-delay: ${i * 0.06}s`}>
+            <article id={frag.id} class="frag-card reveal" style={`animation-delay: ${i * 0.06}s`}>
               <div class="frag-aside">
                 <time class="frag-date">{fmtDate(frag.data.pubDate)}</time>
                 {(frag.data.mood || frag.data.location) && (
@@ -88,6 +88,25 @@ const fmtDate = (d: Date) =>
     gap: 0 2.5rem;
     padding: 2rem 0 2rem;
     position: relative;
+  }
+
+  .frag-card:target .frag-body {
+    background-color: color-mix(in srgb, var(--ochre) 8%, transparent);
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    animation: targetFragHighlight 2.5s ease-out forwards;
+  }
+
+  @keyframes targetFragHighlight {
+    0% {
+      background-color: color-mix(in srgb, var(--ochre) 12%, transparent);
+      border-color: var(--ochre);
+    }
+    100% {
+      background-color: transparent;
+      border-color: var(--line);
+    }
   }
   /* 时间轴节点圆点 */
   .frag-card::before {

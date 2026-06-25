@@ -49,6 +49,9 @@ const isActive = (href: string) => {
         document.documentElement.classList.add('light');
         document.documentElement.classList.remove('dark');
       }
+      // 同步设置跨域 Cookie 缓存以供各子域名提取
+      const domainAttr = window.location.hostname.includes('newmaybe.com') ? '; domain=.newmaybe.com' : '';
+      document.cookie = `theme=${theme}; path=/${domainAttr}; max-age=31536000; SameSite=Lax`;
     };
     applyTheme();
     
@@ -253,15 +256,17 @@ const isActive = (href: string) => {
       if (themeToggle) {
         themeToggle.addEventListener('click', () => {
           const isDark = document.documentElement.classList.contains('dark');
+          const newTheme = isDark ? 'light' : 'dark';
           if (isDark) {
             document.documentElement.classList.remove('dark');
             document.documentElement.classList.add('light');
-            localStorage.setItem('theme', 'light');
           } else {
             document.documentElement.classList.remove('light');
             document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
           }
+          localStorage.setItem('theme', newTheme);
+          const domainAttr = window.location.hostname.includes('newmaybe.com') ? '; domain=.newmaybe.com' : '';
+          document.cookie = `theme=${newTheme}; path=/${domainAttr}; max-age=31536000; SameSite=Lax`;
         });
       }
     }

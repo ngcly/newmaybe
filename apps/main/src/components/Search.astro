@@ -26,13 +26,39 @@
 
 <script>
   let pagefind: any = null;
-  const overlay = document.getElementById('search-overlay') as HTMLElement;
-  const input = document.getElementById('search-input') as HTMLInputElement;
-  const resultsContainer = document.getElementById('search-results') as HTMLElement;
+  let localIndex: any[] = [];
+  let isLocalMode = false;
+  
+  let overlay: HTMLElement;
+  let input: HTMLInputElement;
+  let resultsContainer: HTMLElement;
+
+  function initElements() {
+    overlay = document.getElementById('search-overlay') as HTMLElement;
+    input = document.getElementById('search-input') as HTMLInputElement;
+    resultsContainer = document.getElementById('search-results') as HTMLElement;
+  }
 
   // 1. 初始化 Pagefind (仅在弹窗打开时懒加载)
   async function initPagefind() {
-    if (pagefind) return true;
+    if (pagefind || localIndex.length > 0) return true;
+    
+    // 如果是开发环境，使用 /all-content.json 进行本地简易检索，避免 404 报错并使搜索功能可用
+    if (import.meta.env.DEV) {
+      isLocalMode = true;
+      try {
+        const res = await fetch('/all-content.json');
+        localIndex = await res.json();
+        return true;
+      } catch (e) {
+        console.warn('Failed to load local content index.', e);
+        if (resultsContainer) {
+          resultsContainer.innerHTML = '<div class="search-error">本地搜索索引加载失败。</div>';
+        }
+        return false;
+      }
+    }
+
     try {
       // 动态导入编译生成的 pagefind.js (使用 window.location.origin 绕过 Vite 开发服务器的静态依赖分析)
       // @ts-ignore
@@ -41,13 +67,16 @@
       return true;
     } catch (e) {
       console.warn('Pagefind is not initialized yet (runs after production build).', e);
-      resultsContainer.innerHTML = '<div class="search-error">搜索索引未就绪。请确保执行了生产构建 (npm run build)。</div>';
+      if (resultsContainer) {
+        resultsContainer.innerHTML = '<div class="search-error">搜索索引未就绪。请确保执行了生产构建 (npm run build)。</div>';
+      }
       return false;
     }
   }
 
   // 2. 打开弹窗
   async function openSearch() {
+    if (!overlay || !input) return;
     overlay.style.display = 'flex';
     overlay.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -59,6 +88,7 @@
 
   // 3. 关闭弹窗
   function closeSearch() {
+    if (!overlay || !input || !resultsContainer) return;
     overlay.style.display = 'none';
     overlay.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
@@ -69,9 +99,74 @@
   // 4. 执行搜索
   let debounceTimeout: any;
   async function handleSearch() {
+    if (!input || !resultsContainer) return;
     const query = input.value.trim();
     if (!query) {
       resultsContainer.innerHTML = '<div class="search-empty">输入关键字开始搜索...</div>';
+      return;
+    }
+
+    // 开发环境本地搜索逻辑
+    if (isLocalMode) {
+      resultsContainer.innerHTML = '<div class="search-loading">本地搜索中...</div>';
+      
+      clearTimeout(debounceTimeout);
+      debounceTimeout = setTimeout(() => {
+        const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+        if (terms.length === 0) return;
+
+        const matches = localIndex.filter(item => {
+          const title = (item.title || '').toLowerCase();
+          const content = (item.content || '').toLowerCase();
+          const cat = (item.category || '').toLowerCase();
+          return terms.every(term => title.includes(term) || content.includes(term) || cat.includes(term));
+        });
+
+        if (matches.length === 0) {
+          resultsContainer.innerHTML = '<div class="search-empty">未找到匹配的结果。</div>';
+          return;
+        }
+
+        resultsContainer.innerHTML = '';
+        // 仅展示前 8 条结果
+        matches.slice(0, 8).forEach(item => {
+          const card = document.createElement('a');
+          card.href = item.url;
+          card.className = 'search-result-item';
+          
+          // 查找匹配的片段，截取高亮内容周围文字
+          let excerpt = item.content.slice(0, 100);
+          const firstTerm = terms[0];
+          if (firstTerm) {
+            const idx = item.content.toLowerCase().indexOf(firstTerm);
+            if (idx > -1) {
+              const start = Math.max(0, idx - 30);
+              const end = Math.min(item.content.length, idx + 70);
+              excerpt = (start > 0 ? '...' : '') + item.content.slice(start, end) + (end < item.content.length ? '...' : '');
+            }
+          }
+
+          // 对标题和摘要添加高亮 <mark> 标签
+          let highlightedTitle = item.title;
+          let highlightedExcerpt = excerpt;
+          terms.forEach(term => {
+            const regex = new RegExp(term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi');
+            highlightedTitle = highlightedTitle.replace(regex, match => `<mark>${match}</mark>`);
+            highlightedExcerpt = highlightedExcerpt.replace(regex, match => `<mark>${match}</mark>`);
+          });
+
+          card.innerHTML = `
+            <div class="result-meta">
+              <span class="result-title">${highlightedTitle}</span>
+              <span class="result-cat">${item.category || '其它'}</span>
+            </div>
+            <p class="result-excerpt">${highlightedExcerpt}</p>
+          `;
+          resultsContainer.appendChild(card);
+        });
+
+        setupKeyboardNavigation();
+      }, 200);
       return;
     }
 
@@ -125,7 +220,13 @@
 
   // 5. 键盘导航 (↑↓ 选择，Enter 进入)
   function setupKeyboardNavigation() {
+    if (!resultsContainer || !input) return;
     const items = resultsContainer.querySelectorAll('.search-result-item');
+    if (items.length === 0) {
+      input.onkeydown = null;
+      return;
+    }
+
     let activeIndex = -1;
 
     // 清理之前的选中状态
@@ -143,7 +244,16 @@
       } else if (e.key === 'Enter') {
         if (activeIndex >= 0 && activeIndex < items.length) {
           e.preventDefault();
-          (items[activeIndex] as HTMLAnchorElement).click();
+          const target = items[activeIndex] as HTMLAnchorElement;
+          const href = target.getAttribute('href');
+          if (href) {
+            import('astro:transitions/client').then(({ navigate }) => {
+              navigate(href);
+            }).catch(() => {
+              window.location.href = href;
+            });
+            closeSearch();
+          }
         }
       }
     };
@@ -162,8 +272,14 @@
 
   // 6. 全局监听
   function setupListeners() {
-    // 监听快捷键 Cmd+K / Ctrl+K
-    window.addEventListener('keydown', (e) => {
+    if (!overlay || !input) return;
+
+    // 监听快捷键 Cmd+K / Ctrl+K (清理旧的，防止 View Transitions 重复绑定)
+    if ((window as any)._searchKeydownHandler) {
+      window.removeEventListener('keydown', (window as any)._searchKeydownHandler);
+    }
+    
+    const keydownHandler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         if (overlay.style.display === 'flex') {
@@ -175,30 +291,34 @@
       if (e.key === 'Escape' && overlay.style.display === 'flex') {
         closeSearch();
       }
-    });
+    };
+    
+    window.addEventListener('keydown', keydownHandler);
+    (window as any)._searchKeydownHandler = keydownHandler;
 
-    // 绑定搜索框输入
-    input.addEventListener('input', handleSearch);
+    // 绑定搜索框输入 (使用 oninput 确保同一个节点不重复累加 listener)
+    input.oninput = handleSearch;
 
     // 点击蒙层关闭
-    overlay.addEventListener('click', (e) => {
+    overlay.onclick = (e) => {
       if (e.target === overlay) {
         closeSearch();
       }
-    });
+    };
 
     // 绑定导航栏放大镜图标触发
     const searchBtn = document.getElementById('search-nav-trigger');
     if (searchBtn) {
-      searchBtn.addEventListener('click', (e) => {
+      searchBtn.onclick = (e) => {
         e.preventDefault();
         openSearch();
-      });
+      };
     }
   }
 
   // 支持 View Transitions 的生命周期绑定
   document.addEventListener('astro:page-load', () => {
+    initElements();
     setupListeners();
   });
 </script>
@@ -319,11 +439,29 @@
     transform: translateX(3px);
   }
 
+  .result-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+  
   .result-title {
     font-family: var(--serif-cn), serif;
     font-weight: 500;
     font-size: 1.05rem;
     color: var(--ink);
+  }
+
+  .result-cat {
+    font-size: 0.72rem;
+    font-family: var(--serif-cn), serif;
+    color: var(--ochre);
+    border: 1px solid color-mix(in srgb, var(--ochre) 30%, transparent);
+    padding: 0.05rem 0.3rem;
+    border-radius: 2px;
+    opacity: 0.85;
+    flex-shrink: 0;
   }
   
   .result-excerpt {
@@ -333,8 +471,8 @@
     margin: 0;
     text-align: justify;
   }
-  /* Pagefind 命中的高亮词 */
-  .result-excerpt :global(mark) {
+  /* Pagefind 与本地命中的高亮词 */
+  .search-result-item :global(mark) {
     background: color-mix(in srgb, var(--ochre) 12%, transparent);
     color: var(--ochre-deep);
     font-weight: 500;

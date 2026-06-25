@@ -18,7 +18,7 @@ const posts = defineCollection({
   }),
 });
 
-// 念头落叶集 —— 轻短的灵感、句子、随手记
+// 念头碎片集 —— 轻短的灵感、句子、随手记
 const fragments = defineCollection({
   loader: glob({ pattern: '**/*.md', base: '../../packages/content/fragments' }),
   schema: z.object({
@@ -44,7 +44,7 @@ const excerpts = defineCollection({
   }),
 });
 
-// 念头落叶集·笔记 —— 半结构化思考、持续演化中
+// 落叶集·笔记 —— 半结构化思考、持续演化中
 const notes = defineCollection({
   loader: glob({ pattern: '**/*.md', base: '../../packages/content/notes' }),
   schema: z.object({

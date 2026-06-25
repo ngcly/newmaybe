@@ -14,10 +14,21 @@ export const SITE = {
 export const NAV = [
   { label: '文字', href: '/writing' },
   { label: '念头', href: '/fragments' },
-  { label: '笔记', href: '/notes' },
-  { label: '记忆', href: '/memory' },
+  { label: '花园', href: '/garden' },
   { label: '拾遗', href: '/excerpts' },
   { label: '作品', href: '/work' },
   { label: '关于', href: '/about' },
-  { label: '联络', href: '/contact' },
 ];
+
+// 动态解析子域，在本地开发模式下映射到对应端口
+export function resolveSubdomain(url: string): string {
+  if (import.meta.env.DEV) {
+    if (url.includes('graph.newmaybe.com')) return 'http://localhost:4322';
+    if (url.includes('tools.newmaybe.com')) return 'http://localhost:4323';
+    if (url.includes('ai.newmaybe.com')) return 'http://localhost:4324';
+    if (url.includes('lab.newmaybe.com')) return 'http://localhost:4325';
+    if (url.includes('studio.newmaybe.com')) return 'http://localhost:4326';
+    if (url.includes('newmaybe.com')) return url.replace('https://newmaybe.com', 'http://localhost:4321');
+  }
+  return url;
+}

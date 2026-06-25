@@ -8,6 +8,9 @@ export const GET: APIRoute = async () => {
   const excerpts = await getCollection('excerpts', ({ data }) => !data.draft);
   const fragments = await getCollection('fragments', ({ data }) => !data.draft);
 
+  const isDev = import.meta.env.DEV;
+  const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
+
   const nodes: any[] = [];
   const links: any[] = [];
 
@@ -22,7 +25,7 @@ export const GET: APIRoute = async () => {
 
   // 1. 添加文章节点
   posts.forEach(post => {
-    addNode(`posts/${post.id}`, post.data.title, 'posts', `https://newmaybe.com/writing/${post.id}`);
+    addNode(`posts/${post.id}`, post.data.title, 'posts', `${mainSiteUrl}/writing/${post.id}`);
     if (post.data.connections) {
       post.data.connections.forEach(conn => {
         links.push({ source: `posts/${post.id}`, target: conn });
@@ -32,7 +35,7 @@ export const GET: APIRoute = async () => {
 
   // 2. 添加笔记节点
   notes.forEach(note => {
-    addNode(`notes/${note.id}`, note.data.title, 'notes', `https://newmaybe.com/notes/${note.id}`);
+    addNode(`notes/${note.id}`, note.data.title, 'notes', `${mainSiteUrl}/notes/${note.id}`);
     if (note.data.connections) {
       note.data.connections.forEach(conn => {
         links.push({ source: `notes/${note.id}`, target: conn });
@@ -42,7 +45,7 @@ export const GET: APIRoute = async () => {
 
   // 3. 添加记忆节点
   memories.forEach(mem => {
-    addNode(`memories/${mem.id}`, mem.data.title, 'memories', `https://newmaybe.com/memory/${mem.id}`);
+    addNode(`memories/${mem.id}`, mem.data.title, 'memories', `${mainSiteUrl}/memory/${mem.id}`);
     if (mem.data.connections) {
       mem.data.connections.forEach(conn => {
         links.push({ source: `memories/${mem.id}`, target: conn });
@@ -53,7 +56,7 @@ export const GET: APIRoute = async () => {
   // 4. 添加拾遗节点
   excerpts.forEach(exc => {
     const title = `拾遗：${exc.data.author}${exc.data.source ? '《' + exc.data.source + '》' : ''}`;
-    addNode(`excerpts/${exc.id}`, title, 'excerpts', `https://newmaybe.com/excerpts`);
+    addNode(`excerpts/${exc.id}`, title, 'excerpts', `${mainSiteUrl}/excerpts#${exc.id}`);
     if (exc.data.connections) {
       exc.data.connections.forEach(conn => {
         links.push({ source: `excerpts/${exc.id}`, target: conn });
@@ -64,7 +67,7 @@ export const GET: APIRoute = async () => {
   // 5. 添加念头节点
   fragments.forEach(frag => {
     const title = `念头 (${fmtDate(frag.data.pubDate)})`;
-    addNode(`fragments/${frag.id}`, title, 'fragments', `https://newmaybe.com/fragments`);
+    addNode(`fragments/${frag.id}`, title, 'fragments', `${mainSiteUrl}/fragments#${frag.id}`);
     if (frag.data.connections) {
       frag.data.connections.forEach(conn => {
         links.push({ source: `fragments/${frag.id}`, target: conn });
