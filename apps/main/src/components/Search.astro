@@ -28,7 +28,7 @@
   let pagefind: any = null;
   let localIndex: any[] = [];
   let isLocalMode = false;
-  
+
   let overlay: HTMLElement;
   let input: HTMLInputElement;
   let resultsContainer: HTMLElement;
@@ -37,6 +37,33 @@
     overlay = document.getElementById('search-overlay') as HTMLElement;
     input = document.getElementById('search-input') as HTMLInputElement;
     resultsContainer = document.getElementById('search-results') as HTMLElement;
+  }
+
+  // ── 根据 URL 推断内容类型标签 ──
+  function guessCategoryFromUrl(url: string, fallback?: string): string {
+    if (fallback && fallback !== '其它') return fallback;
+    if (url.includes('/writing/'))   return '文字';
+    if (url.includes('/fragments'))  return '念头';
+    if (url.includes('/excerpts'))   return '拾遗';
+    if (url.includes('/notes/'))     return '笔记';
+    if (url.includes('/memory/'))    return '记忆';
+    return '其它';
+  }
+
+  // ── 统一的结果卡片渲染（dev 和 prod 共用）──
+  function createResultItem(url: string, title: string, excerpt: string, category?: string): HTMLAnchorElement {
+    const card = document.createElement('a');
+    card.href = url;
+    card.className = 'search-result-item';
+    const cat = guessCategoryFromUrl(url, category);
+    card.innerHTML = `
+      <div class="result-meta">
+        <span class="result-title">${title}</span>
+        <span class="result-cat">${cat}</span>
+      </div>
+      <p class="result-excerpt">${excerpt}</p>
+    `;
+    return card;
   }
 
   // 1. 初始化 Pagefind (仅在弹窗打开时懒加载)
@@ -130,10 +157,6 @@
         resultsContainer.innerHTML = '';
         // 仅展示前 8 条结果
         matches.slice(0, 8).forEach(item => {
-          const card = document.createElement('a');
-          card.href = item.url;
-          card.className = 'search-result-item';
-          
           // 查找匹配的片段，截取高亮内容周围文字
           let excerpt = item.content.slice(0, 100);
           const firstTerm = terms[0];
@@ -155,13 +178,7 @@
             highlightedExcerpt = highlightedExcerpt.replace(regex, match => `<mark>${match}</mark>`);
           });
 
-          card.innerHTML = `
-            <div class="result-meta">
-              <span class="result-title">${highlightedTitle}</span>
-              <span class="result-cat">${item.category || '其它'}</span>
-            </div>
-            <p class="result-excerpt">${highlightedExcerpt}</p>
-          `;
+          const card = createResultItem(item.url, highlightedTitle, highlightedExcerpt, item.category);
           resultsContainer.appendChild(card);
         });
 
@@ -193,19 +210,12 @@
         
         resultsContainer.innerHTML = '';
         resolvedData.forEach((data: any) => {
-          const item = document.createElement('a');
-          item.href = data.url;
-          item.className = 'search-result-item';
-          
-          // 渲染卡片 HTML
-          item.innerHTML = `
-            <div class="result-meta">
-              <span class="result-title">${data.meta.title || '无标题'}</span>
-            </div>
-            <p class="result-excerpt">${data.excerpt}</p>
-          `;
-          
-          resultsContainer.appendChild(item);
+          const card = createResultItem(
+            data.url,
+            data.meta.title || '无标题',
+            data.excerpt,
+          );
+          resultsContainer.appendChild(card);
         });
 
         // 绑定键盘上下选择

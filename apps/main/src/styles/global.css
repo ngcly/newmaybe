@@ -108,6 +108,11 @@ body, header, footer, .post, .frag-body, .work-item, .facet, .theme-toggle, .men
       radial-gradient(circle at 20% 30%, rgba(196,129,78,0.04) 0%, transparent 40%),
       radial-gradient(circle at 80% 70%, rgba(232,224,213,0.02) 0%, transparent 45%);
   }
+  /* 暗色模式下噪点：提高不透明度 + 反转颜色使颗粒可见 */
+  :root:not(.light) body::before {
+    opacity: 0.06;
+    filter: invert(1);
+  }
 }
 
 /* 暗色模式下手动设置 */
@@ -115,6 +120,10 @@ body, header, footer, .post, .frag-body, .work-item, .facet, .theme-toggle, .men
   background-image:
     radial-gradient(circle at 20% 30%, rgba(196,129,78,0.04) 0%, transparent 40%),
     radial-gradient(circle at 80% 70%, rgba(232,224,213,0.02) 0%, transparent 45%);
+}
+:root.dark body::before {
+  opacity: 0.06;
+  filter: invert(1);
 }
 
 :root.light body {

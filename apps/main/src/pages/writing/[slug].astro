@@ -149,18 +149,16 @@ const watermark = post.data.watermark;
           if (isVertical) {
             hint.style.opacity = '';
             hint.style.pointerEvents = '';
-            const handleScroll = () => {
-              if (Math.abs(prose.scrollLeft) > 12) {
-                hint.style.opacity = '0';
-                hint.style.pointerEvents = 'none';
-                prose.removeEventListener('scroll', handleScroll);
-              }
+            const handleScrollEnd = () => {
+              hint.style.opacity = '0';
+              hint.style.pointerEvents = 'none';
+              prose.removeEventListener('scrollend', handleScrollEnd);
             };
             if (prose._onScrollPoetryHint) {
-              prose.removeEventListener('scroll', prose._onScrollPoetryHint);
+              prose.removeEventListener('scrollend', prose._onScrollPoetryHint);
             }
-            prose.addEventListener('scroll', handleScroll);
-            prose._onScrollPoetryHint = handleScroll;
+            prose.addEventListener('scrollend', handleScrollEnd);
+            prose._onScrollPoetryHint = handleScrollEnd;
           } else {
             hint.style.opacity = '0';
             hint.style.pointerEvents = 'none';
@@ -348,6 +346,7 @@ const watermark = post.data.watermark;
     overflow-y: hidden;
     scrollbar-width: none; /* 隐藏滚动条 */
     padding-right: 1.25rem; /* 让首列诗句完美居中于首个红格中 */
+    scroll-snap-type: x mandatory; /* 逐列吸附，翻页体验 */
   }
   .poem-wrap.vertical .prose::-webkit-scrollbar { display: none; }
 
@@ -358,6 +357,8 @@ const watermark = post.data.watermark;
     font-size: 1.15rem;
     margin-bottom: 0;
     writing-mode: vertical-rl;
+    scroll-snap-align: start; /* 每段吸附为独立一"页" */
+    scroll-snap-stop: always; /* 每次滚动只跳一段 */
   }
   
   /* 竖排下的诗节间距：腾出格线空间 */

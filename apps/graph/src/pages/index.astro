@@ -386,6 +386,60 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
       color: var(--ochre);
     }
 
+    /* 屏幕阅读器专用 —— 视觉隐藏但可被读屏访问 */
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* 节点列表替代视图 */
+    .node-list-panel {
+      border-top: 1px dashed var(--line);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+    .node-list-panel summary {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+    .node-list-group {
+      margin-top: 0.6rem;
+    }
+    .node-list-group-label {
+      font-size: 0.7rem;
+      color: var(--ochre);
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+    .node-list-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      font-family: var(--serif-cn);
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      padding: 0.25rem 0.4rem;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s ease;
+    }
+    .node-list-item:hover, .node-list-item:focus-visible {
+      background: var(--paper-deep);
+      color: var(--ochre);
+      outline: 1px solid var(--ochre);
+    }
+
     /* 图例 Legend */
     .legend {
       display: flex;
@@ -568,15 +622,15 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
     <p class="desc">这是您的数字花园关联图谱。每一个圆点代表一个想法、一篇文章、一个念头，线段代表它们之间的连接。双击任意节点可跳转阅读。</p>
     
     <!-- 模式切换 Tabs -->
-    <div class="mode-tabs">
-      <button class="mode-tab-btn active" id="btn-mode-view">查看网络</button>
-      <button class="mode-tab-btn" id="btn-mode-sandbox">思维沙盒</button>
+    <div class="mode-tabs" role="tablist" aria-label="图谱模式切换">
+      <button class="mode-tab-btn active" id="btn-mode-view" role="tab" aria-selected="true" aria-label="查看网络模式">查看网络</button>
+      <button class="mode-tab-btn" id="btn-mode-sandbox" role="tab" aria-selected="false" aria-label="思维沙盒模式">思维沙盒</button>
     </div>
 
     <!-- 搜索功能 -->
     <div class="search-container">
-      <input type="text" id="graph-search" placeholder="在图谱中查找想法/节点..." />
-      <button id="search-clear-btn" style="display:none;">✕</button>
+      <input type="text" id="graph-search" placeholder="在图谱中查找想法/节点..." aria-label="搜索图谱节点" />
+      <button id="search-clear-btn" style="display:none;" aria-label="清除搜索">✕</button>
     </div>
 
     <!-- 沙盒编辑器控制区 -->
@@ -629,15 +683,15 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
       <summary>物理力调优</summary>
       <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.6rem;">
         <div class="physics-slider-row">
-          <span>连线长度: <span id="val-link-dist">120</span>px</span>
+          <label for="slider-link-dist">连线长度: <span id="val-link-dist">120</span>px</label>
           <input type="range" id="slider-link-dist" class="physics-slider" min="40" max="300" value="120" />
         </div>
         <div class="physics-slider-row">
-          <span>排斥强度: <span id="val-charge">240</span></span>
+          <label for="slider-charge">排斥强度: <span id="val-charge">240</span></label>
           <input type="range" id="slider-charge" class="physics-slider" min="50" max="800" value="240" />
         </div>
         <div class="physics-slider-row">
-          <span>碰撞间距: <span id="val-collision">25</span>px</span>
+          <label for="slider-collision">碰撞间距: <span id="val-collision">25</span>px</label>
           <input type="range" id="slider-collision" class="physics-slider" min="5" max="60" value="25" />
         </div>
       </div>
@@ -645,8 +699,8 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
 
     <!-- 下载面板 -->
     <div class="download-panel">
-      <button id="btn-download-svg" class="download-btn">下载 SVG 矢量图</button>
-      <button id="btn-download-png" class="download-btn">下载 PNG 高清图</button>
+      <button id="btn-download-svg" class="download-btn" aria-label="下载 SVG 矢量图">下载 SVG 矢量图</button>
+      <button id="btn-download-png" class="download-btn" aria-label="下载 PNG 高清图">下载 PNG 高清图</button>
     </div>
 
     <!-- 原始图例 -->
@@ -657,10 +711,21 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
       <div class="legend-item"><span class="dot dot-excerpts"></span>拾遗 (Excerpt)</div>
       <div class="legend-item"><span class="dot dot-fragments"></span>念头 (Fragment)</div>
     </div>
+
+    <!-- 节点列表替代视图（无障碍） -->
+    <details class="node-list-panel" id="node-list-panel">
+      <summary>📋 所有节点列表（无障碍键盘访问）</summary>
+      <div id="node-list-content" style="max-height: 240px; overflow-y: auto; margin-top: 0.5rem;">
+        <div class="search-empty" style="font-size:0.78rem; color:var(--ink-faint); padding:1rem 0; text-align:center;">图谱数据加载中...</div>
+      </div>
+    </details>
   </header>
 
   <!-- 关系网图容器 -->
-  <svg id="graph"></svg>
+  <svg id="graph" role="img" aria-label="思考的经纬 - 知识图谱可视化" tabindex="0"></svg>
+
+  <!-- ARIA live region 用于屏幕阅读器播报 -->
+  <div id="aria-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
   <!-- 浮动详情面板 -->
   <div id="detail-card" class="detail-card">
@@ -772,10 +837,47 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force("collision", d3.forceCollide().radius(d => (nodeRadii[d.group] || 10) + 25));
 
+      populateNodeList();
       checkUrlParams();
       updateGraph();
       setupInteractionListeners();
     });
+
+    // ── 填充无障碍节点列表 ──
+    function populateNodeList() {
+      const container = document.getElementById("node-list-content");
+      if (!container) return;
+
+      const groups = {};
+      for (const n of nodes) {
+        const grp = n.group || 'other';
+        if (!groups[grp]) groups[grp] = [];
+        groups[grp].push(n);
+      }
+
+      const groupOrder = ['posts', 'notes', 'memories', 'excerpts', 'fragments'];
+      let html = '';
+      for (const grp of groupOrder) {
+        const items = groups[grp];
+        if (!items || items.length === 0) continue;
+        html += `<div class="node-list-group"><div class="node-list-group-label">${typeLabels[grp] || grp}</div>`;
+        for (const n of items) {
+          html += `<button class="node-list-item" data-node-id="${n.id}">${n.title}</button>`;
+        }
+        html += "</div>";
+      }
+
+      container.innerHTML = html || '<div class="search-empty" style="font-size:0.78rem; color:var(--ink-faint); padding:1rem 0; text-align:center;">暂无节点数据</div>';
+
+      // 绑定点击事件
+      container.querySelectorAll(".node-list-item").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const nodeId = btn.getAttribute("data-node-id");
+          const match = nodes.find(n => n.id === nodeId);
+          if (match) focusOnNode(match);
+        });
+      });
+    }
 
     function updateGraph() {
       // 连线
@@ -790,6 +892,7 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
 
       const linkEnter = linkSel.enter().append("line")
         .attr("class", "link")
+        .attr("role", "presentation")
         .on("click", (event, d) => {
           if (currentMode === 'sandbox') {
             event.stopPropagation();
@@ -816,6 +919,9 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
       nodeEnter.append("circle")
         .attr("r", d => nodeRadii[d.group] || 10)
         .attr("fill", d => colors[d.group] ? colors[d.group]() : getThemeColor('--ochre'))
+        .attr("role", "button")
+        .attr("tabindex", 0)
+        .attr("aria-label", d => `${d.title} (${typeLabels[d.group] || '想法'})`)
         .on("mouseover", handleMouseOver)
         .on("mouseout", handleMouseOut)
         .on("click", (event, d) => {
@@ -854,6 +960,9 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
       });
 
       simulation.alpha(0.3).restart();
+
+      // 同步更新无障碍节点列表
+      populateNodeList();
     }
 
     function handleMouseOver(event, d) {
@@ -914,12 +1023,14 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
       document.getElementById("detail-type").innerText = typeLabels[d.group] || 'Custom';
       document.getElementById("detail-title").innerText = d.title;
       document.getElementById("detail-tip").innerText = d.url ? "双击该圆点跳转主域查看全文 ↗" : "心智沙盒自定义节点 ✏";
-      
+
       document.getElementById("btn-delete-selected").style.display = (currentMode === 'sandbox') ? "inline-block" : "none";
       document.getElementById("btn-delete-link").style.display = "none";
-      
+
       document.getElementById("detail-cross-actions").style.display = "flex";
       detailCard.style.display = "block";
+
+      announceToScreenReader(`已选中：${d.title}，${typeLabels[d.group] || '想法'}`);
     }
 
     function selectLink(l) {
@@ -950,6 +1061,8 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
       
       document.getElementById("detail-cross-actions").style.display = "none";
       detailCard.style.display = "block";
+
+      announceToScreenReader(`已选中连线：${sTitle} 到 ${tTitle}`);
     }
 
     function clearSelection() {
@@ -958,6 +1071,7 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
       nodeGroup.selectAll(".node").classed("active-selected", false);
       linkGroup.selectAll("line").classed("active-selected-link", false);
       document.getElementById("detail-card").style.display = "none";
+      announceToScreenReader("已取消选择");
     }
 
     function focusOnNode(d) {
@@ -973,6 +1087,64 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
         );
 
       selectNode(d);
+    }
+
+    // ── 键盘导航：方向键在可见节点间移动 ──
+    svg.on("keydown", (event) => {
+      if (!selectedNode && !selectedLink) return;
+      if (!["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Escape"].includes(event.key)) return;
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        clearSelection();
+        announceToScreenReader("已取消选择节点");
+        return;
+      }
+
+      event.preventDefault();
+      const current = selectedNode;
+      if (!current) return;
+
+      // 找出所有非 dimmed 的可见节点
+      const visibleNodes = nodeGroup.selectAll(".node")
+        .filter(function() { return !this.classList.contains("dimmed"); })
+        .data();
+
+      if (visibleNodes.length === 0) return;
+
+      // 找几何距离最近的可见节点（排除自身）
+      const others = visibleNodes.filter(n => n.id !== current.id);
+      if (others.length === 0) return;
+
+      // 根据方向键偏置目标方向
+      const angleMap = { ArrowUp: -Math.PI/2, ArrowDown: Math.PI/2, ArrowLeft: Math.PI, ArrowRight: 0 };
+      const angle = angleMap[event.key];
+      const offsetX = Math.cos(angle) * 200;
+      const offsetY = Math.sin(angle) * 200;
+      const targetX = current.x + offsetX;
+      const targetY = current.y + offsetY;
+
+      let nearest = others[0];
+      let minDist = Infinity;
+      for (const n of others) {
+        const dx = n.x - targetX;
+        const dy = n.y - targetY;
+        const dist = dx * dx + dy * dy;
+        if (dist < minDist) { minDist = dist; nearest = n; }
+      }
+
+      focusOnNode(nearest);
+      announceToScreenReader(`${nearest.title}，${typeLabels[nearest.group] || '想法'}`);
+    });
+
+    // ── 屏幕阅读器播报 ──
+    function announceToScreenReader(msg) {
+      const announcer = document.getElementById("aria-announcer");
+      if (announcer) {
+        announcer.textContent = "";
+        // 触发重新播报需要清空再设置
+        requestAnimationFrame(() => { announcer.textContent = msg; });
+      }
     }
 
     function dragstarted(event, d) {
@@ -1320,14 +1492,16 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
 
     function switchToSandboxStateUI() {
       currentMode = 'sandbox';
-      
+
       const btnView = document.getElementById("btn-mode-view");
       btnView.classList.remove("active");
+      btnView.setAttribute("aria-selected", "false");
       btnView.style.background = "transparent";
       btnView.style.color = "var(--ink-soft)";
 
       const btnSandbox = document.getElementById("btn-mode-sandbox");
       btnSandbox.classList.add("active");
+      btnSandbox.setAttribute("aria-selected", "true");
       btnSandbox.style.background = "var(--paper-deep)";
       btnSandbox.style.color = "var(--ink)";
 
@@ -1342,11 +1516,13 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
 
       const btnSandbox = document.getElementById("btn-mode-sandbox");
       btnSandbox.classList.remove("active");
+      btnSandbox.setAttribute("aria-selected", "false");
       btnSandbox.style.background = "transparent";
       btnSandbox.style.color = "var(--ink-soft)";
 
       const btnView = document.getElementById("btn-mode-view");
       btnView.classList.add("active");
+      btnView.setAttribute("aria-selected", "true");
       btnView.style.background = "var(--paper-deep)";
       btnView.style.color = "var(--ink)";
 
