@@ -6,6 +6,32 @@ const isDev = import.meta.env.DEV;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+  
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+  <title>禅意写作空间 · newmaybe 实验 01</title>
+  <meta name="description" content="禅意写作空间 - newmaybe 实验 01。一个专为文字创作者设计的无干扰、静谧、专注的数字化禅意写作环境。" />
+  <link rel="canonical" href="https://lab.newmaybe.com/zen-writer" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="禅意写作空间 · newmaybe 实验 01" />
+  <meta property="og:description" content="禅意写作空间 - newmaybe 实验 01。一个专为文字创作者设计的无干扰、静谧、专注的数字化禅意写作环境。" />
+  <meta property="og:url" content="https://lab.newmaybe.com/zen-writer" />
+  <meta property="og:image" content="https://newmaybe.com/og-default.png" />
+  <meta property="og:site_name" content="newmaybe" />
+  <meta property="og:locale" content="zh_CN" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="禅意写作空间 · newmaybe 实验 01" />
+  <meta name="twitter:description" content="禅意写作空间 - newmaybe 实验 01。一个专为文字创作者设计的无干扰、静谧、专注 of 数字化禅意写作环境。" />
+  <meta name="twitter:image" content="https://newmaybe.com/og-default.png" />
+
   <script is:inline>
     (function() {
       const match = document.cookie.match(/theme=(dark|light)/);
@@ -13,7 +39,6 @@ const isDev = import.meta.env.DEV;
       document.documentElement.classList.add(theme);
     })();
   </script>
-  <title>禅意写作空间 · newmaybe 实验 01</title>
   <style>
     @import '@fontsource/cormorant-garamond/latin-400.css';
     @import '@fontsource/cormorant-garamond/latin-400-italic.css';

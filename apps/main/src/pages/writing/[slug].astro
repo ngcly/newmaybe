@@ -45,7 +45,7 @@ const watermark = post.data.watermark;
 const connections = await resolveConnections(post.data.connections);
 ---
 
-<Base title={post.data.title} description={post.data.description} image={`/og/${post.id}.png`} article={true}>
+<Base title={post.data.title} description={post.data.description} image={`/og/${post.id}.png`} article={true} publishDate={post.data.pubDate}>
   <div id="reading-bar" aria-hidden="true"></div>
   <article class="article">
     <div class="wrap">

@@ -11,6 +11,8 @@ interface Props {
   image?: string;
   /** 是否为文章页，影响 og:type */
   article?: boolean;
+  /** 发布时间，用于 JSON-LD 结构化数据 */
+  publishDate?: Date;
 }
 
 const {
@@ -18,6 +20,7 @@ const {
   description = SITE.description,
   image = '/og-default.png',
   article = false,
+  publishDate,
 } = Astro.props;
 
 const pageTitle = title ? `${title} · ${SITE.title}` : `${SITE.title} — ${SITE.tagline}`;
@@ -81,7 +84,13 @@ const isActive = (href: string) => {
   </script>
   <ClientRouter />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+  
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  
   <meta name="generator" content={Astro.generator} />
 
   <title>{pageTitle}</title>
@@ -107,6 +116,44 @@ const isActive = (href: string) => {
 
   <!-- RSS 自动发现 -->
   <link rel="alternate" type="application/rss+xml" title={SITE.title} href="/rss.xml" />
+
+  <!-- JSON-LD 结构化数据 -->
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(article ? {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": title || SITE.title,
+    "description": description,
+    "image": ogImage,
+    "datePublished": publishDate ? publishDate.toISOString() : undefined,
+    "author": {
+      "@type": "Person",
+      "name": SITE.author,
+      "url": SITE.url
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": SITE.title,
+      "logo": {
+        "@type": "ImageObject",
+        "url": new URL('/favicon-32.png', SITE.url).href
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": canonical
+    }
+  } : {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": SITE.title,
+    "alternateName": SITE.title,
+    "description": SITE.description,
+    "url": SITE.url,
+    "publisher": {
+      "@type": "Person",
+      "name": SITE.author
+    }
+  })} />
 </head>
 
 <body>
