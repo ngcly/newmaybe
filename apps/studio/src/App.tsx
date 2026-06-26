@@ -65,9 +65,7 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<string>('随笔');
   const [copiedPromptMsg, setCopiedPromptMsg] = useState(false);
 
-  // 今日诗词：按日缓存，避免重复请求
-  // 注：jinrishici v2 的 X-User-Token header 在 localhost 触发 CORS preflight 会失败，
-  // 生产环境（studio.newmaybe.com）正常工作。
+  // 今日诗词：按日缓存，并使用官方 JS-SDK 避免前端直接 Fetch 导致的 CORS Preflight 403 跨域错误
   useEffect(() => {
     const today = new Date().toDateString();
     try {
@@ -78,41 +76,32 @@ export default function App() {
       }
     } catch {}
 
-    const fetchPoem = async (token: string) => {
-      const res = await fetch('https://v2.jinrishici.com/one.json', {
-        headers: { 'X-User-Token': token },
-      });
-      const data = await res.json() as {
-        status: string;
-        data: { content: string; origin: { author: string; title: string } };
-      };
-      if (data.status === 'success') {
-        const poem: DailyPoem = {
-          content: data.data.content,
-          author: data.data.origin.author,
-          origin: data.data.origin.title,
-        };
-        setDailyPoem(poem);
-        localStorage.setItem('jinrishici_poem', JSON.stringify({ date: today, poem }));
+    const loadPoemFromSDK = () => {
+      const sdk = (window as any).jinrishici;
+      if (sdk) {
+        sdk.load((result: any) => {
+          if (result && result.status === 'success') {
+            const poem: DailyPoem = {
+              content: result.data.content,
+              author: result.data.origin.author,
+              origin: result.data.origin.title,
+            };
+            setDailyPoem(poem);
+            localStorage.setItem('jinrishici_poem', JSON.stringify({ date: today, poem }));
+          }
+        });
       }
     };
 
-    const storedToken = localStorage.getItem('jinrishici_token');
-    if (storedToken) {
-      fetchPoem(storedToken).catch(() => {});
-      return;
+    if ((window as any).jinrishici) {
+      loadPoemFromSDK();
+    } else {
+      const script = document.createElement('script');
+      script.src = 'https://sdk.jinrishici.com/v2/browser/jinrishici.js';
+      script.charset = 'utf-8';
+      script.onload = loadPoemFromSDK;
+      document.head.appendChild(script);
     }
-
-    fetch('https://v2.jinrishici.com/token')
-      .then(r => r.json())
-      .then((data: { status: string; data: string }) => {
-        if (data.status === 'success') {
-          localStorage.setItem('jinrishici_token', data.data);
-          return fetchPoem(data.data);
-        }
-        return;
-      })
-      .catch(() => {});
   }, []);
 
   // 资产素材库数据
