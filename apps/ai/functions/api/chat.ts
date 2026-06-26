@@ -21,22 +21,22 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
 
     // 使用适合中文与逻辑推理的开源模型
-    // 优先使用 qwen1.5-14b-chat，如失败则回退至 llama-3-8b-instruct
+    // 优先使用 llama-3.1-8b-instruct，如失败则回退至 llama-3.1-8b-instruct-fast
     let responseText = '';
-    const qwenModel = '@cf/qwen/qwen1.5-14b-chat';
-    const llamaModel = '@cf/meta/llama-3-8b-instruct';
+    const primaryModel = '@cf/meta/llama-3.1-8b-instruct';
+    const fallbackModel = '@cf/meta/llama-3.1-8b-instruct-fast';
 
     try {
-      const response = await context.env.AI.run(qwenModel, {
+      const response = await context.env.AI.run(primaryModel, {
         messages: messages.map(m => ({
           role: m.role === 'assistant' ? 'assistant' : m.role === 'system' ? 'system' : 'user',
           content: m.content
         }))
       });
       responseText = response.response;
-    } catch (qwenError) {
-      console.warn('Qwen model failed, falling back to Llama-3:', qwenError);
-      const response = await context.env.AI.run(llamaModel, {
+    } catch (primaryError) {
+      console.warn('Primary model failed, falling back to Llama-3.1-fast:', primaryError);
+      const response = await context.env.AI.run(fallbackModel, {
         messages: messages.map(m => ({
           role: m.role === 'assistant' ? 'assistant' : m.role === 'system' ? 'system' : 'user',
           content: m.content
