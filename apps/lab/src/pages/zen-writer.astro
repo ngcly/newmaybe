@@ -1,0 +1,434 @@
+---
+const isDev = import.meta.env.DEV;
+---
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script is:inline>
+    (function() {
+      const match = document.cookie.match(/theme=(dark|light)/);
+      const theme = (match && match[1]) || localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.classList.add(theme);
+    })();
+  </script>
+  <title>禅意写作空间 · newmaybe 实验 01</title>
+  <style>
+    @import '@fontsource/cormorant-garamond/latin-400.css';
+    @import '@fontsource/cormorant-garamond/latin-400-italic.css';
+    @import '@fontsource/cormorant-garamond/latin-600.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
+
+    @import '@newmaybe/shared-styles/tokens.css';
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background-color: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif-cn), serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: background-color 0.5s;
+    }
+
+    /* 顶部导航与控制栏 */
+    header, .control-panel {
+      position: absolute;
+      z-index: 100;
+      transition: opacity 1.2s ease-in-out;
+      opacity: 1;
+    }
+
+    header {
+      top: 2rem;
+      left: 3rem;
+    }
+    .back-link {
+      font-size: 0.9rem;
+      color: var(--ink-faint);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .back-link:hover {
+      color: var(--ochre);
+    }
+
+    /* 控制面板 (右侧) */
+    .control-panel {
+      top: 2rem;
+      right: 3rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      background: rgba(239, 233, 222, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0.6rem 1.2rem;
+    }
+    :root.dark .control-panel {
+      background: rgba(38, 35, 32, 0.6);
+    }
+    
+    .panel-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--ink-soft);
+    }
+    .audio-btn {
+      background: none;
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+      cursor: pointer;
+      font-size: 0.76rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 3px;
+      font-family: var(--serif-cn), serif;
+      transition: all 0.3s;
+    }
+    .audio-btn.active, .audio-btn:hover {
+      background-color: var(--ochre);
+      color: var(--paper);
+      border-color: var(--ochre);
+    }
+    .slider {
+      width: 80px;
+      accent-color: var(--ochre);
+      cursor: pointer;
+    }
+
+    /* 主编辑器容器 */
+    .editor-container {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 6rem 3rem 4rem;
+    }
+
+    /* 编辑纸张 */
+    .writer-sheet {
+      width: 100%;
+      max-width: 720px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+      outline: none;
+      resize: none;
+      font-family: var(--serif-cn), serif;
+      font-size: 1.2rem; /* 动态修改 */
+      line-height: 1.9;
+      color: var(--ink);
+      font-weight: 300;
+      text-align: justify;
+    }
+    textarea::placeholder {
+      color: var(--ink-faint);
+      opacity: 0.5;
+    }
+
+    /* 底部状态栏 */
+    footer {
+      position: absolute;
+      bottom: 2rem;
+      left: 3rem;
+      right: 3rem;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--ink-faint);
+      z-index: 100;
+      transition: opacity 1.2s ease-in-out;
+      opacity: 1;
+      pointer-events: none;
+    }
+
+    /* 沉浸式输入状态 (淡出控制元素) */
+    body.is-typing header,
+    body.is-typing .control-panel,
+    body.is-typing footer {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* 聚焦输入状态或打字状态下直接淡出隐藏，防软键盘遮挡碰撞 */
+    body:has(#editor:focus) header,
+    body:has(#editor:focus) .control-panel,
+    body:has(#editor:focus) footer {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    @media (max-width: 680px) {
+      header { top: 1rem; left: 1.5rem; }
+      .control-panel { top: 4rem; left: 0.5rem; right: 0.5rem; padding: 0.5rem; flex-wrap: wrap; justify-content: center; gap: 0.8rem; }
+      .editor-container { padding: 11rem 1.5rem 3rem; }
+      footer { bottom: 1rem; left: 1.5rem; right: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 用于传递环境变量给客户端 JS -->
+  <div id="subdomain-config" data-dev={isDev ? "true" : "false"} style="display: none;"></div>
+
+  <!-- 头部返回 -->
+  <header>
+    <a href="/#" class="back-link">← 返回实验室</a>
+  </header>
+
+  <!-- 顶部控制条 -->
+  <div class="control-panel">
+    <div class="panel-item">
+      <span>字号</span>
+      <input type="range" min="16" max="28" value="20" id="fontSizeSlider" class="slider" aria-label="调节字号" />
+    </div>
+    <div class="panel-item">
+      <span>白噪音</span>
+      <button class="audio-btn" id="rainBtn" data-type="rain">雨声 🌧</button>
+      <button class="audio-btn" id="windBtn" data-type="wind">微风 🍃</button>
+    </div>
+    <div class="panel-item" style="border-left: 1px solid var(--line); padding-left: 1rem; gap: 0.5rem;">
+      <span style="font-size: 0.72rem; color: var(--ink-faint);">导出:</span>
+      <button class="audio-btn" id="sendToCardBtn" title="发送至卡片加工厂">卡片</button>
+      <button class="audio-btn" id="sendToStudioBtn" title="发送至海报工作室">海报</button>
+      <button class="audio-btn" id="sendToGraphBtn" title="发送至思维沙盒">沙盒</button>
+    </div>
+  </div>
+
+  <!-- 写作区域 -->
+  <div class="editor-container">
+    <div class="writer-sheet">
+      <textarea id="editor" placeholder="在此处开始静默写作，输入文字时所有控制按钮将徐徐隐去，停止输入或移动鼠标将再次唤醒它们..."></textarea>
+    </div>
+  </div>
+
+  <!-- 底部状态栏 -->
+  <footer>
+    <span id="wordCount">字数: 0</span>
+    <span>自动保存于本地浏览器</span>
+  </footer>
+
+  <script is:inline>
+    // 1. 沉浸式淡入淡出逻辑
+    const body = document.body;
+    const editor = document.getElementById('editor');
+    const wordCount = document.getElementById('wordCount');
+    let typingTimer;
+
+    // 当输入时，启动“打字沉浸状态”
+    editor.addEventListener('input', () => {
+      body.classList.add('is-typing');
+      clearTimeout(typingTimer);
+      
+      // 停止输入 2.5 秒后退出沉浸状态
+      typingTimer = setTimeout(() => {
+        body.classList.remove('is-typing');
+      }, 2500);
+
+      // 实时统计字数
+      const text = editor.value.trim();
+      const count = text ? text.replace(/[\s\p{P}]/gu, '').length : 0;
+      wordCount.innerText = `字数: ${count}`;
+      
+      // 自动保存
+      localStorage.setItem('newmaybe_zen_draft', editor.value);
+    });
+
+    // 鼠标移动时自动退出沉浸状态，防止完全迷失
+    window.addEventListener('mousemove', () => {
+      body.classList.remove('is-typing');
+    });
+
+    // 恢复草稿或读取 URL 传参
+    const params = new URLSearchParams(window.location.search);
+    const draftParam = params.get('draft');
+    
+    if (draftParam) {
+      editor.value = draftParam;
+      const count = draftParam.replace(/[\s\p{P}]/gu, '').length;
+      wordCount.innerText = `字数: ${count}`;
+      localStorage.setItem('newmaybe_zen_draft', draftParam);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      const savedDraft = localStorage.getItem('newmaybe_zen_draft');
+      if (savedDraft) {
+        editor.value = savedDraft;
+        const count = savedDraft.replace(/[\s\p{P}]/gu, '').length;
+        wordCount.innerText = `字数: ${count}`;
+      }
+    }
+
+    // 2. 动态调节字号
+    const slider = document.getElementById('fontSizeSlider');
+    slider.addEventListener('input', () => {
+      editor.style.fontSize = `${slider.value}px`;
+    });
+
+    // 3. Web Audio API 零网络延迟白噪音合成器
+    let audioCtx = null;
+    let rainNode = null;
+    let windNode = null;
+
+    function initAudio() {
+      if (audioCtx) return;
+      // @ts-ignore
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContextClass();
+    }
+
+    // 生成白噪音缓冲区
+    function createNoiseBuffer() {
+      const bufferSize = 2 * audioCtx.sampleRate;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+      return noiseBuffer;
+    }
+
+    // 启动雨声合成器
+    function startRain() {
+      initAudio();
+      
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = createNoiseBuffer();
+      noise.loop = true;
+
+      // 雨声频响滤波：使用带通滤波器
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 600; // 雨滴集中在 500-800Hz 中频
+      filter.Q.value = 1.2;
+
+      // 音量控制
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.15;
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start();
+
+      return {
+        stop: () => {
+          try { noise.stop(); } catch(e){}
+        }
+      };
+    }
+
+    // 启动风声合成器
+    function startWind() {
+      initAudio();
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = createNoiseBuffer();
+      noise.loop = true;
+
+      // 低通滤波器模拟狂风的厚重沉闷感
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 180; 
+
+      // 音量控制
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.08;
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start();
+
+      // 低频振荡器 (LFO) 来缓慢调节低通截止频率，产生呼啸的风息起伏效果
+      const osc = audioCtx.createOscillator();
+      const oscGain = audioCtx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.value = 0.08; // 极低的振荡速率 (0.08Hz, 约 12 秒一个周期)
+      oscGain.gain.value = 80;    // 波动范围 +-80Hz
+
+      osc.connect(oscGain);
+      oscGain.connect(filter.frequency); // 调制截止频率
+      osc.start();
+
+      return {
+        stop: () => {
+          try { noise.stop(); osc.stop(); } catch(e){}
+        }
+      };
+    }
+
+    // 绑定音频按钮
+    document.getElementById('rainBtn').addEventListener('click', function() {
+      if (rainNode) {
+        rainNode.stop();
+        rainNode = null;
+        this.classList.remove('active');
+      } else {
+        rainNode = startRain();
+        this.classList.add('active');
+      }
+    });
+
+    document.getElementById('windBtn').addEventListener('click', function() {
+      if (windNode) {
+        windNode.stop();
+        windNode = null;
+        this.classList.remove('active');
+      } else {
+        windNode = startWind();
+        this.classList.add('active');
+      }
+    });
+
+    // 绑定子域导出跳转
+    const isDev = document.getElementById("subdomain-config").getAttribute("data-dev") === "true";
+    const resolveSubdomain = (url) => {
+      if (!isDev) return url;
+      if (url.startsWith('https://newmaybe.com')) return 'http://localhost:4321';
+      if (url.startsWith('https://graph.newmaybe.com')) return 'http://localhost:4322';
+      if (url.startsWith('https://tools.newmaybe.com')) return 'http://localhost:4323';
+      if (url.startsWith('https://ai.newmaybe.com')) return 'http://localhost:4324';
+      if (url.startsWith('https://lab.newmaybe.com')) return 'http://localhost:4325';
+      if (url.startsWith('https://studio.newmaybe.com')) return 'http://localhost:4326';
+      return url;
+    };
+
+    document.getElementById('sendToCardBtn').addEventListener('click', () => {
+      const text = editor.value.trim();
+      if (!text) return alert("请先写点什么再进行卡片转换吧...");
+      window.open(`${resolveSubdomain('https://tools.newmaybe.com')}?content=${encodeURIComponent(text)}`, '_blank');
+    });
+
+    document.getElementById('sendToStudioBtn').addEventListener('click', () => {
+      const text = editor.value.trim();
+      if (!text) return alert("请先写点什么再进行海报排版吧...");
+      window.open(`${resolveSubdomain('https://studio.newmaybe.com')}?quote=${encodeURIComponent(text)}`, '_blank');
+    });
+
+    document.getElementById('sendToGraphBtn').addEventListener('click', () => {
+      const text = editor.value.trim();
+      if (!text) return alert("请先写点什么再进行思维沙盒连结吧...");
+      window.open(`${resolveSubdomain('https://graph.newmaybe.com')}?add_node=${encodeURIComponent(text)}`, '_blank');
+    });
+  </script>
+</body>
+</html>

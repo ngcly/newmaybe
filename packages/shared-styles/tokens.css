@@ -1,0 +1,57 @@
+/* ──────────────────────────────────────────
+   @newmaybe/shared-styles · Design tokens
+   所有子应用的唯一设计 token 来源
+   ────────────────────────────────────────── */
+
+:root {
+  --paper:      #F7F3EC;   /* 米纸底 */
+  --paper-deep: #EFE9DE;   /* 略深的米色 */
+  --ink:        #2B2722;   /* 墨黑 */
+  --ink-soft:   #5B5349;   /* 暖灰墨 */
+  --ink-faint:  #968B7C;   /* 淡墨 */
+  --ochre:      #A8643C;   /* 赭石 */
+  --ochre-deep: #8A4F2E;
+  --line:       #D9CFBF;   /* 细线 */
+  --watermark-opacity: 0.032;
+
+  --serif-cn: 'Noto Serif SC', 'Songti SC', serif;
+  --serif-en: 'Cormorant Garamond', 'Noto Serif SC', serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --paper:      #1E1B18;
+    --paper-deep: #262320;
+    --ink:        #E8E0D5;
+    --ink-soft:   #B5A99A;
+    --ink-faint:  #7A7065;
+    --ochre:      #C4814E;
+    --ochre-deep: #A8643C;
+    --line:       #3A3430;
+    --watermark-opacity: 0.045;
+  }
+}
+
+:root.dark {
+  --paper:      #1E1B18;
+  --paper-deep: #262320;
+  --ink:        #E8E0D5;
+  --ink-soft:   #B5A99A;
+  --ink-faint:  #7A7065;
+  --ochre:      #C4814E;
+  --ochre-deep: #A8643C;
+  --line:       #3A3430;
+  --watermark-opacity: 0.045;
+}
+
+:root.light {
+  --paper:      #F7F3EC;
+  --paper-deep: #EFE9DE;
+  --ink:        #2B2722;
+  --ink-soft:   #5B5349;
+  --ink-faint:  #968B7C;
+  --ochre:      #A8643C;
+  --ochre-deep: #8A4F2E;
+  --line:       #D9CFBF;
+  --watermark-opacity: 0.032;
+}

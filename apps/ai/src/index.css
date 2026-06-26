@@ -1,0 +1,40 @@
+@import "tailwindcss";
+@import '@fontsource/cormorant-garamond/latin-400.css';
+@import '@fontsource/cormorant-garamond/latin-400-italic.css';
+@import '@fontsource/cormorant-garamond/latin-600.css';
+@import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
+@import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
+@import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
+@import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
+
+@import '@newmaybe/shared-styles/tokens.css';
+
+@layer base {
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif-cn);
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(168,100,60,0.015) 0%, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(43,39,34,0.01) 0%, transparent 40%);
+  }
+}
+
+/* 消息框滑入动效 */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.msg-animate {
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

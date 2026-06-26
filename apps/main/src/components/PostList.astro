@@ -1,0 +1,108 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  posts: CollectionEntry<'posts'>[];
+  heading?: string;
+  headingCn?: string;
+  showMore?: boolean;
+  showHeading?: boolean;
+}
+
+const { posts, heading = 'Writing', headingCn = '近期文字', showMore = true, showHeading = true } = Astro.props;
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' });
+---
+
+<section class="section" id="writing">
+  <div class="wrap">
+    {showHeading && (
+      <div class="section-head reveal">
+        <h2>{heading}<span class="cn">{headingCn}</span></h2>
+        {showMore && <a href="/writing" class="more">全部文字 →</a>}
+      </div>
+    )}
+
+    {posts.map((post) => (
+      <article class="post reveal" data-category={post.data.category}>
+        <a href={`/writing/${post.id}`}>
+          <span class="date" transition:name={`post-date-${post.id}`}>{fmt(post.data.pubDate)}</span>
+          <div class="post-body">
+            <h3 transition:name={`post-title-${post.id}`}>{post.data.title}</h3>
+            <p>{post.data.description}</p>
+            <span class="tag">
+              {post.data.category}
+              {post.data.readingTime && ` · ${post.data.readingTime} 分钟`}
+            </span>
+          </div>
+        </a>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .section { padding: 4.5rem 0; }
+  .section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 3.5rem; flex-wrap: wrap; gap: 1rem;
+  }
+  .section-head h2 {
+    font-family: var(--serif-en); font-weight: 600;
+    font-size: 2.2rem; letter-spacing: .01em;
+  }
+  .section-head h2 .cn {
+    font-family: var(--serif-cn); font-size: 1.4rem;
+    color: var(--ink-faint); font-weight: 400; margin-left: .8rem;
+  }
+  .section-head .more {
+    font-size: .9rem; color: var(--ochre); text-decoration: none;
+    letter-spacing: .06em; border-bottom: 1px solid transparent;
+    transition: border-color .3s;
+  }
+  .section-head .more:hover { border-color: var(--ochre); }
+
+  .post {
+    padding: 2.2rem 0; border-top: 1px solid var(--line);
+    transition: padding-left .4s ease, opacity .45s ease, transform .45s cubic-bezier(0.16, 1, 0.3, 1), max-height .45s ease, padding-top .45s ease, padding-bottom .45s ease, border-color .45s ease;
+    overflow: hidden;
+    max-height: 250px;
+  }
+  .post.hidden {
+    opacity: 0;
+    transform: translateY(15px);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-color: transparent;
+    pointer-events: none;
+  }
+  .post > a {
+    display: grid; grid-template-columns: 130px 1fr; gap: 2.5rem;
+    align-items: baseline;
+    text-decoration: none; color: inherit;
+  }
+  .post:last-child { border-bottom: 1px solid var(--line); transition: border-bottom-color .45s ease; }
+  .post.hidden:last-child { border-bottom-color: transparent; }
+  .post:hover { padding-left: 1rem; }
+  .post .date {
+    font-family: var(--serif-en); color: var(--ink-faint);
+    font-size: 1.05rem; font-style: italic;
+  }
+  .post h3 {
+    font-weight: 500; font-size: 1.5rem; line-height: 1.4;
+    margin-bottom: .6rem; transition: color .3s ease; color: var(--ink);
+  }
+  .post:hover h3 { color: var(--ochre); }
+  .post p { color: var(--ink-soft); font-size: 1.02rem; font-weight: 300; max-width: 60ch; }
+  .post .tag {
+    display: inline-block; margin-top: .9rem;
+    font-family: var(--serif-en); font-style: italic;
+    font-size: .92rem; color: var(--ink-faint);
+  }
+  @media (max-width: 680px) {
+    .post > a { grid-template-columns: 1fr; gap: .5rem; }
+    .post .date { font-size: .95rem; }
+  }
+</style>

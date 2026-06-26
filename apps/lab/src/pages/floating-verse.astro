@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script is:inline>
+    (function() {
+      const match = document.cookie.match(/theme=(dark|light)/);
+      const theme = (match && match[1]) || localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.classList.add(theme);
+    })();
+  </script>
+  <title>随风诗词画布 · newmaybe 实验 02</title>
+  <style>
+    @import '@fontsource/cormorant-garamond/latin-400.css';
+    @import '@fontsource/cormorant-garamond/latin-400-italic.css';
+    @import '@fontsource/cormorant-garamond/latin-600.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
+    @import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
+
+    @import '@newmaybe/shared-styles/tokens.css';
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background-color: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif-cn), serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    header {
+      position: absolute;
+      top: 2rem;
+      left: 3rem;
+      z-index: 100;
+    }
+    .back-link {
+      font-size: 0.9rem;
+      color: var(--ink-faint);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .back-link:hover {
+      color: var(--ochre);
+    }
+
+    /* 全屏 Canvas */
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* 悬浮说明板 */
+    .info-tip {
+      position: absolute;
+      bottom: 2rem;
+      left: 0;
+      right: 0;
+      width: fit-content;
+      margin: 0 auto;
+      background: rgba(239, 233, 222, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.8rem;
+      color: var(--ink-faint);
+      pointer-events: none;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(43, 39, 34, 0.02);
+    }
+    :root.dark .info-tip {
+      background: rgba(38, 35, 32, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/#" class="back-link">← 返回实验室</a>
+  </header>
+
+  <!-- 粒子画布 -->
+  <canvas id="canvas"></canvas>
+
+  <div class="info-tip">
+    滑动鼠标抚平涟漪，文字会在离开后静静重组 ── 戴望舒《雨巷》节选
+  </div>
+
+  <script is:inline>
+    // 诗歌数据
+    const verses = [
+      "撑着油纸伞，独自",
+      "彷徨在悠长、悠长",
+      "又寂寥的雨巷",
+      "我希望逢着",
+      "一个丁香一样地",
+      "结着愁怨的姑娘",
+      "她是有",
+      "丁香一样的颜色",
+      "丁香一样的芬芳"
+    ];
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    const mouse = { x: -1000, y: -1000, active: false };
+    const particles = [];
+    const springK = 0.025;      // 弹性系数 (回弹力)
+    const damping = 0.85;       // 摩擦阻尼 (防止简谐振动不停止)
+    const mouseRadius = 90;     // 鼠标排斥范围 (像素)
+    const repulsion = 0.22;     // 排斥强度
+
+    // 获取主站主题颜色
+    function getThemeColors() {
+      const style = getComputedStyle(document.documentElement);
+      return {
+        ink: style.getPropertyValue('--ink').trim(),
+        line: style.getPropertyValue('--line').trim(),
+        ochre: style.getPropertyValue('--ochre').trim()
+      };
+    }
+
+    let currentColors = getThemeColors();
+
+    // 粒子结构
+    class Particle {
+      constructor(char, tx, ty) {
+        this.char = char;
+        this.targetX = tx;
+        this.targetY = ty;
+        // 初始位置随机漂移
+        this.x = tx + (Math.random() * 200 - 100);
+        this.y = ty + (Math.random() * 200 - 100);
+        this.vx = 0;
+        this.vy = 0;
+      }
+
+      update() {
+        // 1. 恢复力 (Spring pulling back to target)
+        const ax = (this.targetX - this.x) * springK;
+        const ay = (this.targetY - this.y) * springK;
+
+        this.vx = (this.vx + ax) * damping;
+        this.vy = (this.vy + ay) * damping;
+
+        // 2. 鼠标排斥力 (Mouse Repulsion)
+        if (mouse.active) {
+          const dx = this.x - mouse.x;
+          const dy = this.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < mouseRadius) {
+            const force = (mouseRadius - dist) * repulsion;
+            const angle = Math.atan2(dy, dx);
+            this.vx += Math.cos(angle) * force;
+            this.vy += Math.sin(angle) * force;
+          }
+        }
+
+        // 3. 位移
+        this.x += this.vx;
+        this.y += this.vy;
+      }
+
+      draw() {
+        ctx.fillText(this.char, this.x, this.y);
+      }
+    }
+
+    // 初始化排版粒子
+    function initPoemParticles() {
+      particles.length = 0;
+      ctx.font = '20px "Noto Serif SC", "Songti SC", serif';
+      ctx.textAlign = 'center';
+      
+      const charSize = 24;
+      const lineSpacing = 42;
+      const totalLines = verses.length;
+      
+      // 竖向居中布局起点
+      const startY = (height - (totalLines * lineSpacing)) / 2 + 10;
+
+      verses.forEach((verse, lineIdx) => {
+        const chars = verse.split('');
+        const lineLen = chars.length;
+        const startX = (width - (lineLen * charSize)) / 2 + charSize / 2;
+
+        chars.forEach((char, charIdx) => {
+          const tx = startX + (charIdx * charSize);
+          const ty = startY + (lineIdx * lineSpacing);
+          particles.push(new Particle(char, tx, ty));
+        });
+      });
+    }
+
+    // 绘制循环
+    function loop() {
+      ctx.clearRect(0, 0, width, height);
+
+      // 绘制粒子之间的隐形“细丝连线”，展现想法关联心智
+      ctx.strokeStyle = currentColors.line;
+      ctx.lineWidth = 0.5;
+      
+      let prevPart = null;
+      particles.forEach((p, idx) => {
+        p.update();
+        
+        // 渲染同行的字与字之间的极淡连接线，像丝线一样
+        // 判断条件：目标Y坐标一致，说明在同一行，且距离较近
+        if (prevPart && prevPart.targetY === p.targetY) {
+          ctx.beginPath();
+          ctx.moveTo(prevPart.x, prevPart.y - 6);
+          ctx.lineTo(p.x, p.y - 6);
+          ctx.stroke();
+        }
+        prevPart = p;
+
+        ctx.fillStyle = currentColors.ink;
+        p.draw();
+      });
+
+      requestAnimationFrame(loop);
+    }
+
+    // 自适应视口 (平滑更新粒子目标位置而非直接清除重建)
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      
+      const charSize = 24;
+      const lineSpacing = 42;
+      const totalLines = verses.length;
+      const startY = (height - (totalLines * lineSpacing)) / 2 + 10;
+      
+      let pIdx = 0;
+      verses.forEach((verse, lineIdx) => {
+        const chars = verse.split('');
+        const lineLen = chars.length;
+        const startX = (width - (lineLen * charSize)) / 2 + charSize / 2;
+
+        chars.forEach((char, charIdx) => {
+          const tx = startX + (charIdx * charSize);
+          const ty = startY + (lineIdx * lineSpacing);
+          if (particles[pIdx]) {
+            particles[pIdx].targetX = tx;
+            particles[pIdx].targetY = ty;
+          }
+          pIdx++;
+        });
+      });
+    });
+
+    // 监听鼠标轨迹
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      mouse.active = true;
+    });
+
+    window.addEventListener('mouseleave', () => {
+      mouse.active = false;
+    });
+
+    // 监听暗色模式变化
+    const observer = new MutationObserver(() => {
+      currentColors = getThemeColors();
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    // 启动
+    initPoemParticles();
+    loop();
+  </script>
+</body>
+</html>

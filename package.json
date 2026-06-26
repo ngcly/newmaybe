@@ -1,23 +1,28 @@
 {
-  "name": "newmaybe",
-  "type": "module",
-  "version": "1.0.0",
+  "name": "newmaybe-monorepo",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@astrojs/rss": "^4.0.18",
-    "@astrojs/sitemap": "^3.7.3",
-    "astro": "^7.0.0",
-    "satori": "^0.26.0",
-    "sharp": "^0.35.2"
+    "dev:main": "npm run dev -w apps/main",
+    "dev:graph": "npm run dev -w apps/graph",
+    "dev:tools": "npm run dev -w apps/tools",
+    "dev:ai": "npm run dev -w apps/ai",
+    "dev:lab": "npm run dev -w apps/lab",
+    "dev:studio": "npm run dev -w apps/studio",
+    "build:main": "npm run build -w apps/main",
+    "build:graph": "npm run build -w apps/graph",
+    "build:tools": "npm run build -w apps/tools",
+    "build:ai": "npm run build -w apps/ai",
+    "build:lab": "npm run build -w apps/lab",
+    "build:studio": "npm run build -w apps/studio",
+    "audit": "npx tsx scripts/audit-posts.ts",
+    "new": "npx tsx scripts/new.ts",
+    "sync:favicon": "for app in graph tools ai lab studio; do cp apps/main/public/favicon.svg apps/main/public/favicon.ico apps/main/public/favicon-32.png apps/main/public/apple-touch-icon.png apps/$app/public/; done && echo 'Favicon synced to all subdomains'"
   },
   "devDependencies": {
-    "@fontsource/cormorant-garamond": "^5.2.11",
-    "@fontsource/noto-serif-sc": "^5.2.9"
+    "@types/js-yaml": "^4.0.9"
   }
 }

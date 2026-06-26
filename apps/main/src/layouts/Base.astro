@@ -1,0 +1,477 @@
+---
+import { SITE, NAV } from '../config';
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import Search from '../components/Search.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** OG 图路径，相对站点根，如 /og/post-slug.png */
+  image?: string;
+  /** 是否为文章页，影响 og:type */
+  article?: boolean;
+}
+
+const {
+  title,
+  description = SITE.description,
+  image = '/og-default.png',
+  article = false,
+} = Astro.props;
+
+const pageTitle = title ? `${title} · ${SITE.title}` : `${SITE.title} — ${SITE.tagline}`;
+const canonical = new URL(Astro.url.pathname, SITE.url).href;
+const ogImage = new URL(image, SITE.url).href;
+const year = new Date().getFullYear();
+
+const currentPath = Astro.url.pathname;
+const isActive = (href: string) => {
+  if (href === '/') return currentPath === '/' || currentPath === '';
+  const pathPart = currentPath.endsWith('/') ? currentPath.slice(0, -1) : currentPath;
+  const hrefPart = href.endsWith('/') ? href.slice(0, -1) : href;
+  return pathPart === hrefPart || pathPart.startsWith(hrefPart + '/');
+};
+---
+
+<!DOCTYPE html>
+<html lang={SITE.locale}>
+<head>
+  <meta charset="UTF-8" />
+  <script is:inline>
+    document.documentElement.classList.add('js');
+    const applyTheme = () => {
+      const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      } else {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+      }
+      // 同步设置跨域 Cookie 缓存以供各子域名提取
+      const domainAttr = window.location.hostname.includes('newmaybe.com') ? '; domain=.newmaybe.com' : '';
+      document.cookie = `theme=${theme}; path=/${domainAttr}; max-age=31536000; SameSite=Lax`;
+    };
+    applyTheme();
+    
+    // 在 View Transitions 交换 DOM 前同步主题类名，防止由于系统暗色偏好引发的瞬间闪烁
+    document.addEventListener('astro:before-swap', (ev) => {
+      const isDark = document.documentElement.classList.contains('dark');
+      if (isDark) {
+        ev.newDocument.documentElement.classList.add('dark');
+        ev.newDocument.documentElement.classList.remove('light');
+      } else {
+        ev.newDocument.documentElement.classList.add('light');
+        ev.newDocument.documentElement.classList.remove('dark');
+      }
+    });
+
+    document.addEventListener('astro:after-swap', applyTheme);
+
+    // 在 DOM 交换完成后立即应用诗歌版式偏好，防止横竖排闪烁
+    document.addEventListener('astro:after-swap', () => {
+      const poemWrap = document.querySelector('.poem-wrap');
+      if (!poemWrap) return;
+      const isVertical = localStorage.getItem('poetry-layout') === 'vertical';
+      poemWrap.classList.toggle('vertical', isVertical);
+      const toggle = document.getElementById('layoutToggle');
+      if (toggle) toggle.classList.toggle('is-vertical', isVertical);
+    });
+  </script>
+  <ClientRouter />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="generator" content={Astro.generator} />
+
+  <title>{pageTitle}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content={article ? 'article' : 'website'} />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:site_name" content={SITE.title} />
+  <meta property="og:locale" content={SITE.locale} />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
+
+  <!-- RSS 自动发现 -->
+  <link rel="alternate" type="application/rss+xml" title={SITE.title} href="/rss.xml" />
+</head>
+
+<body>
+  <header id="hdr">
+    <nav>
+      <a href="/" class="logo">{SITE.title}<span class="dot">.</span></a>
+      <ul class="nav-links">
+        {NAV.map((item) => (
+          <li><a href={item.href} class={isActive(item.href) ? 'active' : ''}>{item.label}</a></li>
+        ))}
+      </ul>
+      <button class="search-nav-btn" id="search-nav-trigger" aria-label="搜索" title="搜索 (⌘K)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-nav-icon">
+          <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+      <button class="theme-toggle" id="themeToggle" aria-label="切换主题" title="切换主题">
+        <span class="mode-icon"></span>
+      </button>
+      <button class="menu-btn" aria-label="菜单" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+  </header>
+
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-drawer">
+      <div class="drawer-head">
+        <a href="/" class="drawer-logo">{SITE.title}<span class="dot">.</span></a>
+      </div>
+      <nav class="drawer-links">
+        {NAV.map((item, i) => (
+          <a href={item.href} class={isActive(item.href) ? 'active' : ''}>
+            <span class="drawer-idx">{String(i + 1).padStart(2, '0')}</span>
+            {item.label}
+          </a>
+        ))}
+      </nav>
+      <div class="drawer-foot">
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid reveal">
+        <div class="foot-left">
+          <h4>{SITE.title}<span class="dot">.</span></h4>
+          <p>{SITE.description}</p>
+        </div>
+        <div class="foot-links">
+          {NAV.map((item) => (
+            <a href={item.href}>{item.label}</a>
+          ))}
+          <a href="/rss.xml">RSS</a>
+          <a href={`mailto:${SITE.email}`}>Email</a>
+        </div>
+      </div>
+      <div class="foot-base">
+        <span>© {year} {SITE.url.replace('https://', '')} · 以 Astro 构筑，栖于 Cloudflare</span>
+        <span>Made slowly.</span>
+      </div>
+    </div>
+  </footer>
+
+  <Search />
+
+  <script>
+    function setupPage() {
+      // 汉堡菜单
+      const menuBtn = document.querySelector('.menu-btn') as HTMLButtonElement | null;
+      const mobileMenu = document.getElementById('mobileMenu');
+      const close = () => {
+        menuBtn?.classList.remove('open');
+        mobileMenu?.classList.remove('open');
+        menuBtn?.setAttribute('aria-expanded', 'false');
+        mobileMenu?.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      };
+      menuBtn?.addEventListener('click', () => {
+        const open = menuBtn.classList.toggle('open');
+        mobileMenu?.classList.toggle('open', open);
+        menuBtn.setAttribute('aria-expanded', String(open));
+        mobileMenu?.setAttribute('aria-hidden', String(!open));
+        document.body.style.overflow = open ? 'hidden' : '';
+      });
+      mobileMenu?.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+      document.getElementById('mobileOverlay')?.addEventListener('click', close);
+
+      // Keydown 监听器清理与绑定
+      if ((document as any)._handleEscape) {
+        document.removeEventListener('keydown', (document as any)._handleEscape);
+      }
+      const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
+      document.addEventListener('keydown', handleEscape);
+      (document as any)._handleEscape = handleEscape;
+
+      // 导航栏滚动细线清理与绑定
+      const hdr = document.getElementById('hdr');
+      if ((window as any)._onScroll) {
+        window.removeEventListener('scroll', (window as any)._onScroll);
+      }
+      const onScroll = () => hdr?.classList.toggle('scrolled', window.scrollY > 20);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      (window as any)._onScroll = onScroll;
+      onScroll();
+
+      // 清理诗歌沉浸式滚动监听器，仅在非诗歌页面上执行（诗歌页由 is:inline 脚本重建）
+      if ((window as any)._onScrollPoetry && !document.querySelector('.poem-wrap')) {
+        window.removeEventListener('scroll', (window as any)._onScrollPoetry);
+        delete (window as any)._onScrollPoetry;
+        if (hdr) {
+          hdr.style.transform = '';
+          hdr.style.opacity = '';
+          hdr.style.transition = '';
+        }
+      }
+
+      // 清理诗歌版式点击监听器，仅在非诗歌页面上执行
+      if ((window as any)._handleLayoutClick && !document.querySelector('.poem-wrap')) {
+        document.removeEventListener('click', (window as any)._handleLayoutClick);
+        delete (window as any)._handleLayoutClick;
+      }
+
+      // 滚动进场
+      if ((window as any)._revealObserver) {
+        (window as any)._revealObserver.disconnect();
+      }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.15 });
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+      (window as any)._revealObserver = io;
+
+      // 暗色模式手动切换
+      const themeToggle = document.getElementById('themeToggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          const isDark = document.documentElement.classList.contains('dark');
+          const newTheme = isDark ? 'light' : 'dark';
+          if (isDark) {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+          } else {
+            document.documentElement.classList.remove('light');
+            document.documentElement.classList.add('dark');
+          }
+          localStorage.setItem('theme', newTheme);
+          const domainAttr = window.location.hostname.includes('newmaybe.com') ? '; domain=.newmaybe.com' : '';
+          document.cookie = `theme=${newTheme}; path=/${domainAttr}; max-age=31536000; SameSite=Lax`;
+        });
+      }
+    }
+
+    // 初次加载与视图切换后重新绑定
+    document.addEventListener('astro:page-load', setupPage);
+  </script>
+
+  <style>
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      backdrop-filter: blur(6px);
+      background: color-mix(in srgb, var(--paper) 70%, transparent);
+      border-bottom: 1px solid transparent;
+      transition: border-color .4s ease;
+    }
+    header.scrolled { border-bottom: 1px solid var(--line); }
+    nav {
+      display: flex; justify-content: space-between; align-items: center;
+      height: 72px; max-width: var(--max); margin: 0 auto; padding: 0 2rem;
+    }
+    .logo {
+      font-family: var(--serif-en);
+      font-size: 1.5rem; font-weight: 600; letter-spacing: .02em;
+      color: var(--ink); text-decoration: none;
+      display: flex; align-items: baseline; gap: .4rem;
+    }
+    .logo .dot {
+      color: var(--ochre);
+      display: inline-block;
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .logo:hover .dot {
+      transform: scale(1.4) translateY(-1px);
+    }
+    .nav-links { display: flex; gap: 2.4rem; list-style: none; margin-left: auto; }
+    .nav-links a {
+      color: var(--ink-soft); text-decoration: none;
+      font-size: .92rem; letter-spacing: .08em;
+      position: relative; padding-bottom: 2px;
+      transition: color .3s ease;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1px; background: var(--ochre);
+      transition: width .35s ease;
+    }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--ink); }
+    .nav-links a.active { color: var(--ochre); }
+    .nav-links a:hover::after,
+    .nav-links a.active::after { width: 100%; }
+    .nav-links a.active::after { background: var(--ochre); }
+
+    .search-nav-btn {
+      background: none; border: none; cursor: pointer;
+      padding: 6px; display: flex; align-items: center; justify-content: center;
+      margin-left: 2.4rem; color: var(--ink-soft);
+      transition: color 0.3s ease, transform 0.2s ease;
+    }
+    .search-nav-btn:hover {
+      color: var(--ink);
+      transform: scale(1.05);
+    }
+    .search-nav-icon {
+      width: 17px;
+      height: 17px;
+      color: var(--ink-soft);
+    }
+
+    .theme-toggle {
+      background: none; border: none; cursor: pointer;
+      padding: 6px; display: flex; align-items: center; justify-content: center;
+      margin-left: 2.4rem; transition: color 0.3s ease;
+    }
+    .theme-toggle .mode-icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid var(--ink-soft);
+      background: linear-gradient(90deg, var(--ink-soft) 50%, transparent 50%);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
+      transform-origin: center;
+    }
+    :root.dark .theme-toggle .mode-icon {
+      border-color: var(--ink-soft);
+      background: linear-gradient(90deg, var(--ink-soft) 50%, transparent 50%);
+      transform: rotate(180deg);
+    }
+    .theme-toggle:hover .mode-icon {
+      border-color: var(--ochre);
+      background: linear-gradient(90deg, var(--ochre) 50%, transparent 50%);
+      transform: rotate(180deg);
+    }
+    :root.dark .theme-toggle:hover .mode-icon {
+      border-color: var(--ochre);
+      background: linear-gradient(90deg, var(--ochre) 50%, transparent 50%);
+      transform: rotate(0deg);
+    }
+
+    main { padding-top: 72px; }
+
+    footer { padding: 5rem 0 3rem; margin-top: 4rem; }
+    .foot-grid { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 2rem; }
+    .foot-left h4 { font-family: var(--serif-en); font-size: 1.8rem; font-weight: 600; margin-bottom: .5rem; }
+    .foot-left h4 .dot { color: var(--ochre); }
+    .foot-left p { color: var(--ink-faint); font-size: .95rem; font-weight: 300; max-width: 34ch; }
+    .foot-links { display: flex; gap: 1.6rem; flex-wrap: wrap; }
+    .foot-links a {
+      color: var(--ink-soft); text-decoration: none; font-size: .92rem;
+      letter-spacing: .06em; transition: color .3s;
+    }
+    .foot-links a:hover { color: var(--ochre); }
+    .foot-base {
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line);
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem;
+      font-size: .82rem; color: var(--ink-faint); letter-spacing: .04em;
+    }
+    .menu-btn {
+      display: none; flex-direction: column; justify-content: center; gap: 5px;
+      width: 32px; height: 32px; background: none; border: none;
+      cursor: pointer; padding: 4px; flex-shrink: 0;
+    }
+    .menu-btn span {
+      display: block; width: 22px; height: 1.5px; background: var(--ink);
+      transition: transform .3s ease, opacity .3s ease;
+      transform-origin: center;
+    }
+    .menu-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .menu-btn.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .menu-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    .mobile-menu {
+      position: fixed; inset: 0; z-index: 99;
+      pointer-events: none;
+      /* 关闭态对键盘 / 读屏完全隐藏，延迟等抽屉滑出动画结束 */
+      visibility: hidden;
+      transition: visibility 0s .4s;
+    }
+    .mobile-menu.open { pointer-events: auto; visibility: visible; transition: visibility 0s; }
+    .mobile-overlay {
+      position: absolute; inset: 0;
+      background: rgba(30, 25, 18, 0.35);
+      opacity: 0; transition: opacity .35s ease;
+    }
+    .mobile-menu.open .mobile-overlay { opacity: 1; }
+    .mobile-drawer {
+      position: absolute; top: 0; right: 0; bottom: 0;
+      width: min(78%, 320px);
+      background: var(--paper);
+      border-left: 1px solid var(--line);
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .38s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mobile-menu.open .mobile-drawer { transform: translateX(0); }
+    .drawer-head {
+      height: 72px; flex-shrink: 0;
+      display: flex; align-items: center;
+      padding: 0 2rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .drawer-logo {
+      font-family: var(--serif-en); font-size: 1.3rem; font-weight: 600;
+      letter-spacing: .02em; color: var(--ink); text-decoration: none;
+    }
+    .drawer-logo .dot { color: var(--ochre); }
+    .drawer-links {
+      flex: 1;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 1.5rem 2rem;
+    }
+    .drawer-links a {
+      display: flex; align-items: baseline; gap: 1rem;
+      font-family: var(--serif-cn); font-size: 1.15rem; font-weight: 400;
+      color: var(--ink-soft); text-decoration: none; letter-spacing: .06em;
+      padding: 1rem 0; border-bottom: 1px solid var(--line);
+      transition: color .2s, padding-left .3s ease;
+    }
+    .drawer-links a:first-child { border-top: 1px solid var(--line); }
+    .drawer-links a:hover,
+    .drawer-links a.active { color: var(--ochre); padding-left: .4rem; }
+    .drawer-idx {
+      font-family: var(--serif-en); font-style: italic;
+      font-size: .8rem; color: var(--ink-faint); flex-shrink: 0;
+    }
+    .drawer-foot {
+      flex-shrink: 0;
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--line);
+    }
+    .drawer-foot a {
+      font-family: var(--serif-en); font-style: italic;
+      font-size: .82rem; color: var(--ink-faint); text-decoration: none;
+      transition: color .2s;
+    }
+    .drawer-foot a:hover { color: var(--ochre); }
+
+    @media (max-width: 680px) {
+      .nav-links { display: none; }
+      .search-nav-btn { margin-left: auto; margin-right: 0.5rem; }
+      .theme-toggle { margin-left: 0; margin-right: 0.5rem; }
+      .menu-btn { display: flex; }
+    }
+  </style>
+</body>
+</html>

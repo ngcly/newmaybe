@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import yaml from 'js-yaml';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const postsDir = path.resolve(__dirname, '../src/content/posts');
+const postsDir = path.resolve(__dirname, '../packages/content/posts');
 
 interface Frontmatter {
   title: string;
@@ -34,21 +35,21 @@ interface PostReport {
 
 function parseFrontmatter(raw: string): { fm: Frontmatter; body: string } | null {
   const normalized = raw.replace(/\r\n/g, '\n');
-  const match = normalized.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  const match = normalized.match(/^---\n([\s\S]*?)\n---(?:\n|$)([\s\S]*)$/);
   if (!match) return null;
-  const fmBlock = match[1];
-  const body = match[2].trim();
-  const fm: Record<string, unknown> = {};
-  let currentKey: string | null = null;
-  for (const line of fmBlock.split('\n')) {
-    const keyMatch = line.match(/^(\w+):\s*(.*)/);
-    if (keyMatch) {
-      currentKey = keyMatch[1];
-      const val = keyMatch[2].trim();
-      fm[currentKey] = val === 'true' ? true : val === 'false' ? false : /^\d+(\.\d+)?$/.test(val) ? Number(val) : val;
+  try {
+    const parsed = yaml.load(match[1]) as Record<string, unknown>;
+    // js-yaml parses YAML dates as Date objects; normalize to ISO date strings
+    for (const key of Object.keys(parsed)) {
+      if (parsed[key] instanceof Date) parsed[key] = (parsed[key] as Date).toISOString().slice(0, 10);
     }
+    const fm = parsed as unknown as Frontmatter;
+    const body = match[2].trim();
+    return { fm, body };
+  } catch (e) {
+    console.warn('YAML parse error:', e);
+    return null;
   }
-  return { fm: fm as unknown as Frontmatter, body };
 }
 
 function estimateReadingTime(chars: number): number {

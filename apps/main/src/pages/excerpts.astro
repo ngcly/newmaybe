@@ -1,0 +1,221 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { render } from 'astro:content';
+
+const excerpts = (await getCollection('excerpts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Base title="拾遗" description="经典语句与片段摘录，沉淀阅读中的灵感与智慧。">
+  <section class="excerpts-page">
+    <div class="wrap">
+      <header class="page-head reveal">
+        <span class="eyebrow">Excerpts</span>
+        <h1>拾遗<span class="zh">阅读剪报</span></h1>
+        <p class="intro">阅读时掠过心头、让人驻足的句子，或是闪烁着智慧的他人片段。</p>
+      </header>
+
+      <div class="excerpts-grid">
+        {excerpts.map(async (excerpt, i) => {
+          const { Content } = await render(excerpt);
+          return (
+            <article id={excerpt.id} class="excerpt-card reveal" style={`animation-delay: ${i * 0.06}s`}>
+              <div class="quote-mark">“</div>
+              <div class="excerpt-body">
+                <Content />
+              </div>
+              <footer class="excerpt-source">
+                <span class="author">— {excerpt.data.author}</span>
+                {excerpt.data.source && <span class="source">{excerpt.data.source}</span>}
+              </footer>
+              {excerpt.data.comment && (
+                <div class="excerpt-comment">
+                  <span class="comment-label">随感</span>
+                  <p class="comment-text">{excerpt.data.comment}</p>
+                </div>
+              )}
+              <div class="excerpt-date">{fmtDate(excerpt.data.pubDate)}</div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .excerpts-page {
+    padding: 5rem 0 7rem;
+  }
+
+  .page-head {
+    max-width: 60ch;
+    margin: 0 auto 5rem;
+    text-align: center;
+  }
+  .page-head h1 {
+    font-weight: 500;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 1.8rem;
+  }
+  .page-head .intro {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+
+  /* 剪报网格 */
+  .excerpts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    align-items: start;
+  }
+
+  /* 卡片设计 */
+  .excerpt-card {
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 2.5rem 2.2rem 2.2rem;
+    position: relative;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.3s ease,
+                background-color 0.4s ease;
+  }
+
+  .excerpt-card:target {
+    border-color: var(--ochre);
+    box-shadow: 0 0 0 1px var(--ochre);
+    animation: targetExcerptHighlight 2.5s ease-out forwards;
+  }
+
+  @keyframes targetExcerptHighlight {
+    0% {
+      background-color: color-mix(in srgb, var(--ochre) 10%, var(--paper-deep));
+    }
+    100% {
+      background-color: var(--paper-deep);
+    }
+  }
+
+  .excerpt-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.03);
+    border-color: color-mix(in srgb, var(--ochre) 30%, var(--line));
+  }
+  :root.dark .excerpt-card:hover {
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  /* 饰角双引号 */
+  .quote-mark {
+    position: absolute;
+    top: 0.6rem;
+    left: 1rem;
+    font-family: var(--serif-en), serif;
+    font-size: 4rem;
+    color: var(--ochre);
+    opacity: 0.12;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* 摘录正文 */
+  .excerpt-body {
+    position: relative;
+    z-index: 1;
+  }
+  .excerpt-body :global(p) {
+    font-family: var(--serif-en);
+    font-size: 1.25rem;
+    line-height: 1.85;
+    color: var(--ink);
+    text-align: justify;
+    text-justify: inter-character;
+    font-weight: 400;
+    margin: 0;
+  }
+  .excerpt-body :global(p + p) {
+    margin-top: 0.8rem;
+  }
+
+  /* 出处与作者 */
+  .excerpt-source {
+    margin-top: 1.6rem;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+    font-family: var(--serif-cn), serif;
+  }
+  .excerpt-source .author {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .excerpt-source .source {
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+
+  /* 个人批注 */
+  .excerpt-comment {
+    margin-top: 1.6rem;
+    padding-top: 1.2rem;
+    border-top: 1px dashed var(--line);
+  }
+  .comment-label {
+    display: block;
+    font-family: var(--serif-cn), serif;
+    font-size: 0.72rem;
+    color: var(--ochre);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+    opacity: 0.85;
+  }
+  .comment-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0;
+    text-align: justify;
+  }
+
+  /* 日期小字 */
+  .excerpt-date {
+    margin-top: 1.2rem;
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    font-family: var(--serif-en), serif;
+    font-style: italic;
+    opacity: 0.7;
+    text-align: left;
+  }
+
+  @media (max-width: 680px) {
+    .excerpts-page {
+      padding: 3.5rem 0 5rem;
+    }
+    .page-head {
+      margin-bottom: 3.5rem;
+    }
+    .excerpts-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .excerpt-card {
+      padding: 2.2rem 1.6rem 1.6rem;
+    }
+  }
+</style>

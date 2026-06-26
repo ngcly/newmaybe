@@ -1,0 +1,264 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { resolveConnections } from '../../lib/connections';
+
+export async function getStaticPaths() {
+  const memories = await getCollection('memories', ({ data }) => !data.draft);
+  return memories.map((memory) => ({
+    params: { slug: memory.id },
+    props: { memory },
+  }));
+}
+
+const { memory } = Astro.props;
+const { Content } = await render(memory);
+
+const longDate = memory.data.pubDate.toLocaleDateString('zh-CN', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+
+const updatedDate = memory.data.updatedDate?.toLocaleDateString('zh-CN', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+
+// 解析关联节点
+const resolvedConnections = await resolveConnections(memory.data.connections);
+
+function getUrlForEntry(collection: string, id: string) {
+  if (collection === 'posts') return `/writing/${id}`;
+  if (collection === 'notes') return `/notes/${id}`;
+  if (collection === 'memories') return `/memory/${id}`;
+  if (collection === 'fragments') return `/fragments`;
+  if (collection === 'excerpts') return `/excerpts`;
+  return '#';
+}
+
+function getCollectionLabel(collection: string) {
+  const labels: Record<string, string> = {
+    posts: '文章',
+    notes: '笔记',
+    memories: '记忆',
+    fragments: '念头',
+    excerpts: '拾遗'
+  };
+  return labels[collection] || '内容';
+}
+---
+
+<Base title={memory.data.title} description={`${memory.data.title} - 记忆档案`}>
+  <article class="memory-detail">
+    <div class="wrap">
+      <header class="memory-head reveal">
+        <a href="/garden" class="back">← 返回花园</a>
+        <div class="title-row">
+          <h1>{memory.data.title}</h1>
+          <span class="version-tag">Version {memory.data.version}</span>
+        </div>
+        
+        <div class="memory-meta-row">
+          <span class="meta-cat">分类：{memory.data.category}</span>
+          <span class="divider">·</span>
+          <time class="meta-date">建档于 {longDate}</time>
+          {updatedDate && <time class="meta-date">· 修订于 {updatedDate}</time>}
+        </div>
+      </header>
+
+      <div class="memory-layout">
+        <!-- 档案内容 -->
+        <main class="memory-main reveal">
+          <div class="prose">
+            <Content />
+          </div>
+        </main>
+
+        <!-- 关联网络/反向链接 -->
+        <aside class="memory-sidebar reveal">
+          <div class="sidebar-box">
+            <h4 class="sidebar-title">知识网络 Connections</h4>
+            {resolvedConnections.length > 0 ? (
+              <ul class="conn-list">
+                {resolvedConnections.map((conn) => (
+                  <li>
+                    <a href={getUrlForEntry(conn.collection, conn.id)} class="conn-link">
+                      <span class="conn-tag">[{getCollectionLabel(conn.collection)}]</span>
+                      <span class="conn-title">{conn.data.title || conn.id}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p class="conn-empty">当前档案暂无外部关联线索。</p>
+            )}
+          </div>
+        </aside>
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .memory-detail {
+    padding: 5rem 0 7rem;
+  }
+
+  .memory-head {
+    max-width: 100%;
+    margin-bottom: 3.5rem;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 2rem;
+  }
+  .back {
+    display: inline-block;
+    font-family: var(--serif-cn), serif;
+    font-size: 0.9rem;
+    color: var(--ink-faint);
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    transition: color 0.3s ease;
+  }
+  .back:hover {
+    color: var(--ochre);
+  }
+  
+  .title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.2rem;
+  }
+  .memory-head h1 {
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.25;
+    margin: 0;
+  }
+  .version-tag {
+    font-family: var(--serif-en), serif;
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--ochre);
+    border: 1px solid var(--line);
+    background: var(--paper-deep);
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+  }
+
+  .memory-meta-row {
+    font-size: 0.9rem;
+    color: var(--ink-faint);
+    font-family: var(--serif-cn), serif;
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  /* 结构化双栏布局 */
+  .memory-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  /* 正文排版 */
+  .memory-main {
+    max-width: 74ch;
+  }
+  .prose {
+    font-family: var(--serif-cn), serif;
+    font-size: 1.1rem;
+    line-height: 1.95;
+    color: var(--ink-soft);
+  }
+  .prose :global(p) {
+    margin-bottom: 1.5rem;
+    text-align: justify;
+    text-justify: inter-character;
+  }
+  .prose :global(ul), .prose :global(ol) {
+    margin-bottom: 1.5rem;
+    padding-left: 1.8rem;
+  }
+  .prose :global(li) {
+    margin-bottom: 0.5rem;
+  }
+  .prose :global(strong) {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* 侧栏 */
+  .memory-sidebar {
+    position: sticky;
+    top: 6rem;
+  }
+
+  .sidebar-box {
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1.5rem;
+  }
+
+  .sidebar-title {
+    font-family: var(--serif-cn), serif;
+    font-size: 0.85rem;
+    color: var(--ochre);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.2rem;
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 0.6rem;
+    text-transform: uppercase;
+  }
+
+  /* 关系网络列表 */
+  .conn-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .conn-link {
+    text-decoration: none;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    transition: color 0.3s ease;
+  }
+  .conn-tag {
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+  }
+  .conn-title {
+    color: var(--ink-soft);
+    font-weight: 400;
+    transition: color 0.3s ease;
+  }
+  .conn-link:hover .conn-title {
+    color: var(--ochre);
+  }
+  .conn-empty {
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  @media (max-width: 860px) {
+    .memory-layout {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+    .memory-sidebar {
+      position: static;
+    }
+  }
+</style>
