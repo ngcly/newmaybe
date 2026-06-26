@@ -6,28 +6,29 @@
 
 ## 部署参数一览
 
-| 子域名 | Pages 项目名 | 根目录 | 构建命令 | 输出目录 | 框架预设 |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `newmaybe.com` | `newmaybe-main` | `apps/main` | `npm run build` | `dist` | Astro |
-| `graph.newmaybe.com` | `newmaybe-graph` | `apps/graph` | `npm run build` | `dist` | Astro |
-| `tools.newmaybe.com` | `newmaybe-tools` | `apps/tools` | `npm run build` | `dist` | Vite |
-| `ai.newmaybe.com` | `newmaybe-ai` | `apps/ai` | `npm run build` | `dist` | Vite |
-| `lab.newmaybe.com` | `newmaybe-lab` | `apps/lab` | `npm run build` | `dist` | Astro |
-| `studio.newmaybe.com` | `newmaybe-studio` | `apps/studio` | `npm run build` | `dist` | Vite |
+| 子域名 | Pages 项目名 | 根目录 (Root directory) | 构建命令 (Build command) | 部署命令 (Deploy command) | 输出目录 (Build output directory) | 框架预设 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `newmaybe.com` | `newmaybe-main` | `(留空 / Git 根目录)` | `npm run build:main` | `npx wrangler deploy --config apps/main/wrangler.toml` | `apps/main/dist` | Astro |
+| `graph.newmaybe.com` | `newmaybe-graph` | `(留空 / Git 根目录)` | `npm run build:graph` | `npx wrangler deploy --config apps/graph/wrangler.toml` | `apps/graph/dist` | Astro |
+| `tools.newmaybe.com` | `newmaybe-tools` | `(留空 / Git 根目录)` | `npm run build:tools` | `npx wrangler deploy --config apps/tools/wrangler.toml` | `apps/tools/dist` | Vite |
+| `ai.newmaybe.com` | `newmaybe-ai` | `(留空 / Git 根目录)` | `npm run build:ai` | `npx wrangler deploy --config apps/ai/wrangler.toml` | `apps/ai/dist` | Vite |
+| `lab.newmaybe.com` | `newmaybe-lab` | `(留空 / Git 根目录)` | `npm run build:lab` | `npx wrangler deploy --config apps/lab/wrangler.toml` | `apps/lab/dist` | Astro |
+| `studio.newmaybe.com` | `newmaybe-studio` | `(留空 / Git 根目录)` | `npm run build:studio` | `npx wrangler deploy --config apps/studio/wrangler.toml` | `apps/studio/dist` | Vite |
 
 > `tools` / `ai` / `studio` 是 React + Vite 应用，框架预设选 **Vite**；其余三个选 **Astro**。
 
 ---
 
-## 创建 Pages 项目（通用步骤）
+## 创建 Pages/Workers 项目（通用步骤）
 
 1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)。
-2. 进入 **Workers & Pages** → **Create** → **Pages** 标签页。
+2. 进入 **Workers & Pages** → **Create** → **Pages** (或 **Workers**) 标签页。
 3. 点击 **Connect to Git**，授权并选择 `newmaybe` 仓库。
-4. 填写构建参数（见上表）：
-   - **Root directory**（根目录）：**最关键的一项**，填写对应的 `apps/xxx`。
-   - **Build command**：`npm run build`
-   - **Build output directory**：`dist`
+4. 填写构建与部署参数（见上表）：
+   - **Root directory**（根目录）：**必须留空 (Git 仓库根目录)**。因为这是一个 npm Workspaces Monorepo，必须在整个仓库的根目录下进行依赖安装（`npm install`），以便软链接本地的 `@newmaybe/content` 和 `@newmaybe/shared-styles`。
+   - **Build command**（构建命令）：`npm run build:xxx` (例如 `npm run build:main`)
+   - **Deploy command**（部署命令）：`npx wrangler deploy --config apps/xxx/wrangler.toml` (例如 `npx wrangler deploy --config apps/graph/wrangler.toml`)
+   - **Build output directory**（构建输出目录）：`apps/xxx/dist` (例如 `apps/main/dist`)
    - **Framework preset**：Astro 或 Vite（见上表）
 5. 点击 **Save and Deploy**，等待首次构建完成。
 
@@ -77,11 +78,11 @@
 
 ## 为什么 Monorepo 能正常编译？
 
-Cloudflare Pages 构建时会克隆**整个 Git 仓库**到容器，即使根目录设为 `apps/main`，父级的 `packages/content` 目录依然存在。
+由于项目基于 **npm Workspaces** 构筑，当 Cloudflare Pages 把 **Root directory** 设为 `(留空 / Git 根目录)` 时，构建系统会在整个 Git 仓库根目录执行 `npm clean-install`。这会自动在根目录的 `node_modules/` 下为本地的 `@newmaybe/content` 和 `@newmaybe/shared-styles` 包生成软链接（Symlinks）。
 
-因此 Astro 在编译期执行 `glob({ base: '../../packages/content/posts' })` 时，能够向上回溯两级加载所有 Markdown 内容——这是多子域共享单一内容数据库的关键。
+当执行各子应用的构建命令（如 `npm run build:graph`，即 `npm run build -w apps/graph`）时，由于 node 会自动往上回溯父级目录的 `node_modules`，各子应用便能够完美识别并加载这两个本地依赖包，实现零配置跨子域名模块解析。
 
-同理，`@newmaybe/shared-styles` 和 `@newmaybe/content` 两个 workspace 包在构建容器内通过 npm workspaces symlink 正常解析，无需额外配置。
+此外，由于构建工作在根目录下进行，Astro 在编译期执行 `glob({ base: '../../packages/content/posts' })` 回溯加载内容时也能正常向上回溯两级加载所有 Markdown 内容。
 
 ---
 
