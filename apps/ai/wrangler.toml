@@ -5,5 +5,5 @@ compatibility_date = "2026-06-01"
 directory = "./dist"
 not_found_handling = "404-page"
 
-[[ai]]
+[ai]
 binding = "AI"
