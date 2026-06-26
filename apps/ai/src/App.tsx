@@ -73,8 +73,8 @@ export default function App() {
     } else if (savedProvider === 'openai') {
       setModel('gpt-4o-mini');
     }
-    if (savedKey) setApiKey(savedKey);
-    if (savedBaseUrl) setCustomBaseUrl(savedBaseUrl);
+    if (savedKey) setApiKey(savedKey.trim());
+    if (savedBaseUrl) setCustomBaseUrl(savedBaseUrl.trim());
 
     // 获取 RAG 全文库
     fetchAllContent().then(data => {
@@ -130,14 +130,16 @@ export default function App() {
 
   // 保存模型设置
   const saveConfig = (p: ProviderType, m: string, key: string, baseUrl: string) => {
+    const trimmedKey = key.trim();
+    const trimmedBaseUrl = baseUrl.trim();
     setProvider(p);
     setModel(m);
-    setApiKey(key);
-    setCustomBaseUrl(baseUrl);
+    setApiKey(trimmedKey);
+    setCustomBaseUrl(trimmedBaseUrl);
     localStorage.setItem('newmaybe_ai_provider', p);
     localStorage.setItem('newmaybe_ai_model', m);
-    localStorage.setItem('newmaybe_api_key', key);
-    localStorage.setItem('newmaybe_custom_base_url', baseUrl);
+    localStorage.setItem('newmaybe_api_key', trimmedKey);
+    localStorage.setItem('newmaybe_custom_base_url', trimmedBaseUrl);
     setShowConfig(false);
   };
 
@@ -476,8 +478,8 @@ export default function App() {
                     // 恢复已保存的设置
                     const savedProvider = localStorage.getItem('newmaybe_ai_provider') as ProviderType | null || 'free';
                     const savedModel = localStorage.getItem('newmaybe_ai_model') || 'workers-ai';
-                    const savedKey = localStorage.getItem('newmaybe_api_key') || '';
-                    const savedBaseUrl = localStorage.getItem('newmaybe_custom_base_url') || '';
+                    const savedKey = (localStorage.getItem('newmaybe_api_key') || '').trim();
+                    const savedBaseUrl = (localStorage.getItem('newmaybe_custom_base_url') || '').trim();
                     setProvider(savedProvider);
                     setModel(savedModel);
                     setApiKey(savedKey);
