@@ -3,8 +3,8 @@ title: 北漂散记
 description: 北漂一年多，从初来帝都的憧憬到亲身体验后的感慨，记录那些改变与不变的北漂岁月。
 pubDate: 2016-04-23
 category: 散文
-readingTime: 8
-weight: 60
+readingTime: 10
+weight: 50
 draft: false
 ---
 
