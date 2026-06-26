@@ -1,90 +1,96 @@
-# newmaybe 多子域 Cloudflare Pages 部署指南
+# Cloudflare Pages 部署指南
 
-由于项目已成功重构为 **npm Monorepo 工作区**，各域名在物理上共享同一个 Git 仓库，但在 Cloudflare 上应当作为 **5 个独立的 Pages 项目** 进行部署。
-
-这是 Cloudflare 官方推荐的 Monorepo 部署方案，各域名完全独立编译、部署、共享数据且完全免费。
+项目为 **npm Monorepo**，6 个子应用共享同一个 Git 仓库，在 Cloudflare 上配置为 **6 个独立的 Pages 项目**，各自指向不同的根目录，互相独立编译和部署。
 
 ---
 
-## 部署概览
+## 部署参数一览
 
-在 Cloudflare Dashboard 中，针对每个子域名分别创建一个 Pages 项目，并连接到您的同一个 Git 仓库。参数配置如下表所示：
+| 子域名 | Pages 项目名 | 根目录 | 构建命令 | 输出目录 | 框架预设 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `newmaybe.com` | `newmaybe-main` | `apps/main` | `npm run build` | `dist` | Astro |
+| `graph.newmaybe.com` | `newmaybe-graph` | `apps/graph` | `npm run build` | `dist` | Astro |
+| `tools.newmaybe.com` | `newmaybe-tools` | `apps/tools` | `npm run build` | `dist` | Vite |
+| `ai.newmaybe.com` | `newmaybe-ai` | `apps/ai` | `npm run build` | `dist` | Vite |
+| `lab.newmaybe.com` | `newmaybe-lab` | `apps/lab` | `npm run build` | `dist` | Astro |
+| `studio.newmaybe.com` | `newmaybe-studio` | `apps/studio` | `npm run build` | `dist` | Vite |
 
-| 子域名 (Subdomain) | Pages 项目名称 | 根目录 (Root Directory) | 构建命令 (Build Command) | 输出目录 (Output Directory) |
-| :--- | :--- | :--- | :--- | :--- |
-| **`newmaybe.com`** | `newmaybe-main` | `apps/main` | `npm run build` | `dist` |
-| **`graph.newmaybe.com`** | `newmaybe-graph` | `apps/graph` | `npm run build` | `dist` |
-| **`tools.newmaybe.com`** | `newmaybe-tools` | `apps/tools` | `npm run build` | `dist` |
-| **`ai.newmaybe.com`** | `newmaybe-ai` | `apps/ai` | `npm run build` | `dist` |
-| **`lab.newmaybe.com`** | `newmaybe-lab` | `apps/lab` | `npm run build` | `dist` |
-
----
-
-## 详细步骤
-
-以下以部署 **主站 `newmaybe.com`** 和 **图谱子域 `graph.newmaybe.com`** 为例：
-
-### 第一步：创建 Pages 项目
-1. 登录 [Cloudflare 控制台](https://dash.cloudflare.com/)。
-2. 进入 **Workers 与 Pages (Workers & Pages)** ──> 点击 **创建 (Create)** ──> 选择 **Pages** 选项卡。
-3. 点击 **连接到 Git (Connect to Git)**，授权并选择您的 `newmaybe` 仓库。
-
-### 第二步：配置构建参数
-
-针对不同的域名，在配置页面点击 **构建和部署设置 (Build & deployment settings)**，按照下方参数输入：
-
-#### 1. 部署主站 (`newmaybe.com`)
-*   **项目名称 (Project name)**: `newmaybe-main` (或者您喜欢的名字)
-*   **框架预设 (Framework preset)**: `Astro`
-*   **根目录 (Root directory)**: `apps/main`  *(⚠️ 极其关键：告诉 CF 从子项目目录开始)*
-*   **构建命令 (Build command)**: `npm run build`  *(⚠️ 会自动触发 astro build && pagefind)*
-*   **输出目录 (Build output directory)**: `dist`
-
-#### 2. 部署图谱站 (`graph.newmaybe.com`)
-*   **项目名称 (Project name)**: `newmaybe-graph`
-*   **框架预设 (Framework preset)**: `Astro`
-*   **根目录 (Root directory)**: `apps/graph`
-*   **构建命令 (Build command)**: `npm run build`
-*   **输出目录 (Build output directory)**: `dist`
-
-#### 3. 部署工具站/AI站/实验站 (`tools.` / `ai.` / `lab.`)
-*   按照上表对应的 **根目录** 填写即可。其中 `tools` 和 `ai` 框架预设选择 `Vite` 即可。
-
-### 第三步：绑定自定义域名 (Custom Domains)
-Pages 部署成功后，Cloudflare 会分配一个默认的 `*.pages.dev` 域名。
-1. 进入对应的 Pages 项目控制台。
-2. 切换到 **自定义域 (Custom domains)** 选项卡。
-3. 点击 **设置自定义域 (Set up a custom domain)**，输入您对应的域名（如 `graph.newmaybe.com`），点击继续。
-4. Cloudflare 会自动为您配置 DNS 解析并签发 SSL 证书。
-
-### 第四步：绑定 Cloudflare Workers AI (⚠️ AI 域特别配置)
-
-AI 域的免 Key 体验通过 Cloudflare Pages Functions 调用 Cloudflare Workers AI 大模型。为了使该接口正常工作，请在 Cloudflare 仪表盘中为 `newmaybe-ai` 项目绑定 Workers AI 权限：
-
-1. 进入 `newmaybe-ai` 项目页面，点击顶部的 **设置 (Settings)** 选项卡。
-2. 在左侧边栏选择 **函数 (Functions)**，向下滚动到 **AI 绑定 (AI bindings)** 区域。
-3. 点击 **添加绑定 (Add binding)**：
-   * **变量名称 (Variable name)**: 输入 `AI` (必须全部大写，以对应后端代码中的 `context.env.AI` 命名)。
-4. 点击 **保存 (Save)**。
-5. **重新部署以生效**：绑定保存后，必须重新触发一次 `newmaybe-ai` 的部署（或者点击 "重新构建部署"），Pages Functions 才能获得 `context.env.AI` 接口的访问权限。
-
-#### 💡 Workers AI 模型回退机制说明
-部署成功后，系统在服务端会尝试依次运行以下模型：
-* **首选模型**：`@cf/qwen/qwen1.5-14b-chat` (千问 14B 对中文语义理解和文学润色有极佳的表现)。
-* **备用模型**：若首选模型调用异常或超出并发配额，自动回退到 `@cf/meta/llama-3-8b-instruct` 以确保服务高可用。
-
-#### 🌸 独立自定义 API 接入 (非必需)
-除内置的免费 Workers AI 外，我们在 AI 界面控制面板中集成了 **“大模型协议化直连模式”**。读者如果需要无限次使用，可自行在控制面板填入自己的 API Key（如 OpenAI、Gemini、DeepSeek、Kimi、通义千问、硅基流动等）。该配置完全保存在读者的浏览器本地 `localStorage`，直接从浏览器发起网络请求，不会经过中转服务器，安全性及独立性极佳。
+> `tools` / `ai` / `studio` 是 React + Vite 应用，框架预设选 **Vite**；其余三个选 **Astro**。
 
 ---
 
-## 💡 为什么这种模式能正常编译？
+## 创建 Pages 项目（通用步骤）
 
-由于 Cloudflare Pages 在编译时会克隆整个 Git 仓库，因此即使您在配置中指定了 **根目录** 为 `apps/main`，它的父级文件夹 `packages/content` 依然存在于编译容器中。
+1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)。
+2. 进入 **Workers & Pages** → **Create** → **Pages** 标签页。
+3. 点击 **Connect to Git**，授权并选择 `newmaybe` 仓库。
+4. 填写构建参数（见上表）：
+   - **Root directory**（根目录）：**最关键的一项**，填写对应的 `apps/xxx`。
+   - **Build command**：`npm run build`
+   - **Build output directory**：`dist`
+   - **Framework preset**：Astro 或 Vite（见上表）
+5. 点击 **Save and Deploy**，等待首次构建完成。
 
-所以，Astro 在编译期运行 `glob({ base: '../../packages/content/posts' })` 时，能够顺利地向上回溯两级并加载所有的 Markdown 内容，保证了主站、图谱站、实验站等能完美共享同一套内容。
+---
 
-## ⚠️ 常见环境变量配置
+## 绑定自定义域名
 
-如果您在本地和线上编译的 Node.js 版本不一致，建议在 Cloudflare Pages 项目的 **设置 (Settings)** ──> **环境变量 (Environment variables)** 中添加：
-*   `NODE_VERSION` = `22` (或者您本地的 Node 版本，确保 Vite 正常编译)
+每个 Pages 项目构建成功后：
+
+1. 进入该项目 → **Custom domains** 标签页。
+2. 点击 **Set up a custom domain**，输入对应子域名。
+3. Cloudflare 自动配置 DNS 解析并签发 SSL 证书（域名需托管在 Cloudflare）。
+
+---
+
+## AI 子域特别配置（`newmaybe-ai`）
+
+免费体验模式通过 **Cloudflare Pages Functions** 调用 Workers AI 大模型，需要手动绑定 AI 权限：
+
+1. 进入 `newmaybe-ai` 项目 → **Settings** → **Functions**。
+2. 找到 **AI bindings** 区域 → **Add binding**。
+3. **Variable name** 填写 `AI`（必须全大写，对应后端 `context.env.AI`）。
+4. 保存后**重新触发一次部署**（绑定变更需重新构建才生效）。
+
+### 模型回退策略
+
+服务端依次尝试以下模型：
+
+1. `@cf/qwen/qwen1.5-14b-chat`（主选，中文理解优秀）
+2. `@cf/meta/llama-3-8b-instruct`（备用，主选超出并发时自动切换）
+
+### 自定义 API 接入（读者自选）
+
+用户可在 AI 页面控制面板填入自己的 API Key（支持 OpenAI / Gemini / DeepSeek / Kimi / 通义千问 / 硅基流动等）。配置保存在浏览器 `localStorage`，请求由浏览器直接发向 API 提供商，**不经过任何中转服务器**。
+
+---
+
+## 环境变量
+
+在各 Pages 项目的 **Settings → Environment variables** 中配置：
+
+| 变量名 | 值 | 适用项目 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `NODE_VERSION` | `22` | 全部 | 与本地 Node 版本一致，避免 Vite 编译异常 |
+
+---
+
+## 为什么 Monorepo 能正常编译？
+
+Cloudflare Pages 构建时会克隆**整个 Git 仓库**到容器，即使根目录设为 `apps/main`，父级的 `packages/content` 目录依然存在。
+
+因此 Astro 在编译期执行 `glob({ base: '../../packages/content/posts' })` 时，能够向上回溯两级加载所有 Markdown 内容——这是多子域共享单一内容数据库的关键。
+
+同理，`@newmaybe/shared-styles` 和 `@newmaybe/content` 两个 workspace 包在构建容器内通过 npm workspaces symlink 正常解析，无需额外配置。
+
+---
+
+## 主站构建说明（`newmaybe-main`）
+
+主站构建命令 `npm run build` 实际执行的是：
+
+```
+astro build && pagefind --site dist
+```
+
+`pagefind` 在 Astro 静态产物上建立全文搜索索引，生成 `/pagefind/` 目录。Cloudflare Pages 会将其与其余静态资产一起发布。若构建日志中出现 `pagefind` 相关错误，检查 `pagefind` 是否在 `apps/main/package.json` 中列为 devDependency。

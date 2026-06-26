@@ -1,4 +1,5 @@
-// 站点级别的配置，集中在一处方便修改。
+import { resolveSubdomain as _resolve } from '@newmaybe/content/utils';
+
 export const SITE = {
   title: 'newmaybe',
   tagline: '留白',
@@ -10,7 +11,6 @@ export const SITE = {
   startYear: 2026,
 };
 
-// 导航项，header 与 footer 共用
 export const NAV = [
   { label: '文字', href: '/writing' },
   { label: '念头', href: '/fragments' },
@@ -20,15 +20,6 @@ export const NAV = [
   { label: '关于', href: '/about' },
 ];
 
-// 动态解析子域，在本地开发模式下映射到对应端口
 export function resolveSubdomain(url: string): string {
-  if (import.meta.env.DEV) {
-    if (url.includes('graph.newmaybe.com')) return 'http://localhost:4322';
-    if (url.includes('tools.newmaybe.com')) return 'http://localhost:4323';
-    if (url.includes('ai.newmaybe.com')) return 'http://localhost:4324';
-    if (url.includes('lab.newmaybe.com')) return 'http://localhost:4325';
-    if (url.includes('studio.newmaybe.com')) return 'http://localhost:4326';
-    if (url.includes('newmaybe.com')) return url.replace('https://newmaybe.com', 'http://localhost:4321');
-  }
-  return url;
+  return _resolve(url, import.meta.env.DEV);
 }

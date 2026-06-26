@@ -3,7 +3,7 @@ title: 素年锦时
 description: 喜欢的没有追，追到的没有珍惜，在身边的却视而不见。多年后回头，才明白那几年的自己有多让人失望。
 pubDate: 2012-07-08
 category: 故事
-readingTime: 70
+readingTime: 82
 weight: 90
 draft: false
 ---

@@ -1,0 +1,132 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
+
+interface Props {
+  excerpt: CollectionEntry<'excerpts'>;
+}
+
+const { excerpt } = Astro.props;
+const { Content } = await render(excerpt);
+---
+
+<section class="section-excerpt reveal" id="latest-excerpt">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Excerpt<span class="cn">今日拾遗</span></h2>
+      <a href="/excerpts" class="more">全部拾遗 →</a>
+    </div>
+
+    <figure class="excerpt-card-home">
+      <div class="quote-mark">"</div>
+      <blockquote class="excerpt-text">
+        <Content />
+      </blockquote>
+      <figcaption class="excerpt-source">
+        <span class="dash">—</span>
+        <span class="author">{excerpt.data.author}</span>
+        {excerpt.data.source && <cite class="source">《{excerpt.data.source}》</cite>}
+      </figcaption>
+      {excerpt.data.comment && (
+        <p class="excerpt-comment">{excerpt.data.comment}</p>
+      )}
+    </figure>
+  </div>
+</section>
+
+<style>
+  .section-excerpt { padding: 4.5rem 0; border-top: 1px solid var(--line); margin: 0 2rem; }
+  .section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 3.5rem; flex-wrap: wrap; gap: 1rem;
+  }
+  .section-head h2 {
+    font-family: var(--serif-en); font-weight: 600;
+    font-size: 2.2rem; letter-spacing: .01em;
+  }
+  .section-head h2 .cn {
+    font-family: var(--serif-cn); font-size: 1.4rem;
+    color: var(--ink-faint); font-weight: 400; margin-left: .8rem;
+  }
+  .section-head .more {
+    font-size: .9rem; color: var(--ochre); text-decoration: none;
+    letter-spacing: .06em; border-bottom: 1px solid transparent;
+    transition: border-color .3s;
+  }
+  .section-head .more:hover { border-color: var(--ochre); }
+
+  .excerpt-card-home {
+    max-width: 640px;
+    margin: 0 auto;
+    position: relative;
+    padding: 2.4rem 2.4rem 2rem;
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    transition: transform .35s cubic-bezier(.16,1,.3,1),
+                box-shadow .35s cubic-bezier(.16,1,.3,1),
+                border-color .3s ease;
+  }
+  .excerpt-card-home:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(0,0,0,.03);
+    border-color: color-mix(in srgb, var(--ochre) 25%, var(--line));
+  }
+  :root.dark .excerpt-card-home:hover {
+    box-shadow: 0 10px 28px rgba(0,0,0,.18);
+  }
+
+  .quote-mark {
+    position: absolute;
+    top: .4rem; left: 1rem;
+    font-family: var(--serif-en); font-size: 4rem;
+    color: var(--ochre); opacity: .1;
+    line-height: 1; pointer-events: none;
+  }
+
+  .excerpt-text {
+    font-family: var(--serif-en);
+    font-size: 1.22rem;
+    line-height: 1.85;
+    color: var(--ink);
+    margin: 0 0 1.4rem;
+    padding: 0;
+    border: none;
+    font-style: normal;
+    position: relative; z-index: 1;
+  }
+  .excerpt-text :global(p) {
+    margin: 0;
+    text-align: justify;
+    text-justify: inter-character;
+  }
+  .excerpt-text :global(p + p) { margin-top: .6rem; }
+
+  .excerpt-source {
+    display: flex;
+    align-items: baseline;
+    gap: .4rem;
+    font-family: var(--serif-cn);
+    font-size: .92rem;
+    color: var(--ink-soft);
+  }
+  .dash { color: var(--ochre); }
+  .author { font-weight: 500; }
+  .source { font-style: normal; color: var(--ink-faint); }
+
+  .excerpt-comment {
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--line);
+    font-size: .9rem;
+    color: var(--ink-faint);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  @media (max-width: 680px) {
+    .section-excerpt { margin: 0 1rem; padding: 4rem 0; }
+    .excerpt-card-home { padding: 1.8rem 1.5rem 1.5rem; }
+    .excerpt-text { font-size: 1.1rem; }
+  }
+</style>

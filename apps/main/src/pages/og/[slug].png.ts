@@ -4,6 +4,7 @@ import satori from 'satori';
 import sharp from 'sharp';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { OG_COLORS } from '../../lib/og-tokens';
 
 // 解决 Monorepo 依赖提升导致的 node_modules 路径变化问题
 function findHoistedFile(relPath: string) {
@@ -61,14 +62,14 @@ export const GET: APIRoute<Props> = async ({ props }) => {
         flexDirection: 'row' as const,
         width: '1200px',
         height: '630px',
-        background: '#F7F3EC',
+        background: OG_COLORS.paper,
       },
       children: [
         // Left ochre accent bar
         {
           type: 'div',
           props: {
-            style: { width: '5px', background: '#A8643C', flexShrink: 0 },
+            style: { width: '5px', background: OG_COLORS.ochre, flexShrink: 0 },
             children: null,
           },
         },
@@ -90,7 +91,7 @@ export const GET: APIRoute<Props> = async ({ props }) => {
                   style: {
                     fontFamily: 'Noto Serif SC',
                     fontSize: '22px',
-                    color: '#A8643C',
+                    color: OG_COLORS.ochre,
                     marginBottom: '28px',
                     letterSpacing: '0.1em',
                     flexShrink: 0,
@@ -106,7 +107,7 @@ export const GET: APIRoute<Props> = async ({ props }) => {
                     fontFamily: 'Noto Serif SC',
                     fontSize: `${titleFontSize}px`,
                     fontWeight: 400,
-                    color: '#2B2722',
+                    color: OG_COLORS.ink,
                     lineHeight: 1.3,
                     flex: 1,
                   },
@@ -120,7 +121,7 @@ export const GET: APIRoute<Props> = async ({ props }) => {
                   style: {
                     fontFamily: 'Noto Serif SC',
                     fontSize: '24px',
-                    color: '#5B5349',
+                    color: OG_COLORS.inkSoft,
                     lineHeight: 1.7,
                     marginBottom: '40px',
                     flexShrink: 0,
@@ -137,7 +138,7 @@ export const GET: APIRoute<Props> = async ({ props }) => {
                     flexDirection: 'row' as const,
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    borderTop: '1px solid #D9CFBF',
+                    borderTop: `1px solid ${OG_COLORS.line}`,
                     paddingTop: '24px',
                     flexShrink: 0,
                   },
@@ -149,7 +150,7 @@ export const GET: APIRoute<Props> = async ({ props }) => {
                           fontFamily: 'Cormorant Garamond',
                           fontSize: '34px',
                           fontWeight: 600,
-                          color: '#2B2722',
+                          color: OG_COLORS.ink,
                           letterSpacing: '0.02em',
                         },
                         children: 'newmaybe.',
@@ -161,7 +162,7 @@ export const GET: APIRoute<Props> = async ({ props }) => {
                         style: {
                           fontFamily: 'Cormorant Garamond',
                           fontSize: '20px',
-                          color: '#968B7C',
+                          color: OG_COLORS.inkFaint,
                           letterSpacing: '0.04em',
                         },
                         children: 'newmaybe.com',

@@ -48,17 +48,9 @@ const fmtDate = (d: Date) =>
   .fragments-page { padding: 5rem 0 7rem; }
 
   .frag-head { max-width: 60ch; margin: 0 auto 5rem; text-align: center; }
-  .eyebrow {
-    font-family: var(--serif-en); font-style: italic; font-size: 1.1rem;
-    color: var(--ochre); letter-spacing: .05em; display: block; margin-bottom: 1rem;
-  }
   .frag-head h1 {
     font-weight: 500; font-size: clamp(2.4rem, 6vw, 4rem);
     line-height: 1.15; color: var(--ink); margin-bottom: 1.8rem;
-  }
-  .frag-head h1 .zh {
-    font-family: var(--serif-cn); font-size: .55em; color: var(--ink-faint);
-    font-weight: 400; margin-left: .6rem;
   }
   .frag-head .intro {
     font-size: 1.1rem; line-height: 1.9; color: var(--ink-soft); font-weight: 300;
@@ -66,15 +58,17 @@ const fmtDate = (d: Date) =>
 
   /* 时间轴容器 */
   .timeline {
+    --tl-col: 140px;
+    --tl-gap: 2.5rem;
     max-width: 740px;
     margin: 0 auto;
     position: relative;
   }
-  /* 左侧纵线 */
+  /* 左侧纵线：对齐到左栏右边缘 + 半格偏移 */
   .timeline::before {
     content: '';
     position: absolute;
-    left: 148px;
+    left: calc(var(--tl-col) + 8px);
     top: 0;
     bottom: 0;
     width: 1px;
@@ -84,8 +78,8 @@ const fmtDate = (d: Date) =>
   /* 碎片卡片 */
   .frag-card {
     display: grid;
-    grid-template-columns: 140px 1fr;
-    gap: 0 2.5rem;
+    grid-template-columns: var(--tl-col) 1fr;
+    gap: 0 var(--tl-gap);
     padding: 2rem 0 2rem;
     position: relative;
   }
@@ -112,7 +106,7 @@ const fmtDate = (d: Date) =>
   .frag-card::before {
     content: '';
     position: absolute;
-    left: 144px;
+    left: calc(var(--tl-col) + 4px);
     top: 2.6rem;
     width: 9px;
     height: 9px;

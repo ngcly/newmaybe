@@ -17,6 +17,11 @@
     "build:tools": "npm run build -w apps/tools",
     "build:ai": "npm run build -w apps/ai",
     "build:lab": "npm run build -w apps/lab",
-    "build:studio": "npm run build -w apps/studio"
+    "build:studio": "npm run build -w apps/studio",
+    "audit": "npx tsx scripts/audit-posts.ts",
+    "new": "npx tsx scripts/new.ts"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9"
   }
 }

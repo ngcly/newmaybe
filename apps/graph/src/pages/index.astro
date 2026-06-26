@@ -25,50 +25,7 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
     @import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
 
     /* 极致美学的纸底墨色，继承主站设计系统 */
-    :root {
-      --paper:      #F7F3EC;   /* 米纸底 */
-      --paper-deep: #EFE9DE;   /* 略深的米色 */
-      --ink:        #2B2722;   /* 墨黑 */
-      --ink-soft:   #5B5349;   /* 暖灰墨 */
-      --ink-faint:  #968B7C;   /* 淡墨 */
-      --ochre:      #A8643C;   /* 赭石 */
-      --line:       #D9CFBF;   /* 细线 */
-      
-      --serif-cn: 'Noto Serif SC', 'Songti SC', serif;
-      --serif-en: 'Cormorant Garamond', serif;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root:not(.light) {
-        --paper:      #1E1B18;   /* 墨纸底 */
-        --paper-deep: #262320;   /* 略亮的墨纸 */
-        --ink:        #E8E0D5;   /* 暖白墨 */
-        --ink-soft:   #B5A99A;   /* 灰暖墨 */
-        --ink-faint:  #7A7065;   /* 淡暖墨 */
-        --ochre:      #C4814E;   /* 赭石 */
-        --line:       #3A3430;   /* 暗线 */
-      }
-    }
-
-    :root.dark {
-      --paper:      #1E1B18;
-      --paper-deep: #262320;
-      --ink:        #E8E0D5;
-      --ink-soft:   #B5A99A;
-      --ink-faint:  #7A7065;
-      --ochre:      #C4814E;
-      --line:       #3A3430;
-    }
-
-    :root.light {
-      --paper:      #F7F3EC;
-      --paper-deep: #EFE9DE;
-      --ink:        #2B2722;
-      --ink-soft:   #5B5349;
-      --ink-faint:  #968B7C;
-      --ochre:      #A8643C;
-      --line:       #D9CFBF;
-    }
+    @import '@newmaybe/shared-styles/tokens.css';
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     

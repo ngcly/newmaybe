@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { sortPostsForDisplay } from '../../lib/posts';
+import { resolveConnections, connUrl, connTitle, COLL_LABEL } from '../../lib/connections';
 
 // 为每篇文章生成一个静态页面
 export async function getStaticPaths() {
@@ -13,7 +14,7 @@ export async function getStaticPaths() {
     // 下一篇（列表下一项，即较旧的文章）是后一项 index + 1
     const prevPost = index > 0 ? posts[index - 1] : null;
     const nextPost = index < posts.length - 1 ? posts[index + 1] : null;
-    
+
     return {
       params: { slug: post.id },
       props: {
@@ -30,6 +31,7 @@ type Props = {
   prev: { id: string; title: string } | null;
   next: { id: string; title: string } | null;
 };
+
 const { post, prev, next } = Astro.props;
 const { Content } = await render(post);
 
@@ -39,6 +41,8 @@ const longDate = post.data.pubDate.toLocaleDateString('zh-CN', {
 
 const isPoetry = post.data.category === '诗歌';
 const watermark = post.data.watermark;
+
+const connections = await resolveConnections(post.data.connections);
 ---
 
 <Base title={post.data.title} description={post.data.description} image={`/og/${post.id}.png`} article={true}>
@@ -99,6 +103,22 @@ const watermark = post.data.watermark;
             )}
           </div>
         </nav>
+      )}
+
+      <!-- 关联延伸阅读 -->
+      {connections.length > 0 && (
+        <aside class="related reveal">
+          <h2 class="related-title">延伸阅读</h2>
+          <div class="related-list">
+            {connections.map((conn) => (
+              <a href={connUrl(conn)} class="related-item">
+                <span class="related-type">{COLL_LABEL[conn.collection]}</span>
+                <span class="related-name">{connTitle(conn)}</span>
+                <span class="related-arrow">→</span>
+              </a>
+            ))}
+          </div>
+        </aside>
       )}
     </div>
   </article>
@@ -439,6 +459,67 @@ const watermark = post.data.watermark;
     .nav-next a:hover {
       transform: translateX(-4px);
     }
+  }
+
+  /* ── 延伸阅读 ── */
+  .related {
+    max-width: 65ch;
+    margin: 3rem auto 0;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+  .related-title {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--ink-faint);
+    letter-spacing: .06em;
+    margin-bottom: 1.2rem;
+  }
+  .related-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .related-item {
+    display: grid;
+    grid-template-columns: 3rem 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.2rem;
+    background: var(--paper-deep);
+    text-decoration: none;
+    transition: background .3s ease, padding-left .3s ease;
+  }
+  .related-item:hover {
+    background: var(--paper);
+    padding-left: 1.6rem;
+  }
+  .related-type {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: .8rem;
+    color: var(--ochre);
+  }
+  .related-name {
+    font-size: 1rem;
+    color: var(--ink);
+    font-weight: 400;
+    transition: color .3s;
+  }
+  .related-item:hover .related-name { color: var(--ochre); }
+  .related-arrow {
+    color: var(--ink-faint);
+    font-size: 1rem;
+    transition: transform .3s, color .3s;
+  }
+  .related-item:hover .related-arrow {
+    transform: translateX(4px);
+    color: var(--ochre);
   }
 
   #reading-bar {

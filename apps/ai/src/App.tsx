@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { fetchAllContent, retrieveRelevantDocs, buildSystemPrompt, type ContentItem } from './utils/rag';
+import { resolveSubdomain as _resolveSubdomain } from '@newmaybe/content/utils';
 
 interface Message {
   id: string;
@@ -27,18 +28,8 @@ const SUGGESTIONS: Suggestion[] = [
   { name: 'Gemini 官方', url: 'https://generativelanguage.googleapis.com', model: 'gemini-2.5-flash' },
 ];
 
-const resolveSubdomain = (url: string) => {
-  const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-  if (!isLocal) return url;
-  
-  if (url.includes('graph.newmaybe.com')) return 'http://localhost:4322';
-  if (url.includes('tools.newmaybe.com')) return 'http://localhost:4323';
-  if (url.includes('ai.newmaybe.com')) return 'http://localhost:4324';
-  if (url.includes('lab.newmaybe.com')) return 'http://localhost:4325';
-  if (url.includes('studio.newmaybe.com')) return 'http://localhost:4326';
-  if (url.includes('newmaybe.com')) return 'http://localhost:4321';
-  return url;
-};
+const _isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const resolveSubdomain = (url: string) => _resolveSubdomain(url, _isDev);
 
 export default function App() {
   const [messages, setMessages] = useState<Message[]>([
@@ -61,6 +52,7 @@ export default function App() {
   
   // RAG 语料库
   const [allContent, setAllContent] = useState<ContentItem[]>([]);
+  const [contentLoading, setContentLoading] = useState(true);
   const [freeTurnsLeft, setFreeTurnsLeft] = useState(5);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -87,6 +79,7 @@ export default function App() {
     // 获取 RAG 全文库
     fetchAllContent().then(data => {
       setAllContent(data);
+      setContentLoading(false);
     });
 
     // 检查每日免费额度
@@ -162,20 +155,13 @@ export default function App() {
   };
 
   // 获取动态节点数量统计
-  const getStats = () => {
-    const defaultStats = { posts: 12, notes: 2, memories: 2, excerpts: 3, fragments: 1 };
-    if (allContent.length === 0) return defaultStats;
-
-    return {
-      posts: allContent.filter(item => item.type === 'posts').length,
-      notes: allContent.filter(item => item.type === 'notes').length,
-      memories: allContent.filter(item => item.type === 'memories').length,
-      excerpts: allContent.filter(item => item.type === 'excerpts').length,
-      fragments: allContent.filter(item => item.type === 'fragments').length,
-    };
+  const stats = contentLoading ? null : {
+    posts: allContent.filter(item => item.type === 'posts').length,
+    notes: allContent.filter(item => item.type === 'notes').length,
+    memories: allContent.filter(item => item.type === 'memories').length,
+    excerpts: allContent.filter(item => item.type === 'excerpts').length,
+    fragments: allContent.filter(item => item.type === 'fragments').length,
   };
-
-  const stats = getStats();
 
   // 发送消息与推理主流程
   const handleSend = async () => {
@@ -339,11 +325,11 @@ export default function App() {
         <div className="bg-[var(--paper)] border border-[var(--line)] rounded p-4 mb-5">
           <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)] mb-2.5">知识图谱索引状态</h4>
           <ul className="text-xs text-[var(--ink-soft)] space-y-1.5 list-none">
-            <li className="flex justify-between"><span>🌲 文章节点 (Writing)</span> <span className="font-semibold">{stats.posts} 篇</span></li>
-            <li className="flex justify-between"><span>🌱 笔记节点 (Note)</span> <span className="font-semibold">{stats.notes} 篇</span></li>
-            <li className="flex justify-between"><span>🌳 记忆节点 (Memory)</span> <span className="font-semibold">{stats.memories} 个</span></li>
-            <li className="flex justify-between"><span>📖 拾遗节点 (Excerpt)</span> <span className="font-semibold">{stats.excerpts} 条</span></li>
-            <li className="flex justify-between"><span>🍂 念头节点 (Fragment)</span> <span className="font-semibold">{stats.fragments} 个</span></li>
+            <li className="flex justify-between"><span>🌲 文章节点 (Writing)</span> <span className="font-semibold">{stats ? `${stats.posts} 篇` : '—'}</span></li>
+            <li className="flex justify-between"><span>🌱 笔记节点 (Note)</span> <span className="font-semibold">{stats ? `${stats.notes} 篇` : '—'}</span></li>
+            <li className="flex justify-between"><span>🌳 记忆节点 (Memory)</span> <span className="font-semibold">{stats ? `${stats.memories} 个` : '—'}</span></li>
+            <li className="flex justify-between"><span>📖 拾遗节点 (Excerpt)</span> <span className="font-semibold">{stats ? `${stats.excerpts} 条` : '—'}</span></li>
+            <li className="flex justify-between"><span>🍂 念头节点 (Fragment)</span> <span className="font-semibold">{stats ? `${stats.fragments} 个` : '—'}</span></li>
           </ul>
         </div>
 

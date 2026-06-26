@@ -12,7 +12,7 @@ interface Props {
 const { posts, heading = 'Writing', headingCn = '近期文字', showMore = true, showHeading = true } = Astro.props;
 
 const fmt = (d: Date) =>
-  d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' });
 ---
 
 <section class="section" id="writing">

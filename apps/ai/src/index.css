@@ -7,53 +7,9 @@
 @import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
 @import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
 
+@import '@newmaybe/shared-styles/tokens.css';
+
 @layer base {
-  :root {
-    --paper: #F7F3EC;
-    --paper-deep: #EFE9DE;
-    --ink: #2B2722;
-    --ink-soft: #5B5349;
-    --ink-faint: #968B7C;
-    --ochre: #A8643C;
-    --ochre-deep: #8A4F2E;
-    --line: #D9CFBF;
-    
-    --serif-cn: 'Noto Serif SC', 'Songti SC', serif;
-    --serif-en: 'Cormorant Garamond', serif;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not(.light) {
-      --paper: #1E1B18;
-      --paper-deep: #262320;
-      --ink: #E8E0D5;
-      --ink-soft: #B5A99A;
-      --ink-faint: #7A7065;
-      --ochre: #C4814E;
-      --ochre-deep: #A8643C;
-      --line: #3A3430;
-    }
-  }
-  :root.dark {
-    --paper: #1E1B18;
-    --paper-deep: #262320;
-    --ink: #E8E0D5;
-    --ink-soft: #B5A99A;
-    --ink-faint: #7A7065;
-    --ochre: #C4814E;
-    --ochre-deep: #A8643C;
-    --line: #3A3430;
-  }
-  :root.light {
-    --paper: #F7F3EC;
-    --paper-deep: #EFE9DE;
-    --ink: #2B2722;
-    --ink-soft: #5B5349;
-    --ink-faint: #968B7C;
-    --ochre: #A8643C;
-    --ochre-deep: #8A4F2E;
-    --line: #D9CFBF;
-  }
-  
   body {
     background-color: var(--paper);
     color: var(--ink);

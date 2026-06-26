@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { resolveSubdomain as _resolveSubdomain } from '@newmaybe/content/utils';
 
 type Tab = 'poster' | 'inspiration' | 'assets';
 type ThemeType = 'paper' | 'dark' | 'ochre' | 'bamboo' | 'sunset';
@@ -10,18 +11,8 @@ interface Prompt {
   text: string;
 }
 
-const resolveSubdomain = (url: string) => {
-  const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-  if (!isLocal) return url;
-  
-  if (url.includes('graph.newmaybe.com')) return 'http://localhost:4322';
-  if (url.includes('tools.newmaybe.com')) return 'http://localhost:4323';
-  if (url.includes('ai.newmaybe.com')) return 'http://localhost:4324';
-  if (url.includes('lab.newmaybe.com')) return 'http://localhost:4325';
-  if (url.includes('studio.newmaybe.com')) return 'http://localhost:4326';
-  if (url.includes('newmaybe.com')) return 'http://localhost:4321';
-  return url;
-};
+const _isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const resolveSubdomain = (url: string) => _resolveSubdomain(url, _isDev);
 
 const SIZES = {
   '9:16': { w: 720, h: 1280 },

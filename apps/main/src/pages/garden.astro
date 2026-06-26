@@ -126,28 +126,38 @@ memories.forEach((mem) => {
   function setupTabs() {
     const buttons = document.querySelectorAll('.tab-btn');
     const contents = document.querySelectorAll('.tab-content');
-    
+
+    function activateTab(tabId: string) {
+      buttons.forEach(b => b.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+
+      const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+      const content = document.getElementById(`tab-${tabId}`);
+      if (btn) btn.classList.add('active');
+      if (content) {
+        content.classList.add('active');
+        content.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+      }
+    }
+
+    // 从 URL 参数恢复选中 tab
+    const params = new URLSearchParams(window.location.search);
+    const initialTab = params.get('tab') || 'notes';
+    activateTab(initialTab);
+
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
         const tabId = btn.getAttribute('data-tab');
         if (!tabId) return;
-
-        buttons.forEach(b => b.classList.remove('active'));
-        contents.forEach(c => c.classList.remove('active'));
-        
-        btn.classList.add('active');
-        const activeContent = document.getElementById(`tab-${tabId}`);
-        if (activeContent) {
-          activeContent.classList.add('active');
-          // 让新显示的内容触发一次淡入 reveal 效果
-          const reveals = activeContent.querySelectorAll('.reveal');
-          reveals.forEach(el => el.classList.add('in'));
-        }
+        activateTab(tabId);
+        // 更新 URL，不刷新页面，支持分享直链
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tabId);
+        history.replaceState(null, '', url.toString());
       });
     });
   }
 
-  // 初次加载和 Astro View Transitions 页面载入时执行
   document.addEventListener('astro:page-load', setupTabs);
 </script>
 
@@ -161,28 +171,12 @@ memories.forEach((mem) => {
     margin: 0 auto 4rem;
     text-align: center;
   }
-  .eyebrow {
-    font-family: var(--serif-en), serif;
-    font-style: italic;
-    font-size: 1.1rem;
-    color: var(--ochre);
-    letter-spacing: .05em;
-    display: block;
-    margin-bottom: 1rem;
-  }
   .page-head h1 {
     font-weight: 500;
     font-size: clamp(2.4rem, 6vw, 4rem);
     line-height: 1.15;
     color: var(--ink);
     margin-bottom: 1.8rem;
-  }
-  .page-head h1 .zh {
-    font-family: var(--serif-cn), serif;
-    font-size: .55em;
-    color: var(--ink-faint);
-    font-weight: 400;
-    margin-left: .6rem;
   }
   .page-head .intro {
     font-size: 1.1rem;

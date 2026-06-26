@@ -3,7 +3,7 @@ title: 两年的念
 description: 秋天又来了，两年过去了。从怨恨到感恩，那段青春里受过的伤，终究成了念念不忘的理由。
 pubDate: 2013-11-04
 category: 散文
-readingTime: 3
+readingTime: 4
 weight: 50
 draft: false
 ---

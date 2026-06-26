@@ -66,17 +66,9 @@ const categories = ['全部', ...new Set(posts.map((post) => post.data.category)
     max-width: var(--max);
     padding: 0 2rem;
   }
-  .eyebrow {
-    font-family: var(--serif-en), serif; font-style: italic; font-size: 1.1rem;
-    color: var(--ochre); letter-spacing: .05em; display: block; margin-bottom: 1rem;
-  }
   .writing-head h1 {
     font-weight: 500; font-size: clamp(2.4rem, 6vw, 4rem);
     line-height: 1.15; color: var(--ink);
-  }
-  .writing-head h1 .zh {
-    font-family: var(--serif-cn), serif; font-size: .55em; color: var(--ink-faint);
-    font-weight: 400; margin-left: .6rem;
   }
   .category-filter {
     display: flex;
