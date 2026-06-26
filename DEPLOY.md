@@ -76,6 +76,30 @@
 
 ---
 
+## 优化构建触发：避免全项目更新 (Build Watch Paths)
+
+由于 6 个子应用共享同一个 Git 仓库，默认情况下您的任何一次 Git 提交都会触发这 6 个项目在 Cloudflare 上同时进行构建和部署。为了节省构建额度并加快部署速度，建议配置 **Build watch paths (构建监视路径)**，实现「仅在相关代码发生变更时才触发构建」。
+
+### 配置方法
+
+对于每个 Pages/Workers 项目，在 Cloudflare 控制台中进行如下配置：
+1. 进入项目 → **Settings (设置)** → **Builds & deployments (构建与部署)**。
+2. 找到 **Build watch paths (构建监视路径)** 区域，点击编辑。
+3. 根据项目依赖，在 **Include paths (包含路径)** 中填写该项目自身及所依赖的公共包路径（每行一条）：
+
+| 项目 | 推荐的包含路径 (Include paths) |
+| :--- | :--- |
+| `newmaybe-main` | `apps/main/*`<br>`packages/content/*`<br>`packages/shared-styles/*` |
+| `newmaybe-graph` | `apps/graph/*`<br>`packages/content/*`<br>`packages/shared-styles/*` |
+| `newmaybe-tools` | `apps/tools/*`<br>`packages/shared-styles/*` |
+| `newmaybe-ai` | `apps/ai/*`<br>`packages/content/*`<br>`packages/shared-styles/*` |
+| `newmaybe-lab` | `apps/lab/*`<br>`packages/shared-styles/*` |
+| `newmaybe-studio` | `apps/studio/*`<br>`packages/shared-styles/*` |
+
+*注：Exclude paths (排除路径) 保持留空即可。配置完成后，当您提交代码时，Cloudflare 会先检查变动文件是否命中上述包含路径，若没有命中则会自动跳过（Skip）该项目的构建。*
+
+---
+
 ## 为什么 Monorepo 能正常编译？
 
 由于项目基于 **npm Workspaces** 构筑，当 Cloudflare Pages 把 **Root directory** 设为 `(留空 / Git 根目录)` 时，构建系统会在整个 Git 仓库根目录执行 `npm clean-install`。这会自动在根目录的 `node_modules/` 下为本地的 `@newmaybe/content` 和 `@newmaybe/shared-styles` 包生成软链接（Symlinks）。
