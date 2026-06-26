@@ -19,7 +19,8 @@
     "build:lab": "npm run build -w apps/lab",
     "build:studio": "npm run build -w apps/studio",
     "audit": "npx tsx scripts/audit-posts.ts",
-    "new": "npx tsx scripts/new.ts"
+    "new": "npx tsx scripts/new.ts",
+    "sync:favicon": "for app in graph tools ai lab studio; do cp apps/main/public/favicon.svg apps/main/public/favicon.ico apps/main/public/favicon-32.png apps/main/public/apple-touch-icon.png apps/$app/public/; done && echo 'Favicon synced to all subdomains'"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9"

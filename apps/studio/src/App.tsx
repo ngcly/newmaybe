@@ -11,6 +11,14 @@ interface Prompt {
   text: string;
 }
 
+interface DailyPoem {
+  content: string;
+  author: string;
+  origin: string;
+}
+
+const CATEGORIES = ['随笔', '诗歌', '散文', '观察', '念头', '记忆'] as const;
+
 const _isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 const resolveSubdomain = (url: string) => _resolveSubdomain(url, _isDev);
 
@@ -48,17 +56,64 @@ export default function App() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // 灵感生成器状态
-  const prompts: Prompt[] = [
-    { category: '随笔', text: '描述一个您很久没有回去、但突然在某个下雨天记起的街道拐角。' },
-    { category: '观察', text: '写下您在深夜安静的高铁上，环顾四周陌生人面孔时所感受到的孤独与温暖。' },
-    { category: '拾遗', text: '为一本您最近读完的书写三句最简短的总结，且不包含书中的核心专业词汇。' },
-    { category: '诗歌', text: '用“风”、“墨水”和“未寄出的信”三个意象，写四行短句。' },
-    { category: '念头', text: '回忆您童年时期对“未来”最抽象的一次幻想，并对比当下。' },
-    { category: '记忆', text: '定义一个只属于您自己、别人无法在词典中查到的情感词汇，并给出详尽的注解。' }
-  ];
-  const [currentPrompt, setCurrentPrompt] = useState<Prompt>(prompts[0]);
+  // 今日诗词状态
+  const [dailyPoem, setDailyPoem] = useState<DailyPoem | null>(null);
+
+  // AI 写作命题状态
+  const [aiPrompt, setAiPrompt] = useState<Prompt | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('随笔');
   const [copiedPromptMsg, setCopiedPromptMsg] = useState(false);
+
+  // 今日诗词：按日缓存，避免重复请求
+  // 注：jinrishici v2 的 X-User-Token header 在 localhost 触发 CORS preflight 会失败，
+  // 生产环境（studio.newmaybe.com）正常工作。
+  useEffect(() => {
+    const today = new Date().toDateString();
+    try {
+      const cached = localStorage.getItem('jinrishici_poem');
+      if (cached) {
+        const { date, poem } = JSON.parse(cached) as { date: string; poem: DailyPoem };
+        if (date === today) { setDailyPoem(poem); return; }
+      }
+    } catch {}
+
+    const fetchPoem = async (token: string) => {
+      const res = await fetch('https://v2.jinrishici.com/one.json', {
+        headers: { 'X-User-Token': token },
+      });
+      const data = await res.json() as {
+        status: string;
+        data: { content: string; origin: { author: string; title: string } };
+      };
+      if (data.status === 'success') {
+        const poem: DailyPoem = {
+          content: data.data.content,
+          author: data.data.origin.author,
+          origin: data.data.origin.title,
+        };
+        setDailyPoem(poem);
+        localStorage.setItem('jinrishici_poem', JSON.stringify({ date: today, poem }));
+      }
+    };
+
+    const storedToken = localStorage.getItem('jinrishici_token');
+    if (storedToken) {
+      fetchPoem(storedToken).catch(() => {});
+      return;
+    }
+
+    fetch('https://v2.jinrishici.com/token')
+      .then(r => r.json())
+      .then((data: { status: string; data: string }) => {
+        if (data.status === 'success') {
+          localStorage.setItem('jinrishici_token', data.data);
+          return fetchPoem(data.data);
+        }
+        return;
+      })
+      .catch(() => {});
+  }, []);
 
   // 资产素材库数据
   const assets = [
@@ -234,18 +289,47 @@ export default function App() {
 
   // 3. 联动复制前往 Zen Writer
   const handleCopyToZenWriter = () => {
-    navigator.clipboard.writeText(currentPrompt.text);
+    if (!aiPrompt) return;
+    navigator.clipboard.writeText(aiPrompt.text);
     setCopiedPromptMsg(true);
     setTimeout(() => {
       setCopiedPromptMsg(false);
-      window.open(`${resolveSubdomain('https://lab.newmaybe.com/zen-writer')}?draft=${encodeURIComponent(currentPrompt.text)}`, '_blank');
+      window.open(`${resolveSubdomain('https://lab.newmaybe.com/zen-writer')}?draft=${encodeURIComponent(aiPrompt.text)}`, '_blank');
     }, 1200);
   };
 
-  // 3. 切换灵感命题
-  const handleNextPrompt = () => {
-    const nextIdx = (prompts.findIndex(p => p.text === currentPrompt.text) + 1) % prompts.length;
-    setCurrentPrompt(prompts[nextIdx]);
+  // 4. AI 生成写作命题
+  const handleGeneratePrompt = async () => {
+    setAiLoading(true);
+    setAiPrompt(null);
+    try {
+      const endpoint = resolveSubdomain('https://ai.newmaybe.com') + '/api/chat';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'system',
+              content: '你是一位中文文学写作教练，擅长随笔、诗歌、散文创作。请根据用户指定的写作分类，生成一条具体、有画面感的写作命题。只返回命题本身，50-80字，不加任何前缀或解释，以句号结尾。',
+            },
+            {
+              role: 'user',
+              content: `请为"${selectedCategory}"分类生成一条写作命题。`,
+            },
+          ],
+        }),
+      });
+      const data = await res.json() as { text?: string };
+      if (data.text) {
+        setAiPrompt({ category: selectedCategory, text: data.text.trim() });
+      }
+    } catch {
+      // 网络不可用时提供一条后备命题
+      setAiPrompt({ category: selectedCategory, text: '在一个没有手机信号的山中小屋里，用一封信记录下这24小时内所有细微的感受与念头。' });
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   // 4. 复制资产路径
@@ -452,7 +536,7 @@ export default function App() {
                         type="text"
                         value={author}
                         onChange={(e) => setAuthor(e.target.value)}
-                        placeholder="落款字，如“林”"
+                        placeholder={'落款字，如“林”'}
                         className="p-2 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-sm focus:border-[var(--ochre)] outline-none"
                       />
                     </div>
@@ -463,7 +547,7 @@ export default function App() {
                         value={watermark}
                         onChange={(e) => setWatermark(e.target.value)}
                         maxLength={1}
-                        placeholder="单字，如“雨”"
+                        placeholder={'单字，如"雨"'}
                         className="p-2 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-sm focus:border-[var(--ochre)] outline-none"
                       />
                     </div>
@@ -498,35 +582,80 @@ export default function App() {
           <div className="max-w-4xl mx-auto flex flex-col gap-8 py-4">
             <div>
               <h2 className="text-2xl font-medium text-[var(--ink)]">文学写作灵感启发</h2>
-              <p className="text-sm text-[var(--ink-soft)] mt-1">当您坐下写文章或笔记发现大脑一片空白时，点击获取一条为您定制的灵感或写作命题。</p>
+              <p className="text-sm text-[var(--ink-soft)] mt-1">今日诗词为你铺垫情绪，AI 为你生成专属写作命题，一键直达禅意写作空间。</p>
             </div>
 
-            <div className="bg-[var(--paper-deep)] border border-[var(--line)] rounded-lg p-8 md:p-12 flex flex-col justify-between min-h-[300px] shadow-sm">
-              <div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)] border border-[var(--line)] px-2.5 py-1 rounded bg-[var(--paper)]">
-                  分类：{currentPrompt.category}
-                </span>
-                <p className="font-serif text-2xl leading-relaxed text-[var(--ink)] mt-8 text-justify">
-                  “ {currentPrompt.text} ”
-                </p>
+            {/* 今日诗词 */}
+            <div className="bg-[var(--paper-deep)] border border-[var(--line)] rounded-lg px-8 py-6 shadow-sm">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)]">今日诗词</span>
+              {dailyPoem ? (
+                <div className="mt-4">
+                  <p className="font-serif text-xl leading-loose text-[var(--ink)] tracking-wider">
+                    {dailyPoem.content}
+                  </p>
+                  <p className="text-xs text-[var(--ink-faint)] mt-3">
+                    {dailyPoem.author} · 《{dailyPoem.origin}》
+                  </p>
+                </div>
+              ) : (
+                <p className="font-serif text-base text-[var(--ink-faint)] mt-4 animate-pulse">正在拾取今日诗意…</p>
+              )}
+            </div>
+
+            {/* AI 写作命题 */}
+            <div className="bg-[var(--paper-deep)] border border-[var(--line)] rounded-lg p-8 md:p-10 flex flex-col gap-6 shadow-sm">
+              {/* 分类选择 */}
+              <div className="flex flex-wrap gap-2">
+                {CATEGORIES.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-3.5 py-1.5 rounded text-sm transition-colors cursor-pointer ${
+                      selectedCategory === cat
+                        ? 'bg-[var(--ochre)] text-[var(--paper)] font-medium'
+                        : 'bg-[var(--paper)] border border-[var(--line)] text-[var(--ink-soft)] hover:border-[var(--ochre)]'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
               </div>
-              
-              <div className="mt-12 flex justify-between items-center">
-                <span className="text-xs text-[var(--ink-faint)]">灵感来源于慢阅读与生活触觉</span>
-                <div className="flex gap-3">
+
+              {/* 命题展示区 */}
+              <div className="min-h-[120px] flex items-center">
+                {aiLoading ? (
+                  <p className="font-serif text-lg text-[var(--ink-faint)] animate-pulse">AI 正在生成命题…</p>
+                ) : aiPrompt ? (
+                  <div>
+                    <p className="font-serif text-2xl leading-relaxed text-[var(--ink)] text-justify">
+                      "{aiPrompt.text}"
+                    </p>
+                    <span className="inline-block mt-3 text-xs text-[var(--ink-faint)] border border-[var(--line)] px-2 py-0.5 rounded">
+                      {aiPrompt.category} · 由 AI 生成
+                    </span>
+                  </div>
+                ) : (
+                  <p className="font-serif text-base text-[var(--ink-faint)]">选择分类后点击「生成命题」，AI 将为你定制一条写作任务。</p>
+                )}
+              </div>
+
+              {/* 操作按钮 */}
+              <div className="flex flex-wrap justify-between items-center gap-3 pt-2 border-t border-[var(--line)]">
+                <button
+                  onClick={handleGeneratePrompt}
+                  disabled={aiLoading}
+                  className="bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] disabled:opacity-50 text-[var(--paper)] px-5 py-2.5 rounded text-sm transition-all cursor-pointer font-medium hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  {aiLoading ? '生成中…' : '生成命题 ✦'}
+                </button>
+                {aiPrompt && (
                   <button
                     onClick={handleCopyToZenWriter}
-                    className="bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] text-[var(--paper)] px-5 py-2.5 rounded text-sm transition-all cursor-pointer font-medium hover:scale-[1.02] active:scale-[0.98]"
-                  >
-                    {copiedPromptMsg ? '已复制，前往写作中... ✍' : '一键复制并前往禅意写作空间 (Zen Writer) ↗'}
-                  </button>
-                  <button
-                    onClick={handleNextPrompt}
                     className="bg-[var(--paper)] hover:bg-[var(--line)] border border-[var(--line)] text-[var(--ink-soft)] px-5 py-2.5 rounded text-sm transition-colors cursor-pointer font-medium"
                   >
-                    换一条灵感 🍃
+                    {copiedPromptMsg ? '已复制，前往写作中… ✍' : '复制并前往禅意写作空间 ↗'}
                   </button>
-                </div>
+                )}
               </div>
             </div>
           </div>
