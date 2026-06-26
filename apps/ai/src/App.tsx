@@ -689,7 +689,7 @@ export default function App() {
             />
             <button
               type="submit"
-              className="bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] text-[var(--paper)] px-4 md:px-6 rounded font-semibold text-sm transition-colors cursor-pointer"
+              className="bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] text-[var(--paper)] px-4 md:px-6 rounded font-semibold text-sm transition-colors cursor-pointer shrink-0"
             >
               发送
             </button>
