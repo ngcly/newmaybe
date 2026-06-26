@@ -678,14 +678,14 @@ export default function App() {
               e.preventDefault();
               handleSend();
             }}
-            className="max-w-4xl mx-auto flex gap-2 md:gap-3"
+            className="max-w-4xl mx-auto flex gap-2 md:gap-3 w-full"
           >
             <input
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="向您的个人知识 Agent 终端提问..."
-              className="flex-grow p-3 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-[16px] md:text-sm focus:border-[var(--ochre)] outline-none transition-colors"
+              className="flex-grow min-w-0 p-3 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-[16px] md:text-sm focus:border-[var(--ochre)] outline-none transition-colors"
             />
             <button
               type="submit"
