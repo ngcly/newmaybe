@@ -1,5 +1,5 @@
 ---
-title: 青龙山游记
+title: 青龙山漫游记（三）
 description: 青龙山高中的青春纪事，荒唐而真实的岁月，那些兄弟与女孩的故事。
 pubDate: 2013-09-01
 category: 小说
