@@ -1,4 +1,5 @@
 name = "newmaybe-ai"
+main = "src/worker.ts"
 compatibility_date = "2026-06-01"
 
 [assets]
