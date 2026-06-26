@@ -5,3 +5,11 @@
 # OG 分享图（构建期生成，无内容哈希，只做短期缓存）
 /og/*
   Cache-Control: public, max-age=86400
+
+# RAG 语料库 JSON (允许子域名跨域请求)
+/all-content.json
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, OPTIONS
+  Access-Control-Allow-Headers: Content-Type, Authorization
+  Cache-Control: public, max-age=3600
+

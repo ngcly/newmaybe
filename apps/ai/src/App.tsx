@@ -49,6 +49,7 @@ export default function App() {
   const [apiKey, setApiKey] = useState('');
   const [customBaseUrl, setCustomBaseUrl] = useState('');
   const [showConfig, setShowConfig] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   
   // RAG 语料库
   const [allContent, setAllContent] = useState<ContentItem[]>([]);
@@ -311,228 +312,272 @@ export default function App() {
     }
   };
 
-  return (
-    <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-[var(--paper)]">
-      
-      {/* 左侧控制栏 */}
-      <aside className="w-full md:w-80 bg-[color-mix(in_srgb,var(--paper-deep)_80%,transparent)] backdrop-blur-md border-b md:border-b-0 md:border-r border-[var(--line)] flex flex-col p-6 shrink-0 transition-colors duration-500 overflow-y-auto">
-        <div className="mb-6">
+  const sidebarContent = (
+    <>
+      <div className="mb-6 flex justify-between items-start">
+        <div>
           <a href={resolveSubdomain("https://newmaybe.com")} className="text-xl font-semibold tracking-wide flex items-baseline gap-1 text-[var(--ink)] no-underline">
             newmaybe<span className="text-[var(--ochre)] font-serif">.ai</span>
           </a>
           <p className="text-xs text-[var(--ink-faint)] mt-2">智能层 · 个人知识 Agent 终端</p>
         </div>
+        {/* 仅在移动端抽屉里显示关闭按钮 */}
+        <button
+          onClick={() => setIsMobileSidebarOpen(false)}
+          className="md:hidden p-1.5 rounded border border-[var(--line)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-        {/* 状态统计 */}
-        <div className="bg-[var(--paper)] border border-[var(--line)] rounded p-4 mb-5">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)] mb-2.5">知识图谱索引状态</h4>
-          <ul className="text-xs text-[var(--ink-soft)] space-y-1.5 list-none">
-            <li className="flex justify-between"><span>🌲 文章节点 (Writing)</span> <span className="font-semibold">{stats ? `${stats.posts} 篇` : '—'}</span></li>
-            <li className="flex justify-between"><span>🌱 笔记节点 (Note)</span> <span className="font-semibold">{stats ? `${stats.notes} 篇` : '—'}</span></li>
-            <li className="flex justify-between"><span>🌳 记忆节点 (Memory)</span> <span className="font-semibold">{stats ? `${stats.memories} 个` : '—'}</span></li>
-            <li className="flex justify-between"><span>📖 拾遗节点 (Excerpt)</span> <span className="font-semibold">{stats ? `${stats.excerpts} 条` : '—'}</span></li>
-            <li className="flex justify-between"><span>🍂 念头节点 (Fragment)</span> <span className="font-semibold">{stats ? `${stats.fragments} 个` : '—'}</span></li>
-          </ul>
+      {/* 状态统计 */}
+      <div className="bg-[var(--paper)] border border-[var(--line)] rounded p-4 mb-5">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)] mb-2.5">知识图谱索引状态</h4>
+        <ul className="text-xs text-[var(--ink-soft)] space-y-1.5 list-none">
+          <li className="flex justify-between"><span>🌲 文章节点 (Writing)</span> <span className="font-semibold">{stats ? `${stats.posts} 篇` : '—'}</span></li>
+          <li className="flex justify-between"><span>🌱 笔记节点 (Note)</span> <span className="font-semibold">{stats ? `${stats.notes} 篇` : '—'}</span></li>
+          <li className="flex justify-between"><span>🌳 记忆节点 (Memory)</span> <span className="font-semibold">{stats ? `${stats.memories} 个` : '—'}</span></li>
+          <li className="flex justify-between"><span>📖 拾遗节点 (Excerpt)</span> <span className="font-semibold">{stats ? `${stats.excerpts} 条` : '—'}</span></li>
+          <li className="flex justify-between"><span>🍂 念头节点 (Fragment)</span> <span className="font-semibold">{stats ? `${stats.fragments} 个` : '—'}</span></li>
+        </ul>
+      </div>
+
+      {/* 创意写作同伴快捷指令 */}
+      <div className="bg-[var(--paper)] border border-[var(--line)] rounded p-4 mb-5">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)] mb-2.5">创意写作快捷指令</h4>
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={() => {
+              setInputText('【文字留白诊断】\n\n请帮我分析以下文字的段落节奏、密度与留白美感，并给出优化润色建议：\n\n「在此替换为你的文字」');
+              setIsMobileSidebarOpen(false);
+            }}
+            className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-[11px] text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
+          >
+            ✍ 文字留白诊断
+          </button>
+          <button
+            onClick={() => {
+              setInputText('【古典意象润色】\n\n请将以下这段大白话或描述，润色为富有东方古典意境、诗意画面感和衬线质感的唯美句子：\n\n「在此替换为你的描述」');
+              setIsMobileSidebarOpen(false);
+            }}
+            className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-[11px] text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
+          >
+            🍃 古典意象润色
+          </button>
+          <button
+            onClick={() => {
+              setInputText('【灵感词汇发散】\n\n请以这个词或念头为中心，为我发散相关的古典隐喻、感官连结与散文联想意象：\n\n「在此替换为你的核心词」');
+              setIsMobileSidebarOpen(false);
+            }}
+            className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-[11px] text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
+          >
+            💡 灵感词汇发散
+          </button>
+          <button
+            onClick={() => {
+              setInputText('【念头共鸣启发】\n\n这是我最近写下或脑海中闪现的一个念头：\n\n「在此替换为你的念头/想法」\n\n请在林的数字花园中寻找与我产生共鸣的相似随笔、笔记或想法，并与我开启一场跨越时空的文字共鸣探讨。');
+              setIsMobileSidebarOpen(false);
+            }}
+            className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-[11px] text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
+          >
+            🌸 念头共鸣启发
+          </button>
         </div>
+      </div>
 
-        {/* 创意写作同伴快捷指令 */}
-        <div className="bg-[var(--paper)] border border-[var(--line)] rounded p-4 mb-5">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)] mb-2.5">创意写作快捷指令</h4>
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={() => {
-                setInputText('【文字留白诊断】\n\n请帮我分析以下文字的段落节奏、密度与留白美感，并给出优化润色建议：\n\n「在此替换为你的文字」');
+      {/* 大模型配置面板 */}
+      <div className="mt-auto pt-4 border-t border-[var(--line)]">
+        {showConfig ? (
+          <div className="flex flex-col gap-3">
+            <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">接口协议模式</label>
+            <select
+              value={provider}
+              onChange={(e) => {
+                const val = e.target.value as ProviderType;
+                setProvider(val);
+                if (val === 'gemini') {
+                  setCustomBaseUrl('https://generativelanguage.googleapis.com');
+                  setModel('gemini-2.5-flash');
+                } else if (val === 'openai') {
+                  setCustomBaseUrl('https://api.openai.com/v1');
+                  setModel('gpt-4o-mini');
+                } else {
+                  setCustomBaseUrl('');
+                  setModel('workers-ai');
+                }
               }}
-              className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-[11px] text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
+              className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
             >
-              ✍ 文字留白诊断
-            </button>
-            <button
-              onClick={() => {
-                setInputText('【古典意象润色】\n\n请将以下这段大白话或描述，润色为富有东方古典意境、诗意画面感和衬线质感的唯美句子：\n\n「在此替换为你的描述」');
-              }}
-              className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-[11px] text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
-            >
-              🍃 古典意象润色
-            </button>
-            <button
-              onClick={() => {
-                setInputText('【灵感词汇发散】\n\n请以这个词或念头为中心，为我发散相关的古典隐喻、感官连结与散文联想意象：\n\n「在此替换为你的核心词」');
-              }}
-              className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-[11px] text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
-            >
-              💡 灵感词汇发散
-            </button>
-            <button
-              onClick={() => {
-                setInputText('【念头共鸣启发】\n\n这是我最近写下或脑海中闪现的一个念头：\n\n「在此替换为你的念头/想法」\n\n请在林的数字花园中寻找与我产生共鸣的相似随笔、笔记或想法，并与我开启一场跨越时空的文字共鸣探讨。');
-              }}
-              className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-[11px] text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
-            >
-              🌸 念头共鸣启发
-            </button>
-          </div>
-        </div>
+              <option value="free">Cloudflare Workers AI (免费体验)</option>
+              <option value="openai">OpenAI 兼容协议 (自定义/国内模型)</option>
+              <option value="gemini">Gemini 协议 (自定义/官方)</option>
+            </select>
 
-        {/* 大模型配置面板 */}
-        <div className="mt-auto pt-4 border-t border-[var(--line)]">
-          {showConfig ? (
-            <div className="flex flex-col gap-3">
-              <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">接口协议模式</label>
-              <select
-                value={provider}
-                onChange={(e) => {
-                  const val = e.target.value as ProviderType;
-                  setProvider(val);
-                  if (val === 'gemini') {
-                    setCustomBaseUrl('https://generativelanguage.googleapis.com');
-                    setModel('gemini-2.5-flash');
-                  } else if (val === 'openai') {
-                    setCustomBaseUrl('https://api.openai.com/v1');
-                    setModel('gpt-4o-mini');
-                  } else {
-                    setCustomBaseUrl('');
-                    setModel('workers-ai');
-                  }
-                }}
-                className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
-              >
-                <option value="free">Cloudflare Workers AI (免费体验)</option>
-                <option value="openai">OpenAI 兼容协议 (自定义/国内模型)</option>
-                <option value="gemini">Gemini 协议 (自定义/官方)</option>
-              </select>
+            {provider !== 'free' && (
+              <>
+                <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">API Base URL</label>
+                <input
+                  type="text"
+                  value={customBaseUrl}
+                  onChange={(e) => setCustomBaseUrl(e.target.value)}
+                  placeholder={provider === 'openai' ? 'https://api.openai.com/v1' : 'https://generativelanguage.googleapis.com'}
+                  className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
+                />
 
-              {provider !== 'free' && (
-                <>
-                  <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">API Base URL</label>
-                  <input
-                    type="text"
-                    value={customBaseUrl}
-                    onChange={(e) => setCustomBaseUrl(e.target.value)}
-                    placeholder={provider === 'openai' ? 'https://api.openai.com/v1' : 'https://generativelanguage.googleapis.com'}
-                    className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
-                  />
+                <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">推理模型 (Model Name)</label>
+                <input
+                  type="text"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  placeholder={provider === 'openai' ? 'gpt-4o-mini' : 'gemini-2.5-flash'}
+                  className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
+                />
 
-                  <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">推理模型 (Model Name)</label>
-                  <input
-                    type="text"
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    placeholder={provider === 'openai' ? 'gpt-4o-mini' : 'gemini-2.5-flash'}
-                    className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
-                  />
-
-                  {/* 一键填入助手 */}
-                  <div className="border border-[var(--line)] rounded p-2.5 bg-[var(--paper)]/50">
-                    <span className="block text-[9px] font-semibold text-[var(--ochre)] tracking-wider uppercase mb-1.5">💡 常用服务快速填制</span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {SUGGESTIONS
-                        .filter(s => {
-                          if (provider === 'gemini') return s.url.includes('generativelanguage');
-                          return !s.url.includes('generativelanguage');
-                        })
-                        .map((s, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => {
-                              setCustomBaseUrl(s.url);
-                              setModel(s.model);
-                            }}
-                            className="text-[10px] bg-[var(--paper-deep)] hover:bg-[var(--line)] border border-[var(--line)] text-[var(--ink-soft)] px-1.5 py-0.5 rounded cursor-pointer transition-colors"
-                          >
-                            {s.name}
-                          </button>
-                        ))}
-                    </div>
+                {/* 一键填入助手 */}
+                <div className="border border-[var(--line)] rounded p-2.5 bg-[var(--paper)]/50">
+                  <span className="block text-[9px] font-semibold text-[var(--ochre)] tracking-wider uppercase mb-1.5">💡 常用服务快速填制</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {SUGGESTIONS
+                      .filter(s => {
+                        if (provider === 'gemini') return s.url.includes('generativelanguage');
+                        return !s.url.includes('generativelanguage');
+                      })
+                      .map((s, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            setCustomBaseUrl(s.url);
+                            setModel(s.model);
+                          }}
+                          className="text-[10px] bg-[var(--paper-deep)] hover:bg-[var(--line)] border border-[var(--line)] text-[var(--ink-soft)] px-1.5 py-0.5 rounded cursor-pointer transition-colors"
+                        >
+                          {s.name}
+                        </button>
+                      ))}
                   </div>
-
-                  <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">API 密钥 (API Key)</label>
-                  <input
-                    type="password"
-                    placeholder="输入 API Key..."
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
-                  />
-                </>
-              )}
-
-              <div className="flex gap-2 mt-1">
-                <button
-                  onClick={() => saveConfig(provider, model, apiKey, customBaseUrl)}
-                  className="flex-grow bg-[var(--ochre)] text-[var(--paper)] py-1.5 rounded text-xs font-medium cursor-pointer hover:bg-[var(--ochre-deep)] transition-colors"
-                >
-                  保存
-                </button>
-                {apiKey && (
-                  <button
-                    onClick={clearConfig}
-                    className="px-2 border border-red-200 text-red-500 py-1.5 rounded text-xs cursor-pointer hover:bg-red-50/20"
-                  >
-                    注销
-                  </button>
-                )}
-                <button
-                  onClick={() => {
-                    // 恢复已保存的设置
-                    const savedProvider = localStorage.getItem('newmaybe_ai_provider') as ProviderType | null || 'free';
-                    const savedModel = localStorage.getItem('newmaybe_ai_model') || 'workers-ai';
-                    const savedKey = (localStorage.getItem('newmaybe_api_key') || '').trim();
-                    const savedBaseUrl = (localStorage.getItem('newmaybe_custom_base_url') || '').trim();
-                    setProvider(savedProvider);
-                    setModel(savedModel);
-                    setApiKey(savedKey);
-                    setCustomBaseUrl(savedBaseUrl);
-                    setShowConfig(false);
-                  }}
-                  className="px-3 border border-[var(--line)] text-[var(--ink-soft)] py-1.5 rounded text-xs cursor-pointer hover:bg-[var(--paper)] transition-colors"
-                >
-                  取消
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-[var(--ink-faint)]">推理模式:</span>
-                <span className="font-semibold text-[var(--ochre)]">
-                  {provider === 'free' && 'Workers AI (免费模式)'}
-                  {provider === 'openai' && `OpenAI 兼容 / ${model}`}
-                  {provider === 'gemini' && `Gemini 兼容 / ${model}`}
-                </span>
-              </div>
-              {provider === 'free' && (
-                <div className="flex justify-between items-center text-xs border-b border-dashed border-[var(--line)] pb-2 mb-1">
-                  <span className="text-[var(--ink-faint)]">今日体验额度:</span>
-                  <span className="font-semibold text-[var(--ink-soft)]">{freeTurnsLeft} / 5 次</span>
                 </div>
+
+                <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">API 密钥 (API Key)</label>
+                <input
+                  type="password"
+                  placeholder="输入 API Key..."
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
+                />
+              </>
+            )}
+
+            <div className="flex gap-2 mt-1">
+              <button
+                onClick={() => saveConfig(provider, model, apiKey, customBaseUrl)}
+                className="flex-grow bg-[var(--ochre)] text-[var(--paper)] py-1.5 rounded text-xs font-medium cursor-pointer hover:bg-[var(--ochre-deep)] transition-colors"
+              >
+                保存
+              </button>
+              {apiKey && (
+                <button
+                  onClick={clearConfig}
+                  className="px-2 border border-red-200 text-red-500 py-1.5 rounded text-xs cursor-pointer hover:bg-red-50/20"
+                >
+                  注销
+                </button>
               )}
               <button
-                onClick={() => setShowConfig(true)}
-                className="w-full text-center border border-[var(--line)] hover:border-[var(--ochre)] text-[var(--ink-soft)] hover:text-[var(--ochre)] py-2 rounded text-xs transition-all cursor-pointer bg-[var(--paper)]/50"
+                onClick={() => {
+                  // 恢复已保存的设置
+                  const savedProvider = localStorage.getItem('newmaybe_ai_provider') as ProviderType | null || 'free';
+                  const savedModel = localStorage.getItem('newmaybe_ai_model') || 'workers-ai';
+                  const savedKey = (localStorage.getItem('newmaybe_api_key') || '').trim();
+                  const savedBaseUrl = (localStorage.getItem('newmaybe_custom_base_url') || '').trim();
+                  setProvider(savedProvider);
+                  setModel(savedModel);
+                  setApiKey(savedKey);
+                  setCustomBaseUrl(savedBaseUrl);
+                  setShowConfig(false);
+                }}
+                className="px-3 border border-[var(--line)] text-[var(--ink-soft)] py-1.5 rounded text-xs cursor-pointer hover:bg-[var(--paper)] transition-colors"
               >
-                配置推理引擎 / API Key
+                取消
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-[var(--ink-faint)]">推理模式:</span>
+              <span className="font-semibold text-[var(--ochre)] text-right break-all max-w-[60%]">
+                {provider === 'free' && 'Workers AI (免费模式)'}
+                {provider === 'openai' && `${model}`}
+                {provider === 'gemini' && `${model}`}
+              </span>
+            </div>
+            {provider === 'free' && (
+              <div className="flex justify-between items-center text-xs border-b border-dashed border-[var(--line)] pb-2 mb-1">
+                <span className="text-[var(--ink-faint)]">今日体验额度:</span>
+                <span className="font-semibold text-[var(--ink-soft)]">{freeTurnsLeft} / 5 次</span>
+              </div>
+            )}
+            <button
+              onClick={() => setShowConfig(true)}
+              className="w-full text-center border border-[var(--line)] hover:border-[var(--ochre)] text-[var(--ink-soft)] hover:text-[var(--ochre)] py-2 rounded text-xs transition-all cursor-pointer bg-[var(--paper)]/50"
+            >
+              配置推理引擎 / API Key
+            </button>
+          </div>
+        )}
+      </div>
+    </>
+  );
 
-        <a href={resolveSubdomain("https://newmaybe.com")} className="text-xs text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors no-underline mt-6 block md:hidden">
-          ← 返回主站 newmaybe.com
-        </a>
+  return (
+    <div className="h-dvh flex flex-col md:flex-row overflow-hidden bg-[var(--paper)]">
+      
+      {/* 移动端侧边栏抽屉/遮罩 */}
+      {isMobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          {/* 遮罩背景 */}
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+          {/* 抽屉主体 */}
+          <aside className="relative w-80 max-w-[80vw] h-full bg-[var(--paper)] border-r border-[var(--line)] flex flex-col p-6 overflow-y-auto transition-colors duration-500 z-10 shadow-xl">
+            {sidebarContent}
+          </aside>
+        </div>
+      )}
+
+      {/* 桌面端侧边栏 */}
+      <aside className="hidden md:flex md:w-80 bg-[color-mix(in_srgb,var(--paper-deep)_80%,transparent)] backdrop-blur-md border-r border-[var(--line)] flex-col p-6 shrink-0 transition-colors duration-500 overflow-y-auto">
+        {sidebarContent}
       </aside>
 
       {/* 右侧聊天区域 */}
       <section className="flex-grow flex flex-col h-full overflow-hidden">
         {/* 聊天头部 */}
-        <header className="h-16 border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--paper)_80%,transparent)] backdrop-blur-md flex items-center justify-between px-6 shrink-0 transition-colors duration-500">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-sm font-semibold text-[var(--ink)]">思考 Agent 终端</span>
+        <header className="h-16 border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--paper)_80%,transparent)] backdrop-blur-md flex items-center justify-between px-4 md:px-6 shrink-0 transition-colors duration-500">
+          <div className="flex items-center gap-3">
+            {/* 移动端菜单按钮 */}
+            <button
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="flex md:hidden items-center justify-center p-2 rounded border border-[var(--line)] text-[var(--ink-soft)] hover:text-[var(--ochre)] hover:border-[var(--ochre)] bg-transparent cursor-pointer transition-colors"
+              title="打开设置与状态"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-sm font-semibold text-[var(--ink)]">思考 Agent 终端</span>
+            </div>
           </div>
-          <a href={resolveSubdomain("https://newmaybe.com")} className="text-xs text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors no-underline hidden md:block">
-            ← 返回主站 newmaybe.com
+          <a href={resolveSubdomain("https://newmaybe.com")} className="text-xs text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors no-underline">
+            ← <span className="hidden md:inline">返回主站 </span>newmaybe.com
           </a>
         </header>
 
@@ -541,7 +586,7 @@ export default function App() {
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex flex-col max-w-[85%] md:max-w-[70%] msg-animate ${
+              className={`flex flex-col max-w-[90%] md:max-w-[70%] msg-animate ${
                 msg.role === 'user' ? 'ml-auto items-end' : 'mr-auto items-start'
               }`}
             >
@@ -577,7 +622,7 @@ export default function App() {
 
                 {/* 如果是助手的回答，且非错误，提供发送到卡片加工厂/海报工作室/思维沙盒的功能 */}
                 {msg.role === 'assistant' && msg.id !== 'welcome' && !msg.id.includes('error') && (
-                  <div className="mt-4 pt-2.5 border-t border-dashed border-[var(--line)] flex gap-2 justify-end">
+                  <div className="mt-4 pt-2.5 border-t border-dashed border-[var(--line)] flex flex-wrap gap-2 justify-end">
                     <button
                       onClick={() => {
                         window.open(`${resolveSubdomain('https://tools.newmaybe.com')}?content=${encodeURIComponent(msg.text)}`, '_blank');
@@ -627,23 +672,28 @@ export default function App() {
         </div>
 
         {/* 聊天输入框 */}
-        <div className="p-6 border-t border-[var(--line)] bg-[var(--paper-deep)] shrink-0 transition-colors duration-500">
-          <div className="max-w-4xl mx-auto flex gap-3">
+        <div className="p-4 md:p-6 border-t border-[var(--line)] bg-[var(--paper-deep)] shrink-0 transition-colors duration-500">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+            className="max-w-4xl mx-auto flex gap-2 md:gap-3"
+          >
             <input
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="向您的个人知识 Agent 终端提问...（支持回车）"
+              placeholder="向您的个人知识 Agent 终端提问..."
               className="flex-grow p-3 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-sm focus:border-[var(--ochre)] outline-none transition-colors"
             />
             <button
-              onClick={handleSend}
-              className="bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] text-[var(--paper)] px-6 rounded font-semibold text-sm transition-colors cursor-pointer"
+              type="submit"
+              className="bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] text-[var(--paper)] px-4 md:px-6 rounded font-semibold text-sm transition-colors cursor-pointer"
             >
               发送
             </button>
-          </div>
+          </form>
         </div>
 
       </section>
