@@ -423,7 +423,7 @@ export default function App() {
                   value={customBaseUrl}
                   onChange={(e) => setCustomBaseUrl(e.target.value)}
                   placeholder={provider === 'openai' ? 'https://api.openai.com/v1' : 'https://generativelanguage.googleapis.com'}
-                  className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
+                  className="w-full p-2 text-[16px] md:text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
                 />
 
                 <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">推理模型 (Model Name)</label>
@@ -432,7 +432,7 @@ export default function App() {
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
                   placeholder={provider === 'openai' ? 'gpt-4o-mini' : 'gemini-2.5-flash'}
-                  className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
+                  className="w-full p-2 text-[16px] md:text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
                 />
 
                 {/* 一键填入助手 */}
@@ -466,7 +466,7 @@ export default function App() {
                   placeholder="输入 API Key..."
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
-                  className="w-full p-2 text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
+                  className="w-full p-2 text-[16px] md:text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
                 />
               </>
             )}
@@ -685,7 +685,7 @@ export default function App() {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="向您的个人知识 Agent 终端提问..."
-              className="flex-grow p-3 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-sm focus:border-[var(--ochre)] outline-none transition-colors"
+              className="flex-grow p-3 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-[16px] md:text-sm focus:border-[var(--ochre)] outline-none transition-colors"
             />
             <button
               type="submit"
