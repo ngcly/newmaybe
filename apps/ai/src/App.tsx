@@ -28,6 +28,8 @@ const SUGGESTIONS: Suggestion[] = [
   { name: 'Gemini 官方', url: 'https://generativelanguage.googleapis.com', model: 'gemini-2.5-flash' },
 ];
 
+const DAILY_FREE_LIMIT = 20;
+
 const _isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 const resolveSubdomain = (url: string) => _resolveSubdomain(url, _isDev);
 
@@ -54,7 +56,7 @@ export default function App() {
   // RAG 语料库
   const [allContent, setAllContent] = useState<ContentItem[]>([]);
   const [contentLoading, setContentLoading] = useState(true);
-  const [freeTurnsLeft, setFreeTurnsLeft] = useState(5);
+  const [freeTurnsLeft, setFreeTurnsLeft] = useState(DAILY_FREE_LIMIT);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -102,14 +104,14 @@ export default function App() {
       try {
         const { date, count } = JSON.parse(limitJson);
         if (date === today) {
-          if (count >= 5) {
+          if (count >= DAILY_FREE_LIMIT) {
             return { ok: false, remaining: 0 };
           }
-          return { ok: true, remaining: 5 - count };
+          return { ok: true, remaining: DAILY_FREE_LIMIT - count };
         }
       } catch (e) {}
     }
-    return { ok: true, remaining: 5 };
+    return { ok: true, remaining: DAILY_FREE_LIMIT };
   };
 
   const decrementFreeTurns = (): number => {
@@ -126,7 +128,7 @@ export default function App() {
     }
     count += 1;
     localStorage.setItem('newmaybe_free_turns_limit', JSON.stringify({ date: today, count }));
-    return 5 - count;
+    return DAILY_FREE_LIMIT - count;
   };
 
   // 保存模型设置
@@ -177,7 +179,7 @@ export default function App() {
         setMessages(prev => [...prev, {
           id: `limit-error-${Date.now()}`,
           role: 'assistant',
-          text: '您好，今日免费对话额度（5次）已用完。免费模式旨在提供基础的体验，若要解除限制，您可以点击左下角配置您个人的 Gemini 或 OpenAI API 密钥（您的密钥将仅保存在本地浏览器中，十分安全）。',
+          text: `您好，今日免费对话额度（${DAILY_FREE_LIMIT}次）已用完。免费模式旨在提供基础的体验，若要解除限制，您可以点击左下角配置您个人的 Gemini 或 OpenAI API 密钥（您的密钥将仅保存在本地浏览器中，十分安全）。`,
           timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
         }]);
         setInputText('');
@@ -518,7 +520,7 @@ export default function App() {
             {provider === 'free' && (
               <div className="flex justify-between items-center text-xs border-b border-dashed border-[var(--line)] pb-2 mb-1">
                 <span className="text-[var(--ink-faint)]">今日体验额度:</span>
-                <span className="font-semibold text-[var(--ink-soft)]">{freeTurnsLeft} / 5 次</span>
+                <span className="font-semibold text-[var(--ink-soft)]">{freeTurnsLeft} / {DAILY_FREE_LIMIT} 次</span>
               </div>
             )}
             <button
