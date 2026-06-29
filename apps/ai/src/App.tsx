@@ -259,21 +259,29 @@ export default function App() {
           buffer = lines.pop() || '';
 
           for (const line of lines) {
-            const trimmed = line.trim();
+            let trimmed = line.trim();
             if (!trimmed) continue;
+            
+            // 兼容有些环境不带 data: 前缀的情况，直接按 JSON 解析
             if (trimmed.startsWith('data: ')) {
-              const dataStr = trimmed.slice(6);
-              if (dataStr === '[DONE]') break;
+              trimmed = trimmed.slice(6).trim();
+            }
+            
+            if (trimmed === '[DONE]') break;
+            
+            if (trimmed.startsWith('{')) {
               try {
-                const parsed = JSON.parse(dataStr);
-                if (parsed.response) {
-                  replyText += parsed.response;
+                const parsed = JSON.parse(trimmed);
+                // 兼容不同平台的返回结构：Cloudflare (response) / OpenAI (choices[0].delta.content)
+                const token = parsed.response || parsed.text || parsed.content || parsed.choices?.[0]?.delta?.content;
+                if (token) {
+                  replyText += token;
                   setMessages(prev => prev.map(m => 
                     m.id === assistantMsgId ? { ...m, text: replyText } : m
                   ));
                 }
               } catch (e) {
-                console.warn('Failed to parse SSE line:', dataStr, e);
+                console.warn('Failed to parse SSE line:', trimmed, e);
               }
             }
           }
@@ -333,22 +341,28 @@ export default function App() {
           buffer = lines.pop() || '';
 
           for (const line of lines) {
-            const trimmed = line.trim();
+            let trimmed = line.trim();
             if (!trimmed) continue;
+            
+            // 兼容有些环境不带 data: 前缀的情况，直接按 JSON 解析
             if (trimmed.startsWith('data: ')) {
-              const dataStr = trimmed.slice(6);
-              if (dataStr === '[DONE]') break;
+              trimmed = trimmed.slice(6).trim();
+            }
+            
+            if (trimmed === '[DONE]') break;
+            
+            if (trimmed.startsWith('{')) {
               try {
-                const parsed = JSON.parse(dataStr);
-                const delta = parsed.choices?.[0]?.delta?.content;
-                if (delta) {
-                  replyText += delta;
+                const parsed = JSON.parse(trimmed);
+                const token = parsed.response || parsed.text || parsed.content || parsed.choices?.[0]?.delta?.content;
+                if (token) {
+                  replyText += token;
                   setMessages(prev => prev.map(m => 
                     m.id === assistantMsgId ? { ...m, text: replyText } : m
                   ));
                 }
               } catch (e) {
-                console.warn('Failed to parse OpenAI SSE line:', dataStr, e);
+                console.warn('Failed to parse OpenAI SSE line:', trimmed, e);
               }
             }
           }
