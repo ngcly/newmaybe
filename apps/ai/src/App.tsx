@@ -221,6 +221,7 @@ export default function App() {
       ];
 
       let replyText = '';
+      const assistantMsgId = `msg-assistant-${Date.now()}`;
 
       if (provider === 'free') {
         // 调用 Cloudflare Workers AI 后端代理接口
@@ -229,15 +230,129 @@ export default function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ messages: promptHistory })
         });
-        const data = await res.json() as any;
-        if (!res.ok || data.error) {
-          throw new Error(data.error || '后端接口响应错误');
+        if (!res.ok) {
+          const errData = await res.json() as any;
+          throw new Error(errData.error || '后端接口响应错误');
         }
-        replyText = data.text;
-        
+
+        // 插入助理空消息作为占位符，关闭等待动效
+        setIsTyping(false);
+        setMessages(prev => [...prev, {
+          id: assistantMsgId,
+          role: 'assistant',
+          text: '',
+          references: references,
+          timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+        }]);
+
+        const reader = res.body?.getReader();
+        const decoder = new TextDecoder();
+        if (!reader) throw new Error('无法读取响应流');
+
+        let buffer = '';
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            if (trimmed.startsWith('data: ')) {
+              const dataStr = trimmed.slice(6);
+              if (dataStr === '[DONE]') break;
+              try {
+                const parsed = JSON.parse(dataStr);
+                if (parsed.response) {
+                  replyText += parsed.response;
+                  setMessages(prev => prev.map(m => 
+                    m.id === assistantMsgId ? { ...m, text: replyText } : m
+                  ));
+                }
+              } catch (e) {
+                console.warn('Failed to parse SSE line:', dataStr, e);
+              }
+            }
+          }
+        }
+
         // 扣减额度并更新状态
         const left = decrementFreeTurns();
         setFreeTurnsLeft(left);
+
+      } else if (provider === 'openai') {
+        // 直连 OpenAI 兼容接口 (浏览器前端调用)
+        const baseUrl = customBaseUrl || 'https://api.openai.com/v1';
+        const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+
+        const res = await fetch(`${cleanBaseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: promptHistory.map(m => ({
+              role: m.role,
+              content: m.content
+            })),
+            stream: true // 开启流式
+          })
+        });
+
+        if (!res.ok) {
+          const errData = await res.json() as any;
+          throw new Error(errData.error?.message || errData.error || 'OpenAI 兼容接口调用出错');
+        }
+
+        // 插入助理空消息作为占位符，关闭等待动效
+        setIsTyping(false);
+        setMessages(prev => [...prev, {
+          id: assistantMsgId,
+          role: 'assistant',
+          text: '',
+          references: references,
+          timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+        }]);
+
+        const reader = res.body?.getReader();
+        const decoder = new TextDecoder();
+        if (!reader) throw new Error('无法读取响应流');
+
+        let buffer = '';
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            if (trimmed.startsWith('data: ')) {
+              const dataStr = trimmed.slice(6);
+              if (dataStr === '[DONE]') break;
+              try {
+                const parsed = JSON.parse(dataStr);
+                const delta = parsed.choices?.[0]?.delta?.content;
+                if (delta) {
+                  replyText += delta;
+                  setMessages(prev => prev.map(m => 
+                    m.id === assistantMsgId ? { ...m, text: replyText } : m
+                  ));
+                }
+              } catch (e) {
+                console.warn('Failed to parse OpenAI SSE line:', dataStr, e);
+              }
+            }
+          }
+        }
 
       } else if (provider === 'gemini') {
         // 直连 Gemini 兼容接口 (浏览器前端调用)
@@ -267,39 +382,16 @@ export default function App() {
         }
         replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || '未能获取回复，请重试。';
 
-      } else if (provider === 'openai') {
-        // 直连 OpenAI 兼容接口 (浏览器前端调用)
-        const baseUrl = customBaseUrl || 'https://api.openai.com/v1';
-        const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-
-        const res = await fetch(`${cleanBaseUrl}/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: model,
-            messages: promptHistory.map(m => ({
-              role: m.role,
-              content: m.content
-            }))
-          })
-        });
-        const data = await res.json() as any;
-        if (!res.ok || data.error) {
-          throw new Error(data.error?.message || data.error || 'OpenAI 兼容接口调用出错');
-        }
-        replyText = data.choices?.[0]?.message?.content || '未能获取回复，请重试。';
+        // 非流式直接插入结果
+        setIsTyping(false);
+        setMessages(prev => [...prev, {
+          id: assistantMsgId,
+          role: 'assistant',
+          text: replyText,
+          references: references,
+          timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+        }]);
       }
-
-      setMessages(prev => [...prev, {
-        id: `msg-${Date.now()}`,
-        role: 'assistant',
-        text: replyText,
-        references: references,
-        timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-      }]);
 
     } catch (err: any) {
       console.error(err);
