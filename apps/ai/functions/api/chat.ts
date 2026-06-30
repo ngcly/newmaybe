@@ -31,7 +31,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           role: m.role === 'assistant' ? 'assistant' : m.role === 'system' ? 'system' : 'user',
           content: m.content
         })),
-        stream: true
+        stream: true,
+        max_tokens: 2048 // 增加最大输出限制，防止截断
       });
       return new Response(stream, {
         headers: {
@@ -50,7 +51,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           role: m.role === 'assistant' ? 'assistant' : m.role === 'system' ? 'system' : 'user',
           content: m.content
         })),
-        stream: true
+        stream: true,
+        max_tokens: 2048 // 增加最大输出限制，防止截断
       });
       return new Response(stream, {
         headers: {
