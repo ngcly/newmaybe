@@ -241,7 +241,7 @@ export default function App() {
           id: assistantMsgId,
           role: 'assistant',
           text: '',
-          references: references,
+          references: [], // 流式输出未完成前，不显示引证，防止布局抖动
           timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
         }]);
 
@@ -317,8 +317,9 @@ export default function App() {
         }
 
         // 确保最终状态同步
+        // 确保最终状态同步，此时塞入引证，使引证在回答完后优雅呈现
         setMessages(prev => prev.map(m => 
-          m.id === assistantMsgId ? { ...m, text: replyText } : m
+          m.id === assistantMsgId ? { ...m, text: replyText, references: references } : m
         ));
 
         // 扣减额度并更新状态
@@ -357,7 +358,7 @@ export default function App() {
           id: assistantMsgId,
           role: 'assistant',
           text: '',
-          references: references,
+          references: [], // 流式输出未完成前，不显示引证，防止布局抖动
           timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
         }]);
 
@@ -432,8 +433,9 @@ export default function App() {
         }
 
         // 确保最终状态同步
+        // 确保最终状态同步，此时塞入引证，使引证在回答完后优雅呈现
         setMessages(prev => prev.map(m => 
-          m.id === assistantMsgId ? { ...m, text: replyText } : m
+          m.id === assistantMsgId ? { ...m, text: replyText, references: references } : m
         ));
 
       } else if (provider === 'gemini') {
