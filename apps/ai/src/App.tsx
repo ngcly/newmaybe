@@ -293,6 +293,34 @@ export default function App() {
           }
         }
 
+        // 兜底：如果流结束时 buffer 中还有残留未换行的数据，在此处强制解析
+        if (buffer.trim()) {
+          let trimmed = buffer.trim();
+          if (trimmed.startsWith('data: ')) {
+            trimmed = trimmed.slice(6).trim();
+          }
+          if (trimmed !== '[DONE]') {
+            if (trimmed.startsWith('{')) {
+              try {
+                const parsed = JSON.parse(trimmed);
+                const token = parsed.response || parsed.text || parsed.content || parsed.choices?.[0]?.delta?.content;
+                if (token) {
+                  replyText += token;
+                }
+              } catch (e) {
+                console.error('[解析残留错误]', e, '数据内容:', trimmed);
+              }
+            } else {
+              replyText += trimmed;
+            }
+          }
+        }
+
+        // 确保最终状态同步
+        setMessages(prev => prev.map(m => 
+          m.id === assistantMsgId ? { ...m, text: replyText } : m
+        ));
+
         // 扣减额度并更新状态
         const left = decrementFreeTurns();
         setFreeTurnsLeft(left);
@@ -379,6 +407,34 @@ export default function App() {
             }
           }
         }
+
+        // 兜底：如果流结束时 buffer 中还有残留未换行的数据，在此处强制解析
+        if (buffer.trim()) {
+          let trimmed = buffer.trim();
+          if (trimmed.startsWith('data: ')) {
+            trimmed = trimmed.slice(6).trim();
+          }
+          if (trimmed !== '[DONE]') {
+            if (trimmed.startsWith('{')) {
+              try {
+                const parsed = JSON.parse(trimmed);
+                const token = parsed.response || parsed.text || parsed.content || parsed.choices?.[0]?.delta?.content;
+                if (token) {
+                  replyText += token;
+                }
+              } catch (e) {
+                console.error('[OpenAI 解析残留错误]', e, '数据内容:', trimmed);
+              }
+            } else {
+              replyText += trimmed;
+            }
+          }
+        }
+
+        // 确保最终状态同步
+        setMessages(prev => prev.map(m => 
+          m.id === assistantMsgId ? { ...m, text: replyText } : m
+        ));
 
       } else if (provider === 'gemini') {
         // 直连 Gemini 兼容接口 (浏览器前端调用)

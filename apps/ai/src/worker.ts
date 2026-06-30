@@ -25,37 +25,47 @@ export default {
           });
         }
 
-        let responseText = '';
         const primaryModel = '@cf/meta/llama-3.1-8b-instruct';
         const fallbackModel = '@cf/meta/llama-3.1-8b-instruct-fast';
 
         try {
-          const response = await env.AI.run(primaryModel, {
+          const stream = await env.AI.run(primaryModel, {
             messages: messages.map(m => ({
               role: m.role === 'assistant' ? 'assistant' : m.role === 'system' ? 'system' : 'user',
               content: m.content
-            }))
+            })),
+            stream: true
           });
-          responseText = response.response;
+          return new Response(stream, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive',
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Headers': 'Content-Type',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS'
+            }
+          });
         } catch (primaryError) {
           console.warn('Primary model failed, falling back to Llama-3.1-fast:', primaryError);
-          const response = await env.AI.run(fallbackModel, {
+          const stream = await env.AI.run(fallbackModel, {
             messages: messages.map(m => ({
               role: m.role === 'assistant' ? 'assistant' : m.role === 'system' ? 'system' : 'user',
               content: m.content
-            }))
+            })),
+            stream: true
           });
-          responseText = response.response;
+          return new Response(stream, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive',
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Headers': 'Content-Type',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS'
+            }
+          });
         }
-
-        return new Response(JSON.stringify({ text: responseText }), {
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS'
-          }
-        });
       } catch (err: any) {
         return new Response(JSON.stringify({ error: err.message || 'Internal Server Error' }), {
           status: 500,
