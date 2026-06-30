@@ -262,7 +262,7 @@ export default function App() {
             let trimmed = line.trim();
             if (!trimmed) continue;
             
-            // 兼容有些环境不带 data: 前缀的情况，直接按 JSON 解析
+            // 兼容带有 data: 前缀的情况，直接剥离
             if (trimmed.startsWith('data: ')) {
               trimmed = trimmed.slice(6).trim();
             }
@@ -281,8 +281,14 @@ export default function App() {
                   ));
                 }
               } catch (e) {
-                console.warn('Failed to parse SSE line:', trimmed, e);
+                console.error('[解析错误]', e, '数据内容:', trimmed);
               }
+            } else {
+              // 兜底：如果不是 JSON (不以 { 开头)，但有字符，说明可能是原始文本块，直接追加
+              replyText += trimmed;
+              setMessages(prev => prev.map(m => 
+                m.id === assistantMsgId ? { ...m, text: replyText } : m
+              ));
             }
           }
         }
@@ -344,7 +350,7 @@ export default function App() {
             let trimmed = line.trim();
             if (!trimmed) continue;
             
-            // 兼容有些环境不带 data: 前缀的情况，直接按 JSON 解析
+            // 兼容带有 data: 前缀的情况，直接剥离
             if (trimmed.startsWith('data: ')) {
               trimmed = trimmed.slice(6).trim();
             }
@@ -362,8 +368,14 @@ export default function App() {
                   ));
                 }
               } catch (e) {
-                console.warn('Failed to parse OpenAI SSE line:', trimmed, e);
+                console.error('[OpenAI 解析错误]', e, '数据内容:', trimmed);
               }
+            } else {
+              // 兜底：如果不是 JSON，直接追加原始文本
+              replyText += trimmed;
+              setMessages(prev => prev.map(m => 
+                m.id === assistantMsgId ? { ...m, text: replyText } : m
+              ));
             }
           }
         }
