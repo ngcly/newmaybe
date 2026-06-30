@@ -34,14 +34,26 @@ const _isDev = typeof window !== 'undefined' && (window.location.hostname === 'l
 const resolveSubdomain = (url: string) => _resolveSubdomain(url, _isDev);
 
 export default function App() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      text: '您好，我是 newmaybe 的智能园丁。我可以通过您的内容中枢，为您检索、重组并分析您的数字花园。您可以随时向我提问，例如关于“慢阅读”、“隐私优先”或“对抗追踪”的思考。',
-      timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('newmaybe_ai_messages');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.warn('Failed to parse saved messages from localStorage', e);
+        }
+      }
     }
-  ]);
+    return [
+      {
+        id: 'welcome',
+        role: 'assistant',
+        text: '您好，我是 newmaybe 的智能园丁。我可以通过您的内容中枢，为您检索、重组并分析您的数字花园。您可以随时向我提问，例如关于“慢阅读”、“隐私优先”或“对抗追踪”的思考。',
+        timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+      }
+    ];
+  });
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   
@@ -89,6 +101,15 @@ export default function App() {
     const limitStatus = checkFreeTurns();
     setFreeTurnsLeft(limitStatus.remaining);
   }, []);
+
+  // 监听并持久化对话历史
+  useEffect(() => {
+    try {
+      localStorage.setItem('newmaybe_ai_messages', JSON.stringify(messages));
+    } catch (e) {
+      console.warn('Failed to save messages to localStorage', e);
+    }
+  }, [messages]);
 
   // 滚动到底部
   useEffect(() => {
@@ -699,12 +720,34 @@ export default function App() {
                 <span className="font-semibold text-[var(--ink-soft)]">{freeTurnsLeft} / {DAILY_FREE_LIMIT} 次</span>
               </div>
             )}
-            <button
-              onClick={() => setShowConfig(true)}
-              className="w-full text-center border border-[var(--line)] hover:border-[var(--ochre)] text-[var(--ink-soft)] hover:text-[var(--ochre)] py-2 rounded text-xs transition-all cursor-pointer bg-[var(--paper)]/50"
-            >
-              配置推理引擎 / API Key
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowConfig(true)}
+                className="flex-grow text-center border border-[var(--line)] hover:border-[var(--ochre)] text-[var(--ink-soft)] hover:text-[var(--ochre)] py-2 rounded text-xs transition-all cursor-pointer bg-[var(--paper)]/50"
+              >
+                ⚙️ 配置推理引擎
+              </button>
+              {messages.length > 1 && (
+                <button
+                  onClick={() => {
+                    if (confirm('确认清空所有对话历史吗？')) {
+                      setMessages([
+                        {
+                          id: 'welcome',
+                          role: 'assistant',
+                          text: '您好，我是 newmaybe 的智能园丁。我可以通过您的内容中枢，为您检索、重组并分析您的数字花园。您可以随时向我提问，例如关于“慢阅读”、“隐私优先”或“对抗追踪”的思考。',
+                          timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+                        }
+                      ]);
+                    }
+                  }}
+                  className="px-3 border border-red-200 hover:border-red-400 text-red-500 hover:bg-red-50/20 py-2 rounded text-xs transition-all cursor-pointer bg-[var(--paper)]/50"
+                  title="清空对话历史"
+                >
+                  🗑️ 清空
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
