@@ -44,10 +44,18 @@ export const extractKeywords = (query: string): string[] => {
   // 简单合并
   const keywords = [...new Set([...enMatches, ...cnMatches])].filter(k => k.length > 0);
   
-  // 过滤掉极常见的停用词（中英文）
+  // 过滤掉极常见的停用词与常用语气/代/动词（中英文，防止无意义的中文单字泛滥匹配）
   const stopWords = new Set([
+    // 常用助词/介词/连词/代词
     '的', '了', '和', '是', '在', '我', '有', '也', '你', '他', '她', '它', '这', '那', '都', '个', '与', '及',
-    'the', 'a', 'an', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'about'
+    '为', '之', '以', '于', '地', '得', '着', '们', '这', '那', '哪', '谁', '甚', '么', '什', '几', '多', '少',
+    '谁', '怎', '样', '此', '彼', '本', '其', '此',
+    // 常用语气词与问候词
+    '好', '呀', '吧', '呢', '吗', '啊', '哦', '哈', '呗', '哇', '啦', '嘛', '哼', '呸', '兮',
+    // 常用动词/副词（无实质RAG检索意义）
+    '不', '没', '无', '非', '去', '来', '到', '说', '想', '要', '能', '会', '可', '就', '又', '很', '最', '太', '只',
+    // 英文停用词
+    'the', 'a', 'an', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'about', 'how', 'what', 'who', 'why'
   ]);
   
   return keywords.filter(k => !stopWords.has(k));
@@ -63,8 +71,8 @@ export const retrieveRelevantDocs = (
   
   const keywords = extractKeywords(query);
   if (keywords.length === 0) {
-    // 如果没有提取出关键词（可能都是停用词或短标点），返回最新的几篇
-    return corpus.slice(0, limit).map(doc => ({ doc, score: 1 }));
+    // 如果没有提取出有效关键词（可能都是日常问候或语气停用词），说明与数字花园内容无关，不返回任何参考文档
+    return [];
   }
 
   const scoredDocs = corpus.map(doc => {
@@ -96,9 +104,12 @@ export const retrieveRelevantDocs = (
     return { doc, score };
   });
 
-  // 过滤掉得分为 0 的文档，并按分数降序排列
+  // 过滤掉得分低于阈值的文档，要求分数至少为 3 分（例如：在正文匹配 3 次，或匹配了分类/标题）
+  // 避免极微弱、偶然的单字碰巧匹配（例如“天”字在很多散文中都会出现，但不构成有效参考）
+  const MIN_SCORE_THRESHOLD = 3;
+
   return scoredDocs
-    .filter(item => item.score > 0)
+    .filter(item => item.score >= MIN_SCORE_THRESHOLD)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
 };
