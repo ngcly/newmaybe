@@ -25,7 +25,7 @@ const SUGGESTIONS: Suggestion[] = [
   { name: '阿里通义千问', url: 'https://dashscope.aliyuncs.com/compatible-mode/v1', model: 'qwen-plus' },
   { name: '智谱 AI (GLM)', url: 'https://open.bigmodel.cn/api/paas/v1', model: 'glm-4-flash' },
   { name: 'OpenAI 官方', url: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
-  { name: 'Gemini 官方', url: 'https://generativelanguage.googleapis.com', model: 'gemini-2.5-flash' },
+  { name: 'Gemini 官方', url: 'https://generativelanguage.googleapis.com', model: 'gemini-3.5-flash' },
 ];
 
 const DAILY_FREE_LIMIT = 20;
@@ -84,7 +84,7 @@ export default function App() {
     if (savedModel) {
       setModel(savedModel);
     } else if (savedProvider === 'gemini') {
-      setModel('gemini-2.5-flash');
+      setModel('gemini-3.5-flash');
     } else if (savedProvider === 'openai') {
       setModel('gpt-4o-mini');
     }
@@ -598,7 +598,7 @@ export default function App() {
                 setProvider(val);
                 if (val === 'gemini') {
                   setCustomBaseUrl('https://generativelanguage.googleapis.com');
-                  setModel('gemini-2.5-flash');
+                  setModel('gemini-3.5-flash');
                 } else if (val === 'openai') {
                   setCustomBaseUrl('https://api.openai.com/v1');
                   setModel('gpt-4o-mini');
@@ -630,7 +630,7 @@ export default function App() {
                   type="text"
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  placeholder={provider === 'openai' ? 'gpt-4o-mini' : 'gemini-2.5-flash'}
+                  placeholder={provider === 'openai' ? 'gpt-4o-mini' : 'gemini-3.5-flash'}
                   className="w-full p-2 text-[16px] md:text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
                 />
 
