@@ -59,8 +59,29 @@ const aiUrl = resolveSubdomain('https://ai.newmaybe.com');
 </div>
 
 <script>
-  let pagefind: any = null;
-  let localIndex: any[] = [];
+  interface LocalItem {
+    title: string;
+    url: string;
+    content: string;
+    category?: string;
+  }
+
+  interface PagefindResultItem {
+    data: () => Promise<{
+      url: string;
+      meta: { title?: string };
+      excerpt: string;
+    }>;
+  }
+
+  interface PagefindInstance {
+    search: (query: string) => Promise<{
+      results: PagefindResultItem[];
+    }>;
+  }
+
+  let pagefind: PagefindInstance | null = null;
+  let localIndex: LocalItem[] = [];
   let isLocalMode = false;
   let aiUrl = 'https://ai.newmaybe.com';
 
@@ -190,7 +211,7 @@ const aiUrl = resolveSubdomain('https://ai.newmaybe.com');
   }
 
   // 4. 执行搜索
-  let debounceTimeout: any;
+  let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
   async function handleSearch() {
     if (!input || !resultsContainer) return;
     const query = input.value.trim();
@@ -285,10 +306,12 @@ const aiUrl = resolveSubdomain('https://ai.newmaybe.com');
 
         // 仅展示前 8 条结果
         const limitedResults = searchResult.results.slice(0, 8);
-        const resolvedData = await Promise.all(limitedResults.map((r: any) => r.data()));
+        const resolvedData = await Promise.all(
+          limitedResults.map((r: PagefindResultItem) => r.data()),
+        );
 
         resultsContainer.innerHTML = '';
-        resolvedData.forEach((data: any) => {
+        resolvedData.forEach((data: { url: string; meta: { title?: string }; excerpt: string }) => {
           const card = createResultItem(data.url, data.meta.title || '无标题', data.excerpt);
           resultsContainer.appendChild(card);
         });

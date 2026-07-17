@@ -411,7 +411,7 @@ const isDev = import.meta.env.DEV;
           stop: () => {
             try {
               noise.stop();
-            } catch (e) {}
+            } catch {}
           },
         };
       }
@@ -456,7 +456,7 @@ const isDev = import.meta.env.DEV;
             try {
               noise.stop();
               osc.stop();
-            } catch (e) {}
+            } catch {}
           },
         };
       }

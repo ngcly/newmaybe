@@ -193,7 +193,7 @@ export const GET: APIRoute<Props> = async ({ props }) => {
     },
   };
 
-  const svg = await satori(element as any, {
+  const svg = await satori(element as Parameters<typeof satori>[0], {
     width: 1200,
     height: 630,
     fonts: [

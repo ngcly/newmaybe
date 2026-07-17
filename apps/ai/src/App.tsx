@@ -38,12 +38,13 @@ export default function App() {
 
   // Auto-send initial query once content loads
   const initialQuerySent = useRef(false);
+  const { contentLoading, inputText, handleSend } = chat;
   useEffect(() => {
-    if (!chat.contentLoading && chat.inputText && !initialQuerySent.current) {
+    if (!contentLoading && inputText && !initialQuerySent.current) {
       initialQuerySent.current = true;
-      chat.handleSend(chat.inputText);
+      handleSend(inputText);
     }
-  }, [chat.contentLoading, chat.inputText, chat.handleSend]);
+  }, [contentLoading, inputText, handleSend]);
 
   // Scroll to bottom on new messages
   useEffect(() => {

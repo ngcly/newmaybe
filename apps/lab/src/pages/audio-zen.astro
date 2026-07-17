@@ -315,7 +315,7 @@
           stop: () => {
             try {
               noise.stop();
-            } catch (e) {}
+            } catch {}
           },
         };
         document.getElementById('rainBtn').classList.add('active');
@@ -363,7 +363,7 @@
             try {
               noise.stop();
               osc.stop();
-            } catch (e) {}
+            } catch {}
           },
         };
         document.getElementById('windBtn').classList.add('active');

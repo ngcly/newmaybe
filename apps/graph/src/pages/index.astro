@@ -1128,7 +1128,7 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
         }
       }
 
-      function handleMouseOut(event, d) {
+      function handleMouseOut(event, _d) {
         if (currentMode !== 'view' && !document.getElementById('graph-search').value) return;
 
         const linkSel = linkGroup.selectAll('line');
