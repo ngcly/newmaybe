@@ -17,7 +17,6 @@ export default [
       '**/.wrangler/**',
       '**/.astro/types.d.ts',
       '**/env.d.ts',
-      'src/**',
     ],
   },
 
