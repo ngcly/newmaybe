@@ -1,0 +1,652 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { resolveSubdomain } from '../config';
+
+const notes = (await getCollection('notes', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const memories = (await getCollection('memories', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+// 按成长阶段分组
+const stages = {
+  evergreen: {
+    label: '常青 / Evergreen 🌳',
+    desc: '已经定型、反复引用、沉淀下来的长期价值思想。',
+    notes: [] as typeof notes,
+  },
+  bud: {
+    label: '成长 / Cultivations 🌿',
+    desc: '经历过数次扩写与整理，有了一定结构，仍在不断演化。',
+    notes: [] as typeof notes,
+  },
+  sprout: {
+    label: '萌芽 / Seedlings 🌱',
+    desc: '刚刚闪现的零碎想法，记录在大纲和只言片语中。',
+    notes: [] as typeof notes,
+  },
+};
+
+const phaseMap = {
+  sprout: 'PHASE 01',
+  bud: 'PHASE 02',
+  evergreen: 'PHASE 03',
+};
+
+notes.forEach((note) => {
+  if (stages[note.data.stage]) {
+    stages[note.data.stage].notes.push(note);
+  }
+});
+
+// 按分类分组
+const categories: Record<string, typeof memories> = {};
+memories.forEach((mem) => {
+  const cat = mem.data.category || '未分类';
+  if (!categories[cat]) {
+    categories[cat] = [];
+  }
+  categories[cat].push(mem);
+});
+---
+
+<Base title="花园" description="数字花园，沉淀长期思考的概念档案与正在成长的思维笔记。">
+  <div class="leaf-watermark" aria-hidden="true">
+    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="0.35">
+      <path
+        d="M50,0 C50,0 15,40 15,70 C15,86.5 30.5,100 50,100 C69.5,100 85,86.5 85,70 C85,40 50,0 50,0 Z"
+      ></path>
+      <path d="M50,0 L50,100"></path>
+      <path d="M50,25 C50,25 35,38 22,44"></path>
+      <path d="M50,25 C50,25 65,38 78,44"></path>
+      <path d="M50,45 C50,45 32,58 20,66"></path>
+      <path d="M50,45 C50,45 68,58 80,66"></path>
+      <path d="M50,65 C50,65 33,78 24,85"></path>
+      <path d="M50,65 C50,65 67,78 76,85"></path>
+      <path d="M50,80 C50,80 36,90 30,95"></path>
+      <path d="M50,80 C50,80 64,90 70,95"></path>
+    </svg>
+  </div>
+
+  <section class="garden-page">
+    <div class="wrap">
+      <header class="page-head reveal">
+        <div class="head-left-col">
+          <span class="eyebrow">Digital Garden & Wiki</span>
+          <h1>花园<span class="zh">落叶与档案</span></h1>
+          <div class="graph-action">
+            <a
+              href={resolveSubdomain('https://graph.newmaybe.com')}
+              target="_blank"
+              class="graph-text-link"
+            >
+              探索「思考的经纬」互动图谱 <span class="arrow">↗</span>
+            </a>
+          </div>
+        </div>
+        <div class="head-right-col">
+          <p class="intro">
+            这里是思维的演化温室。包含零碎演化的<strong>思维笔记</strong>，以及版本化沉淀的<strong
+              >概念记忆</strong
+            >。
+          </p>
+        </div>
+      </header>
+
+      <!-- 选项卡切换器 -->
+      <div class="tab-controls reveal">
+        <button class="tab-btn active" data-tab="notes">
+          <span class="btn-label-zh">笔记落叶集</span>
+          <span class="btn-label-en">Seedlings</span>
+        </button>
+        <button class="tab-btn" data-tab="memories">
+          <span class="btn-label-zh">记忆档案库</span>
+          <span class="btn-label-en">Archive</span>
+        </button>
+      </div>
+
+      <!-- 选项卡内容：笔记落叶集 -->
+      <div id="tab-notes" class="tab-content active reveal">
+        <div class="notes-container">
+          {
+            Object.entries(stages).map(
+              ([key, group]) =>
+                group.notes.length > 0 && (
+                  <div class="stage-section">
+                    <header class="stage-head">
+                      <span class="stage-index">{phaseMap[key as keyof typeof phaseMap]}</span>
+                      <h2>{group.label}</h2>
+                      <p class="stage-desc">{group.desc}</p>
+                    </header>
+                    <div class="notes-grid">
+                      {group.notes.map((note) => (
+                        <a href={`/notes/${note.id}`} class={`note-card note-card-${key}`}>
+                          <span class="card-date">{fmtDate(note.data.pubDate)}</span>
+                          <h3 class="card-title">{note.data.title}</h3>
+                          {note.data.tags && note.data.tags.length > 0 && (
+                            <div class="card-tags">
+                              {note.data.tags.map((tag) => (
+                                <span class="tag">#{tag}</span>
+                              ))}
+                            </div>
+                          )}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                ),
+            )
+          }
+        </div>
+      </div>
+
+      <!-- 选项卡内容：记忆档案库 -->
+      <div id="tab-memories" class="tab-content reveal">
+        <div class="categories-container">
+          {
+            Object.entries(categories).map(([cat, items]) => (
+              <div class="cat-section">
+                <span class="cat-meta">CLASSIFICATION //</span>
+                <h2 class="cat-title">{cat}</h2>
+                <div class="memory-list">
+                  {items.map((item) => (
+                    <a href={`/memory/${item.id}`} class="memory-item">
+                      <div class="item-main">
+                        <span class="item-title">{item.data.title}</span>
+                        <span class="item-version">v{item.data.version}</span>
+                      </div>
+                      <span class="arrow">→</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  function setupTabs() {
+    const buttons = document.querySelectorAll('.tab-btn');
+    const contents = document.querySelectorAll('.tab-content');
+
+    function activateTab(tabId: string) {
+      buttons.forEach((b) => b.classList.remove('active'));
+      contents.forEach((c) => c.classList.remove('active'));
+
+      const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+      const content = document.getElementById(`tab-${tabId}`);
+      if (btn) btn.classList.add('active');
+      if (content) {
+        content.classList.add('active');
+        content.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
+      }
+    }
+
+    // 从 URL 参数恢复选中 tab
+    const params = new URLSearchParams(window.location.search);
+    const initialTab = params.get('tab') || 'notes';
+    activateTab(initialTab);
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.getAttribute('data-tab');
+        if (!tabId) return;
+        activateTab(tabId);
+        // 更新 URL，不刷新页面，支持分享直链
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tabId);
+        history.replaceState(null, '', url.toString());
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', setupTabs);
+</script>
+
+<style>
+  .garden-page {
+    padding: 5rem 0 7rem;
+  }
+
+  .page-head {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 4rem;
+    align-items: flex-end;
+    max-width: var(--max);
+    margin: 0 auto 5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 3.5rem;
+  }
+  .head-left-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .head-right-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .page-head h1 {
+    font-weight: 500;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    line-height: 1.15;
+    color: var(--ink);
+    margin: 0.8rem 0 0 0;
+  }
+  .page-head .intro {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    font-weight: 300;
+    margin: 0;
+  }
+
+  .graph-action {
+    margin-top: 1.2rem;
+  }
+  .graph-text-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--serif-cn), serif;
+    font-size: 0.95rem;
+    color: var(--ochre);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--ochre);
+    padding-bottom: 2px;
+    transition:
+      color 0.3s,
+      border-color 0.3s;
+  }
+  .graph-text-link:hover {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+  .graph-text-link .arrow {
+    font-family: var(--serif-en), serif;
+    transition: transform 0.3s;
+  }
+  .graph-text-link:hover .arrow {
+    transform: translate(2px, -2px);
+  }
+
+  /* Tab 切换控制 */
+  .tab-controls {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 2.2rem;
+    margin: 3.5rem 0 2.2rem;
+    border-bottom: 1px solid var(--line);
+    width: 100%;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    padding: 0.6rem 0;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    transition: all 0.3s ease;
+    color: var(--ink-soft);
+    margin-bottom: -1px;
+  }
+  .tab-btn .btn-label-zh {
+    font-family: var(--serif-cn), serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: inherit;
+    transition: color 0.3s;
+  }
+  .tab-btn .btn-label-en {
+    font-family: var(--serif-en), serif;
+    font-style: italic;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    transition: color 0.3s ease;
+  }
+  .tab-btn:hover {
+    color: var(--ochre);
+    border-bottom-color: color-mix(in srgb, var(--ochre) 40%, transparent);
+  }
+  .tab-btn.active {
+    color: var(--ink);
+    border-bottom-color: var(--ochre);
+  }
+  .tab-btn.active .btn-label-zh {
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .tab-btn.active .btn-label-en {
+    color: var(--ochre);
+  }
+
+  /* Tab 内容区 */
+  .tab-content {
+    display: none;
+  }
+  .tab-content.active {
+    display: block;
+    animation: tabFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes tabFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ── 笔记落叶集样式 ── */
+  .notes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4.5rem;
+    margin-top: 3rem;
+  }
+  .stage-section {
+    border-top: 1px solid var(--line);
+    padding-top: 2rem;
+  }
+  .stage-head {
+    margin-bottom: 2.2rem;
+    max-width: 70ch;
+  }
+  .stage-index {
+    font-family: var(--serif-en), serif;
+    font-size: 0.76rem;
+    font-style: italic;
+    color: var(--ochre);
+    letter-spacing: 0.12em;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .stage-head h2 {
+    font-family: var(--serif-cn), serif;
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+  .stage-desc {
+    font-size: 0.92rem;
+    color: var(--ink-faint);
+    line-height: 1.6;
+  }
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1.8rem;
+  }
+  /* 水印 */
+  .leaf-watermark {
+    position: fixed;
+    left: -5%;
+    bottom: -5%;
+    width: min(80vw, 450px);
+    height: min(80vw, 450px);
+    color: var(--ink);
+    --wm-max-op: 0.055;
+    --wm-min-op: 0.035;
+    opacity: var(--wm-max-op);
+    pointer-events: none;
+    z-index: 0;
+    transform: rotate(30deg);
+    user-select: none;
+    animation: pulseWatermark 10s ease-in-out infinite;
+  }
+
+  @keyframes pulseWatermark {
+    0%,
+    100% {
+      opacity: var(--wm-max-op);
+    }
+    50% {
+      opacity: var(--wm-min-op);
+    }
+  }
+
+  :root.dark .leaf-watermark {
+    --wm-max-op: 0.025;
+    --wm-min-op: 0.015;
+  }
+
+  .note-card {
+    display: block;
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    outline: 1px solid var(--line);
+    outline-offset: -5px;
+    border-radius: 2px;
+    padding: 1.8rem;
+    text-decoration: none;
+    box-shadow: var(--shadow-paper);
+    transition:
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.3s ease,
+      background-color 0.3s ease;
+  }
+
+  /* 萌芽 Seedlings - 左侧虚线 */
+  :global(.note-card-sprout) {
+    border: none;
+    border-left: 2px dashed var(--line);
+    background: transparent;
+    padding: 1.2rem 0 1.2rem 1.4rem;
+    border-radius: 0;
+  }
+  :global(.note-card-sprout):hover {
+    border-left-color: var(--ochre);
+    transform: translateX(4px);
+  }
+
+  /* 成长 Cultivations - 左侧细实线 */
+  :global(.note-card-bud) {
+    border: none;
+    border-left: 2px solid var(--line);
+    background: transparent;
+    padding: 1.2rem 0 1.2rem 1.4rem;
+    border-radius: 0;
+  }
+  :global(.note-card-bud):hover {
+    border-left-color: var(--ochre);
+    transform: translateX(4px);
+  }
+
+  /* 常青 Evergreen - 左侧双倍厚度赭石实线 + 微彩背景 */
+  :global(.note-card-evergreen) {
+    grid-column: span 2;
+    border: none;
+    border-left: 3px solid var(--ochre);
+    background: color-mix(in srgb, var(--ochre) 3%, var(--paper-deep));
+    padding: 1.8rem 1.8rem 1.8rem 2rem;
+    border-radius: 0 4px 4px 0;
+  }
+  :global(.note-card-evergreen) .card-title {
+    font-size: 1.35rem;
+    font-family: var(--serif-cn), serif;
+    font-weight: 500;
+  }
+  :global(.note-card-evergreen):hover {
+    background: color-mix(in srgb, var(--ochre) 6%, var(--paper-deep));
+    transform: translateX(4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.03);
+  }
+  :root.dark :global(.note-card-evergreen):hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+  }
+  .card-date {
+    display: block;
+    font-family: var(--serif-en), serif;
+    font-style: italic;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    margin-bottom: 0.6rem;
+  }
+  .card-title {
+    font-family: var(--serif-cn), serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.45;
+    margin-bottom: 0.8rem;
+    transition: color 0.3s ease;
+  }
+  .note-card:hover .card-title {
+    color: var(--ochre);
+  }
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .tag {
+    font-size: 0.76rem;
+    color: var(--ink-faint);
+    opacity: 0.85;
+  }
+
+  /* ── 记忆档案库样式 ── */
+  .categories-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4.5rem;
+    max-width: 800px;
+    margin: 3rem auto 0;
+  }
+  .cat-section {
+    border-top: 1px solid var(--line);
+    padding-top: 2rem;
+  }
+  .cat-meta {
+    font-family: var(--serif-en), serif;
+    font-size: 0.72rem;
+    font-style: italic;
+    color: var(--ink-faint);
+    letter-spacing: 0.12em;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .cat-title {
+    font-family: var(--serif-cn), serif;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--ochre);
+    margin-bottom: 1.8rem;
+  }
+  .memory-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: transparent;
+    border-radius: 0;
+    border: none;
+  }
+  .memory-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+    transition:
+      border-color 0.3s ease,
+      padding-left 0.3s ease;
+  }
+  .memory-item:last-child {
+    border-bottom: none;
+  }
+  .memory-item:hover {
+    background: transparent;
+    padding-left: 0.8rem;
+    border-bottom-color: var(--ochre);
+  }
+  .item-main {
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem;
+  }
+  .item-title {
+    font-family: var(--serif-cn), serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .item-version {
+    font-family: var(--serif-en), serif;
+    font-size: 0.78rem;
+    color: var(--ochre);
+    font-style: italic;
+    background: color-mix(in srgb, var(--ochre) 8%, transparent);
+    padding: 0.1rem 0.4rem;
+    border-radius: 2px;
+  }
+  .arrow {
+    color: var(--ink-faint);
+    transition:
+      transform 0.3s ease,
+      color 0.3s ease;
+  }
+  .memory-item:hover .arrow {
+    transform: translateX(4px);
+    color: var(--ochre);
+  }
+
+  @media (max-width: 680px) {
+    .garden-page {
+      padding: 3.5rem 0 5rem;
+    }
+    .page-head {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+    }
+    .head-right-col {
+      justify-content: flex-start;
+    }
+    .notes-grid {
+      grid-template-columns: 1fr;
+      gap: 1.2rem;
+    }
+    .note-card {
+      padding: 1.4rem;
+    }
+    :global(.note-card-evergreen) {
+      grid-column: span 1;
+    }
+    .notes-container,
+    .categories-container {
+      gap: 3rem;
+    }
+    .memory-item {
+      padding: 1rem 1.2rem;
+    }
+    .tab-controls {
+      justify-content: center;
+      gap: 0.6rem;
+      margin-top: 2rem;
+    }
+  }
+</style>

@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import PostList from '../components/PostList.astro';
+import HomeFragment from '../components/HomeFragment.astro';
+import HomeExcerpt from '../components/HomeExcerpt.astro';
+import QuoteBand from '../components/QuoteBand.astro';
+import { sortPostsForDisplay } from '../lib/posts';
+
+// 取所有非草稿文章，按编辑权重排序，首页只展示前 3 篇
+const posts = sortPostsForDisplay(await getCollection('posts', ({ data }) => !data.draft)).slice(
+  0,
+  3,
+);
+
+// 取最新一条念头
+const latestFragment = (await getCollection('fragments', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+)[0];
+
+// 取最新一条拾遗
+const latestExcerpt = (await getCollection('excerpts', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+)[0];
+---
+
+<Base>
+  <Hero />
+  <div class="rule"></div>
+  <PostList posts={posts} />
+  {latestFragment && <HomeFragment fragment={latestFragment} />}
+  {latestExcerpt && <HomeExcerpt excerpt={latestExcerpt} />}
+  <QuoteBand />
+</Base>

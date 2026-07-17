@@ -1,0 +1,298 @@
+---
+const isDev = import.meta.env.DEV;
+const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <title>网页物理交互与感官艺术博物馆 · newmaybe 实验层</title>
+    <meta
+      name="description"
+      content="newmaybe 实验层 - 网页物理交互与感官艺术博物馆。集合了禅意写作、诗词粒子画布、视听冥想空间及水墨流体模拟的交互物理实验项目。"
+    />
+    <link rel="canonical" href="https://lab.newmaybe.com/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="网页物理交互与感官艺术博物馆 · newmaybe 实验层" />
+    <meta
+      property="og:description"
+      content="newmaybe 实验层 - 网页物理交互与感官艺术博物馆。集合了禅意写作、诗词粒子画布、视听冥想空间及水墨流体模拟的交互物理实验项目。"
+    />
+    <meta property="og:url" content="https://lab.newmaybe.com/" />
+    <meta property="og:image" content="https://newmaybe.com/og-default.png" />
+    <meta property="og:site_name" content="newmaybe" />
+    <meta property="og:locale" content="zh_CN" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="网页物理交互与感官艺术博物馆 · newmaybe 实验层" />
+    <meta
+      name="twitter:description"
+      content="newmaybe 实验层 - 网页物理交互与感官艺术博物馆。集合了禅意写作、诗词粒子画布、视听冥想空间及水墨流体模拟的交互物理实验项目。"
+    />
+    <meta name="twitter:image" content="https://newmaybe.com/og-default.png" />
+
+    <script is:inline>
+      (function () {
+        const match = document.cookie.match(/theme=(dark|light)/);
+        const theme =
+          (match && match[1]) ||
+          localStorage.getItem('theme') ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.classList.add(theme);
+      })();
+    </script>
+    <style>
+      @import '@fontsource/cormorant-garamond/latin-400.css';
+      @import '@fontsource/cormorant-garamond/latin-400-italic.css';
+      @import '@fontsource/cormorant-garamond/latin-600.css';
+      @import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
+      @import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
+      @import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
+      @import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
+
+      @import '@newmaybe/shared-styles/tokens.css';
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: var(--paper);
+        color: var(--ink);
+        font-family: var(--serif-cn), serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 4rem 2rem;
+        background-image:
+          radial-gradient(circle at 10% 20%, rgba(168, 100, 60, 0.02) 0%, transparent 45%),
+          radial-gradient(circle at 90% 80%, rgba(43, 39, 34, 0.015) 0%, transparent 45%);
+      }
+
+      .container {
+        width: 100%;
+        max-width: 960px;
+        display: flex;
+        flex-direction: column;
+        gap: 3.5rem;
+      }
+
+      /* 头部 */
+      header {
+        text-align: center;
+      }
+      .back-btn {
+        font-size: 0.85rem;
+        color: var(--ink-faint);
+        text-decoration: none;
+        transition: color 0.3s;
+        margin-bottom: 1.2rem;
+        display: inline-block;
+      }
+      .back-btn:hover {
+        color: var(--ochre);
+      }
+      h1 {
+        font-size: clamp(2rem, 5vw, 2.8rem);
+        font-weight: 500;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        letter-spacing: 0.05em;
+      }
+      .intro {
+        font-size: 1rem;
+        color: var(--ink-soft);
+        line-height: 1.8;
+        max-width: 68ch;
+        margin: 0 auto;
+        font-weight: 300;
+      }
+
+      /* 实验网格 */
+      .lab-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 2rem;
+      }
+
+      /* 卡片设计 */
+      .lab-card {
+        background: var(--paper-deep);
+        border: 1px solid var(--line);
+        outline: 1px solid var(--line);
+        outline-offset: -6px;
+        border-radius: 2px;
+        padding: 2.2rem;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 260px;
+        box-shadow: var(--shadow-paper);
+        transition:
+          transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+          box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+          border-color 0.3s ease,
+          outline-color 0.3s ease;
+      }
+
+      .lab-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-paper-hover);
+        border-color: color-mix(in srgb, var(--ochre) 35%, var(--line));
+        outline-color: color-mix(in srgb, var(--ochre) 20%, var(--line));
+      }
+      :root.dark .lab-card:hover {
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .card-meta {
+        font-family: var(--serif-en), serif;
+        font-size: 0.8rem;
+        font-style: italic;
+        color: var(--ochre);
+        margin-bottom: 1rem;
+        display: block;
+        letter-spacing: 0.05em;
+      }
+
+      .card-title {
+        font-size: 1.4rem;
+        font-weight: 500;
+        color: var(--ink);
+        margin-bottom: 0.8rem;
+        transition: color 0.3s;
+      }
+      .lab-card:hover .card-title {
+        color: var(--ochre);
+      }
+
+      .card-desc {
+        font-size: 0.88rem;
+        line-height: 1.7;
+        color: var(--ink-soft);
+        font-weight: 300;
+        margin-bottom: 1.5rem;
+      }
+
+      .card-foot {
+        font-size: 0.82rem;
+        color: var(--ink-faint);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px dashed var(--line);
+        padding-top: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        .lab-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 680px) {
+        body {
+          padding: 3rem 1rem;
+        }
+        .container {
+          gap: 2.5rem;
+        }
+        .lab-card {
+          padding: 1.6rem;
+          min-height: 220px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <a href={mainSiteUrl} class="back-btn">← 返回主展厅 newmaybe.com</a>
+        <h1>物理交互与感官艺术博物馆</h1>
+        <p class="intro">
+          这里是 newmaybe
+          探索网页作为艺术材质的试验场。在这里，网页不只是死板的信息容器，而可以被感知、抚摸、倾听与冥想。在这里找到最解压而优雅的心流瞬间。
+        </p>
+      </header>
+
+      <div class="lab-grid">
+        <!-- 实验一 -->
+        <a href="/zen-writer" class="lab-card">
+          <div>
+            <span class="card-meta">Exhibit #01 · 沉浸心智</span>
+            <h2 class="card-title">禅意写作空间</h2>
+            <p class="card-desc">
+              纯净至极的全屏输入白板。内置雨声与风声白噪音，键盘输入时周围控制条自动淡出，让您进入绝对心流的文字创作状态，并支持一键跨域导出。
+            </p>
+          </div>
+          <div class="card-foot">
+            <span>HTML5 Audio + 沉浸式动效</span>
+            <span>开启实验 →</span>
+          </div>
+        </a>
+
+        <!-- 实验二 -->
+        <a href="/floating-verse" class="lab-card">
+          <div>
+            <span class="card-meta">Exhibit #02 · 物理交互</span>
+            <h2 class="card-title">随风诗词画布</h2>
+            <p class="card-desc">
+              将诗词文字打碎为在夜空中静静漂浮的粒子，鼠标滑过产生平滑物理排斥波动，移开后徐徐聚合重组，隐喻脑海中半成形的灵感流淌。
+            </p>
+          </div>
+          <div class="card-foot">
+            <span>HTML5 Canvas + 粒子物理引擎</span>
+            <span>开启实验 →</span>
+          </div>
+        </a>
+
+        <!-- 实验三 -->
+        <a href="/audio-zen" class="lab-card">
+          <div>
+            <span class="card-meta">Exhibit #03 · 视听冥想</span>
+            <h2 class="card-title">视听冥想空间</h2>
+            <p class="card-desc">
+              通过磬（Singing Bowl）声释放压力。点击屏幕敲击磬圈，发出空灵正弦泛音，Canvas
+              实时涟漪扩散，可伴随大自然风雨的呼唤进行呼吸冥想。
+            </p>
+          </div>
+          <div class="card-foot">
+            <span>Web Audio API + 交互波纹</span>
+            <span>开启实验 →</span>
+          </div>
+        </a>
+
+        <!-- 实验四 -->
+        <a href="/ink-flow" class="lab-card">
+          <div>
+            <span class="card-meta">Exhibit #04 · 网页材质</span>
+            <h2 class="card-title">水墨生成流体</h2>
+            <p class="card-desc">
+              将纸墨香气融入网页流体物理。鼠标拖动会渲染如水墨落于宣纸般的飘散烟雾粒子轨迹，提供墨汁厚度、色调控制与一键清空重绘。
+            </p>
+          </div>
+          <div class="card-foot">
+            <span>Generative Flow + 流体渲染</span>
+            <span>开启实验 →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

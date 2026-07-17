@@ -1,0 +1,435 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { render } from 'astro:content';
+
+const excerpts = (await getCollection('excerpts', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const fmtMonthDay = (d: Date) => d.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' });
+
+const fmtYear = (d: Date) => `${d.getFullYear()} 年`;
+
+// 提取所有不重复的标签
+const allTags = Array.from(new Set(excerpts.flatMap((excerpt) => excerpt.data.tags || []))).sort();
+---
+
+<Base title="拾遗" description="经典语句与片段摘录，沉淀阅读中的灵感与智慧。">
+  <section class="excerpts-page">
+    <div class="wrap">
+      <header class="page-head reveal">
+        <span class="eyebrow">Excerpts</span>
+        <h1>拾遗<span class="zh">浮光掠影</span></h1>
+        <p class="intro">阅读时掠过心头、让人驻足的句子，或是闪烁着智慧的他人片段。</p>
+      </header>
+
+      {
+        allTags.length > 0 && (
+          <div class="tag-filters reveal">
+            <button class="tag-btn active" data-tag="all">
+              全部
+            </button>
+            {allTags.map((tag) => (
+              <button class="tag-btn" data-tag={tag}>
+                #{tag}
+              </button>
+            ))}
+          </div>
+        )
+      }
+
+      <div class="timeline-container">
+        <div class="timeline-line"></div>
+        {
+          excerpts.map(async (excerpt, i) => {
+            const { Content } = await render(excerpt);
+            const tagsStr = (excerpt.data.tags || []).join(',');
+
+            return (
+              <article
+                id={excerpt.id}
+                class="excerpt-item reveal"
+                data-tags={tagsStr}
+                style={`animation-delay: ${i * 0.05}s;`}
+              >
+                {/* 1. 左侧：旁批随感（右对齐） */}
+                <div class="excerpt-left">
+                  {excerpt.data.comment && (
+                    <div class="marginalia-comment">
+                      <p class="comment-text">{excerpt.data.comment}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. 中间时间轴圆点 */}
+                <div class="timeline-dot-wrapper">
+                  <div class="timeline-dot" />
+                </div>
+
+                {/* 3. 右侧：日期与摘录正文（左对齐） */}
+                <div class="excerpt-right">
+                  <header class="excerpt-header">
+                    <span class="date">{fmtMonthDay(excerpt.data.pubDate)}</span>
+                    <span class="year">({fmtYear(excerpt.data.pubDate)})</span>
+                    <span class="divider">——</span>
+                    <span class="author">{excerpt.data.author}</span>
+                    {excerpt.data.source && (
+                      <span class="source">《{excerpt.data.source.replace(/[《》]/g, '')}》</span>
+                    )}
+                  </header>
+
+                  <div class="excerpt-main">
+                    <div class="quote-watermark">“</div>
+                    <div class="excerpt-body">
+                      <Content />
+                    </div>
+                  </div>
+                </div>
+              </article>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  function setupTagFilters() {
+    const buttons = document.querySelectorAll('.tag-filters .tag-btn');
+    const cards = document.querySelectorAll('.excerpt-item') as NodeListOf<HTMLElement>;
+
+    if (buttons.length === 0 || cards.length === 0) return;
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        // 切换激活状态
+        buttons.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const selectedTag = btn.getAttribute('data-tag');
+
+        cards.forEach((card) => {
+          const tagsAttr = card.getAttribute('data-tags') || '';
+          const tagsList = tagsAttr.split(',').map((t) => t.trim());
+
+          if (selectedTag === 'all' || tagsList.includes(selectedTag)) {
+            // 显现：先移出 display: none，再移出淡出动画类
+            card.classList.remove('hidden');
+            setTimeout(() => {
+              card.classList.remove('fade-out');
+            }, 10);
+          } else {
+            // 隐去：先施加淡出动画类，等待动画结束后移入 display: none
+            card.classList.add('fade-out');
+            setTimeout(() => {
+              if (card.classList.contains('fade-out')) {
+                card.classList.add('hidden');
+              }
+            }, 300); // 对应 transition 的 0.3s
+          }
+        });
+      });
+    });
+  }
+
+  // 绑定 Astro View Transitions 事件
+  document.addEventListener('astro:page-load', setupTagFilters);
+</script>
+
+<style>
+  .excerpts-page {
+    padding: 5rem 0 7rem;
+  }
+
+  .page-head {
+    max-width: 60ch;
+    margin: 0 auto 4rem;
+    text-align: center;
+  }
+  .page-head h1 {
+    font-weight: 500;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 1.8rem;
+  }
+  .page-head .intro {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+
+  /* 药丸式分类标签 */
+  .tag-filters {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin: 0 auto 4.5rem;
+    max-width: 800px;
+  }
+  .tag-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 0.4rem 1.1rem;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-family: var(--serif-cn), serif;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .tag-btn:hover {
+    border-color: var(--ochre);
+    color: var(--ochre);
+    transform: translateY(-1px);
+  }
+  .tag-btn.active {
+    background: var(--ochre);
+    border-color: var(--ochre);
+    color: var(--paper);
+  }
+
+  /* 时光中轴排版容器 */
+  .timeline-container {
+    position: relative;
+    max-width: 1080px;
+    margin: 3rem auto 0;
+    padding-left: 0;
+  }
+
+  /* 纵向时间轴线 */
+  .timeline-line {
+    position: absolute;
+    top: 0.8rem;
+    bottom: 2rem;
+    left: 224px; /* 200px (左栏宽度) + 24px (48px 中栏的中心) */
+    width: 1px;
+    background: var(--line);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  /* 每一行摘录对称栅格 */
+  .excerpt-item {
+    display: grid;
+    grid-template-columns: 200px 48px 1fr;
+    gap: 0;
+    margin-bottom: 5.5rem;
+    position: relative;
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 1;
+  }
+
+  .excerpt-item:target .excerpt-main {
+    animation: targetHighlight 2.5s ease-out forwards;
+  }
+
+  @keyframes targetHighlight {
+    0% {
+      background-color: color-mix(in srgb, var(--ochre) 6%, transparent);
+      padding: 0.8rem 1rem;
+      margin: -0.8rem -1rem;
+      border-radius: 4px;
+    }
+    100% {
+      background-color: transparent;
+      padding: 0;
+      margin: 0;
+    }
+  }
+
+  /* 筛选动画状态 */
+  .excerpt-item.fade-out {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  .excerpt-item.hidden {
+    display: none !important;
+  }
+
+  /* 1. 左栏 (旁批随感) */
+  .excerpt-left {
+    text-align: right;
+    padding-right: 2rem;
+    padding-top: 0.2rem;
+  }
+
+  .comment-text {
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin: 0;
+    text-align: right;
+  }
+
+  /* 2. 中栏 (时间轴圆点) */
+  .timeline-dot-wrapper {
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    top: 0.6rem;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 2px solid var(--line);
+    z-index: 2;
+    transition:
+      background-color 0.4s ease,
+      border-color 0.4s ease,
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .excerpt-item:hover .timeline-dot {
+    background-color: var(--paper);
+    border-color: var(--ochre);
+    transform: scale(1.35);
+  }
+
+  /* 3. 右栏 (标头与正文) */
+  .excerpt-right {
+    padding-left: 1.5rem;
+  }
+
+  .excerpt-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-family: var(--serif-cn), serif;
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    margin-bottom: 0.8rem;
+  }
+
+  .excerpt-header .date {
+    font-weight: 500;
+  }
+
+  .excerpt-header .year {
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    font-family: var(--serif-en), serif;
+    font-style: italic;
+  }
+
+  .excerpt-header .divider {
+    color: var(--line);
+    margin: 0 0.1rem;
+    user-select: none;
+  }
+
+  .excerpt-header .author {
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .excerpt-header .source {
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .excerpt-main {
+    position: relative;
+    padding-top: 0.1rem;
+  }
+
+  .quote-watermark {
+    position: absolute;
+    top: -2.2rem;
+    left: -1.8rem;
+    font-family: var(--serif-en), serif;
+    font-size: 6.5rem;
+    color: var(--ochre);
+    opacity: 0.07;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .excerpt-body :global(p) {
+    font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', var(--serif-cn), serif;
+    font-size: 1.32rem;
+    line-height: 1.95;
+    color: var(--ink);
+    text-align: justify;
+    text-justify: inter-character;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .excerpt-body :global(p + p) {
+    margin-top: 1rem;
+  }
+
+  /* 响应式媒体查询 */
+  @media (max-width: 900px) {
+    .timeline-line {
+      left: 24px; /* 48px中栏的中心 */
+    }
+    .excerpt-item {
+      grid-template-columns: 48px 1fr;
+      gap: 0;
+      margin-bottom: 4.5rem;
+    }
+    .excerpt-left {
+      grid-column: 2; /* 随感在平板尺寸折叠到右侧正文下方 */
+      text-align: left;
+      padding-right: 0;
+      margin-top: 1.2rem;
+    }
+    .comment-text {
+      text-align: left;
+    }
+    .marginalia-comment {
+      border-top: 1px dashed var(--line);
+      padding-top: 0.8rem;
+      width: 100%;
+    }
+    .excerpt-right {
+      padding-left: 1rem;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .timeline-line {
+      display: none;
+    }
+    .excerpt-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-bottom: 3.5rem;
+    }
+    .timeline-dot-wrapper {
+      display: none;
+    }
+    .excerpt-left {
+      order: 3; /* 手机端随感放置在最下方 */
+      margin-top: 0.4rem;
+      padding-right: 0;
+    }
+    .excerpt-right {
+      padding-left: 0;
+    }
+    .excerpt-header {
+      font-size: 0.98rem;
+      margin-bottom: 0.6rem;
+    }
+    .excerpt-body :global(p) {
+      font-size: 1.15rem;
+      line-height: 1.8;
+    }
+  }
+</style>

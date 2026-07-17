@@ -1,0 +1,159 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
+
+interface Props {
+  fragment: CollectionEntry<'fragments'>;
+}
+
+const { fragment } = Astro.props;
+const { Content } = await render(fragment);
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<section class="section-frag reveal" id="latest-fragment">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Fragment<span class="cn">最新念头</span></h2>
+      <a href="/fragments" class="more">全部念头 →</a>
+    </div>
+
+    <div class="frag-card-home">
+      <div class="frag-header">
+        <time class="frag-date">{fmtDate(fragment.data.pubDate)}</time>
+        {
+          (fragment.data.mood || fragment.data.location) && (
+            <div class="frag-meta">
+              {fragment.data.location && <span class="meta-loc">📍 {fragment.data.location}</span>}
+              {fragment.data.mood && <span class="meta-mood">{fragment.data.mood}</span>}
+            </div>
+          )
+        }
+      </div>
+      <div class="frag-body">
+        <Content />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .section-frag {
+    padding: 4.5rem 0;
+    border-top: 1px solid var(--line);
+    margin: 0 2rem;
+  }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 3.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .section-head h2 {
+    font-family: var(--serif-en);
+    font-weight: 600;
+    font-size: 2.2rem;
+    letter-spacing: 0.01em;
+  }
+  .section-head h2 .cn {
+    font-family: var(--serif-cn);
+    font-size: 1.4rem;
+    color: var(--ink-faint);
+    font-weight: 400;
+    margin-left: 0.8rem;
+  }
+  .section-head .more {
+    font-size: 0.9rem;
+    color: var(--ochre);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s;
+  }
+  .section-head .more:hover {
+    border-color: var(--ochre);
+  }
+
+  .frag-card-home {
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    outline: 1px solid var(--line);
+    outline-offset: -6px;
+    border-radius: 2px;
+    padding: 2.2rem;
+    max-width: 740px;
+    margin: 0 auto;
+    box-shadow: var(--shadow-paper);
+    transition:
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.3s ease,
+      outline-color 0.3s ease;
+  }
+  .frag-card-home:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-paper-hover);
+    border-color: color-mix(in srgb, var(--ochre) 35%, var(--line));
+    outline-color: color-mix(in srgb, var(--ochre) 20%, var(--line));
+  }
+  :root.dark .frag-card-home:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .frag-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.8rem;
+    margin-bottom: 1.2rem;
+  }
+  .frag-date {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--ink-faint);
+  }
+  .frag-meta {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+  }
+  .meta-loc,
+  .meta-mood {
+    font-family: var(--serif-cn);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+  }
+  .frag-body :global(p) {
+    font-size: 1.1rem;
+    line-height: 1.95;
+    color: var(--ink-soft);
+    font-weight: 300;
+    margin: 0;
+  }
+  .frag-body :global(p + p) {
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 680px) {
+    .section-frag {
+      margin: 0 1rem;
+      padding: 4rem 0;
+    }
+    .frag-card-home {
+      padding: 1.5rem;
+    }
+    .frag-header {
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .frag-meta {
+      gap: 0.6rem;
+    }
+  }
+</style>

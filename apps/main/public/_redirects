@@ -1,0 +1,3 @@
+# Cloudflare Pages 路由配置
+# 静态站点通常不需要额外规则，这里留一个 SPA 之外的兜底示例（已注释）。
+# /old-path  /new-path  301

@@ -1,0 +1,12 @@
+dist/
+.astro/
+node_modules/
+.git/
+.claude/
+.wrangler/
+.husky/
+pnpm-lock.yaml
+package-lock.json
+CLAUDE.md
+AGENTS.md
+apps/main/src/pages/writing/\[slug\].astro

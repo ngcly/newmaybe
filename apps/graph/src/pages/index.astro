@@ -1,0 +1,1734 @@
+---
+const isDev = import.meta.env.DEV;
+const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <title>思考的经纬 · newmaybe 知识网络</title>
+    <meta
+      name="description"
+      content="思考的经纬 - newmaybe 知识网络。一个可视化展示概念笔记、文章连接和念头关联的数字化双向链接知识图谱。"
+    />
+    <link rel="canonical" href="https://graph.newmaybe.com/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="思考的经纬 · newmaybe 知识网络" />
+    <meta
+      property="og:description"
+      content="思考的经纬 - newmaybe 知识网络。一个可视化展示概念笔记、文章连接和念头关联的数字化双向链接知识图谱。"
+    />
+    <meta property="og:url" content="https://graph.newmaybe.com/" />
+    <meta property="og:image" content="https://newmaybe.com/og-default.png" />
+    <meta property="og:site_name" content="newmaybe" />
+    <meta property="og:locale" content="zh_CN" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="思考的经纬 · newmaybe 知识网络" />
+    <meta
+      name="twitter:description"
+      content="思考的经纬 - newmaybe 知识网络。一个可视化展示概念笔记、文章连接和念头关联的数字化双向链接知识图谱。"
+    />
+    <meta name="twitter:image" content="https://newmaybe.com/og-default.png" />
+
+    <script is:inline>
+      (function () {
+        const match = document.cookie.match(/theme=(dark|light)/);
+        const theme =
+          (match && match[1]) ||
+          localStorage.getItem('theme') ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.classList.add(theme);
+      })();
+    </script>
+    <style>
+      @import '@fontsource/cormorant-garamond/latin-400.css';
+      @import '@fontsource/cormorant-garamond/latin-400-italic.css';
+      @import '@fontsource/cormorant-garamond/latin-600.css';
+      @import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
+      @import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
+      @import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
+      @import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
+
+      /* 极致美学的纸底墨色，继承主站设计系统 */
+      @import '@newmaybe/shared-styles/tokens.css';
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: var(--paper);
+        color: var(--ink);
+        font-family: var(--serif-cn);
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        background-image:
+          radial-gradient(circle at 20% 30%, rgba(168, 100, 60, 0.02) 0%, transparent 45%),
+          radial-gradient(circle at 80% 70%, rgba(43, 39, 34, 0.015) 0%, transparent 45%);
+      }
+
+      /* 顶部叠加控制头 */
+      .graph-header {
+        position: absolute;
+        top: 2rem;
+        left: 2rem;
+        z-index: 10;
+        width: 380px;
+        max-height: calc(100vh - 4rem);
+        overflow-y: auto;
+        scrollbar-width: thin;
+        background: rgba(247, 243, 236, 0.85);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(43, 39, 34, 0.04);
+        transition:
+          background-color 0.5s,
+          border-color 0.5s,
+          box-shadow 0.5s;
+      }
+      :root.dark .graph-header {
+        background: rgba(30, 27, 24, 0.85);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      }
+      .graph-header::-webkit-scrollbar {
+        width: 4px;
+      }
+      .graph-header::-webkit-scrollbar-thumb {
+        background: var(--line);
+        border-radius: 2px;
+      }
+
+      .back-btn {
+        display: inline-block;
+        font-size: 0.85rem;
+        color: var(--ink-faint);
+        text-decoration: none;
+        margin-bottom: 0.8rem;
+        transition: color 0.3s;
+      }
+      .back-btn:hover {
+        color: var(--ochre);
+      }
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 500;
+        margin-bottom: 0.6rem;
+        letter-spacing: 0.05em;
+      }
+      .desc {
+        font-size: 0.82rem;
+        line-height: 1.6;
+        color: var(--ink-soft);
+        margin-bottom: 1.2rem;
+      }
+
+      /* 模式切换按钮 */
+      .mode-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.2rem;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 0.8rem;
+      }
+      .mode-tab-btn {
+        flex: 1;
+        padding: 0.5rem;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        background: transparent;
+        color: var(--ink-soft);
+        font-size: 0.8rem;
+        cursor: pointer;
+        font-family: var(--serif-cn);
+        transition: all 0.3s ease;
+        outline: none;
+      }
+      .mode-tab-btn:hover {
+        border-color: var(--ochre);
+        color: var(--ink);
+      }
+      .mode-tab-btn.active {
+        background: var(--paper-deep);
+        color: var(--ink);
+        border-color: var(--line);
+        font-weight: 500;
+      }
+
+      /* 搜索栏 */
+      .search-container {
+        position: relative;
+        margin-bottom: 1.2rem;
+      }
+      #graph-search {
+        width: 100%;
+        padding: 0.6rem 2.2rem 0.6rem 0.8rem;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        background: var(--paper);
+        color: var(--ink);
+        font-size: 0.85rem;
+        font-family: var(--serif-cn);
+        outline: none;
+        transition: border-color 0.3s;
+      }
+      #graph-search:focus {
+        border-color: var(--ochre);
+      }
+      #search-clear-btn {
+        position: absolute;
+        right: 0.8rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--ink-faint);
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      /* 沙盒控制面板 */
+      #sandbox-controls {
+        display: none;
+        flex-direction: column;
+        gap: 1rem;
+        border-top: 1px dashed var(--line);
+        padding-top: 1rem;
+        margin-bottom: 1rem;
+      }
+      .sandbox-section-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--ochre);
+        font-weight: 600;
+        letter-spacing: 0.05em;
+      }
+      .sandbox-input {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        background: var(--paper);
+        color: var(--ink);
+        font-size: 0.8rem;
+        font-family: var(--serif-cn);
+        outline: none;
+      }
+      .sandbox-input:focus {
+        border-color: var(--ochre);
+      }
+      .sandbox-select {
+        flex: 2;
+        padding: 0.5rem;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        background: var(--paper);
+        color: var(--ink);
+        font-size: 0.8rem;
+        font-family: var(--serif-cn);
+        outline: none;
+      }
+      .sandbox-select:focus {
+        border-color: var(--ochre);
+      }
+      .sandbox-btn {
+        padding: 0.5rem;
+        background: var(--paper-deep);
+        color: var(--ink);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-family: var(--serif-cn);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .sandbox-btn:hover {
+        border-color: var(--ochre);
+        color: var(--ochre);
+      }
+      .sandbox-btn-primary {
+        background: var(--ochre);
+        color: var(--paper);
+        border: none;
+        font-weight: 500;
+      }
+      .sandbox-btn-primary:hover {
+        background: var(--ink);
+        color: var(--paper);
+      }
+
+      /* 连线编辑小面板 */
+      .link-editor-box {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        background: var(--paper);
+        padding: 0.6rem;
+        border-radius: 4px;
+        border: 1px solid var(--line);
+      }
+      .link-editor-title {
+        font-size: 0.72rem;
+        color: var(--ink-soft);
+      }
+      .link-nodes-status {
+        display: flex;
+        gap: 0.4rem;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: var(--ink-soft);
+        margin-top: 0.2rem;
+      }
+      .link-node-label {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        max-width: 140px;
+      }
+      .link-btn-group {
+        display: flex;
+        gap: 0.4rem;
+        margin-top: 0.2rem;
+      }
+      .link-sub-btn {
+        flex: 1;
+        padding: 0.4rem;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        font-size: 0.72rem;
+        cursor: pointer;
+        background: var(--paper-deep);
+        color: var(--ink);
+        font-family: var(--serif-cn);
+        transition: all 0.2s ease;
+      }
+      .link-sub-btn:hover {
+        border-color: var(--ochre);
+      }
+      .link-sub-btn-primary {
+        flex: 1.2;
+        background: var(--ochre);
+        color: var(--paper);
+        border: none;
+        font-weight: 500;
+      }
+      .link-sub-btn-primary:hover {
+        background: var(--ink);
+      }
+
+      /* 物理调优面板 */
+      #physics-panel {
+        border-top: 1px dashed var(--line);
+        padding-top: 0.8rem;
+        margin-bottom: 0.8rem;
+      }
+      #physics-panel summary {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        font-weight: 600;
+        cursor: pointer;
+        outline: none;
+        user-select: none;
+      }
+      .physics-slider-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.6rem;
+        font-size: 0.72rem;
+        color: var(--ink-soft);
+      }
+      .physics-slider {
+        width: 120px;
+        cursor: pointer;
+      }
+
+      /* 导出按钮面板 */
+      .download-panel {
+        display: flex;
+        gap: 0.4rem;
+        border-top: 1px dashed var(--line);
+        padding-top: 0.8rem;
+      }
+      .download-btn {
+        flex: 1;
+        padding: 0.5rem;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        font-size: 0.75rem;
+        color: var(--ink-soft);
+        font-family: var(--serif-cn);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .download-btn:hover {
+        border-color: var(--ochre);
+        color: var(--ochre);
+      }
+
+      /* 屏幕阅读器专用 —— 视觉隐藏但可被读屏访问 */
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      /* 节点列表替代视图 */
+      .node-list-panel {
+        border-top: 1px dashed var(--line);
+        padding-top: 1rem;
+        margin-top: 1rem;
+      }
+      .node-list-panel summary {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+      }
+      .node-list-group {
+        margin-top: 0.6rem;
+      }
+      .node-list-group-label {
+        font-size: 0.7rem;
+        color: var(--ochre);
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+      }
+      .node-list-item {
+        display: block;
+        width: 100%;
+        text-align: left;
+        background: none;
+        border: none;
+        font-family: var(--serif-cn);
+        font-size: 0.78rem;
+        color: var(--ink-soft);
+        padding: 0.25rem 0.4rem;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: all 0.2s ease;
+      }
+      .node-list-item:hover,
+      .node-list-item:focus-visible {
+        background: var(--paper-deep);
+        color: var(--ochre);
+        outline: 1px solid var(--ochre);
+      }
+
+      /* 图例 Legend */
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem 1.2rem;
+        border-top: 1px dashed var(--line);
+        padding-top: 1rem;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+        color: var(--ink-soft);
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      /* 节点颜色对应关系 */
+      .dot-posts {
+        background-color: var(--ink);
+        border: 1px solid var(--line);
+      }
+      .dot-notes {
+        background-color: var(--ochre);
+      }
+      .dot-memories {
+        background-color: var(--ink-soft);
+      }
+      .dot-excerpts {
+        background-color: var(--ink-faint);
+      }
+      .dot-fragments {
+        background-color: var(--line);
+      }
+
+      /* 全屏 SVG 图谱容器 */
+      svg {
+        width: 100%;
+        height: 100%;
+        cursor: grab;
+      }
+      svg:active {
+        cursor: grabbing;
+      }
+
+      /* D3 样式 */
+      .link {
+        stroke: var(--line);
+        stroke-opacity: 0.45;
+        stroke-width: 1px;
+        transition:
+          stroke-opacity 0.3s,
+          stroke-width 0.3s,
+          stroke 0.3s;
+        cursor: pointer;
+      }
+      .link:hover {
+        stroke-opacity: 0.8;
+        stroke-width: 1.5px;
+      }
+      .link.highlighted,
+      .link.active-selected-link {
+        stroke: var(--ochre);
+        stroke-opacity: 0.9;
+        stroke-width: 2px;
+      }
+
+      .node circle {
+        stroke: var(--paper);
+        stroke-width: 2px;
+        cursor: pointer;
+        transition:
+          r 0.3s ease,
+          fill-opacity 0.3s,
+          stroke 0.3s;
+      }
+      .node.dimmed circle,
+      .node.dimmed text {
+        opacity: 0.22;
+      }
+      .node.active circle,
+      .node.active-selected circle {
+        stroke: var(--ochre);
+        stroke-width: 3px;
+      }
+
+      .node text {
+        font-family: var(--serif-cn), serif;
+        font-size: 11px;
+        fill: var(--ink-soft);
+        pointer-events: none;
+        transition:
+          opacity 0.3s,
+          fill 0.3s,
+          font-size 0.3s;
+        opacity: 0.85;
+      }
+      .node:hover text,
+      .node.active text,
+      .node.active-selected text {
+        fill: var(--ink);
+        font-size: 13px;
+        opacity: 1;
+        font-weight: 500;
+      }
+
+      /* 悬停细节卡片 */
+      .detail-card {
+        position: absolute;
+        bottom: 2rem;
+        left: 2rem;
+        right: 2rem;
+        max-width: 500px;
+        margin: 0 auto;
+        background: rgba(247, 243, 236, 0.85);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 1.2rem;
+        box-shadow: 0 12px 36px rgba(43, 39, 34, 0.08);
+        display: none;
+        animation: fadeIn 0.25s ease-out forwards;
+        z-index: 10;
+      }
+      :root.dark .detail-card {
+        background: rgba(30, 27, 24, 0.85);
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .detail-type {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        color: var(--ochre);
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+        letter-spacing: 0.05em;
+      }
+      .detail-title {
+        font-size: 1.05rem;
+        font-weight: 500;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+      }
+      .detail-tip {
+        font-size: 0.76rem;
+        color: var(--ink-faint);
+      }
+
+      /* 详情卡片跨域操作 */
+      .detail-cross-actions {
+        margin-top: 0.8rem;
+        border-top: 1px dashed var(--line);
+        padding-top: 0.8rem;
+        display: flex;
+        gap: 0.4rem;
+      }
+      .cross-action-btn {
+        flex: 1;
+        padding: 0.4rem;
+        background: var(--paper-deep);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        font-size: 0.72rem;
+        color: var(--ink-soft);
+        font-family: var(--serif-cn);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .cross-action-btn:hover {
+        border-color: var(--ochre);
+        color: var(--ochre);
+        transform: scale(1.02);
+      }
+
+      @media (max-width: 680px) {
+        .graph-header {
+          top: 1rem;
+          left: 1rem;
+          right: 1rem;
+          width: auto;
+          max-height: 40vh;
+          padding: 1rem;
+        }
+        .legend {
+          display: none;
+        }
+        .detail-card {
+          bottom: 1rem;
+          left: 1rem;
+          right: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 用于传递环境变量给客户端 D3 脚本 -->
+    <div id="subdomain-config" data-dev={isDev ? 'true' : 'false'} style="display: none;"></div>
+
+    <!-- 控制台面板 -->
+    <header class="graph-header">
+      <a href={mainSiteUrl} class="back-btn">← 返回主站 newmaybe.com</a>
+      <h1>思考的经纬</h1>
+      <p class="desc">
+        这是您的数字花园关联图谱。每一个圆点代表一个想法、一篇文章、一个念头，线段代表它们之间的连接。双击任意节点可跳转阅读。
+      </p>
+
+      <!-- 模式切换 Tabs -->
+      <div class="mode-tabs" role="tablist" aria-label="图谱模式切换">
+        <button
+          class="mode-tab-btn active"
+          id="btn-mode-view"
+          role="tab"
+          aria-selected="true"
+          aria-label="查看网络模式">查看网络</button
+        >
+        <button
+          class="mode-tab-btn"
+          id="btn-mode-sandbox"
+          role="tab"
+          aria-selected="false"
+          aria-label="思维沙盒模式">思维沙盒</button
+        >
+      </div>
+
+      <!-- 搜索功能 -->
+      <div class="search-container">
+        <input
+          type="text"
+          id="graph-search"
+          placeholder="在图谱中查找想法/节点..."
+          aria-label="搜索图谱节点"
+        />
+        <button id="search-clear-btn" style="display:none;" aria-label="清除搜索">✕</button>
+      </div>
+
+      <!-- 沙盒编辑器控制区 -->
+      <div id="sandbox-controls">
+        <div class="sandbox-section-title">添加新想法</div>
+        <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+          <input
+            type="text"
+            id="node-title-input"
+            class="sandbox-input"
+            placeholder="输入节点名称..."
+          />
+          <div style="display: flex; gap: 0.4rem;">
+            <select id="node-group-input" class="sandbox-select">
+              <option value="notes">笔记 (Note)</option>
+              <option value="posts">文章 (Writing)</option>
+              <option value="memories">记忆 (Memory)</option>
+              <option value="excerpts">拾遗 (Excerpt)</option>
+              <option value="fragments">念头 (Fragment)</option>
+            </select>
+            <button id="btn-add-node" class="sandbox-btn sandbox-btn-primary">添加节点</button>
+          </div>
+        </div>
+
+        <div class="sandbox-section-title">连接想法节点</div>
+        <div class="link-editor-box">
+          <div class="link-editor-title">单击选中图谱节点并设置为端点：</div>
+          <div class="link-nodes-status">
+            <span id="link-source-label" class="link-node-label">起点: 未选择</span>
+            <span id="link-target-label" class="link-node-label">终点: 未选择</span>
+          </div>
+          <div class="link-btn-group">
+            <button id="btn-set-source" class="link-sub-btn">设为起点</button>
+            <button id="btn-set-target" class="link-sub-btn">设为终点</button>
+            <button id="btn-create-link" class="link-sub-btn link-sub-btn-primary">建立连线</button>
+          </div>
+        </div>
+
+        <div class="sandbox-section-title">画布操作</div>
+        <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+          <div style="display: flex; gap: 0.4rem;">
+            <button id="btn-load-garden" class="sandbox-btn" style="flex:1;">加载花园模板</button>
+            <button id="btn-clear-all" class="sandbox-btn" style="flex:1; color:var(--ochre);"
+              >清空画布</button
+            >
+          </div>
+          <div style="display: flex; gap: 0.4rem;">
+            <button id="btn-export-json" class="sandbox-btn" style="flex:1;">导出 JSON 配置</button>
+            <label
+              for="import-json-file"
+              class="sandbox-btn"
+              style="flex:1; text-align:center; display:flex; align-items:center; justify-content:center; margin:0;"
+              >导入 JSON 配置</label
+            >
+            <input type="file" id="import-json-file" accept=".json" style="display: none;" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 物理学模拟调节面板 -->
+      <details id="physics-panel">
+        <summary>物理力调优</summary>
+        <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.6rem;">
+          <div class="physics-slider-row">
+            <label for="slider-link-dist">连线长度: <span id="val-link-dist">120</span>px</label>
+            <input
+              type="range"
+              id="slider-link-dist"
+              class="physics-slider"
+              min="40"
+              max="300"
+              value="120"
+            />
+          </div>
+          <div class="physics-slider-row">
+            <label for="slider-charge">排斥强度: <span id="val-charge">240</span></label>
+            <input
+              type="range"
+              id="slider-charge"
+              class="physics-slider"
+              min="50"
+              max="800"
+              value="240"
+            />
+          </div>
+          <div class="physics-slider-row">
+            <label for="slider-collision">碰撞间距: <span id="val-collision">25</span>px</label>
+            <input
+              type="range"
+              id="slider-collision"
+              class="physics-slider"
+              min="5"
+              max="60"
+              value="25"
+            />
+          </div>
+        </div>
+      </details>
+
+      <!-- 下载面板 -->
+      <div class="download-panel">
+        <button id="btn-download-svg" class="download-btn" aria-label="下载 SVG 矢量图"
+          >下载 SVG 矢量图</button
+        >
+        <button id="btn-download-png" class="download-btn" aria-label="下载 PNG 高清图"
+          >下载 PNG 高清图</button
+        >
+      </div>
+
+      <!-- 原始图例 -->
+      <div
+        class="legend"
+        style="margin-top: 1rem; border-top: 1px dashed var(--line); padding-top: 1rem;"
+      >
+        <div class="legend-item"><span class="dot dot-posts"></span>文章 (Writing)</div>
+        <div class="legend-item"><span class="dot dot-notes"></span>笔记 (Note)</div>
+        <div class="legend-item"><span class="dot dot-memories"></span>记忆 (Memory)</div>
+        <div class="legend-item"><span class="dot dot-excerpts"></span>拾遗 (Excerpt)</div>
+        <div class="legend-item"><span class="dot dot-fragments"></span>念头 (Fragment)</div>
+      </div>
+
+      <!-- 节点列表替代视图（无障碍） -->
+      <details class="node-list-panel" id="node-list-panel">
+        <summary>📋 所有节点列表（无障碍键盘访问）</summary>
+        <div
+          id="node-list-content"
+          style="max-height: 240px; overflow-y: auto; margin-top: 0.5rem;"
+        >
+          <div
+            class="search-empty"
+            style="font-size:0.78rem; color:var(--ink-faint); padding:1rem 0; text-align:center;"
+          >
+            图谱数据加载中...
+          </div>
+        </div>
+      </details>
+    </header>
+
+    <!-- 关系网图容器 -->
+    <svg id="graph" role="img" aria-label="思考的经纬 - 知识图谱可视化" tabindex="0"></svg>
+
+    <!-- ARIA live region 用于屏幕阅读器播报 -->
+    <div id="aria-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- 浮动详情面板 -->
+    <div id="detail-card" class="detail-card">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div id="detail-type" class="detail-type">Note</div>
+        <button
+          id="btn-delete-selected"
+          style="display: none; background: none; border: none; color: var(--ochre); font-size: 0.72rem; cursor: pointer; font-weight: 500; font-family: var(--serif-cn);"
+          >[删除节点]</button
+        >
+        <button
+          id="btn-delete-link"
+          style="display: none; background: none; border: none; color: var(--ochre); font-size: 0.72rem; cursor: pointer; font-weight: 500; font-family: var(--serif-cn);"
+          >[断开连线]</button
+        >
+      </div>
+      <div id="detail-title" class="detail-title">想法的生成</div>
+      <div id="detail-tip" class="detail-tip">双击该圆点跳转主域查看全文 ↗</div>
+
+      <!-- 跨域生成联动 -->
+      <div id="detail-cross-actions" class="detail-cross-actions">
+        <button id="btn-send-to-tools" class="cross-action-btn">✨ 发送至卡片加工厂</button>
+        <button id="btn-send-to-studio" class="cross-action-btn">🎨 发送至海报工作室</button>
+      </div>
+    </div>
+
+    <!-- D3 全局动态运行代码 -->
+    <script is:inline type="module">
+      import * as d3 from 'https://esm.sh/d3@7';
+
+      const svg = d3.select('#graph');
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      // 配置信息
+      const isDev = document.getElementById('subdomain-config').getAttribute('data-dev') === 'true';
+      const resolveSubdomain = (url) => {
+        if (!isDev) return url;
+        if (url.startsWith('https://newmaybe.com')) return 'http://localhost:4321';
+        if (url.startsWith('https://graph.newmaybe.com')) return 'http://localhost:4322';
+        if (url.startsWith('https://tools.newmaybe.com')) return 'http://localhost:4323';
+        if (url.startsWith('https://ai.newmaybe.com')) return 'http://localhost:4324';
+        if (url.startsWith('https://lab.newmaybe.com')) return 'http://localhost:4325';
+        if (url.startsWith('https://studio.newmaybe.com')) return 'http://localhost:4326';
+        return url;
+      };
+
+      // 状态数据
+      let originalGardenData = { nodes: [], links: [] };
+      let nodes = [];
+      let links = [];
+      let currentMode = 'view'; // 'view' / 'sandbox'
+      let selectedNode = null;
+      let selectedLink = null;
+      let linkSourceNode = null;
+      let linkTargetNode = null;
+      let simulation = null;
+
+      // 主容器，供缩放平移使用
+      const g = svg.append('g');
+
+      // 缩放
+      const zoom = d3
+        .zoom()
+        .scaleExtent([0.1, 4])
+        .on('zoom', (event) => {
+          g.attr('transform', event.transform);
+        });
+      svg.call(zoom);
+
+      // 窗口重置自适应
+      window.addEventListener('resize', () => {
+        if (simulation) {
+          simulation.force('center', d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
+          simulation.alpha(0.3).restart();
+        }
+      });
+
+      const getThemeColor = (name) =>
+        getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+      const colors = {
+        posts: () => getThemeColor('--ink'),
+        notes: () => getThemeColor('--ochre'),
+        memories: () => getThemeColor('--ink-soft'),
+        excerpts: () => getThemeColor('--ink-faint'),
+        fragments: () => getThemeColor('--line'),
+      };
+
+      const nodeRadii = {
+        posts: 12,
+        notes: 10,
+        memories: 9,
+        excerpts: 8,
+        fragments: 7,
+      };
+
+      const typeLabels = {
+        posts: '文章 / Writing',
+        notes: '笔记 / Note',
+        memories: '记忆 / Memory',
+        excerpts: '拾遗 / Excerpt',
+        fragments: '念头 / Fragment',
+      };
+
+      const linkGroup = g.append('g').attr('class', 'links-group');
+      const nodeGroup = g.append('g').attr('class', 'nodes-group');
+
+      // 获取并运行数据
+      d3.json('/graph-data.json').then((data) => {
+        originalGardenData = JSON.parse(JSON.stringify(data));
+        nodes = JSON.parse(JSON.stringify(data.nodes));
+        links = JSON.parse(JSON.stringify(data.links));
+
+        simulation = d3
+          .forceSimulation(nodes)
+          .force(
+            'link',
+            d3
+              .forceLink(links)
+              .id((d) => d.id)
+              .distance(120),
+          )
+          .force('charge', d3.forceManyBody().strength(-240))
+          .force('center', d3.forceCenter(width / 2, height / 2))
+          .force(
+            'collision',
+            d3.forceCollide().radius((d) => (nodeRadii[d.group] || 10) + 25),
+          );
+
+        populateNodeList();
+        checkUrlParams();
+        updateGraph();
+        setupInteractionListeners();
+      });
+
+      // ── 填充无障碍节点列表 ──
+      function populateNodeList() {
+        const container = document.getElementById('node-list-content');
+        if (!container) return;
+
+        const groups = {};
+        for (const n of nodes) {
+          const grp = n.group || 'other';
+          if (!groups[grp]) groups[grp] = [];
+          groups[grp].push(n);
+        }
+
+        const groupOrder = ['posts', 'notes', 'memories', 'excerpts', 'fragments'];
+        let html = '';
+        for (const grp of groupOrder) {
+          const items = groups[grp];
+          if (!items || items.length === 0) continue;
+          html += `<div class="node-list-group"><div class="node-list-group-label">${typeLabels[grp] || grp}</div>`;
+          for (const n of items) {
+            html += `<button class="node-list-item" data-node-id="${n.id}">${n.title}</button>`;
+          }
+          html += '</div>';
+        }
+
+        container.innerHTML =
+          html ||
+          '<div class="search-empty" style="font-size:0.78rem; color:var(--ink-faint); padding:1rem 0; text-align:center;">暂无节点数据</div>';
+
+        // 绑定点击事件
+        container.querySelectorAll('.node-list-item').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const nodeId = btn.getAttribute('data-node-id');
+            const match = nodes.find((n) => n.id === nodeId);
+            if (match) focusOnNode(match);
+          });
+        });
+      }
+
+      function updateGraph() {
+        // 连线
+        const linkSel = linkGroup.selectAll('line').data(links, (d) => {
+          const s = d.source.id || d.source;
+          const t = d.target.id || d.target;
+          return `${s}-${t}`;
+        });
+
+        linkSel.exit().remove();
+
+        const linkEnter = linkSel
+          .enter()
+          .append('line')
+          .attr('class', 'link')
+          .attr('role', 'presentation')
+          .on('click', (event, d) => {
+            if (currentMode === 'sandbox') {
+              event.stopPropagation();
+              selectLink(d);
+            }
+          });
+
+        const link = linkEnter.merge(linkSel);
+
+        // 节点
+        const nodeSel = nodeGroup.selectAll('.node').data(nodes, (d) => d.id);
+
+        nodeSel.exit().remove();
+
+        const nodeEnter = nodeSel
+          .enter()
+          .append('g')
+          .attr('class', 'node')
+          .call(d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended));
+
+        nodeEnter
+          .append('circle')
+          .attr('r', (d) => nodeRadii[d.group] || 10)
+          .attr('fill', (d) => (colors[d.group] ? colors[d.group]() : getThemeColor('--ochre')))
+          .attr('role', 'button')
+          .attr('tabindex', 0)
+          .attr('aria-label', (d) => `${d.title} (${typeLabels[d.group] || '想法'})`)
+          .on('mouseover', handleMouseOver)
+          .on('mouseout', handleMouseOut)
+          .on('click', (event, d) => {
+            event.stopPropagation();
+            selectNode(d);
+          })
+          .on('dblclick', (event, d) => {
+            if (d.url) {
+              window.open(resolveSubdomain(d.url), '_blank');
+            }
+          });
+
+        nodeEnter
+          .append('text')
+          .attr('dx', (d) => (nodeRadii[d.group] || 10) + 6)
+          .attr('dy', 4)
+          .text((d) => d.title);
+
+        const node = nodeEnter.merge(nodeSel);
+
+        svg.on('click', () => {
+          clearSelection();
+        });
+
+        simulation.nodes(nodes);
+        simulation.force('link').links(links);
+
+        simulation.on('tick', () => {
+          link
+            .attr('x1', (d) => d.source.x)
+            .attr('y1', (d) => d.source.y)
+            .attr('x2', (d) => d.target.x)
+            .attr('y2', (d) => d.target.y);
+
+          node.attr('transform', (d) => `translate(${d.x},${d.y})`);
+        });
+
+        simulation.alpha(0.3).restart();
+
+        // 同步更新无障碍节点列表
+        populateNodeList();
+      }
+
+      function handleMouseOver(event, d) {
+        if (currentMode !== 'view' && !document.getElementById('graph-search').value) return;
+
+        const adjacentNodeIds = new Set();
+        adjacentNodeIds.add(d.id);
+
+        const linkSel = linkGroup.selectAll('line');
+        const nodeSel = nodeGroup.selectAll('.node');
+
+        linkSel.classed('highlighted', (l) => {
+          const sId = l.source.id || l.source;
+          const tId = l.target.id || l.target;
+          if (sId === d.id || tId === d.id) {
+            adjacentNodeIds.add(sId);
+            adjacentNodeIds.add(tId);
+            return true;
+          }
+          return false;
+        });
+
+        nodeSel.classed('dimmed', (n) => !adjacentNodeIds.has(n.id));
+        d3.select(event.currentTarget.parentNode).classed('active', true);
+
+        if (selectedNode === null && selectedLink === null) {
+          document.getElementById('detail-type').innerText = typeLabels[d.group] || 'Thought';
+          document.getElementById('detail-title').innerText = d.title;
+          document.getElementById('detail-tip').innerText = d.url
+            ? '双击该圆点跳转主域查看全文 ↗'
+            : '心智沙盒自定义节点 ✏';
+          document.getElementById('detail-card').style.display = 'block';
+          document.getElementById('detail-cross-actions').style.display = 'flex';
+        }
+      }
+
+      function handleMouseOut(event, d) {
+        if (currentMode !== 'view' && !document.getElementById('graph-search').value) return;
+
+        const linkSel = linkGroup.selectAll('line');
+        const nodeSel = nodeGroup.selectAll('.node');
+
+        linkSel.classed('highlighted', false);
+        nodeSel.classed('dimmed', false);
+        d3.select(event.currentTarget.parentNode).classed('active', false);
+
+        if (selectedNode === null && selectedLink === null) {
+          document.getElementById('detail-card').style.display = 'none';
+        }
+      }
+
+      function selectNode(d) {
+        selectedNode = d;
+        selectedLink = null;
+
+        nodeGroup.selectAll('.node').classed('active-selected', (n) => n.id === d.id);
+        linkGroup.selectAll('line').classed('active-selected-link', false);
+
+        const detailCard = document.getElementById('detail-card');
+        document.getElementById('detail-type').innerText = typeLabels[d.group] || 'Custom';
+        document.getElementById('detail-title').innerText = d.title;
+        document.getElementById('detail-tip').innerText = d.url
+          ? '双击该圆点跳转主域查看全文 ↗'
+          : '心智沙盒自定义节点 ✏';
+
+        document.getElementById('btn-delete-selected').style.display =
+          currentMode === 'sandbox' ? 'inline-block' : 'none';
+        document.getElementById('btn-delete-link').style.display = 'none';
+
+        document.getElementById('detail-cross-actions').style.display = 'flex';
+        detailCard.style.display = 'block';
+
+        announceToScreenReader(`已选中：${d.title}，${typeLabels[d.group] || '想法'}`);
+      }
+
+      function selectLink(l) {
+        selectedLink = l;
+        selectedNode = null;
+
+        nodeGroup.selectAll('.node').classed('active-selected', false);
+
+        const sId = l.source.id || l.source;
+        const tId = l.target.id || l.target;
+
+        linkGroup.selectAll('line').classed('active-selected-link', (d) => {
+          const currSId = d.source.id || d.source;
+          const currTId = d.target.id || d.target;
+          return currSId === sId && currTId === tId;
+        });
+
+        const detailCard = document.getElementById('detail-card');
+        document.getElementById('detail-type').innerText = '连线 / Connection';
+
+        const sTitle = l.source.title || sId;
+        const tTitle = l.target.title || tId;
+        document.getElementById('detail-title').innerText = `${sTitle} ↔ ${tTitle}`;
+        document.getElementById('detail-tip').innerText = '代表想法间的知识关联网络';
+
+        document.getElementById('btn-delete-selected').style.display = 'none';
+        document.getElementById('btn-delete-link').style.display = 'inline-block';
+
+        document.getElementById('detail-cross-actions').style.display = 'none';
+        detailCard.style.display = 'block';
+
+        announceToScreenReader(`已选中连线：${sTitle} 到 ${tTitle}`);
+      }
+
+      function clearSelection() {
+        selectedNode = null;
+        selectedLink = null;
+        nodeGroup.selectAll('.node').classed('active-selected', false);
+        linkGroup.selectAll('line').classed('active-selected-link', false);
+        document.getElementById('detail-card').style.display = 'none';
+        announceToScreenReader('已取消选择');
+      }
+
+      function focusOnNode(d) {
+        const scale = 1.3;
+        const x = width / 2 - d.x * scale;
+        const y = height / 2 - d.y * scale;
+
+        svg
+          .transition()
+          .duration(750)
+          .call(zoom.transform, d3.zoomIdentity.translate(x, y).scale(scale));
+
+        selectNode(d);
+      }
+
+      // ── 键盘导航：方向键在可见节点间移动 ──
+      svg.on('keydown', (event) => {
+        if (!selectedNode && !selectedLink) return;
+        if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Escape'].includes(event.key))
+          return;
+
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          clearSelection();
+          announceToScreenReader('已取消选择节点');
+          return;
+        }
+
+        event.preventDefault();
+        const current = selectedNode;
+        if (!current) return;
+
+        // 找出所有非 dimmed 的可见节点
+        const visibleNodes = nodeGroup
+          .selectAll('.node')
+          .filter(function () {
+            return !this.classList.contains('dimmed');
+          })
+          .data();
+
+        if (visibleNodes.length === 0) return;
+
+        // 找几何距离最近的可见节点（排除自身）
+        const others = visibleNodes.filter((n) => n.id !== current.id);
+        if (others.length === 0) return;
+
+        // 根据方向键偏置目标方向
+        const angleMap = {
+          ArrowUp: -Math.PI / 2,
+          ArrowDown: Math.PI / 2,
+          ArrowLeft: Math.PI,
+          ArrowRight: 0,
+        };
+        const angle = angleMap[event.key];
+        const offsetX = Math.cos(angle) * 200;
+        const offsetY = Math.sin(angle) * 200;
+        const targetX = current.x + offsetX;
+        const targetY = current.y + offsetY;
+
+        let nearest = others[0];
+        let minDist = Infinity;
+        for (const n of others) {
+          const dx = n.x - targetX;
+          const dy = n.y - targetY;
+          const dist = dx * dx + dy * dy;
+          if (dist < minDist) {
+            minDist = dist;
+            nearest = n;
+          }
+        }
+
+        focusOnNode(nearest);
+        announceToScreenReader(`${nearest.title}，${typeLabels[nearest.group] || '想法'}`);
+      });
+
+      // ── 屏幕阅读器播报 ──
+      function announceToScreenReader(msg) {
+        const announcer = document.getElementById('aria-announcer');
+        if (announcer) {
+          announcer.textContent = '';
+          // 触发重新播报需要清空再设置
+          requestAnimationFrame(() => {
+            announcer.textContent = msg;
+          });
+        }
+      }
+
+      function dragstarted(event, d) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+
+      function dragged(event, d) {
+        d.fx = event.x;
+        d.fy = event.y;
+      }
+
+      function dragended(event, d) {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }
+
+      function setupInteractionListeners() {
+        document.getElementById('btn-mode-view').addEventListener('click', () => {
+          switchToView();
+        });
+        document.getElementById('btn-mode-sandbox').addEventListener('click', () => {
+          switchToSandbox();
+        });
+
+        document.getElementById('btn-add-node').addEventListener('click', () => {
+          const title = document.getElementById('node-title-input').value.trim();
+          const group = document.getElementById('node-group-input').value;
+          if (!title) return alert('请输入想法或节点名称');
+
+          const id = `sandbox-${group}-${Date.now()}`;
+          const x = width / 2 + (Math.random() - 0.5) * 50;
+          const y = height / 2 + (Math.random() - 0.5) * 50;
+
+          nodes.push({
+            id,
+            title,
+            group,
+            x,
+            y,
+            vx: 0,
+            vy: 0,
+          });
+
+          document.getElementById('node-title-input').value = '';
+          updateGraph();
+
+          const newNode = nodes.find((n) => n.id === id);
+          if (newNode) {
+            setTimeout(() => focusOnNode(newNode), 100);
+          }
+        });
+
+        document.getElementById('btn-set-source').addEventListener('click', () => {
+          if (!selectedNode) return alert('请在图谱中选中一个节点作为连线起点');
+          linkSourceNode = selectedNode;
+          document.getElementById('link-source-label').innerText = `起点: ${selectedNode.title}`;
+        });
+
+        document.getElementById('btn-set-target').addEventListener('click', () => {
+          if (!selectedNode) return alert('请在图谱中选中一个节点作为连线终点');
+          linkTargetNode = selectedNode;
+          document.getElementById('link-target-label').innerText = `终点: ${selectedNode.title}`;
+        });
+
+        document.getElementById('btn-create-link').addEventListener('click', () => {
+          if (!linkSourceNode || !linkTargetNode) return alert('需要同时设置连线的起点和终点端点');
+          if (linkSourceNode.id === linkTargetNode.id) return alert('同一个节点不能自我循环连接');
+
+          const sId = linkSourceNode.id;
+          const tId = linkTargetNode.id;
+
+          const exists = links.some((l) => {
+            const currS = l.source.id || l.source;
+            const currT = l.target.id || l.target;
+            return (currS === sId && currT === tId) || (currS === tId && currT === sId);
+          });
+
+          if (exists) return alert('这两个想法之间已存在连线');
+
+          links.push({ source: sId, target: tId });
+
+          linkSourceNode = null;
+          linkTargetNode = null;
+          document.getElementById('link-source-label').innerText = '起点: 未选择';
+          document.getElementById('link-target-label').innerText = '终点: 未选择';
+
+          updateGraph();
+        });
+
+        document.getElementById('btn-delete-selected').addEventListener('click', () => {
+          if (!selectedNode) return;
+          if (
+            confirm(`确定要在思维沙盒中删除节点「${selectedNode.title}」及其关联的全部线段吗？`)
+          ) {
+            const nodeId = selectedNode.id;
+            nodes = nodes.filter((n) => n.id !== nodeId);
+            links = links.filter((l) => {
+              const sId = l.source.id || l.source;
+              const tId = l.target.id || l.target;
+              return sId !== nodeId && tId !== nodeId;
+            });
+            clearSelection();
+            updateGraph();
+          }
+        });
+
+        document.getElementById('btn-delete-link').addEventListener('click', () => {
+          if (!selectedLink) return;
+          if (confirm('确定要断开此关联吗？')) {
+            const sId = selectedLink.source.id || selectedLink.source;
+            const tId = selectedLink.target.id || selectedLink.target;
+
+            links = links.filter((l) => {
+              const currS = l.source.id || l.source;
+              const currT = l.target.id || l.target;
+              return !(currS === sId && currT === tId);
+            });
+            clearSelection();
+            updateGraph();
+          }
+        });
+
+        document.getElementById('btn-load-garden').addEventListener('click', () => {
+          if (confirm('这会清空沙盒当前的修改，并重新导入思维花园的默认模版，是否继续？')) {
+            nodes = JSON.parse(JSON.stringify(originalGardenData.nodes));
+            links = JSON.parse(JSON.stringify(originalGardenData.links));
+            clearSelection();
+            updateGraph();
+          }
+        });
+
+        document.getElementById('btn-clear-all').addEventListener('click', () => {
+          if (confirm('确定要清除画布上全部的想法和连线，从空白网格开始构建吗？')) {
+            nodes = [];
+            links = [];
+            clearSelection();
+            updateGraph();
+          }
+        });
+
+        document.getElementById('btn-export-json').addEventListener('click', () => {
+          const cleanNodes = nodes.map((n) => ({
+            id: n.id,
+            title: n.title,
+            group: n.group,
+            url: n.url || '',
+          }));
+          const cleanLinks = links.map((l) => ({
+            source: l.source.id || l.source,
+            target: l.target.id || l.target,
+          }));
+
+          const dataStr =
+            'data:text/json;charset=utf-8,' +
+            encodeURIComponent(JSON.stringify({ nodes: cleanNodes, links: cleanLinks }, null, 2));
+          const dlAnchor = document.createElement('a');
+          dlAnchor.setAttribute('href', dataStr);
+          dlAnchor.setAttribute('download', `newmaybe-mindmap-${Date.now()}.json`);
+          dlAnchor.click();
+        });
+
+        document.getElementById('import-json-file').addEventListener('change', (event) => {
+          const file = event.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const data = JSON.parse(e.target.result);
+              if (Array.isArray(data.nodes) && Array.isArray(data.links)) {
+                const newNodes = data.nodes.map((n) => {
+                  if (!n.id || !n.title || !n.group)
+                    throw new Error('缺少必要字段 id, title 或 group');
+                  return {
+                    id: n.id,
+                    title: n.title,
+                    group: n.group,
+                    url: n.url || '',
+                    x: width / 2 + (Math.random() - 0.5) * 120,
+                    y: height / 2 + (Math.random() - 0.5) * 120,
+                  };
+                });
+
+                const nodeIds = new Set(newNodes.map((n) => n.id));
+                const newLinks = [];
+                for (const l of data.links) {
+                  const s = l.source;
+                  const t = l.target;
+                  if (!s || !t) throw new Error('缺少 source 或 target 连线指向');
+                  if (nodeIds.has(s) && nodeIds.has(t)) {
+                    newLinks.push({ source: s, target: t });
+                  }
+                }
+
+                nodes = newNodes;
+                links = newLinks;
+                clearSelection();
+                updateGraph();
+                alert('沙盒网络导入成功！');
+              } else {
+                alert('配置格式不符，JSON 必须包含 nodes 和 links 数组');
+              }
+            } catch (err) {
+              alert('解析 JSON 失败: ' + err.message);
+            }
+          };
+          reader.readAsText(file);
+        });
+
+        const searchInput = document.getElementById('graph-search');
+        const clearSearchBtn = document.getElementById('search-clear-btn');
+
+        searchInput.addEventListener('input', (e) => {
+          const query = e.target.value.trim().toLowerCase();
+          if (query) {
+            clearSearchBtn.style.display = 'block';
+            nodeGroup
+              .selectAll('.node')
+              .classed('dimmed', (n) => !n.title.toLowerCase().includes(query));
+            linkGroup.selectAll('line').classed('highlighted', false);
+          } else {
+            clearSearchBtn.style.display = 'none';
+            nodeGroup.selectAll('.node').classed('dimmed', false);
+          }
+        });
+
+        clearSearchBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          clearSearchBtn.style.display = 'none';
+          nodeGroup.selectAll('.node').classed('dimmed', false);
+        });
+
+        searchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const query = e.target.value.trim().toLowerCase();
+            if (!query) return;
+            const match = nodes.find((n) => n.title.toLowerCase().includes(query));
+            if (match) {
+              focusOnNode(match);
+            }
+          }
+        });
+
+        document.getElementById('slider-link-dist').addEventListener('input', (e) => {
+          const val = parseInt(e.target.value);
+          document.getElementById('val-link-dist').innerText = val;
+          simulation.force('link').distance(val);
+          simulation.alpha(0.1).restart();
+        });
+
+        document.getElementById('slider-charge').addEventListener('input', (e) => {
+          const val = parseInt(e.target.value);
+          document.getElementById('val-charge').innerText = val;
+          simulation.force('charge').strength(-val);
+          simulation.alpha(0.1).restart();
+        });
+
+        document.getElementById('slider-collision').addEventListener('input', (e) => {
+          const val = parseInt(e.target.value);
+          document.getElementById('val-collision').innerText = val;
+          simulation.force(
+            'collision',
+            d3.forceCollide().radius((d) => (nodeRadii[d.group] || 10) + val - 25),
+          );
+          simulation.alpha(0.1).restart();
+        });
+
+        document.getElementById('btn-download-svg').addEventListener('click', () => {
+          const clonedSvg = document.getElementById('graph').cloneNode(true);
+          const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          bgRect.setAttribute('width', '100%');
+          bgRect.setAttribute('height', '100%');
+          bgRect.setAttribute('fill', getThemeColor('--paper'));
+          clonedSvg.insertBefore(bgRect, clonedSvg.firstChild);
+
+          const serializer = new XMLSerializer();
+          let source = serializer.serializeToString(clonedSvg);
+
+          if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+          }
+          if (!source.match(/^<svg[^>]+xmlns:xlink="http:\/\/www\.w3\.org\/1999\/xlink"/)) {
+            source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+          }
+
+          const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(source);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `newmaybe-mindmap-${Date.now()}.svg`;
+          a.click();
+        });
+
+        document.getElementById('btn-download-png').addEventListener('click', () => {
+          const svgElement = document.getElementById('graph');
+          const serializer = new XMLSerializer();
+          let source = serializer.serializeToString(svgElement);
+
+          if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+          }
+
+          const svgBlob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+          const url = URL.createObjectURL(svgBlob);
+          const image = new Image();
+          image.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = window.innerWidth * 2;
+            canvas.height = window.innerHeight * 2;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = getThemeColor('--paper');
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.scale(2, 2);
+            ctx.drawImage(image, 0, 0, window.innerWidth, window.innerHeight);
+
+            const pngUrl = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = pngUrl;
+            a.download = `newmaybe-mindmap-${Date.now()}.png`;
+            a.click();
+            URL.revokeObjectURL(url);
+          };
+          image.src = url;
+        });
+
+        document.getElementById('btn-send-to-tools').addEventListener('click', () => {
+          if (!selectedNode) return;
+          window.open(
+            `${resolveSubdomain('https://tools.newmaybe.com')}?content=${encodeURIComponent(selectedNode.title)}`,
+            '_blank',
+          );
+        });
+
+        document.getElementById('btn-send-to-studio').addEventListener('click', () => {
+          if (!selectedNode) return;
+          window.open(
+            `${resolveSubdomain('https://studio.newmaybe.com')}?quote=${encodeURIComponent(selectedNode.title)}`,
+            '_blank',
+          );
+        });
+
+        const observer = new MutationObserver(() => {
+          nodeGroup
+            .selectAll('circle')
+            .attr('fill', (d) => (colors[d.group] ? colors[d.group]() : getThemeColor('--ochre')));
+        });
+        observer.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['class'],
+        });
+      }
+
+      function switchToSandbox() {
+        switchToSandboxStateUI();
+        updateGraph();
+      }
+
+      function switchToView() {
+        switchToViewStateUI();
+        nodes = JSON.parse(JSON.stringify(originalGardenData.nodes));
+        links = JSON.parse(JSON.stringify(originalGardenData.links));
+        clearSelection();
+        updateGraph();
+      }
+
+      function switchToSandboxStateUI() {
+        currentMode = 'sandbox';
+
+        const btnView = document.getElementById('btn-mode-view');
+        btnView.classList.remove('active');
+        btnView.setAttribute('aria-selected', 'false');
+        btnView.style.background = 'transparent';
+        btnView.style.color = 'var(--ink-soft)';
+
+        const btnSandbox = document.getElementById('btn-mode-sandbox');
+        btnSandbox.classList.add('active');
+        btnSandbox.setAttribute('aria-selected', 'true');
+        btnSandbox.style.background = 'var(--paper-deep)';
+        btnSandbox.style.color = 'var(--ink)';
+
+        document.getElementById('sandbox-controls').style.display = 'flex';
+        if (selectedNode) {
+          document.getElementById('btn-delete-selected').style.display = 'inline-block';
+        }
+      }
+
+      function switchToViewStateUI() {
+        currentMode = 'view';
+
+        const btnSandbox = document.getElementById('btn-mode-sandbox');
+        btnSandbox.classList.remove('active');
+        btnSandbox.setAttribute('aria-selected', 'false');
+        btnSandbox.style.background = 'transparent';
+        btnSandbox.style.color = 'var(--ink-soft)';
+
+        const btnView = document.getElementById('btn-mode-view');
+        btnView.classList.add('active');
+        btnView.setAttribute('aria-selected', 'true');
+        btnView.style.background = 'var(--paper-deep)';
+        btnView.style.color = 'var(--ink)';
+
+        document.getElementById('sandbox-controls').style.display = 'none';
+        document.getElementById('btn-delete-selected').style.display = 'none';
+        document.getElementById('btn-delete-link').style.display = 'none';
+      }
+
+      function checkUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        const addNodeParam = params.get('add_node');
+        if (addNodeParam) {
+          switchToSandboxStateUI();
+
+          const text = decodeURIComponent(addNodeParam);
+          const id = `sandbox-notes-${Date.now()}`;
+          const x = width / 2;
+          const y = height / 2;
+
+          nodes.push({
+            id,
+            title: text,
+            group: 'notes',
+            x,
+            y,
+            vx: 0,
+            vy: 0,
+          });
+
+          window.history.replaceState({}, document.title, window.location.pathname);
+
+          setTimeout(() => {
+            const match = nodes.find((n) => n.id === id);
+            if (match) focusOnNode(match);
+          }, 150);
+        }
+      }
+    </script>
+  </body>
+</html>

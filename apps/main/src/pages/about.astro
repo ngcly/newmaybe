@@ -1,0 +1,615 @@
+---
+import Base from '../layouts/Base.astro';
+import QuoteBand from '../components/QuoteBand.astro';
+import { SITE } from '../config';
+---
+
+<Base title="关于" description="关于 newmaybe，以及写下这些文字的人。">
+  <section class="about">
+    <div class="wrap">
+      <header class="about-head reveal">
+        <span class="eyebrow">About</span>
+        <h1>关于<span class="zh">这片角落</span></h1>
+      </header>
+
+      <div class="about-grid reveal">
+        <div class="about-body">
+          <p class="lead">
+            newmaybe 是一个安放文字与念头的地方。名字由两个词组成——
+            new，是「空白里藏着新的可能」；maybe，是「不必给出答案」。
+            合起来，是留白的态度：给念头余地，给新可能时间。
+          </p>
+
+          <p>
+            我在这里写随笔、记录观察、收集一些半成形的想法。
+            它们大多缓慢、零散，不追求结论。如果说有什么主题，
+            大概是关于如何在快速的世界里，为自己保留一点慢的权利。
+          </p>
+
+          <p>
+            这个站点本身也是一次缓慢的尝试：用最朴素的方式搭建，
+            没有弹窗、没有追踪、没有催促你停留的小花招。 只有文字，和愿意停下来读它的人。
+          </p>
+
+          <div class="signature">
+            <span class="line"></span>
+            <span class="name">newmaybe</span>
+          </div>
+        </div>
+
+        <div class="about-facets">
+          <div class="facet">
+            <span class="num">01</span>
+            <h3>关于文字</h3>
+            <p>不定期更新。想到什么写什么，长短不论，真诚为先。</p>
+          </div>
+          <div class="facet">
+            <span class="num">02</span>
+            <h3>关于节奏</h3>
+            <p>慢，是这里唯一坚持的事。没有日更压力，没有热点追逐。</p>
+          </div>
+          <div class="facet">
+            <span class="num">03</span>
+            <h3>关于联络</h3>
+            <p>
+              如果某段文字让你有所触动，欢迎写信来。见信如晤，<a href="#contact"
+                >联络邮箱与订阅在下方</a
+              >。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 联络与订阅区域 -->
+      <div id="contact" class="contact-section reveal" style="scroll-margin-top: 80px;">
+        <div class="contact-divider">
+          <span class="line"></span>
+          <span class="symbol">✉</span>
+          <span class="line"></span>
+        </div>
+
+        <div class="contact-grid">
+          <div class="contact-info">
+            <h2>联络与订阅</h2>
+            <p class="contact-intro">
+              没有评论区，也没有点赞。如果你想说点什么——
+              无论是回应一段文字，还是只是打个招呼——直接写信给我就好。 慢一点回复，但一定会读。
+            </p>
+
+            <!-- RSS 订阅 -->
+            <div class="channels">
+              <a href="/rss.xml" class="channel">
+                <div class="channel-main">
+                  <span class="channel-label">RSS</span>
+                  <span class="channel-value">/rss.xml</span>
+                </div>
+                <p class="channel-note">订阅更新，不打扰，不催促。</p>
+                <span class="arrow">→</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- 3D 折叠信封 -->
+          <div class="envelope-wrap">
+            <a
+              href={`mailto:${SITE.email}`}
+              class="envelope"
+              aria-label={`发送邮件给 ${SITE.email}`}
+            >
+              <!-- 信封背面 -->
+              <div class="env-back"></div>
+
+              <!-- 隐藏的"信纸"，hover 时从内部升起 -->
+              <div class="letter">
+                <div class="letter-content">
+                  <span class="letter-eyebrow">一封信，认真读</span>
+                  <span class="letter-email">{SITE.email}</span>
+                  <span class="letter-cta">点击寄出 →</span>
+                </div>
+              </div>
+
+              <!-- 信封正面 -->
+              <div class="env-front">
+                <svg
+                  viewBox="0 0 460 295"
+                  width="100%"
+                  height="100%"
+                  preserveAspectRatio="none"
+                  fill="none"
+                >
+                  <!-- 左折边 -->
+                  <polygon
+                    points="0,0 230,147.5 0,295"
+                    fill="var(--paper-deep)"
+                    opacity="0.98"
+                    stroke="var(--line)"
+                    stroke-width="0.5"></polygon>
+                  <!-- 右折边 -->
+                  <polygon
+                    points="460,0 230,147.5 460,295"
+                    fill="var(--paper-deep)"
+                    opacity="0.98"
+                    stroke="var(--line)"
+                    stroke-width="0.5"></polygon>
+                  <!-- 下折边 -->
+                  <polygon
+                    points="0,295 230,135 460,295"
+                    fill="var(--paper)"
+                    stroke="var(--line)"
+                    stroke-width="0.5"></polygon>
+                </svg>
+              </div>
+
+              <!-- 信封口盖 -->
+              <div class="flap">
+                <svg
+                  viewBox="0 0 460 162.25"
+                  width="100%"
+                  height="100%"
+                  preserveAspectRatio="none"
+                  fill="none"
+                >
+                  <polygon
+                    points="0,0 460,0 230,162.25"
+                    fill="var(--paper-deep)"
+                    stroke="var(--line)"
+                    stroke-width="0.5"></polygon>
+                </svg>
+              </div>
+            </a>
+            <p class="env-hint">
+              <span class="hint-hover">悬浮开启信封 · 点击寄信</span>
+              <span class="hint-touch">点击开启信封，发送邮件</span>
+            </p>
+          </div>
+        </div>
+
+        <p class="ps">
+          P.S. 这里没有任何表单，因为我不想收集你的任何数据。 一封朴素的邮件，就很好。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <QuoteBand text={'每一次写下，\n都是给未来的自己，种一粒新可能。'} cite="— 关于为何而写" />
+</Base>
+
+<style>
+  .about {
+    padding: 5rem 0 6rem;
+  }
+  .about-head {
+    text-align: left;
+    margin-bottom: 4.5rem;
+    max-width: var(--max);
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .about-head h1 {
+    font-weight: 500;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.15;
+    color: var(--ink);
+  }
+
+  /* 非对称双列栅格 */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 5rem;
+    max-width: var(--max);
+    margin: 0 auto 6rem;
+  }
+
+  .about-body {
+    margin: 0;
+  }
+  .about-body .lead {
+    font-size: 1.35rem;
+    line-height: 1.85;
+    color: var(--ink);
+    font-weight: 300;
+    margin-bottom: 2rem;
+  }
+  .about-body p {
+    font-size: 1.1rem;
+    line-height: 1.95;
+    color: var(--ink-soft);
+    font-weight: 300;
+    margin-bottom: 1.6rem;
+  }
+
+  .signature {
+    margin-top: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+  }
+  .signature .line {
+    flex: 0 0 48px;
+    height: 1px;
+    background: var(--ochre);
+  }
+  .signature .name {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--ink);
+  }
+
+  .about-facets {
+    display: flex;
+    flex-direction: column;
+    gap: 2.2rem;
+  }
+  .facet {
+    border-left: 2px solid var(--line);
+    padding: 0.2rem 0 0.2rem 1.4rem;
+    border-radius: 0;
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.4s ease;
+  }
+  .facet:hover {
+    transform: translateX(4px);
+    border-left-color: var(--ochre);
+  }
+  .facet .num {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 1.4rem;
+    color: var(--ochre);
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+  .facet h3 {
+    font-family: var(--serif-cn);
+    font-weight: 500;
+    font-size: 1.25rem;
+    color: var(--ink);
+    margin-bottom: 0.7rem;
+  }
+  .facet p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+  .facet a {
+    color: var(--ochre);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .facet a:hover {
+    border-color: var(--ochre);
+  }
+
+  /* ── 联络区域样式 ── */
+  .contact-section {
+    max-width: var(--max);
+    margin: 5rem auto 0;
+    padding-top: 5rem;
+    border-top: 1px solid var(--line);
+  }
+  .contact-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 3.5rem;
+  }
+  .contact-divider .line {
+    width: 60px;
+    height: 1px;
+    background: var(--line);
+  }
+  .contact-divider .symbol {
+    color: var(--ink-faint);
+    font-size: 1.1rem;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 5rem;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .contact-info h2 {
+    font-family: var(--serif-cn), serif;
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 1.2rem;
+  }
+  .contact-intro {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: var(--ink-soft);
+    font-weight: 300;
+    margin-bottom: 2rem;
+  }
+
+  /* ── 3D 信封 ── */
+  .envelope-wrap {
+    width: 100%;
+    max-width: 400px;
+    margin: 1.5rem auto 0;
+    text-align: center;
+  }
+  .env-hint {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 0.88rem;
+    color: var(--ink-faint);
+    margin-top: 1rem;
+    letter-spacing: 0.04em;
+    transition: opacity 0.3s;
+  }
+  .envelope-wrap:hover .env-hint {
+    opacity: 0;
+  }
+  .hint-touch {
+    display: none;
+  }
+  @media (hover: none) {
+    .hint-hover {
+      display: none;
+    }
+    .hint-touch {
+      display: inline;
+    }
+  }
+
+  .envelope {
+    display: block;
+    width: 100%;
+    aspect-ratio: 7 / 4.5;
+    position: relative;
+    perspective: 900px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .env-back {
+    position: absolute;
+    inset: 0;
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    z-index: 1;
+  }
+
+  .letter {
+    position: absolute;
+    bottom: 5%;
+    left: 8%;
+    right: 8%;
+    height: 85%;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    z-index: 2;
+    transition:
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.35s ease;
+    transform: translateY(0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .envelope:hover .letter {
+    transform: translateY(-55%);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.05);
+    transition:
+      transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.35s,
+      box-shadow 0.45s ease 0.35s;
+  }
+  :root.dark .envelope:hover .letter {
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.25);
+  }
+
+  .env-front {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .env-front svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 55%;
+    transform-origin: top center;
+    transform: rotateX(0deg);
+    transition:
+      transform 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
+      z-index 0s 0.35s;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .flap svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .envelope:hover .flap {
+    transform: rotateX(-170deg);
+    z-index: 1;
+    transition:
+      transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+      z-index 0s 0.15s;
+  }
+
+  .letter-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    text-align: center;
+  }
+  .letter-eyebrow {
+    font-family: var(--serif-cn);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.12em;
+  }
+  .letter-email {
+    font-family: var(--serif-en);
+    font-size: 1.1rem;
+    color: var(--ink);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    transition: color 0.3s;
+  }
+  .envelope:hover .letter-email {
+    color: var(--ochre);
+  }
+  .letter-cta {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 0.88rem;
+    color: var(--ochre);
+    margin-top: 0.2rem;
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease;
+  }
+  .envelope:hover .letter-cta {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 0.3s ease 0.55s,
+      transform 0.3s ease 0.55s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flap {
+      transition: none;
+    }
+    .letter {
+      transition: none;
+    }
+    .letter-cta {
+      transition: none;
+    }
+    .envelope:hover .flap {
+      transform: none;
+    }
+    .envelope:hover .letter {
+      transform: translateY(0);
+    }
+  }
+
+  /* ── RSS 订阅行 ── */
+  .channels {
+    width: 100%;
+    margin-top: 1.5rem;
+  }
+  .channel {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'main arrow' 'note arrow';
+    gap: 0.3rem 1rem;
+    align-items: center;
+    padding: 1.6rem 0;
+    border-top: 1px solid var(--line);
+    text-decoration: none;
+    transition: padding-left 0.4s ease;
+  }
+  .channel:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .channel:hover {
+    padding-left: 1rem;
+  }
+  .channel-main {
+    grid-area: main;
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .channel-label {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--ochre);
+  }
+  .channel-value {
+    font-size: 1.3rem;
+    color: var(--ink);
+    font-weight: 400;
+    transition: color 0.3s;
+  }
+  .channel:hover .channel-value {
+    color: var(--ochre);
+  }
+  .channel-note {
+    grid-area: note;
+    font-size: 0.95rem;
+    color: var(--ink-faint);
+    font-weight: 300;
+  }
+  .arrow {
+    grid-area: arrow;
+    font-size: 1.4rem;
+    color: var(--ink-faint);
+    transition:
+      transform 0.3s,
+      color 0.3s;
+  }
+  .channel:hover .arrow {
+    transform: translateX(6px);
+    color: var(--ochre);
+  }
+
+  .ps {
+    max-width: 56ch;
+    margin: 4.5rem auto 0;
+    text-align: center;
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--ink-faint);
+    line-height: 1.8;
+  }
+
+  @media (max-width: 680px) {
+    .about-head {
+      text-align: center;
+    }
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 3.5rem;
+      margin-bottom: 4rem;
+    }
+    .facet {
+      padding: 0.2rem 0 0.2rem 1.2rem;
+    }
+    .about-body .lead {
+      font-size: 1.2rem;
+    }
+    .contact-grid {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      text-align: center;
+    }
+    .channel-value {
+      font-size: 1.15rem;
+    }
+    .envelope-wrap {
+      margin: 2rem auto 2rem;
+    }
+  }
+</style>

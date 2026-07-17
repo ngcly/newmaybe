@@ -1,0 +1,279 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { render } from 'astro:content';
+
+const fragments = (await getCollection('fragments', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Base title="念头" description="一些来不及展开的句子，半成形的念头，以及那些闪过便消失的瞬间。">
+  <section class="fragments-page">
+    <div class="wrap">
+      <header class="frag-head reveal">
+        <span class="eyebrow">Fragments</span>
+        <h1>念头<span class="zh">碎片集</span></h1>
+        <p class="intro">来不及展开的句子，半成形的念头，以及那些闪过便消失的瞬间。</p>
+      </header>
+
+      <div class="timeline">
+        {
+          fragments.map(async (frag, i) => {
+            const { Content } = await render(frag);
+            return (
+              <article
+                id={frag.id}
+                class="frag-card reveal"
+                style={`animation-delay: ${i * 0.06}s`}
+              >
+                <div class="frag-aside">
+                  <time class="frag-date">{fmtDate(frag.data.pubDate)}</time>
+                  {(frag.data.mood || frag.data.location) && (
+                    <div class="frag-meta">
+                      {frag.data.location && <span class="meta-loc">📍 {frag.data.location}</span>}
+                      {frag.data.mood && <span class="meta-mood">{frag.data.mood}</span>}
+                    </div>
+                  )}
+                </div>
+                <div class="frag-body">
+                  <Content />
+                </div>
+              </article>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .fragments-page {
+    padding: 5rem 0 7rem;
+  }
+
+  .frag-head {
+    max-width: 60ch;
+    margin: 0 auto 5rem;
+    text-align: center;
+  }
+  .frag-head h1 {
+    font-weight: 500;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 1.8rem;
+  }
+  .frag-head .intro {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+
+  /* 时间轴容器 */
+  .timeline {
+    --tl-col: 140px;
+    --tl-gap: 2.5rem;
+    max-width: 740px;
+    margin: 0 auto;
+    position: relative;
+  }
+  /* 左侧纵线：对齐到左栏右边缘 + 半格偏移 */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--tl-col) + 8px);
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--line);
+  }
+
+  /* 碎片卡片 */
+  .frag-card {
+    display: grid;
+    grid-template-columns: var(--tl-col) 1fr;
+    gap: 0 var(--tl-gap);
+    padding: 2rem 0 2rem;
+    position: relative;
+  }
+
+  .frag-card:target .frag-body {
+    background-color: color-mix(in srgb, var(--ochre) 8%, transparent);
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    animation: targetFragHighlight 2.5s ease-out forwards;
+  }
+
+  @keyframes targetFragHighlight {
+    0% {
+      background-color: color-mix(in srgb, var(--ochre) 12%, transparent);
+      border-color: var(--ochre);
+    }
+    100% {
+      background-color: transparent;
+      border-color: var(--line);
+    }
+  }
+  /* 时间轴节点圆点 */
+  .frag-card::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--tl-col) + 4px);
+    top: 2.6rem;
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    transform: rotate(45deg);
+    background: var(--paper);
+    border: 1.5px solid var(--ochre);
+    transition:
+      background 0.3s ease,
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1;
+  }
+  .frag-card:hover::before {
+    background: var(--ochre);
+    transform: rotate(45deg) scale(1.25);
+  }
+
+  /* 左栏：日期 + 元信息 */
+  .frag-aside {
+    text-align: right;
+    padding-top: 0.2rem;
+  }
+  .frag-date {
+    display: block;
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--ink-faint);
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+  }
+  .frag-meta {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+  }
+  .meta-loc,
+  .meta-mood {
+    font-family: var(--serif-cn);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    opacity: 0.75;
+  }
+  .meta-loc {
+    font-size: 0.78rem;
+  }
+
+  /* 右栏：正文 */
+  .frag-body {
+    padding: 1.4rem 1.8rem;
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    position: relative;
+    transition:
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.3s ease;
+  }
+  /* 小三角，使卡片指向时间轴 */
+  .frag-body::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 1.5rem;
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 7px solid var(--line);
+    transition: border-right-color 0.3s ease;
+  }
+  .frag-body::after {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 1.5rem;
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 7px solid var(--paper-deep);
+  }
+  .frag-card:hover .frag-body {
+    transform: translateX(4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    border-color: color-mix(in srgb, var(--ochre) 25%, var(--line));
+  }
+  .frag-card:hover .frag-body::before {
+    border-right-color: color-mix(in srgb, var(--ochre) 25%, var(--line));
+  }
+  :root.dark .frag-card:hover .frag-body {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+  .frag-body :global(p) {
+    font-size: 1.08rem;
+    line-height: 1.95;
+    color: var(--ink-soft);
+    font-weight: 300;
+    margin: 0;
+  }
+  .frag-body :global(p + p) {
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 680px) {
+    .timeline::before {
+      display: none;
+    }
+    .frag-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--paper-deep);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0;
+      margin-bottom: 2rem;
+    }
+    .frag-card::before {
+      display: none;
+    }
+    .frag-aside {
+      order: -1;
+      text-align: left;
+      padding: 1rem 1.2rem 0.6rem;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .frag-meta {
+      margin-top: 0;
+      flex-direction: row;
+      gap: 0.6rem;
+    }
+    .frag-body {
+      padding: 1.2rem;
+      background: none;
+      border: none;
+    }
+    .frag-body::before,
+    .frag-body::after {
+      display: none;
+    }
+    .frag-card:hover .frag-body {
+      transform: none;
+    }
+  }
+</style>

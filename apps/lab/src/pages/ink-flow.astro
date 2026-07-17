@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <title>水墨生成流体 · newmaybe 实验 04</title>
+    <meta
+      name="description"
+      content="水墨生成流体 - newmaybe 实验 04。基于 Canvas 和物理流体力学的水墨流动模拟，在屏幕上绘制属于你的写意水墨画卷。"
+    />
+    <link rel="canonical" href="https://lab.newmaybe.com/ink-flow" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="水墨生成流体 · newmaybe 实验 04" />
+    <meta
+      property="og:description"
+      content="水墨生成流体 - newmaybe 实验 04。基于 Canvas 和物理流体力学的水墨流动模拟，在屏幕上绘制属于你的写意水墨画卷。"
+    />
+    <meta property="og:url" content="https://lab.newmaybe.com/ink-flow" />
+    <meta property="og:image" content="https://newmaybe.com/og-default.png" />
+    <meta property="og:site_name" content="newmaybe" />
+    <meta property="og:locale" content="zh_CN" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="水墨生成流体 · newmaybe 实验 04" />
+    <meta
+      name="twitter:description"
+      content="水墨生成流体 - newmaybe 实验 04。基于 Canvas 和物理流体力学的水墨流动模拟，在屏幕上绘制属于你的写意水墨画卷。"
+    />
+    <meta name="twitter:image" content="https://newmaybe.com/og-default.png" />
+
+    <script is:inline>
+      (function () {
+        const match = document.cookie.match(/theme=(dark|light)/);
+        const theme =
+          (match && match[1]) ||
+          localStorage.getItem('theme') ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.classList.add(theme);
+      })();
+    </script>
+    <style>
+      @import '@fontsource/cormorant-garamond/latin-400.css';
+      @import '@fontsource/cormorant-garamond/latin-400-italic.css';
+      @import '@fontsource/cormorant-garamond/latin-600.css';
+      @import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
+      @import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
+      @import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
+      @import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
+
+      @import '@newmaybe/shared-styles/tokens.css';
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: var(--paper);
+        color: var(--ink);
+        font-family: var(--serif-cn), serif;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        transition: background-color 0.5s;
+      }
+
+      header {
+        position: absolute;
+        top: 2rem;
+        left: 3rem;
+        z-index: 100;
+      }
+      .back-link {
+        font-size: 0.9rem;
+        color: var(--ink-faint);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+      .back-link:hover {
+        color: var(--ochre);
+      }
+
+      /* Canvas */
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      /* 下部控制栏 */
+      .ink-controls {
+        position: absolute;
+        bottom: 2rem;
+        left: 0;
+        right: 0;
+        width: fit-content;
+        margin: 0 auto;
+        background: rgba(239, 233, 222, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 0.8rem 1.8rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        box-shadow: 0 4px 20px rgba(43, 39, 34, 0.03);
+        z-index: 100;
+      }
+      :root.dark .ink-controls {
+        background: rgba(38, 35, 32, 0.7);
+      }
+
+      .control-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        color: var(--ink-soft);
+      }
+
+      .color-btn {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        cursor: pointer;
+        padding: 0;
+        transition:
+          transform 0.2s,
+          border-color 0.2s;
+      }
+      .color-btn.active {
+        border-color: var(--ochre);
+        transform: scale(1.2);
+      }
+
+      .clear-btn {
+        background: none;
+        border: 1px solid var(--line);
+        color: var(--ink-soft);
+        cursor: pointer;
+        font-size: 0.76rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 3px;
+        font-family: var(--serif-cn), serif;
+        transition: all 0.3s;
+      }
+      .clear-btn:hover {
+        background-color: var(--ochre);
+        color: var(--paper);
+        border-color: var(--ochre);
+      }
+
+      /* 悬浮引导说明 */
+      .overlay-tip {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        text-align: center;
+        font-weight: 300;
+        font-size: 1.1rem;
+        color: var(--ink-soft);
+        transition: opacity 1s ease-in-out;
+        animation: pulse 3s infinite ease-in-out;
+        z-index: 5;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 0.75;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="/#" class="back-link">← 返回实验室</a>
+    </header>
+
+    <!-- 视听渲染画布 -->
+    <canvas id="canvas"></canvas>
+
+    <div class="overlay-tip" id="overlayTip">
+      拖拽鼠标 · 泼墨渲染<br />
+      <span style="font-size: 0.85rem; color: var(--ink-faint); margin-top: 0.5rem; display: block;"
+        >按「空格键」清空画布重新泼洒</span
+      >
+    </div>
+
+    <!-- 下方控制 -->
+    <div class="ink-controls">
+      <div class="control-item">
+        <span>墨色：</span>
+        <button
+          class="color-btn active"
+          id="colorInk"
+          style="background-color: var(--ink);"
+          title="黛墨"></button>
+        <button
+          class="color-btn"
+          id="colorOchre"
+          style="background-color: var(--ochre);"
+          title="赭石"></button>
+        <button class="color-btn" id="colorBamboo" style="background-color: #6B8E7B;" title="竹青"
+        ></button>
+      </div>
+      <div class="control-item">
+        <span>墨滴大小：</span>
+        <input
+          type="range"
+          id="sizeSlider"
+          min="5"
+          max="60"
+          value="25"
+          style="width: 80px; accent-color: var(--ochre); cursor: pointer;"
+          aria-label="笔刷大小"
+        />
+      </div>
+      <div class="control-item">
+        <span>扩散度：</span>
+        <input
+          type="range"
+          id="spreadSlider"
+          min="1"
+          max="100"
+          value="45"
+          style="width: 80px; accent-color: var(--ochre); cursor: pointer;"
+          aria-label="墨迹扩散度"
+        />
+      </div>
+      <div class="control-item" style="border-left: 1px solid var(--line); padding-left: 1rem;">
+        <button class="clear-btn" id="clearBtn">重置宣纸 (Space)</button>
+      </div>
+    </div>
+
+    <script is:inline>
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      let width = (canvas.width = window.innerWidth);
+      let height = (canvas.height = window.innerHeight);
+
+      const particles = [];
+      const maxParticles = 600;
+      let brushSize = 25;
+      let brushSpread = 45;
+
+      // 默认墨色类型
+      let inkColorType = 'ink'; // 'ink' | 'ochre' | 'bamboo'
+
+      const getThemeColor = (name) =>
+        getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+      // 粒子结构：模拟水墨向外渗透、阻尼减速、变大、淡出的物理状态
+      class InkParticle {
+        constructor(x, y, colorStr, vx, vy) {
+          this.x = x;
+          this.y = y;
+          // 初始扩散速度
+          this.vx = vx + (Math.random() - 0.5) * (brushSpread / 10);
+          this.vy = vy + (Math.random() - 0.5) * (brushSpread / 10);
+          this.baseSize = Math.random() * (brushSize / 2) + 2;
+          this.size = this.baseSize;
+          this.opacity = Math.random() * 0.4 + 0.3; // 初始半透明
+          this.color = colorStr;
+          // 缓慢的生长扩散阻尼
+          this.growth = Math.random() * 0.12 + 0.05;
+          this.damping = 0.94;
+        }
+
+        update() {
+          // 位移
+          this.x += this.vx;
+          this.y += this.vy;
+
+          // 阻尼减速 (墨汁向四周晕染渗透的速度会逐渐变慢)
+          this.vx *= this.damping;
+          this.vy *= this.damping;
+
+          // 扩散变大 (晕染开的面积变大)
+          this.size += this.growth;
+
+          // 浓度稀释 (淡出)
+          this.opacity -= 0.0035;
+        }
+
+        draw() {
+          if (this.opacity <= 0) return;
+          ctx.globalAlpha = this.opacity;
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1.0;
+        }
+      }
+
+      // 获得当前选择的墨汁颜色字符串
+      function getCurrentColorStr() {
+        if (inkColorType === 'ochre') return getThemeColor('--ochre');
+        if (inkColorType === 'bamboo') return '#6B8E7B';
+        return getThemeColor('--ink');
+      }
+
+      // 鼠标动作
+      let isDrawing = false;
+      let lastX = 0;
+      let lastY = 0;
+
+      function handleStart(x, y) {
+        isDrawing = true;
+        lastX = x;
+        lastY = y;
+
+        const tip = document.getElementById('overlayTip');
+        if (tip) {
+          tip.style.opacity = '0';
+          setTimeout(() => tip.remove(), 1000);
+        }
+      }
+
+      function handleMove(x, y) {
+        if (!isDrawing) return;
+
+        // 根据鼠标滑行速率计算墨汁喷洒初始惯性加速度
+        const dx = x - lastX;
+        const dy = y - lastY;
+
+        // 在鼠标当前轨迹上补充产生细密墨粒
+        const steps = 4;
+        for (let i = 0; i < steps; i++) {
+          const stepX = lastX + (dx / steps) * i;
+          const stepY = lastY + (dy / steps) * i;
+
+          // 在该点附近泼洒数个微小粒子
+          const pCount = Math.floor(brushSize / 8) + 1;
+          for (let j = 0; j < pCount; j++) {
+            const vx = dx * 0.15;
+            const vy = dy * 0.15;
+            particles.push(
+              new InkParticle(
+                stepX + (Math.random() - 0.5) * 8,
+                stepY + (Math.random() - 0.5) * 8,
+                getCurrentColorStr(),
+                vx,
+                vy,
+              ),
+            );
+          }
+        }
+
+        // 保证最大粒子上限，防止内存泄露
+        if (particles.length > maxParticles) {
+          particles.splice(0, particles.length - maxParticles);
+        }
+
+        lastX = x;
+        lastY = y;
+      }
+
+      // 鼠标事件绑定
+      canvas.addEventListener('mousedown', (e) => handleStart(e.clientX, e.clientY));
+      canvas.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+      window.addEventListener('mouseup', () => (isDrawing = false));
+
+      // 移动端 Touch 支持
+      canvas.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        handleStart(touch.clientX, touch.clientY);
+      });
+      canvas.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        handleMove(touch.clientX, touch.clientY);
+      });
+      window.addEventListener('touchend', () => (isDrawing = false));
+
+      // 宣纸的特殊残留效果：不直接 clearRect，而是每次绘制一层极薄纸底色，实现水墨浸染的轻微残影
+      function applyPaperWash() {
+        ctx.fillStyle = getThemeColor('--paper') + '0c'; // 0.05 左右的不透明度产生晕染滞留感
+        ctx.fillRect(0, 0, width, height);
+      }
+
+      function initPaper() {
+        ctx.fillStyle = getThemeColor('--paper');
+        ctx.fillRect(0, 0, width, height);
+      }
+
+      // 渲染主循环
+      function loop() {
+        applyPaperWash();
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.update();
+          p.draw();
+
+          // 彻底稀释淡出的粒子剔除
+          if (p.opacity <= 0) {
+            particles.splice(i, 1);
+          }
+        }
+
+        requestAnimationFrame(loop);
+      }
+
+      // 控件监听绑定
+      document.getElementById('clearBtn').addEventListener('click', () => {
+        particles.length = 0;
+        initPaper();
+      });
+
+      document.getElementById('sizeSlider').addEventListener('input', (e) => {
+        brushSize = parseInt(e.target.value);
+      });
+
+      document.getElementById('spreadSlider').addEventListener('input', (e) => {
+        brushSpread = parseInt(e.target.value);
+      });
+
+      // 墨色按扭绑定
+      const colorBtns = document.querySelectorAll('.color-btn');
+      colorBtns.forEach((btn) => {
+        btn.addEventListener('click', function () {
+          colorBtns.forEach((b) => b.classList.remove('active'));
+          this.classList.add('active');
+          if (this.id === 'colorOchre') inkColorType = 'ochre';
+          else if (this.id === 'colorBamboo') inkColorType = 'bamboo';
+          else inkColorType = 'ink';
+        });
+      });
+
+      // 空格键一键清空
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          particles.length = 0;
+          initPaper();
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        initPaper();
+      });
+
+      // 初始化宣纸背景与启动
+      initPaper();
+      loop();
+    </script>
+  </body>
+</html>

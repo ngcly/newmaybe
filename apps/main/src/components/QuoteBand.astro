@@ -1,0 +1,72 @@
+---
+interface Props {
+  text?: string;
+  cite?: string;
+}
+const { text = '留白处，自有新可能。', cite = '— 留白 · 新可能' } = Astro.props;
+const lines = text.split('\n');
+---
+
+<section class="quote-band">
+  <div class="wrap">
+    <blockquote class="reveal">
+      <span class="mark">"</span>
+      <p>
+        {
+          lines.map((line, i) => (
+            <>
+              {line}
+              {i < lines.length - 1 && <br />}
+            </>
+          ))
+        }
+      </p>
+      <cite>{cite}</cite>
+    </blockquote>
+  </div>
+</section>
+
+<style>
+  .quote-band {
+    background: var(--paper-deep);
+    padding: 4.5rem 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  blockquote {
+    max-width: 60ch;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+  }
+  blockquote .mark {
+    font-family: var(--serif-en);
+    font-size: 5rem;
+    color: var(--ochre);
+    line-height: 0;
+    opacity: 0.4;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  blockquote p {
+    font-size: 1.7rem;
+    line-height: 1.7;
+    font-weight: 300;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+  }
+  blockquote cite {
+    display: block;
+    margin-top: 1.8rem;
+    font-style: normal;
+    font-family: var(--serif-en);
+    font-size: 1rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+  }
+  @media (max-width: 680px) {
+    blockquote p {
+      font-size: 1.35rem;
+    }
+  }
+</style>

@@ -1,0 +1,27 @@
+---
+title: 记忆里的雨巷
+description: 撑着油纸伞，走在没有你的雨巷，往事如书卷般泛黄。
+pubDate: 2025-10-10
+category: 诗歌
+readingTime: 1
+weight: 90
+draft: false
+watermark: 雨
+connections: ['posts/mourning_in_the_qingming_rain', 'posts/qingming_rain']
+---
+
+我还撑着油纸伞，  
+走在没有你的雨巷，  
+独自忧伤，彷徨。  
+青石路，灰砖墙，  
+街角灯火昏黄，  
+凄风阵阵，雨微凉。
+
+翻开旧书卷，  
+斑驳字迹，  
+依稀记得过往，  
+那丁香般的姑娘，  
+未完成的篇章。  
+墨痕淡，纸泛黄，  
+案上朱笔深藏，  
+再无红袖添新香。
