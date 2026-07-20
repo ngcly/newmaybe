@@ -1,4 +1,5 @@
 import type { Message } from '../types';
+import MarkdownText from './MarkdownText';
 
 interface ChatMessageProps {
   msg: Message;
@@ -20,10 +21,12 @@ export default function ChatMessage({ msg, resolveSubdomain }: ChatMessageProps)
         className={`p-4 rounded-lg text-sm leading-relaxed text-justify font-serif border ${
           isUser
             ? 'bg-[var(--paper-deep)] border-[var(--line)] text-[var(--ink)] rounded-br-none'
-            : 'bg-[var(--paper)] border-[var(--line)] text-[var(--ink)] rounded-bl-none shadow-sm'
+            : isError
+              ? 'bg-[var(--cinnabar-bg)] border-[var(--cinnabar)]/40 text-[var(--cinnabar)] rounded-bl-none'
+              : 'bg-[var(--paper)] border-[var(--line)] text-[var(--ink)] rounded-bl-none shadow-sm'
         }`}
       >
-        <div className="whitespace-pre-wrap">{msg.text}</div>
+        <MarkdownText text={msg.text} />
 
         {/* References */}
         {msg.references && msg.references.length > 0 && (

@@ -97,6 +97,8 @@
         width: 100%;
         height: 100%;
         display: block;
+        /* 页面本身 overflow: hidden 无需滚动，禁用触摸默认手势以持续追踪 pointermove */
+        touch-action: none;
       }
 
       /* 悬浮说明板 */
@@ -217,11 +219,16 @@
         }
       }
 
+      // 应用文字绘制样式 (canvas 尺寸变更会重置整个 2D 上下文状态，需每次重新设置)
+      function applyTextStyle() {
+        ctx.font = '20px "Noto Serif SC", "Songti SC", serif';
+        ctx.textAlign = 'center';
+      }
+
       // 初始化排版粒子
       function initPoemParticles() {
         particles.length = 0;
-        ctx.font = '20px "Noto Serif SC", "Songti SC", serif';
-        ctx.textAlign = 'center';
+        applyTextStyle();
 
         const charSize = 24;
         const lineSpacing = 42;
@@ -276,6 +283,8 @@
       window.addEventListener('resize', () => {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
+        // 尺寸重置后 ctx 状态被清空，恢复文字样式
+        applyTextStyle();
 
         const charSize = 24;
         const lineSpacing = 42;
@@ -300,14 +309,27 @@
         });
       });
 
-      // 监听鼠标轨迹
-      window.addEventListener('mousemove', (e) => {
+      // 监听指针轨迹 (Pointer Events 同时覆盖鼠标与触摸)
+      window.addEventListener('pointermove', (e) => {
         mouse.x = e.clientX;
         mouse.y = e.clientY;
         mouse.active = true;
       });
 
-      window.addEventListener('mouseleave', () => {
+      // 指针移出窗口时关闭排斥 (relatedTarget 为空说明已离开文档)
+      document.addEventListener('pointerout', (e) => {
+        if (!e.relatedTarget) {
+          mouse.active = false;
+        }
+      });
+
+      // 触摸抬起/取消后停止排斥，让文字静静重组
+      window.addEventListener('pointerup', (e) => {
+        if (e.pointerType !== 'mouse') {
+          mouse.active = false;
+        }
+      });
+      window.addEventListener('pointercancel', () => {
         mouse.active = false;
       });
 

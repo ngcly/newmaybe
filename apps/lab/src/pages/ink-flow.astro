@@ -446,9 +446,9 @@
         });
       });
 
-      // 空格键一键清空
+      // 空格键一键清空 (仅当页面主体获得焦点时生效，避免按钮/滑块聚焦时误触)
       window.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') {
+        if (e.code === 'Space' && e.target === document.body) {
           e.preventDefault();
           particles.length = 0;
           initPaper();

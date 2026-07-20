@@ -129,6 +129,12 @@ p {
   text-justify: inter-character;
 }
 
+/* 全局键盘焦点指示 —— 赭石虚线，呼应线装书语言 */
+:focus-visible {
+  outline: 1.5px dashed var(--ochre);
+  outline-offset: 3px;
+}
+
 /* 分隔横线 */
 .rule {
   height: 1px;

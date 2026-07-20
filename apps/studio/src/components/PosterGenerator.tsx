@@ -151,6 +151,24 @@ export default function PosterGenerator({ initialQuote }: PosterGeneratorProps) 
     renderCanvas();
   }, [renderCanvas]);
 
+  // Repaint once the brand webfonts finish loading so the first render
+  // doesn't stick with fallback serif glyphs.
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([
+      document.fonts.load('normal 64px "Noto Serif SC"'),
+      document.fonts.load('italic 32px "Noto Serif SC"'),
+      document.fonts.load('bold 24px "Noto Serif SC"'),
+      document.fonts.load('italic 20px "Cormorant Garamond"'),
+      document.fonts.ready,
+    ]).then(() => {
+      if (!cancelled) renderCanvas();
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [renderCanvas]);
+
   const handleDownload = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;

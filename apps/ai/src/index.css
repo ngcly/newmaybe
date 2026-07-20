@@ -9,6 +9,11 @@
 
 @import '@newmaybe/shared-styles/tokens.css';
 
+/* 将 Tailwind 的 font-serif 工具类映射到品牌中文衬线字体（token 来源于 shared-styles） */
+@theme {
+  --font-serif: var(--serif-cn);
+}
+
 @layer base {
   body {
     background-color: var(--paper);
@@ -37,4 +42,10 @@
 
 .msg-animate {
   animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 全局键盘焦点指示 —— 赭石虚线，呼应线装书语言（置于 @layer 外以覆盖 outline-none 工具类） */
+:focus-visible {
+  outline: 1.5px dashed var(--ochre);
+  outline-offset: 3px;
 }

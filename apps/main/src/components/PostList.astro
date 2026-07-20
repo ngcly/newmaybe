@@ -177,5 +177,10 @@ const fmt = (d: Date) => d.toLocaleDateString('zh-CN', { year: 'numeric', month:
     .post .date {
       font-size: 0.95rem;
     }
+    /* 单列堆叠下卡片内容可能超过 250px，解除高度限制避免静默裁切；
+       过滤动画在该断点降级为纯透明度（.post.hidden 的 max-height: 0 仍生效） */
+    .post {
+      max-height: none;
+    }
   }
 </style>

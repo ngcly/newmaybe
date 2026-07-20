@@ -8,7 +8,7 @@
   --paper-deep: #efe9de; /* 略深的米色 */
   --ink: #2b2722; /* 墨黑 */
   --ink-soft: #5b5349; /* 暖灰墨 */
-  --ink-faint: #968b7c; /* 淡墨 */
+  --ink-faint: #756b5c; /* 淡墨（加深以满足 WCAG AA 4.5:1） */
   --ochre: #a8643c; /* 赭石 */
   --ochre-deep: #8a4f2e;
   --line: #d9cfbf; /* 细线 */
@@ -23,8 +23,10 @@
   --cinnabar-bg: #faf3f0; /* 极淡朱红底 */
   --withered-bg: #ede6df; /* 枯木褐底 */
   --withered-ink: #4a423b; /* 枯木深灰 */
+  --bamboo: #6b8e7b; /* 竹青 */
 
   --serif-cn: 'Noto Serif SC', 'Songti SC', serif;
+  --serif-kai: 'Kaiti SC', 'STKaiti', 'KaiTi', 'Noto Serif SC', serif;
   --serif-en: 'Cormorant Garamond', 'Noto Serif SC', serif;
 }
 
@@ -34,7 +36,7 @@
     --paper-deep: #262320;
     --ink: #e8e0d5;
     --ink-soft: #b5a99a;
-    --ink-faint: #7a7065;
+    --ink-faint: #8f857a;
     --ochre: #c4814e;
     --ochre-deep: #a8643c;
     --line: #3a3430;
@@ -47,6 +49,7 @@
     --cinnabar-bg: #2b1e1d;
     --withered-bg: #2d2722;
     --withered-ink: #d4c7bc;
+    --bamboo: #7da08c;
   }
 }
 
@@ -55,7 +58,7 @@
   --paper-deep: #262320;
   --ink: #e8e0d5;
   --ink-soft: #b5a99a;
-  --ink-faint: #7a7065;
+  --ink-faint: #8f857a;
   --ochre: #c4814e;
   --ochre-deep: #a8643c;
   --line: #3a3430;
@@ -68,6 +71,7 @@
   --cinnabar-bg: #2b1e1d;
   --withered-bg: #2d2722;
   --withered-ink: #d4c7bc;
+  --bamboo: #7da08c;
 }
 
 /* :root.light intentionally omitted — :root already carries light defaults.

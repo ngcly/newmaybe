@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { type Message, type ProviderType } from '../types';
 import { retrieveRelevantDocs, type ContentItem } from '../utils/rag';
 import TypingIndicator from './TypingIndicator';
+import MarkdownText from './MarkdownText';
 
 interface EgoMirrorProps {
   allContent: ContentItem[];
@@ -236,9 +237,9 @@ ${m.doc.content}
   };
 
   return (
-    <div className="h-full flex flex-col lg:flex-row gap-6 overflow-hidden">
+    <div className="h-full flex flex-col lg:flex-row gap-6 overflow-y-auto lg:overflow-hidden">
       {/* Dialogue sandbox */}
-      <div className="flex-grow flex flex-col h-full bg-[var(--paper)] border border-[var(--line)] rounded-lg overflow-hidden min-w-0">
+      <div className="flex-grow flex flex-col h-[65vh] max-lg:shrink-0 lg:h-full bg-[var(--paper)] border border-[var(--line)] rounded-lg overflow-hidden min-w-0">
         <header className="px-4 py-3 border-b border-[var(--line)] bg-[var(--paper-deep)] flex justify-between items-center shrink-0">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
@@ -256,6 +257,7 @@ ${m.doc.content}
         <div className="flex-grow overflow-y-auto p-4 md:p-6 space-y-4">
           {messages.map((msg) => {
             const isUser = msg.role === 'user';
+            const isError = msg.id.includes('error');
             return (
               <div
                 key={msg.id}
@@ -267,10 +269,12 @@ ${m.doc.content}
                   className={`p-3.5 rounded-lg text-sm leading-relaxed text-justify font-serif border ${
                     isUser
                       ? 'bg-[var(--paper-deep)] border-[var(--line)] text-[var(--ink)] rounded-br-none'
-                      : 'bg-[var(--paper)] border-[var(--line)] text-[var(--ink)] rounded-bl-none shadow-sm'
+                      : isError
+                        ? 'bg-[var(--cinnabar-bg)] border-[var(--cinnabar)]/40 text-[var(--cinnabar)] rounded-bl-none'
+                        : 'bg-[var(--paper)] border-[var(--line)] text-[var(--ink)] rounded-bl-none shadow-sm'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{msg.text}</p>
+                  <MarkdownText text={msg.text} />
                 </div>
                 <span className="text-[9px] text-[var(--ink-faint)] mt-1 px-1">
                   {msg.timestamp}
@@ -308,7 +312,7 @@ ${m.doc.content}
       </div>
 
       {/* Right Column: Historical citation references */}
-      <div className="w-full lg:w-80 shrink-0 flex flex-col h-full bg-[color-mix(in_srgb,var(--paper-deep)_50%,transparent)] border border-[var(--line)] rounded-lg overflow-hidden">
+      <div className="w-full lg:w-80 shrink-0 flex flex-col h-auto lg:h-full bg-[color-mix(in_srgb,var(--paper-deep)_50%,transparent)] border border-[var(--line)] rounded-lg overflow-hidden">
         <header className="px-4 py-3 border-b border-[var(--line)] bg-[var(--paper-deep)] shrink-0">
           <span className="text-xs font-semibold text-[var(--ink-soft)] font-sans uppercase tracking-wider">
             历史文献投影 ({sessionReferences.length})
