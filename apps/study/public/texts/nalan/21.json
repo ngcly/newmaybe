@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["散帙坐凝尘，吹气幽兰并。", "茶名龙凤团，香字鸳鸯饼。"],
+    ["玉局类弹棋，颠倒双栖影。", "花月不曾闲，莫放相思醒。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

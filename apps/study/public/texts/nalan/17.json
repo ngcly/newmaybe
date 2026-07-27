@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["暮雨丝丝吹湿，倦柳愁荷风急。", "瘦骨不禁秋，总成愁。"],
+    ["别有心情怎说？", "未是诉愁时节。", "谯鼓已三更，梦须成。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

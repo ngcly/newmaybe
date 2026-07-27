@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["十八年来坠世间，吹花嚼蕊弄冰弦，多情情寄阿谁边？"],
+    ["紫玉钗斜灯影背，红绵粉冷枕函边。", "相看好处却无言。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

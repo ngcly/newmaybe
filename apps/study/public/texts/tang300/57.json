@@ -1,0 +1,9 @@
+{
+  "title": "泊秦淮",
+  "paras": [["烟笼寒水月笼沙，夜泊秦淮近酒家。"], ["商女不知亡国恨，隔江犹唱后庭花。"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

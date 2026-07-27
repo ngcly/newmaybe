@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["留春不住，费尽莺儿语。", "满地残红宫锦污，昨夜南园风雨。"],
+    ["小伶初上琵琶，晓来思绕天涯。", "不肯画堂朱户，春风自在杨花。"]
+  ],
+  "author": "王安国",
+  "tune": "清平乐",
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  }
+}

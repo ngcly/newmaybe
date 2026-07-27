@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["香漠漠，低卷水风池阁。", "玉腕笼纱金半约，睡浓团扇落。"],
+    ["雨过凉生云薄，女伴棹歌声乐。", "采得双莲迎笑剥，柳阴多处泊。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "张镃",
+  "tune": "谒金门"
+}

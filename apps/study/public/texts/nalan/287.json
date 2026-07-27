@@ -1,0 +1,10 @@
+{
+  "title": "又",
+  "paras": [["江南好，一片妙高云。", "砚北峰峦米外史，屏间楼阁李将军，金碧矗斜曛。"]],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

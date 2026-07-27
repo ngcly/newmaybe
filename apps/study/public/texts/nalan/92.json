@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["谁翻乐府凄凉曲？", "风也萧萧，雨也萧萧，瘦尽灯花又一宵。"],
+    ["不知何事萦怀抱，醒也无聊，醉也无聊，梦也何曾到谢桥。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

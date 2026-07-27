@@ -1,0 +1,13 @@
+{
+  "title": "清平乐",
+  "paras": [
+    ["麝烟深漾，人拥缑笙氅。", "新恨暗随新月长，不辨眉尖心上。"],
+    ["六花斜扑疏帘，地衣红棉轻霑。", "记取暖香如梦，耐他一晌寒。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

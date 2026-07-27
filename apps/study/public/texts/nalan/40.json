@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["残雪凝辉冷画屏。", "落梅横笛已三更，更无人处月胧明。"],
+    ["我是人间惆怅客，知君何事泪纵横。", "断肠声里忆平生。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

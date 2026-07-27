@@ -1,0 +1,12 @@
+{
+  "title": "遣怀",
+  "paras": [
+    ["落魄江湖载酒行，楚腰纤细掌中轻。(江湖 一作：江南；", "纤细 一作：肠断)"],
+    ["十年一觉扬州梦，赢得青楼薄幸名。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

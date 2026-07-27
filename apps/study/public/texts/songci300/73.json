@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["漠漠轻寒上小楼，晓阴无赖似穷秋，淡烟流水画屏幽。"],
+    ["自在飞花轻似梦，无边丝雨细如愁，宝帘闲挂小银钩。"]
+  ],
+  "author": "秦观",
+  "tune": "浣溪沙",
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  }
+}

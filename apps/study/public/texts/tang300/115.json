@@ -1,0 +1,14 @@
+{
+  "title": "月夜",
+  "paras": [
+    ["今夜鄜州月，闺中只独看。"],
+    ["遥怜小儿女，未解忆长安。"],
+    ["香雾云鬟湿，清辉玉臂寒。"],
+    ["何时倚虚幌，双照泪痕干。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

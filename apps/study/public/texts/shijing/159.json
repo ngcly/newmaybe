@@ -1,0 +1,12 @@
+{
+  "title": "狼跋",
+  "paras": [
+    ["狼跋其胡，载疐其尾。", "公孙硕肤，赤舄几几。"],
+    ["狼疐其尾，载跋其胡。", "公孙硕肤，德音不瑕？"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

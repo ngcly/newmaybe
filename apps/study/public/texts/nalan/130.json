@@ -1,0 +1,13 @@
+{
+  "title": "摊破浣溪沙",
+  "paras": [
+    ["林下荒苔道韫家，生怜玉骨委尘沙。", "愁向风前无处说，数归鸦。"],
+    ["半世浮萍随逝水，一宵冷雨葬名花。", "魂是柳绵吹欲碎，绕天涯。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

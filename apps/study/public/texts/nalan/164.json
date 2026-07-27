@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["清镜上朝云，宿篆犹薰，一春双袂尽啼痕。", "那更夜来孤枕侧，又梦归人。"],
+    ["花底病中身，懒画湘文，藕丝裳带奈销魂。", "绣榻定知添几线，寂掩重门。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

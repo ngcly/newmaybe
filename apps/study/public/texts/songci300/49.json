@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["关山魂梦长，塞雁音书少。", "两鬓可怜青，只为相思老。"],
+    ["归傍碧纱窗，说与人人道：真个别离难，不似相逢好。"]
+  ],
+  "author": "晏几道",
+  "tune": "生查子",
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  }
+}

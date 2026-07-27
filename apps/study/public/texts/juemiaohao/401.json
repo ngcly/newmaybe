@@ -1,0 +1,14 @@
+{
+  "title": "拟花间",
+  "paras": [
+    ["眉消睡黄，春凝泪妆。", "玉屏水暖微香，听蜂儿打窗。"],
+    ["筝尘半床，绡痕半方。", "愁心欲诉垂杨，奈飞红正忙。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "周密",
+  "tune": "四字令"
+}

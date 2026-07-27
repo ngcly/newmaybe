@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["澹花瘦玉轻妆束，粉融轻汗红绵扑。", "妆罢只水眠，江南四月天。"],
+    ["绿阴帘半揭，此景清幽绝。", "行度竹林风，单衫杏子红。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

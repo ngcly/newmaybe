@@ -1,0 +1,13 @@
+{
+  "title": "清平乐",
+  "paras": [
+    ["烟轻雨小，望里青难了。", "一缕断虹垂树杪，又是乱山残照。"],
+    ["凭高目断征途，暮云千里平芜。", "日夜河流东下，锦书应托双鱼。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

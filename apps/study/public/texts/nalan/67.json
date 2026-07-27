@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["朔风吹散三更雪，倩魂犹恋桃花月。", "梦好莫催醒，由他好处行。"],
+    ["无端听画角，枕畔红冰薄。", "塞马一声嘶，残星拂大旗。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

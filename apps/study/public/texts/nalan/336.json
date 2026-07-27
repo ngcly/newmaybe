@@ -1,0 +1,13 @@
+{
+  "title": "发汉儿村题壁",
+  "paras": [
+    ["参横月落，客绪从谁记。", "望里家山云漠漠，似有红楼一角。"],
+    ["不如意事年年，消磨绝塞风烟。", "输与五陵公子，此时梦绕花前。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["鞭影落春堤，绿锦障泥卷。", "脉脉逗菱丝，嫩水吴姬眼。"],
+    ["啮膝带香归，谁整樱桃宴？", "蜡泪恼东风，旧垒眠新燕。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

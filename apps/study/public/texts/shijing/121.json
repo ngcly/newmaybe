@@ -1,0 +1,12 @@
+{
+  "title": "无衣",
+  "paras": [
+    ["岂曰无衣七兮？", "不如子之衣，安且吉兮！"],
+    ["岂曰无衣六兮？", "不如子之衣，安且燠兮！"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

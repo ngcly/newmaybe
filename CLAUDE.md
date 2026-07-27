@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**newmaybe** is a Chinese-language personal brand site and digital garden built as an **npm Monorepo** with 6 sub-applications deployed to Cloudflare Pages. The main site is a minimalist editorial blog; the subdomains extend it with a knowledge graph, AI assistant, interactive experiments, creative tools, and a writing studio.
+**newmaybe** is a Chinese-language personal brand site and digital garden built as an **npm Monorepo** with 7 sub-applications deployed to Cloudflare Pages. The main site is a minimalist editorial blog; the subdomains extend it with a knowledge graph, AI assistant, interactive experiments, creative tools, a writing studio, and a classical reading app.
 
 - **Architecture**: npm Workspaces Monorepo
 - **Main framework**: Astro 7 (SSG, Node 22.12+ required)
-- **Sub-app stacks**: React 19 + Vite (tools / ai / studio), Astro 7 + D3 (graph), Astro 7 + Canvas (lab)
-- **Hosting**: Cloudflare Pages (6 independent projects, one per sub-app)
-- **Domains**: `newmaybe.com` + 5 subdomains
+- **Sub-app stacks**: React 19 + Vite (tools / ai / studio / study), Astro 7 + D3 (graph), Astro 7 + Canvas (lab)
+- **Hosting**: Cloudflare Pages (7 independent projects, one per sub-app)
+- **Domains**: `newmaybe.com` + 6 subdomains
 
 ## Monorepo Structure
 
@@ -22,7 +22,8 @@ newmaybe/
 │   ├── tools/       # tools.newmaybe.com — React 19, Tailwind v4, Vite
 │   ├── ai/          # ai.newmaybe.com    — React 19, Vite, RAG + Workers AI
 │   ├── lab/         # lab.newmaybe.com   — Astro 7, Canvas/WebGL experiments
-│   └── studio/      # studio.newmaybe.com — React 19, Tailwind v4, Vite
+│   ├── studio/      # studio.newmaybe.com — React 19, Tailwind v4, Vite
+│   └── study/       # study.newmaybe.com — React 19, Tailwind v3, Vite, Book library & reader
 ├── packages/
 │   ├── content/         # Shared content database (all Markdown + Zod schemas)
 │   └── shared-styles/   # Single source of truth for CSS design tokens
@@ -43,6 +44,7 @@ npm run dev:tools        # http://localhost:4323
 npm run dev:ai           # http://localhost:4324
 npm run dev:lab          # http://localhost:4325
 npm run dev:studio       # http://localhost:4326
+npm run dev:study        # http://localhost:4327
 
 # Builds
 npm run build:main       # Astro build + pagefind index
@@ -51,6 +53,7 @@ npm run build:tools
 npm run build:ai
 npm run build:lab
 npm run build:studio
+npm run build:study
 
 # Content workflow
 npm run new fragment     # Create a fragment (zero-interaction)
@@ -231,6 +234,9 @@ Astro 7 SSG. Five experiments: audio-zen (Web Audio API white noise), floating-v
 
 ### `apps/studio` — Creative Studio
 React 19 + Vite. Three tabs: poster generator (HTML5 Canvas, multiple themes), inspiration engine (writing prompts), asset gallery (brand assets).
+
+### `apps/study` — Study (林下书房)
+React 19 + Tailwind v3 + Vite. A writing studio book library & reader. Features reading progress tracking, interactive practice exercises, and classical poetry reading mode. Runs on port 4327.
 
 ---
 

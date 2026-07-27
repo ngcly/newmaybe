@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["相逢不语，一朵芙蓉著秋雨。", "小晕红潮，斜溜鬟心只凤翘。"],
+    ["待将低唤，直为凝情恐人见。", "欲诉幽怀，转过回阑叩玉钗。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -4,6 +4,7 @@ const SUBDOMAINS: [string, string][] = [
   ['ai.newmaybe.com', 'http://localhost:4324'],
   ['lab.newmaybe.com', 'http://localhost:4325'],
   ['studio.newmaybe.com', 'http://localhost:4326'],
+  ['study.newmaybe.com', 'http://localhost:4327'],
   ['newmaybe.com', 'http://localhost:4321'],
 ];
 

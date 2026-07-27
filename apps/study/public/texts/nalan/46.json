@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["万里阴山万里沙，谁将绿鬓斗霜华？", "年来强半在天涯。"],
+    ["魂梦不离金曲戍，画图亲展玉鸦叉。", "生怜瘦减一分花。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

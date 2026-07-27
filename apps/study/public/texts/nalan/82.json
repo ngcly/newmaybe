@@ -1,0 +1,13 @@
+{
+  "title": "新月",
+  "paras": [
+    ["晚妆欲罢，更把纤眉临镜画。", "准待分明，和雨和烟两不胜。"],
+    ["莫教星替，守取团圆终必遂。", "此夜红楼，天上人间一样愁。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

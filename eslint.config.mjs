@@ -1,3 +1,4 @@
+/* global process */
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import astroPlugin from 'eslint-plugin-astro';
@@ -73,6 +74,15 @@ export default [
       'no-empty': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/triple-slash-reference': 'off',
+    },
+  },
+
+  // Set the root directory for parsing tsconfig
+  {
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: process.cwd(),
+      },
     },
   },
 

@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["山无情，水无情，杨柳飞花春雨晴。", "征衫长短亭。"],
+    ["拟行行，重行行，吟到江南第几程。", "江南山渐青。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "孙惟信",
+  "tune": "山渐青"
+}

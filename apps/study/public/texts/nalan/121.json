@@ -1,0 +1,13 @@
+{
+  "title": "忆秦娥",
+  "paras": [
+    ["山重叠，悬崖一线天疑裂。", "天疑裂，断碑题字，古苔横啮。"],
+    ["风声雷动鸣金铁，阴森潭底蛟龙窟。", "蛟龙窟，兴亡满眼，旧时明月。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

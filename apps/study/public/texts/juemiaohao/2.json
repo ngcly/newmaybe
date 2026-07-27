@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["光尘扑扑，宫柳低迷绿。", "斗鸭栏杆春诘曲，帘额微风绣蹙。"],
+    ["碧云青翼无凭，困来小倚云屏。", "楚梦不禁春晚，黄鹂犹自声声。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "张孝祥",
+  "tune": "清平乐"
+}

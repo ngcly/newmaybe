@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["冷露无声夜欲阑，栖鸦不定朔风寒。", "生憎画鼓楼头急，不放征人梦里还。"],
+    ["秋澹澹，月弯弯，无人起向月中看。", "明朝匹马相思处，知隔千山与万山。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

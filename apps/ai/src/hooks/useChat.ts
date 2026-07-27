@@ -8,6 +8,7 @@ import {
 import { useFreeTurns } from './useFreeTurns';
 import { WELCOME_MESSAGE } from '../constants';
 import type { Message, ProviderType, ContentStats } from '../types';
+import { AI_STORAGE_KEYS, readAIResponse } from '@newmaybe/ai-client';
 
 function timestamp() {
   return new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
@@ -49,29 +50,6 @@ export interface UseChatReturn {
   clearMessages: () => void;
 }
 
-function parseStreamToken(line: string): string | null {
-  let trimmed = line.trim();
-  if (trimmed.startsWith('data: ')) {
-    trimmed = trimmed.slice(6).trim();
-  }
-  if (!trimmed || trimmed === '[DONE]') return null;
-  if (trimmed.startsWith('{')) {
-    try {
-      const parsed = JSON.parse(trimmed);
-      return (
-        parsed.response ||
-        parsed.text ||
-        parsed.content ||
-        parsed.choices?.[0]?.delta?.content ||
-        null
-      );
-    } catch {
-      return null;
-    }
-  }
-  return trimmed;
-}
-
 export function useChat(): UseChatReturn {
   const [messages, setMessages] = useState<Message[]>(() => {
     if (typeof window !== 'undefined') {
@@ -103,10 +81,10 @@ export function useChat(): UseChatReturn {
 
   // Load saved config and RAG content on mount
   useEffect(() => {
-    const savedProvider = localStorage.getItem('newmaybe_ai_provider') as ProviderType | null;
-    const savedModel = localStorage.getItem('newmaybe_ai_model');
-    const savedKey = localStorage.getItem('newmaybe_api_key');
-    const savedBaseUrl = localStorage.getItem('newmaybe_custom_base_url');
+    const savedProvider = localStorage.getItem(AI_STORAGE_KEYS.provider) as ProviderType | null;
+    const savedModel = localStorage.getItem(AI_STORAGE_KEYS.model);
+    const savedKey = localStorage.getItem(AI_STORAGE_KEYS.apiKey);
+    const savedBaseUrl = localStorage.getItem(AI_STORAGE_KEYS.customBaseUrl);
 
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedProvider) setProvider(savedProvider);
@@ -244,35 +222,11 @@ export function useChat(): UseChatReturn {
             },
           ]);
 
-          const reader = res.body?.getReader();
-          if (!reader) throw new Error('无法读取响应流');
-          const decoder = new TextDecoder();
-
-          let buffer = '';
-          while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || '';
-
-            for (const line of lines) {
-              const token = parseStreamToken(line);
-              if (token) {
-                replyText += token;
-                setMessages((prev) =>
-                  prev.map((m) => (m.id === assistantMsgId ? { ...m, text: replyText } : m)),
-                );
-              }
-            }
-          }
-
-          // Process residual buffer
-          if (buffer.trim()) {
-            const token = parseStreamToken(buffer);
-            if (token) replyText += token;
-          }
+          replyText = await readAIResponse(res, (_token, accumulated) => {
+            setMessages((prev) =>
+              prev.map((m) => (m.id === assistantMsgId ? { ...m, text: accumulated } : m)),
+            );
+          });
 
           setMessages((prev) =>
             prev.map((m) => (m.id === assistantMsgId ? { ...m, text: replyText, references } : m)),
@@ -355,10 +309,10 @@ export function useChat(): UseChatReturn {
   );
 
   const saveConfig = useCallback(() => {
-    localStorage.setItem('newmaybe_ai_provider', provider);
-    localStorage.setItem('newmaybe_ai_model', model);
-    localStorage.setItem('newmaybe_api_key', apiKey.trim());
-    localStorage.setItem('newmaybe_custom_base_url', customBaseUrl.trim());
+    localStorage.setItem(AI_STORAGE_KEYS.provider, provider);
+    localStorage.setItem(AI_STORAGE_KEYS.model, model);
+    localStorage.setItem(AI_STORAGE_KEYS.apiKey, apiKey.trim());
+    localStorage.setItem(AI_STORAGE_KEYS.customBaseUrl, customBaseUrl.trim());
     setShowConfig(false);
   }, [provider, model, apiKey, customBaseUrl]);
 
@@ -367,10 +321,10 @@ export function useChat(): UseChatReturn {
     setModel('workers-ai');
     setApiKey('');
     setCustomBaseUrl('');
-    localStorage.removeItem('newmaybe_ai_provider');
-    localStorage.removeItem('newmaybe_ai_model');
-    localStorage.removeItem('newmaybe_api_key');
-    localStorage.removeItem('newmaybe_custom_base_url');
+    localStorage.removeItem(AI_STORAGE_KEYS.provider);
+    localStorage.removeItem(AI_STORAGE_KEYS.model);
+    localStorage.removeItem(AI_STORAGE_KEYS.apiKey);
+    localStorage.removeItem(AI_STORAGE_KEYS.customBaseUrl);
     setShowConfig(false);
   }, []);
 

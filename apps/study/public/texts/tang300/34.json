@@ -1,0 +1,12 @@
+{
+  "title": "后宫词",
+  "paras": [
+    ["泪湿罗巾梦不成，夜深前殿按歌声。(湿 一作：尽)"],
+    ["红颜未老恩先断，斜倚薰笼坐到明。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

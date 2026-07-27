@@ -1,0 +1,13 @@
+{
+  "title": "咏春雨",
+  "paras": [
+    ["嫩烟分染鹅儿柳，一样风丝。", "似整如欹，才著春寒瘦不支。"],
+    ["凉侵晓梦轻蝉腻，约略红肥。", "不惜葳蕤，碾取名香作地衣。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "游子吟",
+  "paras": [
+    ["慈母手中线，游子身上衣。"],
+    ["临行密密缝，意恐迟迟归。"],
+    ["谁言寸草心，报得三春晖。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

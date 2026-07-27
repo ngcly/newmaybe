@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["留人不住，醉解兰舟去。", "一棹碧涛春水路，过尽晓莺啼处。"],
+    ["渡头杨柳青青，枝枝叶叶离情。", "此后锦书休寄，画楼云雨无凭。"]
+  ],
+  "author": "晏几道",
+  "tune": "清平乐",
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  }
+}

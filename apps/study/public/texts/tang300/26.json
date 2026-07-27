@@ -1,0 +1,9 @@
+{
+  "title": "听弹琴",
+  "paras": [["泠泠七弦上，静听松风寒。(七弦 一作：七丝)"], ["古调虽自爱，今人多不弹。"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

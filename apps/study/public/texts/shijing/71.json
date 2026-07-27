@@ -1,0 +1,13 @@
+{
+  "title": "采葛",
+  "paras": [
+    ["彼采葛兮，一日不见，如三月兮！"],
+    ["彼采萧兮，一日不见，如三秋兮！"],
+    ["彼采艾兮！", "一日不见，如三岁兮！"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

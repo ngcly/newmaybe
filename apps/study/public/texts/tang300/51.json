@@ -1,0 +1,9 @@
+{
+  "title": "金谷园",
+  "paras": [["繁华事散逐香尘，流水无情草自春。"], ["日暮东风怨啼鸟，落花犹似坠楼人。"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

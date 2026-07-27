@@ -1,0 +1,11 @@
+{
+  "title": "噫嘻",
+  "paras": [
+    ["噫嘻成王，既昭假尔。", "率时农夫，播厥百谷。", "骏发尔私，终三十里。", "亦服尔耕，十千维耦。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "title": "春晓",
+  "paras": [["春眠不觉晓，处处闻啼鸟。"], ["夜来风雨声，花落知多少。"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

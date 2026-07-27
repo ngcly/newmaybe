@@ -1,0 +1,13 @@
+{
+  "title": "宿滦河",
+  "paras": [
+    ["玉绳斜转疑清晓，凄凄白月渔阳道。", "星影漾寒沙，微茫织浪花。"],
+    ["金笳鸣故垒，唤起人难睡。", "无数紫鸳鸯，共嫌今夜凉。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

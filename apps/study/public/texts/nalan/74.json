@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["黄云紫塞三千里，女墙西畔啼乌起。", "落日万山寒，萧萧猎马还。"],
+    ["笳声听不得，入夜空城黑。", "秋梦不归家，残灯落碎花。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

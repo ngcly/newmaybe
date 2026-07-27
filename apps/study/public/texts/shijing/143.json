@@ -1,0 +1,12 @@
+{
+  "title": "株林",
+  "paras": [
+    ["胡为乎株林？", "从夏南！", "匪适株林，从夏南！"],
+    ["驾我乘马，说于株野。", "乘我乘驹，朝食于株！"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

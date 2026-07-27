@@ -1,0 +1,14 @@
+{
+  "title": "园池夜泛",
+  "paras": [
+    ["月在碧虚中住，人向乱荷中去。", "花气杂风凉，满船香。"],
+    ["云被歌声摇动，酒被诗情掇送。", "醉里卧花心，拥红衾。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "张镃",
+  "tune": "昭君怨"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["五月江南麦已稀，黄梅时节雨霏微，闲看燕子教雏飞。"],
+    ["一水浓阴如罨画，数峰无恙又晴晖。", "湔裙谁独上鱼矶。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

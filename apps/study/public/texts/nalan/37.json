@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["一半残阳下小楼，朱帘斜控软金钩。", "倚栏无绪不能愁。"],
+    ["有个盈盈骑马过，薄妆浅黛亦风流。", "见人羞涩却回头。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

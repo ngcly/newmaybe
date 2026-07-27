@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["东风无用，吹得愁眉重。", "有意迎春无意送，门外湿云如梦。"],
+    ["韶光九十悭悭，俊游回首关山。", "燕子可怜人去，海棠不分春寒。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "王澡",
+  "tune": "清平乐"
+}

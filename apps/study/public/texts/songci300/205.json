@@ -1,0 +1,14 @@
+{
+  "title": "元夕戏陈敬叟",
+  "paras": [
+    ["繁灯夺霁华，戏鼓侵明发。", "物色旧时同，情味中年别。"],
+    ["浅画镜中眉，深拜楼中月。", "人散市声收，渐入愁时节。"]
+  ],
+  "author": "刘克庄",
+  "tune": "生查子",
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  }
+}

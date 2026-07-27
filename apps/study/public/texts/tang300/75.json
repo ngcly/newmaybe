@@ -1,0 +1,9 @@
+{
+  "title": "春词",
+  "paras": [["新妆宜面下朱楼，深锁春光一院愁。", ""], ["行到中庭数花朵，蜻蜓飞上玉搔头。"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

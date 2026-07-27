@@ -1,0 +1,12 @@
+{
+  "title": "山有扶苏",
+  "paras": [
+    ["山有扶苏，隰有荷华。", "不见子都，乃见狂且。"],
+    ["山有乔松，隰有游龙，不见子充，乃见狡童。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

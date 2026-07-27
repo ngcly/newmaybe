@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["谁念西风独自凉，萧萧黄叶闭疏窗。", "沉思往事立残阳。"],
+    ["被酒莫惊春睡重，赌书消得泼茶香。", "当时只道是寻常。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

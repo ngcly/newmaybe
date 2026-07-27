@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["春风依旧，着意隋堤柳。", "搓得鹅几黄欲就，天气清明时候。"],
+    ["去年紫陌青门，今宵雨云魂。", "断送一生憔悴，只消几个黄昏。"]
+  ],
+  "author": "赵令畤",
+  "tune": "清平乐",
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  }
+}

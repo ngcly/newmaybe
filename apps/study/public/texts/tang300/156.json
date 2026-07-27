@@ -1,0 +1,14 @@
+{
+  "title": "谷口书斋寄杨补阙",
+  "paras": [
+    ["泉壑带茅茨，云霞生薜帷。"],
+    ["竹怜新雨后，山爱夕阳时。"],
+    ["闲鹭栖常早，秋花落更迟。"],
+    ["家僮扫萝径，昨与故人期。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["黄昏又听城头角，病起心情恶。", "药炉初沸短檠青，无那残香半缕恼多情。"],
+    ["多情自古原多病，清镜怜清影。", "一声弹指泪如丝，央及东风休遣玉人知。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

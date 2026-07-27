@@ -1,0 +1,13 @@
+{
+  "title": "黄花城早望",
+  "paras": [
+    ["五夜光寒，照来积雪平于栈。", "西风何限，自起披衣看。"],
+    ["对此茫茫，不觉成长叹。", "何时旦，晓星欲散，飞起平沙雁。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

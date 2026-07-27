@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["兰汤晚凉，鸾钗半妆。", "红巾腻雪吹香，擘莲房赌双。"],
+    ["罗纨素珰，冰壶露床。", "月移花影西厢，数流萤过墙。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "刘澜",
+  "tune": "四字令"
+}

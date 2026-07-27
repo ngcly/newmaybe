@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { type ProviderType } from '../types';
+import { readAIResponse } from '@newmaybe/ai-client';
 
 interface CapturePadProps {
   provider: ProviderType;
@@ -82,9 +83,7 @@ connections: []
           throw new Error(errData.error?.message || errData.error || '接口请求失败');
         }
 
-        const data = await res.json();
-        // check if response is streamed or normal json
-        generatedText = data.choices?.[0]?.message?.content || data.response || data.text || '';
+        generatedText = await readAIResponse(res);
       } else if (provider === 'gemini') {
         const cleanBaseUrl = (customBaseUrl || 'https://generativelanguage.googleapis.com').replace(
           /\/$/,

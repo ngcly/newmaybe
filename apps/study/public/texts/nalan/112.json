@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["青陵蝶梦，倒挂怜么凤。", "褪粉收香情一种，楼傍玉钗偷共。"],
+    ["愔愔镜阁飞蛾，谁传锦字秋河？", "莲子依然隐雾，菱花偷惜横波。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

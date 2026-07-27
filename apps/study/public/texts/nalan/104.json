@@ -1,0 +1,13 @@
+{
+  "title": "谒金门",
+  "paras": [
+    ["风丝袅，水浸碧天清晓。", "一镜湿云清未了，雨晴春草草。"],
+    ["梦里轻螺谁扫。", "帘外落花红小。", "独睡起来情悄悄，寄愁何处好？"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

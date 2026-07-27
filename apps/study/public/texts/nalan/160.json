@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["紫玉拨寒灰，心字全非，疏帘犹自隔年垂。", "半卷夕阳红雨入，燕子了时。"],
+    ["回首碧云西，多少心期，短长亭外短长堤。", "百尺游丝千里梦，无限凄迷。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "title": "式微",
+  "paras": [
+    ["式微，式微，胡不归？", "微君之故，胡为乎中露！"],
+    ["式微，式微，胡不归？", "微君之躬，胡为乎泥中！"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

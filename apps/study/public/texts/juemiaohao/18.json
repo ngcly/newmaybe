@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["郎如陌上尘，妾似堤边树。", "相见两悠扬，踪迹无寻处。"],
+    ["酒面扑春风，泪眼零秋雨。", "过了别离时，还解相思否。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "姚宽",
+  "tune": "生查子"
+}

@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["乱云将雨，飞过鸳鸯浦。", "人在小楼空翠处，分得一襟离绪。"],
+    ["片帆隐隐归舟，天边雪卷云游，今夜梦魂何处，青山不隔人愁。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "李泳",
+  "tune": "清平乐"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "生查子",
+  "paras": [
+    ["东风不解愁，偷展湘裙衩。", "独夜背纱笼，影著纤腰画。"],
+    ["爇尽水沉烟，露滴鸳鸯瓦。", "花骨冷宜香，小立樱桃下。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["窗间桃蕊娇如倦，东风泪洗胭脂面。", "人在小红楼，离情唱石州。"],
+    ["夜来双燕宿，灯背屏腰绿。", "香尽雨阑珊，薄衾寒不寒？"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["新寒中酒敲窗雨，残香细学秋情绪。", "端的是怀人，青衫有泪痕。"],
+    ["相思不似醉，闷拥孤衾睡。", "记得别伊时，桃花柳万丝。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

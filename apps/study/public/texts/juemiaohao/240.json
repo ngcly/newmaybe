@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["人去玉屏闲，逗晓柳丝风急。", "帘外杏花细雨，罥春红愁湿。"],
+    ["单衣初试曲尘罗，中酒病无力。", "应是绣床慵困倚，秋千斜立。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "吴文英",
+  "tune": "好事近"
+}

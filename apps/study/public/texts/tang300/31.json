@@ -1,0 +1,9 @@
+{
+  "title": "春宫曲",
+  "paras": [["昨夜风开露井桃，未央前殿月轮高。", ""], ["平阳歌舞新承宠，帘外春寒赐锦袍。"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

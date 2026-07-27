@@ -1,0 +1,14 @@
+{
+  "title": "阙题",
+  "paras": [
+    ["道由白云尽，春与青溪长。"],
+    ["时有落花至，远随流水香。"],
+    ["闲门向山路，深柳读书堂。"],
+    ["幽映每白日，清辉照衣裳。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

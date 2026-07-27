@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["彩云易向秋空散，燕子怜长叹。", "几番离合总无因，赢得一回僝僽一回亲。"],
+    ["归鸿旧约霜前至，可寄香笺字？", "不如前事不思量，且枕红蕤欹侧看斜阳。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

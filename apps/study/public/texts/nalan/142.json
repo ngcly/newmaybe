@@ -1,0 +1,13 @@
+{
+  "title": "自题小照",
+  "paras": [
+    ["西风乍起峭寒生，惊雁避移营。", "千里暮云平，休回首长亭短亭。"],
+    ["无穷山色，无边往事，一例冷清清。", "试倩玉箫声，唤千古英雄梦醒。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

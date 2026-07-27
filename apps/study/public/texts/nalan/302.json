@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["海天谁放冰轮满，惆怅离情。", "莫说离情，但值良宵总泪零。"],
+    ["只应碧落重相见，那是今生。", "可奈今生，刚作愁时又忆卿。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

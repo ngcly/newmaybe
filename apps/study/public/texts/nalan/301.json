@@ -1,0 +1,13 @@
+{
+  "title": "九日",
+  "paras": [
+    ["深秋绝塞谁相忆，木叶萧萧。", "乡路迢迢。", "六曲屏山和梦遥。"],
+    ["佳时倍惜风光别，不为登高。", "只觉魂销。", "南雁归时更寂寥。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

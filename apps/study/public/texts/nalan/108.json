@@ -1,0 +1,13 @@
+{
+  "title": "长城",
+  "paras": [
+    ["野火拂云微绿，西风夜哭。", "苍茫雁翅列秋空，忆写向屏山曲。"],
+    ["山海几经翻覆，女墙斜矗。", "看来费尽祖龙心，毕竟为谁家筑。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

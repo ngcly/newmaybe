@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["重见星娥碧海槎，忍笑却盘鸦。", "寻常多少，月明风细，今夜偏佳。"],
+    ["休笼彩笔闲书字，街鼓已三挝。", "烟丝欲袅，露光微泫，春在桃花。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

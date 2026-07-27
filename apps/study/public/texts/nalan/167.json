@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["雁贴寒云次第飞，向南犹自怨归迟。", "谁能瘦马关山道，又到西风扑鬓时。"],
+    ["人杳杳，思依依，更无芳树有乌啼。", "凭将扫黛窗前月，持向今朝照别离。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "大觉寺",
+  "paras": [
+    ["燕垒空梁画壁寒，诸天花雨散幽关。", "篆香清梵有无间。"],
+    ["蛱蝶乍从帘影度，樱桃半是鸟衔残。", "此时相对一忘言。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

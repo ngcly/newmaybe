@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["初莺细雨，杨柳低愁缕。", "烟浦花桥如梦里，犹记倚楼别语。"],
+    ["小屏依旧围香，恨抛薄醉残妆。", "判却寸心双泪，为他花月凄凉。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "吴文英",
+  "tune": "清平乐"
+}

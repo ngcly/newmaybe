@@ -1,0 +1,9 @@
+{
+  "title": "嫦娥",
+  "paras": [["云母屏风烛影深，长河渐落晓星沉。"], ["嫦娥应悔偷灵药，碧海青天夜夜心。"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

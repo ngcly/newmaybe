@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["凉月转雕阑，萧萧木叶声干。", "银灯飘箔琐窗间，枕屏几叠秋山。"],
+    ["朔风吹透青缣被，药炉火暖初沸。", "清漏沉沉无寐，为伊判得憔悴。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

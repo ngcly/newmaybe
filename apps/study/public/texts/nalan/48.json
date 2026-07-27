@@ -1,0 +1,13 @@
+{
+  "title": "红桥怀古和王阮亭韵",
+  "paras": [
+    ["无恙年年汴水流，一声水调短亭秋，旧时明月照扬州。"],
+    ["惆怅绛河何处去？", "绿杨清瘦绾离愁。", "至今鼓吹竹西楼。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

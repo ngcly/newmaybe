@@ -1,0 +1,368 @@
+@import '@newmaybe/shared-styles/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 42 33% 96%;
+    --foreground: 30 10% 16%;
+    --card: 45 60% 99%;
+    --card-foreground: 30 10% 16%;
+    --popover: 45 60% 99%;
+    --popover-foreground: 30 10% 16%;
+    --primary: 6 58% 40%;
+    --primary-foreground: 45 60% 98%;
+    --secondary: 42 24% 90%;
+    --secondary-foreground: 30 10% 20%;
+    --muted: 42 20% 91%;
+    --muted-foreground: 32 8% 44%;
+    --accent: 193 24% 31%;
+    --accent-foreground: 45 60% 98%;
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 40 22% 84%;
+    --input: 40 22% 84%;
+    --ring: 6 58% 40%;
+    --radius: 0.5rem;
+  }
+
+  /* 玄青夜读 */
+  .dark {
+    --background: 213 30% 9%;
+    --foreground: 46 18% 86%;
+    --card: 213 26% 13%;
+    --card-foreground: 46 18% 86%;
+    --popover: 213 26% 13%;
+    --popover-foreground: 46 18% 86%;
+    --primary: 7 52% 55%;
+    --primary-foreground: 45 40% 96%;
+    --secondary: 213 20% 18%;
+    --secondary-foreground: 46 15% 82%;
+    --muted: 213 18% 16%;
+    --muted-foreground: 46 8% 58%;
+    --accent: 194 26% 55%;
+    --accent-foreground: 46 18% 88%;
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 213 18% 22%;
+    --input: 213 18% 22%;
+    --ring: 7 52% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    font-family: 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(ellipse at 15% 0%, rgba(166, 58, 44, 0.03), transparent 55%),
+      radial-gradient(ellipse at 90% 100%, rgba(61, 85, 96, 0.04), transparent 50%);
+  }
+  html.dark body {
+    background-image:
+      radial-gradient(ellipse at 15% 0%, rgba(205, 106, 85, 0.05), transparent 55%),
+      radial-gradient(ellipse at 90% 100%, rgba(127, 163, 179, 0.05), transparent 50%);
+  }
+}
+
+@layer utilities {
+  .font-brush {
+    font-family: 'Ma Shan Zheng', 'Noto Serif SC', 'Songti SC', serif;
+  }
+  .writing-vertical {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+  }
+  .text-cinnabar {
+    color: #a63a2c;
+  }
+  .text-dai {
+    color: #3d5560;
+  }
+  .bg-cinnabar {
+    background-color: #a63a2c;
+  }
+  .bg-dai {
+    background-color: #3d5560;
+  }
+  .border-cinnabar {
+    border-color: #a63a2c;
+  }
+  .bg-paper {
+    background-color: #f7f4ee;
+  }
+  .bg-surface {
+    background-color: #fffdf8;
+  }
+  .seal {
+    @apply inline-flex items-center justify-center rounded-[4px] bg-cinnabar text-white font-brush;
+    box-shadow: 0 1px 3px rgba(166, 58, 44, 0.4);
+  }
+  .chapter-nav::-webkit-scrollbar {
+    width: 4px;
+  }
+  .chapter-nav::-webkit-scrollbar-thumb {
+    background: #d8cdb8;
+    border-radius: 2px;
+  }
+}
+
+/* 玄青夜读：硬编码工具类的暗色映射 */
+.dark .text-cinnabar {
+  color: #cd6a55;
+}
+.dark .bg-cinnabar {
+  background-color: #b04a38;
+}
+.dark .border-cinnabar {
+  border-color: #b04a38;
+}
+.dark .text-dai {
+  color: #7fa3b3;
+}
+.dark .bg-dai {
+  background-color: #46626e;
+}
+.dark .bg-paper {
+  background-color: #10171f;
+}
+.dark .bg-surface {
+  background-color: #151e28;
+}
+.dark .chapter-nav::-webkit-scrollbar-thumb {
+  background: #2b3a47;
+}
+
+/* 阅读器正文 */
+.reader-body p {
+  text-indent: 2em;
+  margin-bottom: 0.9em;
+  line-height: 2.05;
+  letter-spacing: 0.02em;
+  text-align: justify;
+  text-justify: inter-ideograph;
+  hanging-punctuation: first allow-end;
+}
+.reader-body.reader-verse p {
+  text-indent: 0;
+  text-align: center;
+  line-height: 2.2;
+}
+/* 楷体模式 */
+.reader-body.reader-kai p,
+.reader-vertical.reader-kai p {
+  font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'Noto Serif SC', 'Songti SC', serif;
+  font-weight: 400 !important;
+}
+/* 谱式行（平仄谱、符号谱）：淡化、无缩进、字距舒展 */
+.reader-body p.reader-pattern,
+.reader-vertical p.reader-pattern {
+  text-indent: 0;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+  letter-spacing: 0.18em;
+  font-size: 0.94em;
+}
+/* 章内分隔行（—— 注释 ——） */
+.reader-body p.reader-divider,
+.reader-vertical p.reader-divider {
+  text-indent: 0;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+  letter-spacing: 0.3em;
+  font-size: 0.85em;
+}
+.reader-body p.reader-divider {
+  margin-top: 2.2em;
+  margin-bottom: 1.2em;
+}
+.reader-vertical p.reader-divider {
+  margin-left: 2.2em;
+  margin-right: 1.2em;
+}
+
+/* 竖排古籍画卷模式 */
+.reader-vertical-wrapper {
+  overflow-x: auto;
+  padding-bottom: 1.5rem;
+  scrollbar-width: thin;
+}
+.reader-vertical-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+.reader-vertical-wrapper::-webkit-scrollbar-thumb {
+  background: #d8cdb8;
+  border-radius: 3px;
+}
+.dark .reader-vertical-wrapper::-webkit-scrollbar-thumb {
+  background: #2b3a47;
+}
+
+.reader-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  min-height: 440px;
+  max-height: 68vh;
+  padding: 1.5rem 1rem;
+  margin: 0 auto;
+}
+.reader-vertical p {
+  text-indent: 0;
+  margin-bottom: 0;
+  margin-left: 1.8em;
+  line-height: 2.3;
+  letter-spacing: 0.12em;
+}
+.reader-vertical p:not(.reader-divider):not(.reader-pattern) {
+  border-left: 1px dashed rgba(166, 58, 44, 0.15);
+  padding-left: 0.6em;
+}
+.dark .reader-vertical p:not(.reader-divider):not(.reader-pattern) {
+  border-left-color: rgba(205, 106, 85, 0.2);
+}
+
+/* 词牌大字朱砂印章 */
+.tune-seal-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.75rem;
+  background-color: #a63a2c;
+  color: #ffffff;
+  border-radius: 4px;
+  font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+  box-shadow: 0 2px 6px rgba(166, 58, 44, 0.35);
+  letter-spacing: 0.1em;
+}
+.dark .tune-seal-badge {
+  background-color: #b04a38;
+}
+
+/* 声律对仗卡片 */
+.couplet-card {
+  background: rgba(166, 58, 44, 0.03);
+  border: 1px solid rgba(166, 58, 44, 0.18);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin: 1.25rem 0;
+  transition: all 0.25s ease;
+}
+.couplet-card:hover {
+  border-color: rgba(166, 58, 44, 0.4);
+  box-shadow: 0 4px 12px rgba(166, 58, 44, 0.08);
+}
+.dark .couplet-card {
+  background: rgba(205, 106, 85, 0.04);
+  border-color: rgba(205, 106, 85, 0.2);
+}
+
+/* 宣纸肌理 */
+.paper-texture {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' opacity='0.3'><filter id='paper-noise'><feTurbulence type='fractalNoise' baseFrequency='0.05' numOctaves='3' result='noise'/><feColorMatrix type='matrix' values='1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.06 0'/></filter><rect width='120' height='120' filter='url(%23paper-noise)' fill='none'/></svg>");
+}
+
+/* 意境竹叶暗纹 */
+.watermark-bamboo {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400' opacity='0.04'><path d='M100 200 L120 180 M120 180 L140 190 M100 200 L80 230 M80 230 L90 250 M120 180 L115 100 M115 100 L110 50 M115 100 L160 80 M160 80 L190 90 M115 100 L70 90 M70 90 L50 110 M110 50 L140 20 M140 20 L160 30 M110 50 L75 30 M75 30 L60 45' stroke='%23a63a2c' stroke-width='2' fill='none' stroke-linecap='round'/><path d='M140 190 Q170 195 190 180 Q180 200 140 190 M90 250 Q85 270 70 280 Q80 265 90 250 M190 90 Q220 85 230 70 Q215 95 190 90 M50 110 Q30 120 15 110 Q35 105 50 110 M160 30 Q180 15 200 10 Q180 35 160 30 M60 45 Q40 35 25 20 Q45 40 60 45' fill='%23a63a2c'/></svg>");
+  background-repeat: no-repeat;
+  background-position: bottom 8% right 12%;
+}
+.dark .watermark-bamboo {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400' opacity='0.025'><path d='M100 200 L120 180 M120 180 L140 190 M100 200 L80 230 M80 230 L90 250 M120 180 L115 100 M115 100 L110 50 M115 100 L160 80 M160 80 L190 90 M115 100 L70 90 M70 90 L50 110 M110 50 L140 20 M140 20 L160 30 M110 50 L75 30 M75 30 L60 45' stroke='%23cd6a55' stroke-width='2' fill='none' stroke-linecap='round'/><path d='M140 190 Q170 195 190 180 Q180 200 140 190 M90 250 Q85 270 70 280 Q80 265 90 250 M190 90 Q220 85 230 70 Q215 95 190 90 M50 110 Q30 120 15 110 Q35 105 50 110 M160 30 Q180 15 200 10 Q180 35 160 30 M60 45 Q40 35 25 20 Q45 40 60 45' fill='%23cd6a55'/></svg>");
+}
+
+/* 意境如意云纹 */
+.watermark-cloud {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='350' height='350' opacity='0.045'><path d='M100 150 C70 150 60 170 80 190 C60 210 90 230 120 220 C140 240 180 230 180 200 C200 190 200 160 170 150 C160 130 120 130 100 150 Z M120 220 C100 240 70 230 65 200' stroke='%23a63a2c' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: bottom 8% right 12%;
+}
+.dark .watermark-cloud {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='350' height='350' opacity='0.035'><path d='M100 150 C70 150 60 170 80 190 C60 210 90 230 120 220 C140 240 180 230 180 200 C200 190 200 160 170 150 C160 130 120 130 100 150 Z M120 220 C100 240 70 230 65 200' stroke='%23cd6a55' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+}
+
+/* 意境寒梅暗纹 */
+.watermark-plum {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='350' height='350' opacity='0.04'><path d='M100 100 A18 18 0 0 1 118 118 A18 18 0 0 1 100 136 A18 18 0 0 1 82 118 A18 18 0 0 1 100 100 Z M124 112 A18 18 0 0 1 142 130 A18 18 0 0 1 124 148 A18 18 0 0 1 106 130 A18 18 0 0 1 124 112 Z' stroke='%23a63a2c' stroke-width='2' fill='none'/><circle cx='112' cy='124' r='4' fill='%23a63a2c'/></svg>");
+  background-repeat: no-repeat;
+  background-position: bottom 8% right 12%;
+}
+.dark .watermark-plum {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='350' height='350' opacity='0.035'><path d='M100 100 A18 18 0 0 1 118 118 A18 18 0 0 1 100 136 A18 18 0 0 1 82 118 A18 18 0 0 1 100 100 Z M124 112 A18 18 0 0 1 142 130 A18 18 0 0 1 124 148 A18 18 0 0 1 106 130 A18 18 0 0 1 124 112 Z' stroke='%23cd6a55' stroke-width='2' fill='none'/><circle cx='112' cy='124' r='4' fill='%23cd6a55'/></svg>");
+}
+
+/* 经折装中缝折痕 */
+.crease-line {
+  margin-left: 2.2em;
+  margin-right: 1.4em;
+  border-left: 2px solid rgba(166, 58, 44, 0.07);
+  border-right: 1px solid rgba(166, 58, 44, 0.03);
+  box-shadow: -4px 0 8px -2px rgba(166, 58, 44, 0.04);
+  align-self: stretch;
+}
+.dark .crease-line {
+  border-left-color: rgba(255, 255, 255, 0.04);
+  border-right-color: rgba(255, 255, 255, 0.01);
+  box-shadow: -4px 0 8px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* 古本版心中缝与鱼尾 */
+.banxin-fold {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  margin-left: 2.2em;
+  margin-right: 1.6em;
+  width: 22px;
+  border-left: 1px solid rgba(166, 58, 44, 0.12);
+  border-right: 1px solid rgba(166, 58, 44, 0.12);
+  background-color: rgba(166, 58, 44, 0.015);
+  color: rgba(166, 58, 44, 0.35);
+  font-size: 0.72em;
+  padding: 1.5rem 0;
+  letter-spacing: 0.1em;
+  writing-mode: vertical-rl;
+  font-family: 'Noto Serif SC', serif;
+  opacity: 0.75;
+}
+.dark .banxin-fold {
+  border-left-color: rgba(255, 255, 255, 0.08);
+  border-right-color: rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.005);
+  color: rgba(255, 255, 255, 0.3);
+}
+.banxin-fishtail {
+  width: 12px;
+  height: 8px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='%23a63a2c' opacity='0.3'><path d='M0 0 L6 6 L12 0 L12 8 L0 8 Z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.dark .banxin-fishtail {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='%23cd6a55' opacity='0.35'><path d='M0 0 L6 6 L12 0 L12 8 L0 8 Z'/></svg>");
+}
+
+/* 朱砂小字夹注 */
+.cinnabar-annotation {
+  color: #a63a2c;
+  font-size: 0.82em;
+  font-weight: 400;
+  opacity: 0.88;
+  font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', serif;
+  letter-spacing: 0.03em;
+  padding: 0 0.15em;
+  vertical-align: baseline;
+}
+.dark .cinnabar-annotation {
+  color: #cd6a55;
+  opacity: 0.9;
+}

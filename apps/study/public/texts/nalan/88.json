@@ -1,0 +1,13 @@
+{
+  "title": "新柳",
+  "paras": [
+    ["娇软不胜垂，瘦怯那禁舞。", "多事年年二月风，翦出鹅黄缕。"],
+    ["一种可怜生，落日和烟雨。", "苏小门前长短条，即渐迷行处。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

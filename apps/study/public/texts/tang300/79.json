@@ -1,0 +1,9 @@
+{
+  "title": "宫词",
+  "paras": [["长乐宫连上苑春，玉楼金殿艳歌新。", ""], ["君门一入无由出，唯有宫莺得见人。"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["塞鸿去矣，锦字何时寄？", "记得灯前佯忍泪，却问明朝行未。"],
+    ["别来几度如珪，飘零落叶成堆。", "一种晓寒残梦，凄凉毕竟因谁？"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

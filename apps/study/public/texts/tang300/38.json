@@ -1,0 +1,9 @@
+{
+  "title": "黄鹤楼送孟浩然之广陵",
+  "paras": [["故人西辞黄鹤楼，烟花三月下扬州。"], ["孤帆远影碧空尽，唯见长江天际流。 (唯 通：惟)"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

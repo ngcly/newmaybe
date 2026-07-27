@@ -1,0 +1,12 @@
+{
+  "title": "东门之杨",
+  "paras": [
+    ["东门之杨，其叶牂牂。", "昏以为期，明星煌煌。"],
+    ["东门之杨，其叶肺肺。", "昏以为期，明星晢晢。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

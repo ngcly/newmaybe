@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["小院新凉，晚来顿觉罗衫薄。", "不成孤酌，形影空酬酢。"],
+    ["萧寺怜君，别绪应萧索。", "西风恶，夕阳吹角，一阵槐花落。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

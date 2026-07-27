@@ -1,0 +1,14 @@
+{
+  "title": "桂",
+  "paras": [
+    ["绿玉枝头一粟黄，碧纱帐里梦魂香。", "晓风和月步新凉。"],
+    ["吟倚画栏怀李贺，笑持玉斧恨吴刚。", "素娥不嫁为谁妆。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "吴文英",
+  "tune": "浣溪纱"
+}

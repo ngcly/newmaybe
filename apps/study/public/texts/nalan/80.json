@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["阑风伏雨催寒食，樱桃一夜花狼藉。", "刚与病相宜，琐窗薰绣衣。"],
+    ["画眉烦女伴，央及流莺唤。", "半晌试开奁，娇多直自嫌。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

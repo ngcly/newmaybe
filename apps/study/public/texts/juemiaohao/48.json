@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["柳边深院，燕语明如翦。", "消息无凭听又懒，隔断画屏双扇。"],
+    ["宝杯金缕红牙，醉魂几度儿家。", "何处一春游荡，梦中犹恨杨花。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "张镃",
+  "tune": "清平乐"
+}

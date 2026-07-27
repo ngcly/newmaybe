@@ -1,0 +1,12 @@
+{
+  "title": "狡童",
+  "paras": [
+    ["彼狡童兮，不与我言兮。", "维子之故，使我不能餐兮。"],
+    ["彼狡童兮，不与我食兮。", "维子之故，使我不能息兮。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

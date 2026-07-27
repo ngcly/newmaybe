@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["绿围红绕，一枕屏山晓。", "怪得今朝偏起早，笑道牡丹开了。"],
+    ["迎人卷上珠帘，小螺未拂眉尖。", "贪教玉笼鹦鹉，杨花飞满妆奁。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "徐照",
+  "tune": "清平乐"
+}

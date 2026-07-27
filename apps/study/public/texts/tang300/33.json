@@ -1,0 +1,9 @@
+{
+  "title": "凉州词",
+  "paras": [["葡萄美酒夜光杯，欲饮琵琶马上催。"], ["醉卧沙场君莫笑，古来征战几人回？"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

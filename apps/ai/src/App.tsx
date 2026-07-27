@@ -7,6 +7,7 @@ import TypingIndicator from './components/TypingIndicator';
 import Gardener from './components/Gardener';
 import CapturePad from './components/CapturePad';
 import EgoMirror from './components/EgoMirror';
+import { AI_STORAGE_KEYS } from '@newmaybe/ai-client';
 
 const _isDev =
   typeof window !== 'undefined' &&
@@ -74,10 +75,10 @@ export default function App() {
       onClearConfig={chat.clearConfig}
       onCancelConfig={() => {
         const savedProvider =
-          (localStorage.getItem('newmaybe_ai_provider') as typeof chat.provider | null) || 'free';
-        const savedModel = localStorage.getItem('newmaybe_ai_model') || 'workers-ai';
-        const savedKey = (localStorage.getItem('newmaybe_api_key') || '').trim();
-        const savedBaseUrl = (localStorage.getItem('newmaybe_custom_base_url') || '').trim();
+          (localStorage.getItem(AI_STORAGE_KEYS.provider) as typeof chat.provider | null) || 'free';
+        const savedModel = localStorage.getItem(AI_STORAGE_KEYS.model) || 'workers-ai';
+        const savedKey = (localStorage.getItem(AI_STORAGE_KEYS.apiKey) || '').trim();
+        const savedBaseUrl = (localStorage.getItem(AI_STORAGE_KEYS.customBaseUrl) || '').trim();
         chat.setProvider(savedProvider);
         chat.setModel(savedModel);
         chat.setApiKey(savedKey);

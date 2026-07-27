@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["芙蓉清夜游，杨柳黄昏约。", "小院碧苔深，润透双鸳薄。"],
+    ["暖玉惯春娇，簌簌花钿落。", "缺月故窥人，影转栏杆角。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "岳珂",
+  "tune": "生查子"
+}

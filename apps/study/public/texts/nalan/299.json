@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["飘蓬只逐惊飚转，行人过尽烟光远。", "立马认河流，茂陵风雨秋。"],
+    ["寂寥行殿锁，梵呗琉璃火。", "塞雁与宫鸦，山深日易斜。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

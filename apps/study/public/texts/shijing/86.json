@@ -1,0 +1,12 @@
+{
+  "title": "褰裳",
+  "paras": [
+    ["子惠思我，褰裳涉溱。", "子不我思，岂无他人？", "狂童之狂也且！"],
+    ["子惠思我，褰裳涉洧。", "子不我思，岂无他士？", "狂童之狂也且！"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

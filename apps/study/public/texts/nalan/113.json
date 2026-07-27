@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["将愁不去，秋色行难住。", "六曲屏山深院宇，日日风风雨雨。"],
+    ["雨晴篱菊初香，人言此日重阳。", "回首凉云暮叶，黄昏无限思量。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

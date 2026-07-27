@@ -1,0 +1,9 @@
+{
+  "title": "行宫",
+  "paras": [["寥落古行宫，宫花寂寞红。"], ["白头宫女在，闲坐说玄宗。"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

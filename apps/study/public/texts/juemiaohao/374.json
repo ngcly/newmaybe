@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["习习轻风破海棠，秋千移影上回廊，昼长蝴蝶为谁忙？"],
+    ["度柳早莺分暖绿，过花小燕带春香，满庭芳草又斜阳。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "柴望",
+  "tune": "浣溪沙"
+}

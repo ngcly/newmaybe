@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["五字诗中目乍成，尽教残福折书生，手挼裙带那时情。"],
+    ["别后心期和梦杳，年来憔悴与愁并。", "夕阳依旧小窗明。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["暖护樱桃蕊，寒翻蛱蝶翎。", "东风吹丝渐冥冥，不信一生憔悴伴啼莺。"],
+    ["素影飘残月，香丝拂绮棂。", "百花迢递玉钗声，索向绿窗寻梦寄余生。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

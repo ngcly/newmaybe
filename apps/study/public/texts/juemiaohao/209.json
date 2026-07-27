@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["飞露洒银床，叶叶怨梧啼碧。", "蕲竹粉连香汗，是秋来陈迹。"],
+    ["藕丝空缆宿湖船，梦阔水云窄。", "还紧鸳鸯不住，老红香月白。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "吴文英",
+  "tune": "好事近"
+}

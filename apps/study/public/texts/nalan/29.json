@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["伏雨朝寒愁不胜，那能还傍杏花行？", "去年高摘斗轻盈。"],
+    ["漫惹炉烟双袖紫，空将酒晕一衫青。", "人间何处问多情。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

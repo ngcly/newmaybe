@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["断魂无据，万水千山何处去？", "没个音书，尽日东风上绿除。"],
+    ["故园春好，寄语落花须自扫。", "莫更伤春，同是恹恹多病人。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

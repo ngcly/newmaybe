@@ -1,0 +1,13 @@
+{
+  "title": "河渎神",
+  "paras": [
+    ["风紧雁行高，无边落木萧萧。", "楚天魂梦与香销，青山暮暮朝朝。"],
+    ["断续凉云来一缕，飘坠几丝灵雨。", "今夜冷红浦溆，鸳鸯栖向何处？"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

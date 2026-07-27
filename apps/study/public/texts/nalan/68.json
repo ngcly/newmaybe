@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["问君何事轻离别，一年能几团圆月。", "杨柳乍如丝，故园春尽时。"],
+    ["春归归不得，两桨松花隔。", "旧事逐寒潮，啼鹃恨未消"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

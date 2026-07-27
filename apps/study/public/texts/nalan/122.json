@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["春深浅，一痕摇漾青如翦。", "青如翦，鹭鸶立处，烟芜平远。"],
+    ["吹开吹谢东风倦，缃桃自惜红颜变。", "红颜变，兔葵燕麦，重来相见。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

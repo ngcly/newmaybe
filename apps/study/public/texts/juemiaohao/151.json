@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["图书一室，香暖垂帘密。", "花满翠壶熏研席，睡觉满窗晴日。"],
+    ["手寒不了残棋，篝香细勘唐碑。", "无酒无诗情绪，欲梅欲雪天时。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "方岳",
+  "tune": "清平乐"
+}

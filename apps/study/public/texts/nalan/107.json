@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["何路向家园，历历残山剩水。", "都把一春冷澹，到麦秋天气。"],
+    ["料应重发隔年花，莫问花前事。", "纵使东风依旧，怕红颜不似。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["身向云山那畔行，北风吹断马嘶声，深秋远塞若为情。"],
+    ["一抹晚烟荒戍垒，半竿斜日旧关城。", "古今幽恨几时平。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

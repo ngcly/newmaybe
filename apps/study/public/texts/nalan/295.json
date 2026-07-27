@@ -1,0 +1,13 @@
+{
+  "title": "小兀喇",
+  "paras": [
+    ["桦屋鱼衣柳作城，蛟龙鳞动浪花腥。", "飞扬应逐海东青。"],
+    ["犹记当年军垒迹，不知何处梵钟声。", "莫将兴废话分明。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

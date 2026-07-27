@@ -1,0 +1,13 @@
+{
+  "title": "长相思",
+  "paras": [
+    ["山一程，水一程，身向逾关那畔行，夜深千帐灯。"],
+    ["风一更，雪一更，聒碎乡心梦不成，故园无此声。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

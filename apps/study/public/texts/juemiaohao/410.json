@@ -1,0 +1,14 @@
+{
+  "title": "拟梅川",
+  "paras": [
+    ["蚕已三眠柳二眠，双竿初起画秋千，莺栊风响十三弦。"],
+    ["鱼素不传新信息，鸾胶难续旧姻缘，薄情明月几番圆。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "周密",
+  "tune": "浣溪沙"
+}

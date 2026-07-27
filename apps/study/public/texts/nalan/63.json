@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["梦回酒醒三通鼓，断肠啼鴂花飞处。", "新恨隔红窗，罗衫泪几行。"],
+    ["相思何处说，空有当时月。", "月也异当时，团圆照鬓丝。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

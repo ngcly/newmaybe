@@ -1,0 +1,12 @@
+{
+  "title": "小星",
+  "paras": [
+    ["嘒彼小星，三五在东。", "肃肃宵征，夙夜在公。", "寔命不同！"],
+    ["嘒彼小星，维参与昴。", "肃肃宵征，抱衾与裯。", "寔命不犹！"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

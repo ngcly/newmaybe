@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["凄凄切切，惨淡黄花节。", "梦里砧声浑未歇，那更乱蛩悲咽。"],
+    ["尘生燕子空楼，抛残弦索床头。", "一样晓风残月，而今触绪添愁。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

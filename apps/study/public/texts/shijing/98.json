@@ -1,0 +1,12 @@
+{
+  "title": "东方之日",
+  "paras": [
+    ["东方之日兮，彼姝者子，在我室兮。", "在我室兮，履我即兮。"],
+    ["东方之月兮，彼姝者子，在我闼兮。", "在我闼兮，履我发兮。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

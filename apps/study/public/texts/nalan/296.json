@@ -1,0 +1,13 @@
+{
+  "title": "姜女祠",
+  "paras": [
+    ["海色残阳影断霓，寒涛日夜女郎祠。", "翠钿尘网上蛛丝。"],
+    ["澄海楼高空极目，望夫石在且留题。", "六王如梦祖龙非。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["乌丝画作回文纸，香煤暗蚀藏头字。", "筝雁十三双，输他作一行。"],
+    ["相看仍似客，但道休相忆。", "索性不还家，落残红杏花。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "酒泉子",
+  "paras": [
+    ["谢却荼蘼，一片月明如水。", "篆香消，犹未睡，早鸦啼。"],
+    ["嫩寒无赖罗衣薄，休傍阑干角。", "最愁人，灯欲落，雁还飞。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

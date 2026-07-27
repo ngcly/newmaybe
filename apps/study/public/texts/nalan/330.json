@@ -1,0 +1,12 @@
+{
+  "title": "如梦令",
+  "paras": [
+    ["万帐穹庐人醉，星影摇摇欲坠。", "归梦隔狼河，又被河声搅碎。", "还睡，还睡，解道醒来无味。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

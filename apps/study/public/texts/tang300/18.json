@@ -1,0 +1,9 @@
+{
+  "title": "春怨",
+  "paras": [["打起黄莺儿，莫教枝上啼。"], ["啼时惊妾梦，不得到辽西。"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

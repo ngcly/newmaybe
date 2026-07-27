@@ -1,0 +1,13 @@
+{
+  "title": "塞寒",
+  "paras": [
+    ["塞草晚才青，日落箫笳动。", "慽慽凄凄入夜分，催度星前梦。"],
+    ["小语绿杨烟，怯踏银河冻。", "行尽关山到白狼，相见唯珍重。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

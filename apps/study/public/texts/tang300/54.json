@@ -1,0 +1,12 @@
+{
+  "title": "秋夕",
+  "paras": [
+    ["银烛秋光冷画屏，轻罗小扇扑流萤。"],
+    ["天阶夜色凉如水，卧看牵牛织女星。(天阶 一作：天街；", "卧看 一作：坐看)"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

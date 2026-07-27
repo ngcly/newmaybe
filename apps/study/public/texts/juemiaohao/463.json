@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["道是梨花不是。", "道是杏花不是。", "白白与红红，别是东风情味。"],
+    ["曾记。", "曾记。", "人在武陵微醉。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "仇远",
+  "tune": "如梦令"
+}

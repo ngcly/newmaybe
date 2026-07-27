@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { DailyPoem, Prompt } from '../types';
+import { readAIResponse } from '@newmaybe/ai-client';
 
 interface InspirationEngineProps {
   resolveSubdomain: (url: string) => string;
@@ -9,6 +10,7 @@ const CATEGORIES = ['随笔', '诗歌', '散文', '观察', '念头', '记忆'] 
 
 export default function InspirationEngine({ resolveSubdomain }: InspirationEngineProps) {
   const [dailyPoem, setDailyPoem] = useState<DailyPoem | null>(null);
+  const [poemError, setPoemError] = useState(false);
   const [aiPrompt, setAiPrompt] = useState<Prompt | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('随笔');
@@ -67,6 +69,7 @@ export default function InspirationEngine({ resolveSubdomain }: InspirationEngin
       script.src = 'https://sdk.jinrishici.com/v2/browser/jinrishici.js';
       script.charset = 'utf-8';
       script.onload = loadPoemFromSDK;
+      script.onerror = () => setPoemError(true);
       document.head.appendChild(script);
     }
   }, []);
@@ -90,9 +93,9 @@ export default function InspirationEngine({ resolveSubdomain }: InspirationEngin
           ],
         }),
       });
-      const data = (await res.json()) as { text?: string };
-      if (data.text) {
-        setAiPrompt({ category: selectedCategory, text: data.text.trim() });
+      const text = await readAIResponse(res);
+      if (text) {
+        setAiPrompt({ category: selectedCategory, text: text.trim() });
       }
     } catch {
       setAiPrompt({
@@ -140,6 +143,10 @@ export default function InspirationEngine({ resolveSubdomain }: InspirationEngin
               {dailyPoem.author} · 《{dailyPoem.origin}》
             </p>
           </div>
+        ) : poemError ? (
+          <p className="font-serif text-base text-[var(--ink-faint)] mt-4">
+            今日诗词暂时不可用，请稍后再来。
+          </p>
         ) : (
           <p className="font-serif text-base text-[var(--ink-faint)] mt-4 animate-pulse">
             正在拾取今日诗意…

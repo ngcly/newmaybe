@@ -1,0 +1,12 @@
+{
+  "title": "我将",
+  "paras": [
+    ["我将我享，维羊维牛，维天其右之。", "仪式刑文王之典，日靖四方。"],
+    ["伊嘏文王，既右飨之。", "我其夙夜，畏天之威，于时保之。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

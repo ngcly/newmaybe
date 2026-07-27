@@ -1,0 +1,13 @@
+{
+  "title": "好事近",
+  "paras": [
+    ["帘外五更风，消受晓寒时节。", "刚剩秋衾一半，拥透帘残月。"],
+    ["争教清泪不成冰，好处便轻别。", "拟把伤离情绪，待晓寒重说。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

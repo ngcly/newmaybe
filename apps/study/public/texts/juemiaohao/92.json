@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["吹箫跨鸾，香销夜阑。", "杏花楼上春残，绣罗衾半闲。"],
+    ["衣宽带宽，千山万山。", "断肠十二栏杆，更斜阳暮寒。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "孙惟信",
+  "tune": "醉思凡"
+}

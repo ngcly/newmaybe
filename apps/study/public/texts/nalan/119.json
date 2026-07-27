@@ -1,0 +1,13 @@
+{
+  "title": "弹琴峡题壁",
+  "paras": [
+    ["泠泠彻夜，谁是知音者？", "如梦前朝何处也，一曲边愁难写。"],
+    ["极天关塞云中，人随雁落西风。", "唤取红襟翠袖，莫教泪洒英雄。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

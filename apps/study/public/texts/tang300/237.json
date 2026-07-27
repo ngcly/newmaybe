@@ -1,0 +1,14 @@
+{
+  "title": "夕次盱眙县",
+  "paras": [
+    ["落帆逗淮镇，停舫临孤驿。"],
+    ["浩浩风起波，冥冥日沉夕。"],
+    ["人归山郭暗，雁下芦洲白。"],
+    ["独夜忆秦关，听钟未眠客。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

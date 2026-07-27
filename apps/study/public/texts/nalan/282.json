@@ -1,0 +1,10 @@
+{
+  "title": "又",
+  "paras": [["江南好，虎阜晚秋天。", "山水总归诗格秀，笙箫恰称语音圆。", "谁在木兰船。"]],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["萧萧几叶风兼雨，离人偏识长更苦。", "欹枕数秋天，蟾蜍下早弦。"],
+    ["夜寒惊被薄，泪与灯花落。", "无处不伤心，轻尘在玉琴。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

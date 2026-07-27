@@ -1,0 +1,13 @@
+{
+  "title": "采桑子",
+  "paras": [
+    ["那能寂寞芳菲节，欲话生平。", "夜已三更。", "一阕悲歌泪暗零。"],
+    ["须知秋叶春花促，点鬓星星。", "遇酒须倾，莫问千秋万岁名。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

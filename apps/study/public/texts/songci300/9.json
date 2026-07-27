@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["一曲新词酒一杯，去年天气旧池台，夕阳西下几时回？"],
+    ["无可奈何花落去，似曾相识燕归来，小园香径独徘徊。"]
+  ],
+  "author": "晏殊",
+  "tune": "浣溪沙",
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  }
+}

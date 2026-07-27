@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["愁盈镜里山，心迭琴中恨。", "露湿玉阑秋，香伴银屏冷。"],
+    ["云归月正圆，雁到人无信。", "孤损凤皇钗，立津梧桐影。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "仇远",
+  "tune": "生查子"
+}

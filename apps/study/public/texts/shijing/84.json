@@ -1,0 +1,12 @@
+{
+  "title": "萚兮",
+  "paras": [
+    ["萚兮萚兮，风其吹女。", "叔兮伯兮，倡予和女。"],
+    ["萚兮萚兮，风其漂女。", "叔兮伯兮，倡予要女。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

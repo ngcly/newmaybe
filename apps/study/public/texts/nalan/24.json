@@ -1,0 +1,13 @@
+{
+  "title": "咏风兰",
+  "paras": [
+    ["别样幽芬，更无浓艳催开处。", "凌波欲去，且为东风住。"],
+    ["忒煞萧疏，怎耐秋如许？", "还留取，冷香半缕，第一湘江雨。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "子夜吴歌·秋歌",
+  "paras": [
+    ["长安一片月，万户捣衣声。"],
+    ["秋风吹不尽，总是玉关情。"],
+    ["何日平胡虏，良人罢远征。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

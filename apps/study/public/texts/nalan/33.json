@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["雨歇梧桐泪乍收，遣怀翻自忆从头，摘花销恨旧风流。"],
+    ["帘影碧桃人已去，屧痕苍藓迳空留。", "两眉何处月如钩？"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

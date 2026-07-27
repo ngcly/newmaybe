@@ -1,0 +1,13 @@
+{
+  "title": "画堂春",
+  "paras": [
+    ["一生一代一双人，争教两处销魂。", "相思相望不相亲，天为谁春？"],
+    ["浆向蓝桥易乞，药成碧海难奔。", "若容相访饮牛津，相对忘贫。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

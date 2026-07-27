@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["画屏无睡，雨点惊风碎。", "贪话零星兰焰坠，闲了半床红被。"],
+    ["生来柳絮飘零。", "便教咒也无灵。", "待问归期还未，已看双睫盈盈。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

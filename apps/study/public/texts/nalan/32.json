@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["消息谁传到拒霜？", "两行斜雁碧天长，晚秋风景倍凄凉。"],
+    ["银蒜押帘人寂寂，玉钗敲烛信茫茫。", "黄花开也近重阳。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

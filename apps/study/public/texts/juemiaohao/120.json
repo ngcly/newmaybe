@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["花半湿，睡起一帘晴色。", "千里江南真咫尺，醉中归梦直。"],
+    ["前度兰舟送客，双鲤沉沉消息。", "楼外垂杨如此碧，问春来几日。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "孙惟信",
+  "tune": "谒金门"
+}

@@ -1,0 +1,9 @@
+{
+  "title": "相思",
+  "paras": [["红豆生南国，春来发几枝。"], ["愿君多采撷，此物最相思。"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

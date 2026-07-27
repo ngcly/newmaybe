@@ -89,6 +89,20 @@ const aiUrl = resolveSubdomain('https://ai.newmaybe.com');
   let input: HTMLInputElement;
   let resultsContainer: HTMLElement;
 
+  function escapeHtml(value: string): string {
+    return value.replace(
+      /[&<>"']/g,
+      (char) =>
+        ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;',
+        })[char] || char,
+    );
+  }
+
   function initElements() {
     overlay = document.getElementById('search-overlay') as HTMLElement;
     input = document.getElementById('search-input') as HTMLInputElement;
@@ -99,22 +113,24 @@ const aiUrl = resolveSubdomain('https://ai.newmaybe.com');
   }
 
   function getEmptyStateHtml(message: string, query?: string): string {
+    const safeMessage = escapeHtml(message);
+    const safeAiUrl = escapeHtml(aiUrl);
     if (query) {
       const aiLink = `${aiUrl}?q=${encodeURIComponent(query)}`;
       return `
         <div class="search-empty">
-          ${message}
+          ${safeMessage}
           <div class="search-ai-tip">
-            没有匹配？试试让 <a href="${aiLink}" target="_blank" rel="noopener noreferrer" class="search-ai-link">AI 园丁</a> 为您深度联想“${query}”？
+            没有匹配？试试让 <a href="${escapeHtml(aiLink)}" target="_blank" rel="noopener noreferrer" class="search-ai-link">AI 园丁</a> 为您深度联想“${escapeHtml(query)}”？
           </div>
         </div>
       `;
     }
     return `
       <div class="search-empty">
-        ${message}
+        ${safeMessage}
         <div class="search-ai-tip">
-          或者，试试直接向 <a href="${aiUrl}" target="_blank" rel="noopener noreferrer" class="search-ai-link">AI 园丁</a> 提问交互？
+          或者，试试直接向 <a href="${safeAiUrl}" target="_blank" rel="noopener noreferrer" class="search-ai-link">AI 园丁</a> 提问交互？
         </div>
       </div>
     `;
@@ -137,18 +153,46 @@ const aiUrl = resolveSubdomain('https://ai.newmaybe.com');
     title: string,
     excerpt: string,
     category?: string,
+    terms: string[] = [],
   ): HTMLAnchorElement {
     const card = document.createElement('a');
     card.href = url;
     card.className = 'search-result-item';
     const cat = guessCategoryFromUrl(url, category);
-    card.innerHTML = `
-      <div class="result-meta">
-        <span class="result-title">${title}</span>
-        <span class="result-cat">${cat}</span>
-      </div>
-      <p class="result-excerpt">${excerpt}</p>
-    `;
+
+    const appendHighlightedText = (container: HTMLElement, value: string) => {
+      if (terms.length === 0) {
+        container.textContent = value;
+        return;
+      }
+      const escapedTerms = terms.map((term) => term.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'));
+      const pattern = new RegExp(`(${escapedTerms.join('|')})`, 'gi');
+      for (const part of value.split(pattern)) {
+        if (!part) continue;
+        if (terms.some((term) => part.toLowerCase() === term.toLowerCase())) {
+          const mark = document.createElement('mark');
+          mark.textContent = part;
+          container.appendChild(mark);
+        } else {
+          container.appendChild(document.createTextNode(part));
+        }
+      }
+    };
+
+    const meta = document.createElement('div');
+    meta.className = 'result-meta';
+    const titleElement = document.createElement('span');
+    titleElement.className = 'result-title';
+    appendHighlightedText(titleElement, title);
+    const categoryElement = document.createElement('span');
+    categoryElement.className = 'result-cat';
+    categoryElement.textContent = cat;
+    meta.append(titleElement, categoryElement);
+
+    const excerptElement = document.createElement('p');
+    excerptElement.className = 'result-excerpt';
+    appendHighlightedText(excerptElement, excerpt);
+    card.append(meta, excerptElement);
     return card;
   }
 
@@ -261,24 +305,7 @@ const aiUrl = resolveSubdomain('https://ai.newmaybe.com');
             }
           }
 
-          // 对标题和摘要添加高亮 <mark> 标签
-          let highlightedTitle = item.title;
-          let highlightedExcerpt = excerpt;
-          terms.forEach((term) => {
-            const regex = new RegExp(term.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi');
-            highlightedTitle = highlightedTitle.replace(regex, (match) => `<mark>${match}</mark>`);
-            highlightedExcerpt = highlightedExcerpt.replace(
-              regex,
-              (match) => `<mark>${match}</mark>`,
-            );
-          });
-
-          const card = createResultItem(
-            item.url,
-            highlightedTitle,
-            highlightedExcerpt,
-            item.category,
-          );
+          const card = createResultItem(item.url, item.title, excerpt, item.category, terms);
           resultsContainer.appendChild(card);
         });
 
@@ -312,7 +339,14 @@ const aiUrl = resolveSubdomain('https://ai.newmaybe.com');
 
         resultsContainer.innerHTML = '';
         resolvedData.forEach((data: { url: string; meta: { title?: string }; excerpt: string }) => {
-          const card = createResultItem(data.url, data.meta.title || '无标题', data.excerpt);
+          const excerptDocument = new DOMParser().parseFromString(data.excerpt, 'text/html');
+          const card = createResultItem(
+            data.url,
+            data.meta.title || '无标题',
+            excerptDocument.body.textContent || '',
+            undefined,
+            query.toLowerCase().split(/\s+/).filter(Boolean),
+          );
           resultsContainer.appendChild(card);
         });
 

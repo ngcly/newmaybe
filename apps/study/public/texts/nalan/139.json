@@ -1,0 +1,13 @@
+{
+  "title": "海棠春",
+  "paras": [
+    ["落红片片浑如雾，不教更觅桃源路。", "香径晚风寒，月在花飞处。"],
+    ["蔷薇影暗空凝伫，任碧飐轻衫萦住。", "惊起早栖鸦，飞过秋千去。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

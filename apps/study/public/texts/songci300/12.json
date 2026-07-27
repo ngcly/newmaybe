@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["金风细细，叶叶梧桐坠。", "绿酒初尝人易醉，一枕小窗浓睡。"],
+    ["紫薇朱槿花残，斜阳却照阑干。", "双燕欲归时节，银屏昨夜微寒。"]
+  ],
+  "author": "晏殊",
+  "tune": "清乐平",
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  }
+}

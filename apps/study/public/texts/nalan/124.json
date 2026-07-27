@@ -1,0 +1,13 @@
+{
+  "title": "阮郎归",
+  "paras": [
+    ["斜风细雨正霏霏，画帘拖地垂。", "屏山几曲篆烟微，闲庭柳絮飞。"],
+    ["新绿密，乱红稀。", "乳莺残日啼。", "春寒欲透绣缕金衣，落花郎未归。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

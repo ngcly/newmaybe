@@ -1,0 +1,13 @@
+{
+  "title": "秋思",
+  "paras": [
+    ["凉云万叶，断送清秋节。", "寂寂绣屏香篆灭，暗里朱颜消歇。"],
+    ["谁怜照影吹笙，天涯芳草关情。", "懊恼隔帘幽梦，半床花月纵横。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["一种蛾眉，下弦不似初弦好。", "庚郎未老，何事伤心早？"],
+    ["素壁斜辉，竹影横窗扫。", "空房悄，乌啼欲晓，又下西楼了。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

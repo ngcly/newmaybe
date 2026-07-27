@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["一春不识西湖面，翠羞红倦。", "雨窗和泪摇湘管，意长笺短。"],
+    ["知心惟有雕梁燕，自来相伴。", "东风不管琵琶怨，落花吹遍。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "方岳",
+  "tune": "后庭花"
+}

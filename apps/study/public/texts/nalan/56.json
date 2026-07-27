@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["欲寄愁心朔雁边，西风浊酒惨离筵。", "黄花时节碧云天。"],
+    ["古戍烽烟迷斥堠，夕阳村落解鞍鞯。", "不知征战几人还。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

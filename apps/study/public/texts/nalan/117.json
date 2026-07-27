@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["风鬟雨鬓，偏是来无准。", "倦倚玉兰看月晕，容易语低香近。"],
+    ["软风吹过窗纱，心期便隔天涯。", "从此伤春伤别，黄昏只对梨花。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

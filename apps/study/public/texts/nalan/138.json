@@ -1,0 +1,13 @@
+{
+  "title": "秋海棠",
+  "paras": [
+    ["帘外澹烟一缕，墙阴几簇低花。", "夜来微雨西风里，无力在欹斜。"],
+    ["仿佛个人睡起，晕红不著铅华。", "天寒翠袖添凄楚，愁近欲栖鸦。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

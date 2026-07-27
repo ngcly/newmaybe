@@ -1,0 +1,14 @@
+{
+  "title": "梅",
+  "paras": [
+    ["月淡风轻，黄昏未是清。", "吟到十分清处，也不啻，二三更。"],
+    ["晓钟天未明，晓霜人未行。", "只有城头残角，说得尽，我平生。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "王澡",
+  "tune": "霜天晓角"
+}

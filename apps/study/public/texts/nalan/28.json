@@ -1,0 +1,13 @@
+{
+  "title": "浣溪沙",
+  "paras": [
+    ["泪浥红笺第几行，唤人娇鸟怕开窗，那更闲过好时光。"],
+    ["屏障厌看金碧画，罗衣不耐水沉香。", "偏翻眉谱只寻常。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

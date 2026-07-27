@@ -1,0 +1,9 @@
+{
+  "title": "乌衣巷",
+  "paras": [["朱雀桥边野草花，乌衣巷口夕阳斜。", ""], ["旧时王谢堂前燕，飞入寻常百姓家。"]],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

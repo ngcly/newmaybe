@@ -1,0 +1,13 @@
+{
+  "title": "眼儿媚",
+  "paras": [
+    ["独倚春寒掩夕霏，清露泣铢衣。", "玉箫吹梦，金钗画影，悔不同携。"],
+    ["刻残红烛曾相待，旧事总依稀。", "料应遗恨，月中教去，花底催归。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["过尽遥山如画，短衣匹马。", "萧萧木落不胜秋，莫回首斜阳下。"],
+    ["别是柔肠萦挂，待归才罢。", "却愁拥髻向灯前，说不尽离人话。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

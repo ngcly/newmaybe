@@ -1,0 +1,13 @@
+{
+  "title": "回文",
+  "paras": [
+    ["砑笺银粉残煤画，画煤残粉银笺砑。", "清夜一灯明，明灯一夜清。"],
+    ["片花惊宿燕，燕宿惊花片。", "亲自梦归人，人归梦自亲。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

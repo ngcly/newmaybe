@@ -3,6 +3,7 @@ import { type Message, type ProviderType } from '../types';
 import { retrieveRelevantDocs, type ContentItem } from '../utils/rag';
 import TypingIndicator from './TypingIndicator';
 import MarkdownText from './MarkdownText';
+import { readAIResponse } from '@newmaybe/ai-client';
 
 interface EgoMirrorProps {
   allContent: ContentItem[];
@@ -165,8 +166,7 @@ ${m.doc.content}
           throw new Error(errData.error?.message || errData.error || '连接接口失败');
         }
 
-        const data = await res.json();
-        replyText = data.choices?.[0]?.message?.content || data.response || data.text || '';
+        replyText = await readAIResponse(res);
       } else if (provider === 'gemini') {
         const cleanBaseUrl = (customBaseUrl || 'https://generativelanguage.googleapis.com').replace(
           /\/$/,

@@ -1,0 +1,13 @@
+{
+  "title": "咏红姑娘",
+  "paras": [
+    ["骚层西风弄晚寒，翠袖倚阑干。", "霞绡裹处，樱唇微绽，靺鞨红殷。"],
+    ["故宫事往凭谁问？", "无恙是朱颜。", "玉墀争彩，玉钗争插，至正年间。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

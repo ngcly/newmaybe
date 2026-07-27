@@ -1,0 +1,13 @@
+{
+  "title": "春思",
+  "paras": [
+    ["燕草如碧丝，秦桑低绿枝。"],
+    ["当君怀归日，是妾断肠时。", ""],
+    ["春风不相识，何事入罗帏。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

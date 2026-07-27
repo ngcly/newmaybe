@@ -1,0 +1,13 @@
+{
+  "title": "浣溪沙",
+  "paras": [
+    ["锦样年华水样流，鲛珠迸落更难收。", "病余常是怯梳头。"],
+    ["一径绿云修竹怨，半窗红日落花愁。", "愔愔只是下帘钩。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "元夜月蚀",
+  "paras": [
+    ["瑶华映阙，烘散蓂墀雪。", "比似寻常清景别，第一团圆时节。"],
+    ["影娥忽泛初弦，分辉借与宫莲。", "七宝修成合壁，重轮岁岁中天。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

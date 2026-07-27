@@ -1,0 +1,10 @@
+{
+  "title": "忆江南",
+  "paras": [["江南好，建业旧长安。", "紫盖忽临双鷁渡，翠华争拥六龙看。", "雄丽却高寒。"]],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

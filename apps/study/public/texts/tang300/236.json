@@ -1,0 +1,14 @@
+{
+  "title": "长安遇冯著",
+  "paras": [
+    ["客从东方来，衣上灞陵雨。"],
+    ["问客何为来，采山因买斧。"],
+    ["冥冥花正开，飏飏燕新乳。"],
+    ["昨别今已春，鬓丝生几缕。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

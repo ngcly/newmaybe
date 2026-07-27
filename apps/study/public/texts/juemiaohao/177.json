@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["桃花相向东风笑，桃花忍放东风老。", "细草碧如烟。", "薄寒轻暖天。"],
+    ["折钗鸾作股，镜里参差舞。", "破碎玉连环，卷帘春睡残。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "方岳",
+  "tune": "菩萨蛮"
+}

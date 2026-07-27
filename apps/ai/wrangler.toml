@@ -8,3 +8,11 @@ not_found_handling = "404-page"
 
 [ai]
 binding = "AI"
+
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 30
+  period = 60

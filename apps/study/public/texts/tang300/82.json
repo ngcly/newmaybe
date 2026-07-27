@@ -1,0 +1,14 @@
+{
+  "title": "汉江临眺",
+  "paras": [
+    ["楚塞三湘接，荆门九派通。"],
+    ["江流天地外，山色有无中。"],
+    ["郡邑浮前浦，波澜动远空。"],
+    ["襄阳好风日，留醉与山翁。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

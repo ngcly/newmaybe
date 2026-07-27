@@ -1,0 +1,10 @@
+{
+  "title": "又",
+  "paras": [["江南好，何处异京华？", "香散翠帘多在水，绿残红叶胜于花。", "无事避风沙。"]],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

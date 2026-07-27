@@ -1,0 +1,13 @@
+{
+  "title": "忆梁汾",
+  "paras": [
+    ["才听夜雨，便觉秋如许。", "绕砌蛩螿人不语，有梦转愁无据。"],
+    ["乱山千叠横江，忆君游倦何方。", "知否小窗红烛。", "照人此夜凄凉."]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

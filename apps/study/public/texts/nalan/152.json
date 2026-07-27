@@ -1,0 +1,13 @@
+{
+  "title": "古戍",
+  "paras": [
+    ["古戍饥乌集，荒城野雉飞。", "何年劫火剩残灰，试看英雄碧血满龙堆。"],
+    ["玉帐空分垒，金笳已罢吹。", "东风回首尽成非，不道兴亡命也岂人为。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

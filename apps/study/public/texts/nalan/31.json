@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["莲漏三声烛半条，杏花微雨湿轻绡，那将红豆寄无聊？"],
+    ["春色已看浓似酒，归期安得信如潮，离魂入夜倩谁招？"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

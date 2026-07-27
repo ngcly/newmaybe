@@ -1,0 +1,14 @@
+{
+  "title": "梅",
+  "paras": [
+    ["千霜万雪，受尽寒磨折。", "赖是生来瘦硬，浑不怕角吹彻。"],
+    ["清绝影也别，知心惟有月。", "元没春风情性，如何共、海棠说。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "方岳",
+  "tune": "霜天晓角"
+}

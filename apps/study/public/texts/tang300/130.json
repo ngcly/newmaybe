@@ -1,0 +1,14 @@
+{
+  "title": "宴梅道士山房",
+  "paras": [
+    ["林卧愁春尽，搴帷览物华。"],
+    ["忽逢青鸟使，邀入赤松家。"],
+    ["金灶初开火，仙桃正发花。"],
+    ["童颜若可驻，何惜醉流霞。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

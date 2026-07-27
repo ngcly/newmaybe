@@ -1,0 +1,13 @@
+{
+  "title": "南歌子",
+  "paras": [
+    ["翠袖凝寒薄，帘衣入夜空。", "病容扶起月明中，惹得一丝残篆旧薰笼。"],
+    ["暗觉欢期过，遥知别恨同。", "疏花已是不禁风，那更夜深清露湿愁红。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

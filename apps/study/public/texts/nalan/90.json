@@ -1,0 +1,13 @@
+{
+  "title": "午日",
+  "paras": [
+    ["村静午鸡啼，绿暗新阴覆。", "一展轻帘出画墙，道是端阳酒。"],
+    ["早晚夕阳蝉，又噪长堤柳。", "青鬓长青自古谁，弹指黄花九。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

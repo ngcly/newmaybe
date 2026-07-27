@@ -1,0 +1,13 @@
+{
+  "title": "相见欢",
+  "paras": [
+    ["微云一抹遥峰，冷溶溶，恰与个人清晓画眉同。"],
+    ["红蜡泪，青绫被，水沉浓，却与黄茅野店听西风。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["镜屏开晓，寒入宫罗峭。", "脉脉不知春又老，帘外舞红多少。"],
+    ["旧时驻马香阶，如今细雨苍苔。", "残梦不成重理，一双蝴蝶飞来。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "张镃",
+  "tune": "清平乐"
+}

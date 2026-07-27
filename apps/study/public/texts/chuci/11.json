@@ -1,0 +1,16 @@
+{
+  "title": "礼魂",
+  "paras": [
+    ["成礼兮会鼓，"],
+    ["传芭兮代舞"],
+    ["姱女倡兮容与"],
+    ["春兰兮秋菊，"],
+    ["长无绝兮终古。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "tune": "九歌"
+}

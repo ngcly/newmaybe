@@ -1,0 +1,14 @@
+{
+  "title": "松江",
+  "paras": [
+    ["燕雁无心，太湖西畔随云去。", "数峰清苦，商略黄昏雨。"],
+    ["第四桥边，拟共天随住。", "今何许？", "凭阑怀古，残柳参差舞。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "姜夔",
+  "tune": "点绛唇"
+}

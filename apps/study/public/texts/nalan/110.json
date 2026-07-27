@@ -1,0 +1,13 @@
+{
+  "title": "雪",
+  "paras": [
+    ["密洒征鞍无数，冥迷远树。", "乱山重叠杳难分，似五里濛濛雾。"],
+    ["惆怅琐窗深处，湿花轻絮。", "当时悠飏得人怜，也都是浓香助。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

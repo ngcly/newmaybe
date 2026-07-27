@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["晚来风起撼花铃，人在碧山亭。", "愁里不堪听，那更杂泉声雨声。"],
+    ["无凭踪迹，无聊心绪，谁说与多情。", "梦也不分明，又何必催教梦醒。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

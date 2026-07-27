@@ -1,0 +1,13 @@
+{
+  "title": "咏梅",
+  "paras": [
+    ["莫把琼花比澹妆，谁似白霓裳。", "别样清幽，自然标格，莫近东墙。"],
+    ["冰肌玉骨天分付，兼付与凄凉。", "可怜遥夜，冷烟和月，疏影横窗。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "早春",
+  "paras": [
+    ["晓寒瘦著西南月，丁丁漏箭余香咽。", "春已十分宜，东风无是非。"],
+    ["蜀魂羞顾影，玉照斜红冷。", "谁唱后庭花，新年忆旧家。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

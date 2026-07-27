@@ -1,0 +1,12 @@
+{
+  "title": "伐柯",
+  "paras": [
+    ["伐柯如何？", "匪斧不克。", "取妻如何？", "匪媒不得。"],
+    ["伐柯伐柯，其则不远。", "我觏之子，笾豆有践。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

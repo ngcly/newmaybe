@@ -1,0 +1,13 @@
+{
+  "title": "又",
+  "paras": [
+    ["长漂泊，多愁多病心情恶。", "心情恶，模糊一片，强分哀乐。"],
+    ["拟将欢笑排离索，镜中无奈颜非昨。", "颜分昨，才华向浅，因何福薄。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

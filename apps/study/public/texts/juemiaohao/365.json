@@ -1,0 +1,14 @@
+{
+  "title": "莲房",
+  "paras": [
+    ["折断烟痕，翠蓬初离鸳鸯浦。", "玉纤相妒，翻被专房误。"],
+    ["乍脱青衣，犹着轻罗护。", "多情处，芳心一缕，都为相思苦。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "柴望",
+  "tune": "点绛唇"
+}

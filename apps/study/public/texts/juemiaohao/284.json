@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["红底过丝明，绿外飞绵小。", "不道东风上海棠，白地春归了。"],
+    ["月笛曲栏，留露舄芳池绕。", "争得闲情似旧时，偏索檐花笑。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "吴文英",
+  "tune": "卜算子"
+}

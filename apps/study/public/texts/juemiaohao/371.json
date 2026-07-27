@@ -1,0 +1,14 @@
+{
+  "title": "",
+  "paras": [
+    ["雨压杨花路半干。", "蜂遗花粉在栏杆，牡丹开尽正春寒。"],
+    ["懒品么弦金雁并，瘦惊双钏玉鱼宽，新愁不放翠眉间。"]
+  ],
+  "layout": {
+    "type": "ci",
+    "watermark": "cloud",
+    "writingMode": "vertical"
+  },
+  "author": "柴望",
+  "tune": "浣溪沙"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "昭君怨",
+  "paras": [
+    ["深禁好春谁惜？", "薄暮瑶阶伫立。", "别院管弦声，不分明。"],
+    ["又是梨花欲谢，绣被春寒今夜。", "寂寂锁朱门，梦承恩。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

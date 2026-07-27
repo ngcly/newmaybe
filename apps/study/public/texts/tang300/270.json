@@ -1,0 +1,13 @@
+{
+  "title": "渔翁",
+  "paras": [
+    ["渔翁夜傍西岩宿，晓汲清湘燃楚竹。"],
+    ["烟销日出不见人，欸乃一声山水绿。"],
+    ["回看天际下中流，岩上无心云相逐。"]
+  ],
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

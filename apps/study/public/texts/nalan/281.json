@@ -1,0 +1,10 @@
+{
+  "title": "又",
+  "paras": [["江南好，怀古意谁传？", "燕子矶头红蓼月，乌衣巷口绿杨烟。", "风景忆当年。"]],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "回文",
+  "paras": [
+    ["雾窗寒对遥天暮，暮天遥对寒窗雾。", "花落正啼鸦，鸦啼正落花。"],
+    ["袖罗垂影瘦，瘦影垂罗袖。", "风翦一丝红，红丝一翦风。"]
+  ],
+  "author": "纳兰性德",
+  "layout": {
+    "type": "poetry",
+    "watermark": "bamboo",
+    "writingMode": "vertical"
+  }
+}
