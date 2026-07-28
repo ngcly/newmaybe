@@ -1,4 +1,5 @@
-import { ExternalLink, Wrench } from 'lucide-react';
+import { Link } from 'react-router';
+import { ChevronRight, ExternalLink, Wrench } from 'lucide-react';
 
 const TOOLS = [
   {
@@ -41,14 +42,28 @@ const TOOLS = [
 
 const RULES = [
   {
-    k: '平水韵',
-    v: '写近体诗押韵的标准，106 韵部。上平十五韵、下平十五韵先背常用的东、冬、江、支、微。',
+    k: '近体诗怎么押韵',
+    v: '从平水韵的来历和 106 个韵部入手，理解律诗、绝句为何通常押平声韵。',
+    source: '《诗词格律》· 平水韵',
+    to: '/book/shicigelv/read/22',
   },
-  { k: '词林正韵', v: '填词押韵的标准，比平水韵宽，十九部。' },
-  { k: '钦定词谱', v: '查词牌格式：每牌多少字、几句、何处押韵、何处对仗。填词前必查。' },
   {
-    k: '诗词格律（王力）',
-    v: '薄薄一本小册子，把平仄、押韵、对仗、词牌规则讲得最清楚，入门第一本书。',
+    k: '填词怎么押韵',
+    v: '词韵通常比诗韵宽。馆内章节以《词林正韵》的十九部为例，说明词韵如何合并诗韵。',
+    source: '《诗词格律》· 词韵是诗韵的合并',
+    to: '/book/shicigelv/read/39',
+  },
+  {
+    k: '怎样看懂词谱',
+    v: '先认识平、仄、中和韵脚标记，再按谱例逐句核对字数、句式与用韵。',
+    source: '《白香词谱》· 谱例说明',
+    to: '/book/baixiangcipu/read/0',
+  },
+  {
+    k: '平仄从哪里学',
+    v: '先弄清四声如何分成平、仄，再进入律诗的粘、对、拗救等具体规则。',
+    source: '《诗词格律》· 平仄',
+    to: '/book/shicigelv/read/3',
   },
 ];
 
@@ -86,13 +101,22 @@ export default function Tools() {
         ))}
       </div>
 
-      <h2 className="text-xl font-semibold mb-4">格律常识速查</h2>
-      <div className="bg-surface border rounded-lg divide-y">
+      <h2 className="text-xl font-semibold mb-1">馆内格律导读</h2>
+      <p className="text-sm text-muted-foreground mb-4">从问题出发，直接读馆内已有的对应章节。</p>
+      <div className="grid sm:grid-cols-2 gap-4">
         {RULES.map((r) => (
-          <div key={r.k} className="p-5 flex gap-4">
-            <span className="font-semibold text-cinnabar shrink-0 w-32">{r.k}</span>
-            <p className="text-sm text-muted-foreground leading-6">{r.v}</p>
-          </div>
+          <Link
+            key={r.k}
+            to={r.to}
+            className="group bg-surface border rounded-lg p-5 hover:border-cinnabar/50 hover:shadow-sm transition-all"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="font-semibold group-hover:text-cinnabar transition-colors">{r.k}</h3>
+              <ChevronRight className="w-4 h-4 shrink-0 text-muted-foreground group-hover:text-cinnabar" />
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground leading-6">{r.v}</p>
+            <p className="mt-3 text-xs text-cinnabar">{r.source}</p>
+          </Link>
         ))}
       </div>
 

@@ -17,7 +17,7 @@
 
 ## Monorepo 架构
 
-项目采用 **npm Workspaces** 架构，6 个子应用共享同一个内容数据库，分别部署到不同子域。
+项目采用 **npm Workspaces** 架构，7 个子应用共享内容、样式与 AI 客户端能力，分别部署到不同子域。
 
 ```
 newmaybe/
@@ -27,10 +27,12 @@ newmaybe/
 │   ├── tools/       # tools.newmaybe.com  — 排版工具与分享卡片导出
 │   ├── ai/          # ai.newmaybe.com     — RAG 智能园丁对话
 │   ├── lab/         # lab.newmaybe.com    — 感官艺术与交互实验
-│   └── studio/      # studio.newmaybe.com — 海报生成与创意工坊
+│   ├── studio/      # studio.newmaybe.com — 海报生成与创意工坊
+│   └── study/       # study.newmaybe.com  — 林下书房、阅读路径与写作练习
 ├── packages/
 │   ├── content/        # 统一内容数据库（Markdown + Zod schemas）
-│   └── shared-styles/  # 全局 CSS 设计 Token（6 个子应用共用）
+│   ├── shared-styles/  # 全局 CSS 设计 Token（7 个子应用共用）
+│   └── ai-client/      # Studio / Study / AI 共用的 AI 请求与流式响应客户端
 └── scripts/
     ├── new.ts          # 内容创建 CLI
     └── audit-posts.ts  # 文章质量审计
@@ -46,6 +48,7 @@ newmaybe/
 | `ai.newmaybe.com`     | 基于 RAG 的 AI 智能园丁对话          | React 19 + Workers AI  | `4324`   |
 | `lab.newmaybe.com`    | 感官艺术与 Canvas 物理交互实验       | Astro 7 + Canvas       | `4325`   |
 | `studio.newmaybe.com` | Canvas 海报生成与品牌资产工坊        | React 19 + Tailwind v4 | `4326`   |
+| `study.newmaybe.com`  | 林下书房、古籍阅读、学习路径与练习   | React 19 + Tailwind v3 | `4327`   |
 
 ### 共享内容库 (`packages/content`)
 
@@ -75,6 +78,7 @@ npm run dev:tools    # http://localhost:4323
 npm run dev:ai       # http://localhost:4324
 npm run dev:lab      # http://localhost:4325
 npm run dev:studio   # http://localhost:4326
+npm run dev:study    # http://localhost:4327
 ```
 
 本地开发模式下，各子应用的跨域链接会自动映射至对应的本地端口（由 `resolveSubdomain()` 处理）。
@@ -117,12 +121,13 @@ npm run build:tools
 npm run build:ai
 npm run build:lab
 npm run build:studio
+npm run build:study
 ```
 
 ---
 
 ## 部署
 
-项目部署在 **Cloudflare Pages**，6 个子应用各自对应一个独立的 Pages 项目，连接同一个 Git 仓库，通过不同的**根目录**配置区分。
+项目部署在 **Cloudflare Pages / Workers**，7 个子应用各自对应一个独立项目，连接同一个 Git 仓库，并通过各自的构建命令与 `wrangler.toml` 配置独立发布。
 
 详见 [DEPLOY.md](./DEPLOY.md)。
