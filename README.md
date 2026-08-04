@@ -48,7 +48,7 @@ newmaybe/
 | `ai.newmaybe.com`     | 基于 RAG 的 AI 智能园丁对话          | React 19 + Workers AI  | `4324`   |
 | `lab.newmaybe.com`    | 感官艺术与 Canvas 物理交互实验       | Astro 7 + Canvas       | `4325`   |
 | `studio.newmaybe.com` | Canvas 海报生成与品牌资产工坊        | React 19 + Tailwind v4 | `4326`   |
-| `study.newmaybe.com`  | 林下书房、古籍阅读、学习路径与练习   | React 19 + Tailwind v3 | `4327`   |
+| `study.newmaybe.com`  | 林下书房、古籍阅读、学习路径与练习   | React 19 + Tailwind v4 | `4327`   |
 
 ### 共享内容库 (`packages/content`)
 

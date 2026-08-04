@@ -23,7 +23,7 @@ newmaybe/
 │   ├── ai/          # ai.newmaybe.com    — React 19, Vite, RAG + Workers AI
 │   ├── lab/         # lab.newmaybe.com   — Astro 7, Canvas/WebGL experiments
 │   ├── studio/      # studio.newmaybe.com — React 19, Tailwind v4, Vite
-│   └── study/       # study.newmaybe.com — React 19, Tailwind v3, Vite, Book library & reader
+│   └── study/       # study.newmaybe.com — React 19, Tailwind v4, Vite, Book library & reader
 ├── packages/
 │   ├── content/         # Shared content database (all Markdown + Zod schemas)
 │   └── shared-styles/   # Single source of truth for CSS design tokens
@@ -236,7 +236,7 @@ Astro 7 SSG. Five experiments: audio-zen (Web Audio API white noise), floating-v
 React 19 + Vite. Three tabs: poster generator (HTML5 Canvas, multiple themes), inspiration engine (writing prompts), asset gallery (brand assets).
 
 ### `apps/study` — Study (林下书房)
-React 19 + Tailwind v3 + Vite. A writing studio book library & reader. Features reading progress tracking, interactive practice exercises, and classical poetry reading mode. Runs on port 4327.
+React 19 + Tailwind v4 + Vite. A writing studio book library & reader. Features reading progress tracking, interactive practice exercises, and classical poetry reading mode. Runs on port 4327.
 
 ---
 
