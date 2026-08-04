@@ -62,26 +62,26 @@ async function resolveOne(connStr: string): Promise<ResolvedConnection | null> {
   const id = connStr.slice(slash + 1);
   try {
     switch (col) {
-      case 'posts':
-        return await getEntry('posts', id).then((entry) =>
-          entry && !entry.data.draft ? entry : null,
-        );
-      case 'notes':
-        return await getEntry('notes', id).then((entry) =>
-          entry && !entry.data.draft ? entry : null,
-        );
-      case 'memories':
-        return await getEntry('memories', id).then((entry) =>
-          entry && !entry.data.draft ? entry : null,
-        );
-      case 'fragments':
-        return await getEntry('fragments', id).then((entry) =>
-          entry && !entry.data.draft ? entry : null,
-        );
-      case 'excerpts':
-        return await getEntry('excerpts', id).then((entry) =>
-          entry && !entry.data.draft ? entry : null,
-        );
+      case 'posts': {
+        const entry = await getEntry('posts', id);
+        return entry && !entry.data.draft ? entry : null;
+      }
+      case 'notes': {
+        const entry = await getEntry('notes', id);
+        return entry && !entry.data.draft ? entry : null;
+      }
+      case 'memories': {
+        const entry = await getEntry('memories', id);
+        return entry && !entry.data.draft ? entry : null;
+      }
+      case 'fragments': {
+        const entry = await getEntry('fragments', id);
+        return entry && !entry.data.draft ? entry : null;
+      }
+      case 'excerpts': {
+        const entry = await getEntry('excerpts', id);
+        return entry && !entry.data.draft ? entry : null;
+      }
       default:
         console.warn(`Unknown collection in connection: ${connStr}`);
         return null;

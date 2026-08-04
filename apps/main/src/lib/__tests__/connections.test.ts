@@ -1,7 +1,13 @@
-import { beforeEach, describe, it, expect } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { getEntry } from 'astro:content';
 import { connUrl, connTitle, COLL_LABEL, resolveConnections } from '../connections';
 import type { ResolvedConnection } from '../connections';
+
+vi.mock('astro:content', () => ({
+  getEntry: vi.fn(),
+}));
+
+const mockedGetEntry = vi.mocked(getEntry);
 
 // Build a minimal mock that satisfies the ResolvedConnection discriminated union
 function mockConn(collection: string, id: string, data: Record<string, unknown> = {}) {
@@ -9,7 +15,7 @@ function mockConn(collection: string, id: string, data: Record<string, unknown> 
 }
 
 beforeEach(() => {
-  getEntry.mockReset();
+  mockedGetEntry.mockReset();
 });
 
 describe('COLL_LABEL', () => {
@@ -95,7 +101,7 @@ describe('connTitle', () => {
 
 describe('resolveConnections', () => {
   it('does not expose draft entries from public pages', async () => {
-    getEntry
+    mockedGetEntry
       .mockResolvedValueOnce(mockConn('notes', 'draft-note', { title: '草稿', draft: true }))
       .mockResolvedValueOnce(mockConn('notes', 'public-note', { title: '公开', draft: false }));
 
