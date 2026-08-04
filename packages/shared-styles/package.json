@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "exports": {
+    "./base.css": "./base.css",
     "./tokens.css": "./tokens.css"
+  },
+  "dependencies": {
+    "@fontsource/cormorant-garamond": "^5.2.11",
+    "@fontsource/noto-serif-sc": "^5.2.9"
   }
 }

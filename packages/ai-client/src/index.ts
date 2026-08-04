@@ -5,6 +5,71 @@ export const AI_STORAGE_KEYS = {
   customBaseUrl: 'newmaybe_custom_base_url',
 } as const;
 
+/**
+ * Shared by browser clients and the free Worker endpoint. Keeping this below
+ * the Worker's byte limit leaves enough room for UTF-8 encoding and JSON.
+ */
+export const AI_MAX_TOTAL_CHARS = 7_000;
+
+export function createGeminiRequest(
+  baseUrl: string,
+  model: string,
+  apiKey: string,
+): { url: string; headers: Record<string, string> } {
+  const cleanBaseUrl = (baseUrl || 'https://generativelanguage.googleapis.com').replace(/\/$/, '');
+  return {
+    url: `${cleanBaseUrl}/v1beta/models/${model}:generateContent`,
+    headers: {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey,
+    },
+  };
+}
+
+interface ChatMessageLike {
+  role: string;
+  content: string;
+}
+
+/** Keep the system prompt plus the newest conversation turns within a limit. */
+export function fitMessagesToCharBudget<T extends ChatMessageLike>(
+  messages: T[],
+  maxChars = AI_MAX_TOTAL_CHARS,
+): T[] {
+  if (maxChars <= 0 || messages.length === 0) return [];
+
+  const systemIndex = messages.findIndex((message) => message.role === 'system');
+  const systemMessage = systemIndex >= 0 ? messages[systemIndex] : undefined;
+  const conversation = messages.filter((_, index) => index !== systemIndex);
+  const latestLength = conversation.at(-1)?.content.length ?? 0;
+  const latestReserve = Math.min(latestLength, Math.floor(maxChars / 3));
+
+  let remaining = maxChars;
+  let fittedSystem: T | undefined;
+  if (systemMessage) {
+    const systemBudget = Math.max(0, maxChars - latestReserve);
+    fittedSystem = {
+      ...systemMessage,
+      content: systemMessage.content.slice(0, systemBudget),
+    };
+    remaining -= fittedSystem.content.length;
+  }
+
+  const fittedConversation: T[] = [];
+  for (let index = conversation.length - 1; index >= 0 && remaining > 0; index -= 1) {
+    const message = conversation[index];
+    const truncated = message.content.length > remaining;
+    fittedConversation.unshift({
+      ...message,
+      content: truncated ? message.content.slice(-remaining) : message.content,
+    });
+    remaining -= Math.min(message.content.length, remaining);
+    if (truncated) break;
+  }
+
+  return fittedSystem ? [fittedSystem, ...fittedConversation] : fittedConversation;
+}
+
 interface AIResponsePayload {
   response?: string;
   text?: string;

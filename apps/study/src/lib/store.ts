@@ -1,6 +1,9 @@
+import { BOOK_MAP } from '../data/catalog';
+
 // 本地存储：阅读进度、打卡、仿写草稿
 const KEY_READ = 'linxia:read';
 const KEY_CHECKIN = 'linxia:checkin';
+const KEY_CHECKIN_EVENTS = 'linxia:checkin-events';
 const KEY_DRAFTS = 'linxia:drafts';
 const KEY_DONE = 'linxia:drilldone';
 
@@ -39,18 +42,29 @@ export type ReadMap = Record<string, number[]>;
 export function getReadMap(): ReadMap {
   const value = readRecord(KEY_READ);
   return Object.fromEntries(
-    Object.entries(value).map(([bookId, chapters]) => [
-      bookId,
-      Array.isArray(chapters)
-        ? [...new Set(chapters.filter((n): n is number => Number.isInteger(n) && n >= 0))]
-        : [],
-    ]),
+    Object.entries(value)
+      .filter(([bookId]) => Boolean(BOOK_MAP[bookId]))
+      .map(([bookId, chapters]) => [
+        bookId,
+        Array.isArray(chapters)
+          ? [
+              ...new Set(
+                chapters.filter(
+                  (n): n is number =>
+                    Number.isInteger(n) && n >= 0 && n < BOOK_MAP[bookId].chapters,
+                ),
+              ),
+            ]
+          : [],
+      ]),
   );
 }
 export function isChapterRead(bookId: string, n: number): boolean {
   return (getReadMap()[bookId] ?? []).includes(n);
 }
 export function markChapterRead(bookId: string, n: number, forceRead?: boolean) {
+  const book = BOOK_MAP[bookId];
+  if (!book || !Number.isInteger(n) || n < 0 || n >= book.chapters) return false;
   const m = getReadMap();
   const arr = new Set(m[bookId] ?? []);
   const wasRead = arr.has(n);
@@ -59,12 +73,13 @@ export function markChapterRead(bookId: string, n: number, forceRead?: boolean) 
     arr.add(n);
     m[bookId] = [...arr];
     write(KEY_READ, m);
-    if (!wasRead) touchCheckin();
+    if (!wasRead) recordCheckin(bookId, n);
   } else {
     arr.delete(n);
     m[bookId] = [...arr];
     write(KEY_READ, m);
   }
+  return shouldRead;
 }
 export function bookReadCount(bookId: string): number {
   return (getReadMap()[bookId] ?? []).length;
@@ -86,10 +101,22 @@ export function getCheckins(): Record<string, number> {
     ),
   );
 }
-export function touchCheckin() {
+function recordCheckin(bookId: string, chapter: number) {
+  const date = localDateKey();
+  const value = readRecord(KEY_CHECKIN_EVENTS);
+  const events = new Set(
+    Array.isArray(value[date])
+      ? value[date].filter((item): item is string => typeof item === 'string')
+      : [],
+  );
+  const eventId = `${bookId}/${chapter}`;
+  if (events.has(eventId)) return;
+  events.add(eventId);
+  value[date] = [...events];
+  write(KEY_CHECKIN_EVENTS, value);
+
   const c = getCheckins();
-  const d = localDateKey();
-  c[d] = (c[d] ?? 0) + 1;
+  c[date] = (c[date] ?? 0) + 1;
   write(KEY_CHECKIN, c);
 }
 export function streakDays(): number {

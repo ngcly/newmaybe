@@ -247,7 +247,9 @@ export default function Reader() {
 
             {/* 标记已读 */}
             <button
+              disabled={!data || error || total === 0 || num >= total}
               onClick={() => {
+                if (!data || error || total === 0 || num >= total) return;
                 const next = !done;
                 setDone(next);
                 markChapterRead(bookId, num, next);

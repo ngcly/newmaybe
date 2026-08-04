@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   fetchAllContent,
   retrieveRelevantDocs,
@@ -8,7 +8,12 @@ import {
 import { useFreeTurns } from './useFreeTurns';
 import { WELCOME_MESSAGE } from '../constants';
 import type { Message, ProviderType, ContentStats } from '../types';
-import { AI_STORAGE_KEYS, readAIResponse } from '@newmaybe/ai-client';
+import {
+  AI_STORAGE_KEYS,
+  createGeminiRequest,
+  fitMessagesToCharBudget,
+  readAIResponse,
+} from '@newmaybe/ai-client';
 
 function timestamp() {
   return new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
@@ -30,6 +35,7 @@ export interface UseChatReturn {
   inputText: string;
   isTyping: boolean;
   contentLoading: boolean;
+  contentError: string | null;
   stats: ContentStats | null;
   provider: ProviderType;
   model: string;
@@ -76,6 +82,8 @@ export function useChat(): UseChatReturn {
 
   const [allContent, setAllContent] = useState<ContentItem[]>([]);
   const [contentLoading, setContentLoading] = useState(true);
+  const [contentError, setContentError] = useState<string | null>(null);
+  const requestInFlight = useRef(false);
 
   const { freeTurnsLeft, checkFreeTurns, decrementFreeTurns } = useFreeTurns();
 
@@ -98,10 +106,16 @@ export function useChat(): UseChatReturn {
     if (savedKey) setApiKey(savedKey.trim());
     if (savedBaseUrl) setCustomBaseUrl(savedBaseUrl.trim());
 
-    fetchAllContent().then((data) => {
-      setAllContent(data);
-      setContentLoading(false);
-    });
+    fetchAllContent()
+      .then((data) => {
+        setAllContent(data);
+        setContentError(null);
+      })
+      .catch((error: unknown) => {
+        console.error('RAG content fetch error:', error);
+        setContentError('知识花园索引加载失败，请刷新页面后重试。');
+      })
+      .finally(() => setContentLoading(false));
   }, []);
 
   // Persist messages to localStorage
@@ -127,7 +141,20 @@ export function useChat(): UseChatReturn {
   const handleSend = useCallback(
     async (overrideText?: string) => {
       const textToSend = (overrideText !== undefined ? overrideText : inputText).trim();
-      if (!textToSend) return;
+      if (!textToSend || requestInFlight.current) return;
+
+      if (contentError) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `content-error-${Date.now()}`,
+            role: 'assistant',
+            text: contentError,
+            timestamp: timestamp(),
+          },
+        ]);
+        return;
+      }
 
       // Free tier rate limiting
       if (provider === 'free') {
@@ -145,6 +172,8 @@ export function useChat(): UseChatReturn {
           return;
         }
       }
+
+      requestInFlight.current = true;
 
       const userMessage: Message = {
         id: `msg-${Date.now()}`,
@@ -193,7 +222,7 @@ export function useChat(): UseChatReturn {
 
           const body =
             provider === 'free'
-              ? JSON.stringify({ messages: promptHistory })
+              ? JSON.stringify({ messages: fitMessagesToCharBudget(promptHistory) })
               : JSON.stringify({
                   model,
                   messages: promptHistory.map((m) => ({ role: m.role, content: m.content })),
@@ -244,20 +273,15 @@ export function useChat(): UseChatReturn {
               parts: [{ text: m.content }],
             }));
 
-          const cleanBaseUrl = (
-            customBaseUrl || 'https://generativelanguage.googleapis.com'
-          ).replace(/\/$/, '');
-          const res = await fetch(
-            `${cleanBaseUrl}/v1beta/models/${model}:generateContent?key=${apiKey}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: geminiMessages,
-                systemInstruction: { parts: [{ text: systemPromptContent }] },
-              }),
-            },
-          );
+          const request = createGeminiRequest(customBaseUrl, model, apiKey);
+          const res = await fetch(request.url, {
+            method: 'POST',
+            headers: request.headers,
+            body: JSON.stringify({
+              contents: geminiMessages,
+              systemInstruction: { parts: [{ text: systemPromptContent }] },
+            }),
+          });
           const data = (await res.json()) as {
             error?: { message?: string };
             candidates?: { content?: { parts?: { text?: string }[] } }[];
@@ -292,6 +316,7 @@ export function useChat(): UseChatReturn {
           },
         ]);
       } finally {
+        requestInFlight.current = false;
         setIsTyping(false);
       }
     },
@@ -305,6 +330,7 @@ export function useChat(): UseChatReturn {
       messages,
       checkFreeTurns,
       decrementFreeTurns,
+      contentError,
     ],
   );
 
@@ -337,6 +363,7 @@ export function useChat(): UseChatReturn {
     inputText,
     isTyping,
     contentLoading,
+    contentError,
     stats,
     provider,
     model,

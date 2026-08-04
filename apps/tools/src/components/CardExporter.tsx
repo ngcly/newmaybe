@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CARD_THEMES } from '../constants/themes';
 import type { CardType, CardTheme } from '../types';
+import { localIsoDate, yamlValue } from '@newmaybe/content/authoring';
 
 interface CardExporterProps {
   initialContent?: string;
@@ -22,41 +23,55 @@ export interface ExcerptForm {
   tags: string;
 }
 
-function wrapText(
+function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  const lines: string[] = [];
+  for (const paragraph of text.split('\n')) {
+    if (!paragraph) {
+      lines.push('');
+      continue;
+    }
+    let line = '';
+    for (const character of paragraph) {
+      const candidate = line + character;
+      if (line && ctx.measureText(candidate).width > maxWidth) {
+        lines.push(line);
+        line = character;
+      } else {
+        line = candidate;
+      }
+    }
+    lines.push(line);
+  }
+  return lines;
+}
+
+function fitEllipsis(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string {
+  let result = text;
+  while (result && ctx.measureText(`${result}…`).width > maxWidth) result = result.slice(0, -1);
+  return `${result}…`;
+}
+
+function drawWrappedText(
   ctx: CanvasRenderingContext2D,
   text: string,
   x: number,
   y: number,
   maxWidth: number,
   lineHeight: number,
+  maxY: number,
 ): number {
-  const paragraphs = text.split('\n');
-  let currentY = y;
-
-  for (const para of paragraphs) {
-    if (!para.trim()) {
-      currentY += lineHeight / 2;
-      continue;
-    }
-
-    const words = para.split('');
-    let line = '';
-
-    for (let n = 0; n < words.length; n++) {
-      const testLine = line + words[n];
-      const testWidth = ctx.measureText(testLine).width;
-      if (testWidth > maxWidth && n > 0) {
-        ctx.fillText(line, x, currentY);
-        line = words[n];
-        currentY += lineHeight;
-      } else {
-        line = testLine;
-      }
-    }
-    ctx.fillText(line, x, currentY);
-    currentY += lineHeight;
+  const lines = wrapLines(ctx, text, maxWidth);
+  const maxLines = Math.max(1, Math.floor((maxY - y) / lineHeight) + 1);
+  const visibleLines = lines.slice(0, maxLines);
+  if (lines.length > maxLines && visibleLines.length > 0) {
+    visibleLines[visibleLines.length - 1] = fitEllipsis(
+      ctx,
+      visibleLines[visibleLines.length - 1],
+      maxWidth,
+    );
   }
-  return currentY;
+  visibleLines.forEach((line, index) => ctx.fillText(line, x, y + index * lineHeight));
+  return y + visibleLines.length * lineHeight;
 }
 
 export default function CardExporter({ initialContent }: CardExporterProps) {
@@ -69,7 +84,7 @@ export default function CardExporter({ initialContent }: CardExporterProps) {
     content: initialContent || '留白处，自有新可能。',
     mood: '凌晨三点',
     location: '咸宁',
-    pubDate: new Date().toISOString().split('T')[0],
+    pubDate: localIsoDate(),
   });
 
   const [excForm, setExcForm] = useState<ExcerptForm>({
@@ -77,7 +92,7 @@ export default function CardExporter({ initialContent }: CardExporterProps) {
     author: '罗兰·巴特',
     source: '《恋人絮语》',
     comment: '赋予语言以身体的触感，这是最温柔的浪漫。',
-    pubDate: new Date().toISOString().split('T')[0],
+    pubDate: localIsoDate(),
     tags: '语言, 情感',
   });
 
@@ -86,8 +101,8 @@ export default function CardExporter({ initialContent }: CardExporterProps) {
     if (cardType === 'fragment') {
       mdContent = `---
 pubDate: ${fragForm.pubDate}
-mood: ${fragForm.mood}
-location: ${fragForm.location}
+mood: ${yamlValue(fragForm.mood)}
+location: ${yamlValue(fragForm.location)}
 ---
 ${fragForm.content}
 `;
@@ -97,11 +112,11 @@ ${fragForm.content}
         .map((t) => t.trim())
         .filter(Boolean);
       mdContent = `---
-author: ${excForm.author}
-source: ${excForm.source}
+author: ${yamlValue(excForm.author)}
+source: ${yamlValue(excForm.source)}
 pubDate: ${excForm.pubDate}
-tags: [${tagList.map((t) => `"${t}"`).join(', ')}]
-comment: ${excForm.comment}
+tags: ${yamlValue(tagList)}
+comment: ${yamlValue(excForm.comment)}
 ---
 ${excForm.content}
 `;
@@ -140,7 +155,7 @@ ${excForm.content}
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
 
-      wrapText(ctx, fragForm.content, 60, 120, canvas.width - 120, 38);
+      drawWrappedText(ctx, fragForm.content, 60, 120, canvas.width - 120, 38, 350);
 
       ctx.strokeStyle = themeColors.line + '99';
       ctx.lineWidth = 1;
@@ -174,7 +189,15 @@ ${excForm.content}
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
 
-      const endY = wrapText(ctx, excForm.content, 60, 110, canvas.width - 120, 38);
+      const endY = drawWrappedText(
+        ctx,
+        excForm.content,
+        60,
+        110,
+        canvas.width - 120,
+        38,
+        canvas.height - 205,
+      );
 
       ctx.fillStyle = themeColors.textSoft;
       ctx.font = '16px "Noto Serif SC", "Songti SC", serif';
@@ -205,7 +228,15 @@ ${excForm.content}
 
         ctx.fillStyle = themeColors.textSoft;
         ctx.font = '14px "Noto Serif SC", "Songti SC", serif';
-        wrapText(ctx, excForm.comment, 60, commentStartY + 35, canvas.width - 120, 22);
+        drawWrappedText(
+          ctx,
+          excForm.comment,
+          60,
+          commentStartY + 35,
+          canvas.width - 120,
+          22,
+          canvas.height - 50,
+        );
       }
     }
 

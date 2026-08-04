@@ -1,4 +1,6 @@
 ---
+import '@newmaybe/shared-styles/base.css';
+
 const isDev = import.meta.env.DEV;
 ---
 
@@ -53,16 +55,6 @@ const isDev = import.meta.env.DEV;
       })();
     </script>
     <style>
-      @import '@fontsource/cormorant-garamond/latin-400.css';
-      @import '@fontsource/cormorant-garamond/latin-400-italic.css';
-      @import '@fontsource/cormorant-garamond/latin-600.css';
-      @import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
-      @import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
-      @import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
-      @import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
-
-      @import '@newmaybe/shared-styles/tokens.css';
-
       * {
         margin: 0;
         padding: 0;
@@ -335,15 +327,20 @@ const isDev = import.meta.env.DEV;
       // 恢复草稿或读取 URL 传参
       const params = new URLSearchParams(window.location.search);
       const draftParam = params.get('draft');
+      const savedDraft = localStorage.getItem('newmaybe_zen_draft');
 
       if (draftParam) {
-        editor.value = draftParam;
-        const count = draftParam.replace(/[\s\p{P}]/gu, '').length;
+        const shouldImport =
+          !savedDraft ||
+          savedDraft === draftParam ||
+          window.confirm('检测到已保存的草稿。是否用传入内容替换现有草稿？');
+        const initialDraft = shouldImport ? draftParam : savedDraft;
+        editor.value = initialDraft;
+        const count = initialDraft.replace(/[\s\p{P}]/gu, '').length;
         wordCount.innerText = `字数: ${count}`;
-        localStorage.setItem('newmaybe_zen_draft', draftParam);
+        if (shouldImport) localStorage.setItem('newmaybe_zen_draft', draftParam);
         window.history.replaceState({}, document.title, window.location.pathname);
       } else {
-        const savedDraft = localStorage.getItem('newmaybe_zen_draft');
         if (savedDraft) {
           editor.value = savedDraft;
           const count = savedDraft.replace(/[\s\p{P}]/gu, '').length;

@@ -20,8 +20,21 @@ describe('reading progress', () => {
   });
 
   it('filters malformed persisted chapter values', () => {
-    values.set('linxia:read', JSON.stringify({ shijing: [1, -1, 1, '2', 2.5] }));
+    values.set('linxia:read', JSON.stringify({ shijing: [1, -1, 1, '2', 2.5, 999] }));
     expect(getReadMap().shijing).toEqual([1]);
+  });
+
+  it('rejects unknown and out-of-range chapters', () => {
+    expect(markChapterRead('shijing', 999, true)).toBe(false);
+    expect(markChapterRead('missing-book', 0, true)).toBe(false);
+    expect(getReadMap()).toEqual({});
+  });
+
+  it('counts the same chapter at most once per day', () => {
+    markChapterRead('shijing', 1, true);
+    markChapterRead('shijing', 1, false);
+    markChapterRead('shijing', 1, true);
+    expect(getCheckins()[localDateKey()]).toBe(1);
   });
 });
 

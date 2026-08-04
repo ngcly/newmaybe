@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { type ProviderType } from '../types';
-import { readAIResponse } from '@newmaybe/ai-client';
+import { createGeminiRequest, readAIResponse } from '@newmaybe/ai-client';
+import { localIsoDate } from '@newmaybe/content/authoring';
 
 interface CapturePadProps {
   provider: ProviderType;
@@ -22,7 +23,7 @@ export default function CapturePad({ provider, model, apiKey, customBaseUrl }: C
     setError(null);
     setOutput('');
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = localIsoDate();
 
     const systemPrompt = `你是一个数字花园格式化助手。你的任务是将用户输入的杂乱、非结构化想法，整理成符合 Astro 静态网站内容格式的 Markdown 文件。
 你的输出必须包含完整的 YAML Frontmatter。
@@ -85,26 +86,20 @@ connections: []
 
         generatedText = await readAIResponse(res);
       } else if (provider === 'gemini') {
-        const cleanBaseUrl = (customBaseUrl || 'https://generativelanguage.googleapis.com').replace(
-          /\/$/,
-          '',
-        );
-        const res = await fetch(
-          `${cleanBaseUrl}/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [
-                {
-                  role: 'user',
-                  parts: [{ text: `请将以下想法格式化为 Markdown 笔记：\n\n${input}` }],
-                },
-              ],
-              systemInstruction: { parts: [{ text: systemPrompt }] },
-            }),
-          },
-        );
+        const request = createGeminiRequest(customBaseUrl, model, apiKey);
+        const res = await fetch(request.url, {
+          method: 'POST',
+          headers: request.headers,
+          body: JSON.stringify({
+            contents: [
+              {
+                role: 'user',
+                parts: [{ text: `请将以下想法格式化为 Markdown 笔记：\n\n${input}` }],
+              },
+            ],
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+          }),
+        });
         const data = await res.json();
         if (!res.ok || data.error) {
           throw new Error(data.error?.message || 'Gemini 接口调用出错');

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@newmaybe/ai-client": "*",
+    "@newmaybe/content": "*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

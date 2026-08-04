@@ -5,6 +5,7 @@ interface SidebarProps {
   resolveSubdomain: (url: string) => string;
   stats: ContentStats | null;
   contentLoading: boolean;
+  contentError: string | null;
   provider: ProviderType;
   model: string;
   apiKey: string;
@@ -30,6 +31,7 @@ export default function Sidebar(props: SidebarProps) {
     resolveSubdomain,
     stats,
     contentLoading,
+    contentError,
     provider,
     model,
     apiKey,
@@ -82,6 +84,7 @@ export default function Sidebar(props: SidebarProps) {
         <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)] mb-2.5">
           知识图谱索引状态
         </h4>
+        {contentError && <p className="text-xs text-red-600 mb-2">{contentError}</p>}
         <ul className="text-xs text-[var(--ink-soft)] space-y-1.5 list-none">
           {[
             ['🌲 文章节点 (Writing)', stats?.posts, '篇'],
@@ -92,7 +95,9 @@ export default function Sidebar(props: SidebarProps) {
           ].map(([label, count, unit]) => (
             <li key={label as string} className="flex justify-between">
               <span>{label}</span>
-              <span className="font-semibold">{contentLoading ? '—' : `${count} ${unit}`}</span>
+              <span className="font-semibold">
+                {contentLoading || contentError ? '—' : `${count} ${unit}`}
+              </span>
             </li>
           ))}
         </ul>

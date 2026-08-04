@@ -1,3 +1,5 @@
+import { AI_MAX_TOTAL_CHARS } from '@newmaybe/ai-client';
+
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -22,7 +24,6 @@ interface Env {
 const MAX_TOKENS = 2048;
 const MAX_BODY_BYTES = 32 * 1024;
 const MAX_MESSAGES = 30;
-const MAX_TOTAL_CHARS = 12_000;
 const ALLOWED_ORIGINS = new Set([
   'https://newmaybe.com',
   'https://ai.newmaybe.com',
@@ -60,7 +61,7 @@ export function validateMessages(value: unknown): ChatMessage[] | null {
       return null;
     }
     totalChars += content.length;
-    if (totalChars > MAX_TOTAL_CHARS) return null;
+    if (totalChars > AI_MAX_TOTAL_CHARS) return null;
     messages.push({ role, content });
   }
   return messages;

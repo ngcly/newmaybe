@@ -16,6 +16,7 @@ import path from 'node:path';
 import readline from 'node:readline';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { assertSafeSlug, localIsoDate, yamlValue } from '@newmaybe/content/authoring';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CONTENT = path.join(ROOT, 'packages/content');
@@ -27,7 +28,7 @@ const now = new Date();
 const yyyy = String(now.getFullYear());
 const mm = String(now.getMonth() + 1).padStart(2, '0');
 const dd = String(now.getDate()).padStart(2, '0');
-const isoDate = `${yyyy}-${mm}-${dd}`;
+const isoDate = localIsoDate(now);
 const dateSlug = `${yyyy.slice(2)}${mm}${dd}`;
 
 // ── 交互工具 ──────────────────────────────────
@@ -77,11 +78,21 @@ function writeFile(filePath: string, content: string) {
   fs.writeFileSync(filePath, content, 'utf-8');
 }
 
+function contentPath(collection: 'fragments' | 'notes' | 'posts' | 'excerpts', slug: string) {
+  const safeSlug = assertSafeSlug(slug);
+  const collectionDir = path.resolve(CONTENT, collection);
+  const filePath = path.resolve(collectionDir, `${safeSlug}.md`);
+  if (!filePath.startsWith(`${collectionDir}${path.sep}`)) {
+    throw new Error('内容路径超出目标集合目录');
+  }
+  return filePath;
+}
+
 // ── 各类型创建逻辑 ────────────────────────────
 
 async function createFragment(keyword?: string) {
   const slug = keyword ? `${dateSlug}-${keyword}` : dateSlug;
-  const filePath = path.join(CONTENT, 'fragments', `${slug}.md`);
+  const filePath = contentPath('fragments', slug);
   const content = `---
 pubDate: ${isoDate}
 ---
@@ -103,9 +114,9 @@ async function createNote() {
   const stage = await choose('成长阶段', ['sprout 🌱', 'bud 🌿', 'evergreen 🌳'], 0);
   const stageKey = stage.split(' ')[0];
 
-  const filePath = path.join(CONTENT, 'notes', `${slug}.md`);
+  const filePath = contentPath('notes', slug);
   const content = `---
-title: ${title}
+title: ${yamlValue(title)}
 pubDate: ${isoDate}
 stage: ${stageKey}
 tags: []
@@ -128,10 +139,10 @@ async function createPost() {
   const description = await ask('简介（一句话）');
   const category = await choose('分类', ['随笔', '诗歌', '散文', '观察'], 0);
 
-  const filePath = path.join(CONTENT, 'posts', `${slug}.md`);
+  const filePath = contentPath('posts', slug);
   const content = `---
-title: ${title}
-description: ${description}
+title: ${yamlValue(title)}
+description: ${yamlValue(description)}
 pubDate: ${isoDate}
 category: ${category}
 readingTime: 5
@@ -146,7 +157,7 @@ draft: true
 
 async function createExcerpt(keyword?: string) {
   const slug = keyword ? `${dateSlug}-${keyword}` : dateSlug;
-  const filePath = path.join(CONTENT, 'excerpts', `${slug}.md`);
+  const filePath = contentPath('excerpts', slug);
   const content = `---
 author: ""
 pubDate: ${isoDate}

@@ -9,6 +9,8 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@newmaybe/content": "*",
+    "@newmaybe/shared-styles": "*",
     "astro": "^7.0.0",
     "d3": "^7.9.0"
   }

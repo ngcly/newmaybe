@@ -3,7 +3,7 @@ import { type Message, type ProviderType } from '../types';
 import { retrieveRelevantDocs, type ContentItem } from '../utils/rag';
 import TypingIndicator from './TypingIndicator';
 import MarkdownText from './MarkdownText';
-import { readAIResponse } from '@newmaybe/ai-client';
+import { createGeminiRequest, readAIResponse } from '@newmaybe/ai-client';
 
 interface EgoMirrorProps {
   allContent: ContentItem[];
@@ -168,11 +168,6 @@ ${m.doc.content}
 
         replyText = await readAIResponse(res);
       } else if (provider === 'gemini') {
-        const cleanBaseUrl = (customBaseUrl || 'https://generativelanguage.googleapis.com').replace(
-          /\/$/,
-          '',
-        );
-
         const geminiMessages = promptHistory
           .filter((m) => m.role !== 'system')
           .map((m) => ({
@@ -180,17 +175,15 @@ ${m.doc.content}
             parts: [{ text: m.content }],
           }));
 
-        const res = await fetch(
-          `${cleanBaseUrl}/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: geminiMessages,
-              systemInstruction: { parts: [{ text: systemPrompt }] },
-            }),
-          },
-        );
+        const request = createGeminiRequest(customBaseUrl, model, apiKey);
+        const res = await fetch(request.url, {
+          method: 'POST',
+          headers: request.headers,
+          body: JSON.stringify({
+            contents: geminiMessages,
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+          }),
+        });
         const data = await res.json();
         if (!res.ok || data.error) {
           throw new Error(data.error?.message || 'Gemini 接口调用出错');

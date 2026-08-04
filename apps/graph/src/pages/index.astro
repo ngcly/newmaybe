@@ -1,4 +1,6 @@
 ---
+import '@newmaybe/shared-styles/base.css';
+
 const isDev = import.meta.env.DEV;
 const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
 ---
@@ -54,17 +56,6 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
       })();
     </script>
     <style>
-      @import '@fontsource/cormorant-garamond/latin-400.css';
-      @import '@fontsource/cormorant-garamond/latin-400-italic.css';
-      @import '@fontsource/cormorant-garamond/latin-600.css';
-      @import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
-      @import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
-      @import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
-      @import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
-
-      /* 极致美学的纸底墨色，继承主站设计系统 */
-      @import '@newmaybe/shared-styles/tokens.css';
-
       * {
         margin: 0;
         padding: 0;
@@ -864,6 +855,7 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
     <!-- D3 全局动态运行代码 -->
     <script type="module">
       import * as d3 from 'd3';
+      import { resolveSubdomain as resolveSubdomainUrl } from '@newmaybe/content/utils';
 
       const svg = d3.select('#graph');
       const width = window.innerWidth;
@@ -871,16 +863,7 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
 
       // 配置信息
       const isDev = document.getElementById('subdomain-config').getAttribute('data-dev') === 'true';
-      const resolveSubdomain = (url) => {
-        if (!isDev) return url;
-        if (url.startsWith('https://newmaybe.com')) return 'http://localhost:4321';
-        if (url.startsWith('https://graph.newmaybe.com')) return 'http://localhost:4322';
-        if (url.startsWith('https://tools.newmaybe.com')) return 'http://localhost:4323';
-        if (url.startsWith('https://ai.newmaybe.com')) return 'http://localhost:4324';
-        if (url.startsWith('https://lab.newmaybe.com')) return 'http://localhost:4325';
-        if (url.startsWith('https://studio.newmaybe.com')) return 'http://localhost:4326';
-        return url;
-      };
+      const resolveSubdomain = (url) => resolveSubdomainUrl(url, isDev);
 
       // 状态数据
       let originalGardenData = { nodes: [], links: [] };
@@ -1725,7 +1708,7 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
         if (addNodeParam) {
           switchToSandboxStateUI();
 
-          const text = decodeURIComponent(addNodeParam);
+          const text = addNodeParam;
           const id = `sandbox-notes-${Date.now()}`;
           const x = width / 2;
           const y = height / 2;

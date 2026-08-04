@@ -13,6 +13,30 @@ interface PosterGeneratorProps {
   initialQuote?: string;
 }
 
+function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  const lines: string[] = [];
+  for (const paragraph of text.split('\n')) {
+    let line = '';
+    for (const character of paragraph) {
+      const candidate = line + character;
+      if (line && ctx.measureText(candidate).width > maxWidth) {
+        lines.push(line);
+        line = character;
+      } else {
+        line = candidate;
+      }
+    }
+    lines.push(line);
+  }
+  return lines;
+}
+
+function fitEllipsis(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string {
+  let result = text;
+  while (result && ctx.measureText(`${result}…`).width > maxWidth) result = result.slice(0, -1);
+  return `${result}…`;
+}
+
 export default function PosterGenerator({ initialQuote }: PosterGeneratorProps) {
   const [title, setTitle] = useState('思考的经纬');
   const [subtitle, setSubtitle] = useState('newmaybe.com 数字花园图谱上线');
@@ -114,23 +138,25 @@ export default function PosterGenerator({ initialQuote }: PosterGeneratorProps) 
     ctx.textAlign = align === 'center' ? 'center' : 'left';
 
     const maxQuoteWidth = width - 160;
-    const words = quote.split('');
-    let line = '';
-    let y = quoteStartY;
     const lineHeight = 50;
-
-    for (let n = 0; n < words.length; n++) {
-      const testLine = line + words[n];
-      const testWidth = ctx.measureText(testLine).width;
-      if (testWidth > maxQuoteWidth && n > 0) {
-        ctx.fillText(line, align === 'center' ? width / 2 : 80, y);
-        line = words[n];
-        y += lineHeight;
-      } else {
-        line = testLine;
-      }
+    const quoteLines = wrapLines(ctx, quote, maxQuoteWidth);
+    const maxQuoteY = height - 160;
+    const maxLines = Math.max(1, Math.floor((maxQuoteY - quoteStartY) / lineHeight) + 1);
+    const visibleLines = quoteLines.slice(0, maxLines);
+    if (quoteLines.length > maxLines && visibleLines.length > 0) {
+      visibleLines[visibleLines.length - 1] = fitEllipsis(
+        ctx,
+        visibleLines[visibleLines.length - 1],
+        maxQuoteWidth,
+      );
     }
-    ctx.fillText(line, align === 'center' ? width / 2 : 80, y);
+    visibleLines.forEach((quoteLine, index) => {
+      ctx.fillText(
+        quoteLine,
+        align === 'center' ? width / 2 : 80,
+        quoteStartY + index * lineHeight,
+      );
+    });
 
     // Stamp
     if (author) {

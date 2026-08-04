@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { resolveConnections } from '../../lib/connections';
+import { COLL_LABEL, connTitle, connUrl, resolveConnections } from '../../lib/connections';
 
 export async function getStaticPaths() {
   const notes = await getCollection('notes', ({ data }) => !data.draft);
@@ -32,31 +32,15 @@ const stageInfo = {
   evergreen: { icon: '🌳', label: '常青 Evergreen', class: 'stage-evergreen' },
 }[note.data.stage] || { icon: '🌱', label: '萌芽', class: 'stage-sprout' };
 
-// 解析关联节点
 const resolvedConnections = await resolveConnections(note.data.connections);
-
-function getUrlForEntry(collection: string, id: string) {
-  if (collection === 'posts') return `/writing/${id}`;
-  if (collection === 'notes') return `/notes/${id}`;
-  if (collection === 'memories') return `/memory/${id}`;
-  if (collection === 'fragments') return `/fragments`;
-  if (collection === 'excerpts') return `/excerpts`;
-  return '#';
-}
-
-function getCollectionLabel(collection: string) {
-  const labels: Record<string, string> = {
-    posts: '文章',
-    notes: '笔记',
-    memories: '记忆',
-    fragments: '念头',
-    excerpts: '拾遗',
-  };
-  return labels[collection] || '内容';
-}
 ---
 
-<Base title={note.data.title} description={`${note.data.title} - 数字花园笔记`}>
+<Base
+  title={note.data.title}
+  description={`${note.data.title} - 数字花园笔记`}
+  article={true}
+  publishDate={note.data.pubDate}
+>
   <article class="garden-note">
     <div class="wrap">
       <header class="note-head reveal">
@@ -111,9 +95,9 @@ function getCollectionLabel(collection: string) {
                 <ul class="conn-list">
                   {resolvedConnections.map((conn) => (
                     <li>
-                      <a href={getUrlForEntry(conn.collection, conn.id)} class="conn-link">
-                        <span class="conn-tag">[{getCollectionLabel(conn.collection)}]</span>
-                        <span class="conn-title">{conn.data.title || conn.id}</span>
+                      <a href={connUrl(conn)} class="conn-link">
+                        <span class="conn-tag">[{COLL_LABEL[conn.collection]}]</span>
+                        <span class="conn-title">{connTitle(conn)}</span>
                       </a>
                     </li>
                   ))}

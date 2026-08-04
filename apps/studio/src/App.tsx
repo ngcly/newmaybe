@@ -13,20 +13,17 @@ const resolveSubdomain = (url: string) => _resolveSubdomain(url, _isDev);
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('poster');
-  const [initialQuote, setInitialQuote] = useState<string | undefined>();
+  const [initialQuote] = useState<string | undefined>(() => {
+    const quote = new URLSearchParams(window.location.search).get('quote');
+    return quote || undefined;
+  });
 
   // Accept ?quote= from AI domain cross-linking
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const quoteParam = params.get('quote');
-    if (quoteParam) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setInitialQuote(quoteParam);
-
-      setActiveTab('poster');
+    if (initialQuote) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, []);
+  }, [initialQuote]);
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[var(--paper)]">

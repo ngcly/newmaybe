@@ -10,6 +10,6 @@ describe('validateMessages', () => {
 
   it('rejects invalid roles and oversized prompts', () => {
     expect(validateMessages([{ role: 'admin', content: 'x' }])).toBeNull();
-    expect(validateMessages([{ role: 'user', content: 'x'.repeat(12_001) }])).toBeNull();
+    expect(validateMessages([{ role: 'user', content: 'x'.repeat(7_001) }])).toBeNull();
   });
 });

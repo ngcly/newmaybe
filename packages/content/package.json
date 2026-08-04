@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./authoring": "./src/authoring.ts",
     "./schemas": "./src/schemas.ts",
     "./utils": "./src/utils.ts"
   }

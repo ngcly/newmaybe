@@ -1,11 +1,16 @@
-import { describe, it, expect } from 'vitest';
-import { connUrl, connTitle, COLL_LABEL } from '../connections';
+import { beforeEach, describe, it, expect } from 'vitest';
+import { getEntry } from 'astro:content';
+import { connUrl, connTitle, COLL_LABEL, resolveConnections } from '../connections';
 import type { ResolvedConnection } from '../connections';
 
 // Build a minimal mock that satisfies the ResolvedConnection discriminated union
 function mockConn(collection: string, id: string, data: Record<string, unknown> = {}) {
   return { collection, id, data } as unknown as ResolvedConnection;
 }
+
+beforeEach(() => {
+  getEntry.mockReset();
+});
 
 describe('COLL_LABEL', () => {
   it('has labels for all 5 collections', () => {
@@ -85,5 +90,17 @@ describe('connTitle', () => {
     });
     const title = connTitle(conn);
     expect(title).toBe('佚名');
+  });
+});
+
+describe('resolveConnections', () => {
+  it('does not expose draft entries from public pages', async () => {
+    getEntry
+      .mockResolvedValueOnce(mockConn('notes', 'draft-note', { title: '草稿', draft: true }))
+      .mockResolvedValueOnce(mockConn('notes', 'public-note', { title: '公开', draft: false }));
+
+    await expect(resolveConnections(['notes/draft-note', 'notes/public-note'])).resolves.toEqual([
+      mockConn('notes', 'public-note', { title: '公开', draft: false }),
+    ]);
   });
 });

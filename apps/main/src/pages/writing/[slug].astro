@@ -54,12 +54,12 @@ const connections = await resolveConnections(post.data.connections);
           <header class="article-head reveal">
             <a href="/writing" class="back">← 返回文字</a>
             <span class="cat">{post.data.category}</span>
-            <div class="layout-toggle-minimal" id="layoutToggle" role="button" tabindex="0" title="切换版式" aria-label="切换诗歌版式">
+            <button type="button" class="layout-toggle-minimal" id="layoutToggle" title="切换版式" aria-label="切换诗歌版式">
               <span class="label">版式：</span>
               <span class="opt opt-vert">竖</span>
               <span class="divider">/</span>
               <span class="opt opt-horiz">横</span>
-            </div>
+            </button>
             <h1 transition:name={`post-title-${post.id}`}>{post.data.title}</h1>
             <div class="meta">
               <time datetime={post.data.pubDate.toISOString()} transition:name={`post-date-${post.id}`}>{longDate}</time>
@@ -282,7 +282,7 @@ const connections = await resolveConnections(post.data.connections);
     display: inline-flex; align-items: center;
     font-family: var(--serif-cn); font-size: 0.85rem; color: var(--ink-faint);
     cursor: pointer; user-select: none; margin-bottom: 1.5rem;
-    transition: color 0.3s;
+    transition: color 0.3s; background: none; border: 0; padding: 0;
   }
   .layout-toggle-minimal .opt {
     transition: color 0.3s, font-weight 0.3s; padding: 0 0.25rem;

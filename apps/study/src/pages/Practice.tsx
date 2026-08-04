@@ -12,7 +12,7 @@ import {
   localDateKey,
 } from '@/lib/store';
 import { readSSE } from '@/lib/sse';
-import { AI_STORAGE_KEYS } from '@newmaybe/ai-client';
+import { AI_STORAGE_KEYS, createGeminiRequest } from '@newmaybe/ai-client';
 import {
   CheckCircle2,
   Circle,
@@ -30,6 +30,7 @@ interface Quote {
 }
 
 const LEVELS = ['', '筑基', '进阶', '融通'];
+type AIProvider = 'free' | 'openai' | 'gemini';
 
 // AI 评阅 API 调用函数
 async function fetchAICritique(
@@ -76,11 +77,10 @@ async function fetchAICritique(
       const data = await res.json();
       return data.choices?.[0]?.message?.content || '未获取到点评内容';
     } else if (provider === 'gemini' && apiKey) {
-      const gModel = model || 'gemini-1.5-flash';
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${gModel}:generateContent?key=${apiKey}`;
-      const res = await fetch(url, {
+      const request = createGeminiRequest(baseUrl, model || 'gemini-1.5-flash', apiKey);
+      const res = await fetch(request.url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: request.headers,
         body: JSON.stringify({
           contents: [
             {
@@ -125,6 +125,13 @@ export default function Practice() {
   const [doneList, setDoneList] = useState<string[]>(() => getDrillDone());
   const [filter, setFilter] = useState<number>(0);
   const [qi, setQi] = useState(() => Math.floor(Math.random() * (quotes as Quote[]).length));
+  const [aiConfig, setAiConfig] = useState(() => ({
+    provider: (localStorage.getItem(AI_STORAGE_KEYS.provider) as AIProvider | null) || 'free',
+    model: localStorage.getItem(AI_STORAGE_KEYS.model) || 'workers-ai',
+    apiKey: localStorage.getItem(AI_STORAGE_KEYS.apiKey) || '',
+    baseUrl: localStorage.getItem(AI_STORAGE_KEYS.customBaseUrl) || '',
+  }));
+  const [configSaved, setConfigSaved] = useState(false);
 
   const checks = getCheckins();
   const readTotal = totalReadCount();
@@ -157,6 +164,76 @@ export default function Practice() {
     <div className="mx-auto max-w-6xl px-4 py-10">
       <h1 className="font-brush text-4xl mb-2">修炼场</h1>
       <p className="text-muted-foreground mb-8">文笔不是读出来的，是一笔一笔仿出来的。</p>
+
+      <details className="bg-surface border rounded-lg p-4 mb-6">
+        <summary className="cursor-pointer text-sm font-medium">AI 点评配置</summary>
+        <div className="grid sm:grid-cols-2 gap-3 mt-4">
+          <select
+            value={aiConfig.provider}
+            onChange={(event) => {
+              const provider = event.target.value as AIProvider;
+              setAiConfig((current) => ({
+                ...current,
+                provider,
+                model:
+                  provider === 'openai'
+                    ? 'gpt-4o-mini'
+                    : provider === 'gemini'
+                      ? 'gemini-1.5-flash'
+                      : 'workers-ai',
+              }));
+            }}
+            className="rounded-md border bg-paper p-2 text-sm"
+          >
+            <option value="free">免费模式</option>
+            <option value="openai">OpenAI 兼容接口</option>
+            <option value="gemini">Gemini</option>
+          </select>
+          <input
+            value={aiConfig.model}
+            onChange={(event) =>
+              setAiConfig((current) => ({ ...current, model: event.target.value }))
+            }
+            className="rounded-md border bg-paper p-2 text-sm"
+            placeholder="模型名称"
+          />
+          {aiConfig.provider !== 'free' && (
+            <>
+              <input
+                value={aiConfig.baseUrl}
+                onChange={(event) =>
+                  setAiConfig((current) => ({ ...current, baseUrl: event.target.value }))
+                }
+                className="rounded-md border bg-paper p-2 text-sm"
+                placeholder="API Base URL（可选）"
+              />
+              <input
+                type="password"
+                value={aiConfig.apiKey}
+                onChange={(event) =>
+                  setAiConfig((current) => ({ ...current, apiKey: event.target.value }))
+                }
+                className="rounded-md border bg-paper p-2 text-sm"
+                placeholder="API Key"
+              />
+            </>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            localStorage.setItem(AI_STORAGE_KEYS.provider, aiConfig.provider);
+            localStorage.setItem(AI_STORAGE_KEYS.model, aiConfig.model.trim());
+            localStorage.setItem(AI_STORAGE_KEYS.apiKey, aiConfig.apiKey.trim());
+            localStorage.setItem(AI_STORAGE_KEYS.customBaseUrl, aiConfig.baseUrl.trim());
+            setConfigSaved(true);
+            setTimeout(() => setConfigSaved(false), 2_000);
+          }}
+          className="mt-3 rounded-md bg-cinnabar px-4 py-2 text-sm text-white"
+        >
+          {configSaved ? '已保存' : '保存配置'}
+        </button>
+      </details>
 
       {/* 状态面板 */}
       <div className="grid md:grid-cols-[1fr_320px] gap-4 mb-10">

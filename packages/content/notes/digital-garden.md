@@ -4,7 +4,7 @@ pubDate: 2026-06-24
 updatedDate: 2026-06-24
 stage: bud
 tags: [知识管理, 个人网站]
-connections: ['notes/anti-tracking', 'memories/slow-reading']
+connections: ['memories/slow-reading']
 ---
 
 与传统的博客网站不同，数字花园并不强制输出完美包装的静态文章。

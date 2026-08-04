@@ -20,9 +20,8 @@
     "build:lab": "npm run build -w apps/lab",
     "build:studio": "npm run build -w apps/studio",
     "build:study": "npm run build -w apps/study",
-    "audit": "npx tsx scripts/audit-posts.ts",
-    "new": "npx tsx scripts/new.ts",
-    "sync:favicon": "npx tsx scripts/sync-favicon.ts",
+    "audit": "tsx scripts/audit-posts.ts",
+    "new": "tsx scripts/new.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -53,6 +52,7 @@
     "lint-staged": "^17.0.8",
     "prettier": "^3.9.5",
     "prettier-plugin-astro": "^0.14.1",
+    "tsx": "^4.20.6",
     "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.10"
   }

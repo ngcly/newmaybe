@@ -59,6 +59,7 @@ export default function App() {
       resolveSubdomain={resolveSubdomain}
       stats={chat.stats}
       contentLoading={chat.contentLoading}
+      contentError={chat.contentError}
       provider={chat.provider}
       model={chat.model}
       apiKey={chat.apiKey}
@@ -211,12 +212,14 @@ export default function App() {
                   <input
                     type="text"
                     value={chat.inputText}
+                    disabled={chat.isTyping || Boolean(chat.contentError)}
                     onChange={(e) => chat.setInputText(e.target.value)}
                     placeholder="向您的个人知识 Agent 终端提问..."
                     className="flex-grow min-w-0 p-3 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-[16px] md:text-sm focus:border-[var(--ochre)] outline-none transition-colors"
                   />
                   <button
                     type="submit"
+                    disabled={chat.isTyping || Boolean(chat.contentError)}
                     className="bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] text-[var(--paper)] px-4 md:px-6 rounded font-semibold text-sm transition-colors cursor-pointer shrink-0"
                   >
                     发送

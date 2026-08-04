@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [main, graph, tools, ai, lab, studio]
+        app: [main, graph, tools, ai, lab, studio, study]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -55,7 +55,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [main, graph, tools, ai, lab, studio]
+        app: [main, graph, tools, ai, lab, studio, study]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

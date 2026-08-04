@@ -17,6 +17,7 @@ const CATEGORY_MATCH_SCORE = 5;
 const CONTENT_MATCH_CAP = 10;
 const MIN_SCORE_THRESHOLD = 3;
 const DEFAULT_RESULT_LIMIT = 3;
+export const MAX_SYSTEM_PROMPT_CHARS = 5_000;
 
 export const getContentUrl = (): string => {
   if (typeof window !== 'undefined') {
@@ -29,15 +30,10 @@ export const getContentUrl = (): string => {
 
 // 获取所有文章数据
 export const fetchAllContent = async (): Promise<ContentItem[]> => {
-  try {
-    const url = getContentUrl();
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Failed to fetch content from ${url}`);
-    return (await res.json()) as ContentItem[];
-  } catch (err) {
-    console.error('RAG content fetch error:', err);
-    return [];
-  }
+  const url = getContentUrl();
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch content from ${url}`);
+  return (await res.json()) as ContentItem[];
 };
 
 // 提取查询中的关键词（支持中文单字/词组与英文单词）
@@ -230,21 +226,34 @@ export const buildSystemPrompt = (relevantDocs: ContentItem[]): string => {
   if (relevantDocs.length > 0) {
     prompt += `以下是为你检索到的最相关的数字花园内容，请基于这些参考资料来回答用户的问题或提供共鸣对比。在回答中提及或引用这些内容时，请务必以 [文章/笔记标题](URL) 的格式添加 markdown 链接（例如：[慢阅读](https://newmaybe.com/memory/slow-reading)）：\n\n`;
 
+    const requirements = `【要求】：
+1. 结合参考资料提供细致的分析、重写或共鸣对话。
+2. 如果参考资料确实与读者的问题/内容无关，你可以基于大模型自身的知识发散回答，但请明确说明：“以下内容为我的发散推理，在林的数字花园中尚未找到直接对应记录”。
+`;
+
     relevantDocs.forEach((doc, idx) => {
-      prompt += `---
+      const header = `---
 [参考资料 #${idx + 1}] 标题: ${doc.title}
 分类: ${doc.category}
 发布日期: ${doc.pubDate}
 链接: ${doc.url}
 正文内容:
-${doc.content}
----\n\n`;
+`;
+      const footer = `\n---\n\n`;
+      const remaining = MAX_SYSTEM_PROMPT_CHARS - prompt.length - requirements.length;
+      const contentBudget = remaining - header.length - footer.length;
+      if (contentBudget <= 0) return;
+
+      const truncationMarker = '\n[正文已按请求预算截断]';
+      const content =
+        doc.content.length > contentBudget
+          ? doc.content.slice(0, Math.max(0, contentBudget - truncationMarker.length)) +
+            truncationMarker
+          : doc.content;
+      prompt += header + content + footer;
     });
 
-    prompt += `【要求】：
-1. 结合参考资料提供细致的分析、重写或共鸣对话。
-2. 如果参考资料确实与读者的问题/内容无关，你可以基于大模型自身的知识发散回答，但请明确说明：“以下内容为我的发散推理，在林的数字花园中尚未找到直接对应记录”。
-`;
+    prompt += requirements;
   } else {
     prompt += `【要求】：
 由于目前没有检索到与用户问题或念头直接相关的记录，请友好且沉静地告诉读者：
@@ -252,7 +261,7 @@ ${doc.content}
 然后给出你的发散润色或意象发散，务必在回答末尾带上启发性追问。`;
   }
 
-  return prompt;
+  return prompt.slice(0, MAX_SYSTEM_PROMPT_CHARS);
 };
 
 // 探测孤立节点（没有任何双向连接的节点）
