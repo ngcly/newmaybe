@@ -123,7 +123,12 @@ export async function readAIResponse(
     const data = line.slice(5).trim();
     if (data === '[DONE]') return true;
     if (!data) return false;
-    const token = extractText(JSON.parse(data) as AIResponsePayload);
+    let token: string;
+    try {
+      token = extractText(JSON.parse(data) as AIResponsePayload);
+    } catch {
+      return false;
+    }
     if (token) {
       result += token;
       onToken?.(token, result);
@@ -135,7 +140,7 @@ export async function readAIResponse(
     const chunk = await reader.read();
     buffer += decoder.decode(chunk.value, { stream: !chunk.done });
     const lines = buffer.split(/\r?\n/);
-    buffer = chunk.done ? '' : (lines.pop() ?? '');
+    buffer = lines.pop() ?? '';
     for (const line of lines) {
       if (consume(line)) return result;
     }

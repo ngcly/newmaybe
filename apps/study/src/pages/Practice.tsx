@@ -12,7 +12,12 @@ import {
   localDateKey,
 } from '@/lib/store';
 import { readSSE } from '@/lib/sse';
-import { AI_STORAGE_KEYS, createGeminiRequest } from '@newmaybe/ai-client';
+import {
+  AI_MAX_TOTAL_CHARS,
+  AI_STORAGE_KEYS,
+  createGeminiRequest,
+  fitMessagesToCharBudget,
+} from '@newmaybe/ai-client';
 import {
   CheckCircle2,
   Circle,
@@ -99,7 +104,7 @@ async function fetchAICritique(
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages }),
+        body: JSON.stringify({ messages: fitMessagesToCharBudget(messages) }),
       });
       if (!res.ok) throw new Error();
 
@@ -428,6 +433,7 @@ function DrillCard({
             value={draft}
             onChange={(e) => onDraft(e.target.value)}
             placeholder="在此写下你的仿写……（自动保存在本地）"
+            maxLength={AI_MAX_TOTAL_CHARS}
             rows={5}
             className="w-full rounded-md border bg-paper p-3 text-sm leading-7 outline-none focus:border-cinnabar/60 resize-y"
           />
@@ -445,7 +451,9 @@ function DrillCard({
               )}
               {loading ? '园丁品读中...' : 'AI 园丁点评'}
             </button>
-            <p className="text-xs text-muted-foreground">{draft.length} 字</p>
+            <p className="text-xs text-muted-foreground">
+              {draft.length}/{AI_MAX_TOTAL_CHARS} 字
+            </p>
           </div>
 
           {/* AI 点评展示盒 */}

@@ -30,6 +30,20 @@ describe('readAIResponse', () => {
     expect(onToken).toHaveBeenLastCalledWith('！', '你好！');
   });
 
+  it('keeps a final SSE event without a trailing newline', async () => {
+    const body = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode('data: {"response":"last-token"}'));
+        controller.close();
+      },
+    });
+    const response = new Response(body, {
+      headers: { 'Content-Type': 'text/event-stream' },
+    });
+
+    await expect(readAIResponse(response)).resolves.toBe('last-token');
+  });
+
   it('surfaces JSON error responses', async () => {
     const response = Response.json({ error: '受限' }, { status: 429 });
     await expect(readAIResponse(response)).rejects.toThrow('受限');

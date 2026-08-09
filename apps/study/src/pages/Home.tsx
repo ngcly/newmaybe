@@ -3,7 +3,8 @@ import { BOOKS, STAGES, TIER_NAMES } from '@/data/catalog';
 import quotes from '@/data/quotes.json';
 import { useMemo, useState } from 'react';
 import { ArrowRight, RefreshCw, Sparkles } from 'lucide-react';
-import { bookReadCount } from '@/lib/store';
+import { bookReadCount, localDateKey } from '@/lib/store';
+import { DRILLS } from '@/data/practice';
 
 interface Quote {
   text: string;
@@ -11,9 +12,12 @@ interface Quote {
 }
 
 function dayIndex(offset = 0) {
-  const days = Math.floor(Date.now() / 86400000);
+  const [year, month, day] = localDateKey().split('-').map(Number);
+  const days = Date.UTC(year, month - 1, day) / 86400000;
   return (days + offset) % (quotes as Quote[]).length;
 }
+
+const TOTAL_CHAPTERS = BOOKS.reduce((sum, book) => sum + book.chapters, 0);
 
 export default function Home() {
   const [shift, setShift] = useState(0);
@@ -73,19 +77,19 @@ export default function Home() {
           </div>
           <div className="mt-10 flex gap-8 text-sm">
             <div>
-              <span className="text-2xl font-semibold text-cinnabar">43</span>
+              <span className="text-2xl font-semibold text-cinnabar">{BOOKS.length}</span>
               <span className="ml-1.5 text-muted-foreground">部古籍</span>
             </div>
             <div>
-              <span className="text-2xl font-semibold text-cinnabar">4061</span>
+              <span className="text-2xl font-semibold text-cinnabar">{TOTAL_CHAPTERS}</span>
               <span className="ml-1.5 text-muted-foreground">章全文</span>
             </div>
             <div>
-              <span className="text-2xl font-semibold text-cinnabar">4</span>
+              <span className="text-2xl font-semibold text-cinnabar">{STAGES.length}</span>
               <span className="ml-1.5 text-muted-foreground">进阶阶段</span>
             </div>
             <div>
-              <span className="text-2xl font-semibold text-cinnabar">24</span>
+              <span className="text-2xl font-semibold text-cinnabar">{DRILLS.length}</span>
               <span className="ml-1.5 text-muted-foreground">仿写练习</span>
             </div>
           </div>
