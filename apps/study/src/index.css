@@ -411,3 +411,65 @@
   color: #cd6a55;
   opacity: 0.9;
 }
+
+/* 隐藏夹注模式 */
+.hide-annotation .cinnabar-annotation {
+  display: none !important;
+}
+
+/* 古籍线装书质感卡片 (Refined Literary Book Card) */
+.book-spine-card {
+  position: relative;
+  background: var(--card, #fffdf8);
+  border: 1px solid var(--border, rgba(166, 58, 44, 0.15));
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.book-spine-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: linear-gradient(
+    90deg,
+    rgba(166, 58, 44, 0.35) 0%,
+    rgba(166, 58, 44, 0.08) 70%,
+    transparent 100%
+  );
+  border-right: 1px solid rgba(166, 58, 44, 0.2);
+  pointer-events: none;
+}
+.book-spine-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(166, 58, 44, 0.45);
+  box-shadow: 0 8px 24px rgba(43, 39, 34, 0.06);
+}
+.dark .book-spine-card::before {
+  background: linear-gradient(
+    90deg,
+    rgba(205, 106, 85, 0.4) 0%,
+    rgba(205, 106, 85, 0.08) 70%,
+    transparent 100%
+  );
+  border-right-color: rgba(205, 106, 85, 0.25);
+}
+.dark .book-spine-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border-color: rgba(205, 106, 85, 0.4);
+}
+
+/* 结构化 AI 评阅卡片 */
+.critique-section {
+  border-left: 3px solid #a63a2c;
+  padding: 0.75rem 1rem;
+  background: rgba(166, 58, 44, 0.025);
+  border-radius: 0 6px 6px 0;
+  margin-top: 0.75rem;
+}
+.dark .critique-section {
+  border-left-color: #cd6a55;
+  background: rgba(205, 106, 85, 0.05);
+}

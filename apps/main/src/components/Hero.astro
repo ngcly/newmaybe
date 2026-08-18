@@ -102,10 +102,24 @@ import { SITE } from '../config';
     color: var(--ink-faint);
     letter-spacing: 0.15em;
     writing-mode: vertical-rl;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
   }
   .hero-meta .scroll-hint .arr {
     display: inline-block;
     writing-mode: horizontal-tb;
+    animation: bounce-subtle 2s infinite ease-in-out;
+    color: var(--ochre);
+  }
+  @keyframes bounce-subtle {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(5px);
+    }
   }
   .hero-stamp {
     position: absolute;
@@ -114,18 +128,21 @@ import { SITE } from '../config';
     font-family: var(--serif-en);
     font-style: italic;
     color: var(--ink-faint);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     writing-mode: vertical-rl;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.18em;
     opacity: 0;
     animation: fade 0.85s ease forwards 0.85s;
+    border-left: 1px dashed var(--line);
+    padding-left: 0.4rem;
   }
   @media (prefers-reduced-motion: reduce) {
     .hero-eyebrow,
     .hero h1 .word,
     .hero p.lede,
     .hero-meta,
-    .hero-stamp {
+    .hero-stamp,
+    .hero-meta .scroll-hint .arr {
       animation: none;
       opacity: 1;
       transform: none;

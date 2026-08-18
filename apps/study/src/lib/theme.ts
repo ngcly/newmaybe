@@ -85,3 +85,42 @@ export function setWritingMode(m: WritingMode) {
     /* ignore */
   }
 }
+
+// ---- 阅读器夹注显隐 ----
+const ANNOTATION_KEY = 'linxia:annotation';
+
+export function getShowAnnotation(): boolean {
+  try {
+    const v = localStorage.getItem(ANNOTATION_KEY);
+    return v === null ? true : v === 'true';
+  } catch {
+    return true;
+  }
+}
+
+export function setShowAnnotation(show: boolean) {
+  try {
+    localStorage.setItem(ANNOTATION_KEY, String(show));
+  } catch {
+    /* ignore */
+  }
+}
+
+// ---- 阅读器专注模式（Zen Mode） ----
+const ZEN_KEY = 'linxia:zen';
+
+export function getZenMode(): boolean {
+  try {
+    return localStorage.getItem(ZEN_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function setZenMode(zen: boolean) {
+  try {
+    localStorage.setItem(ZEN_KEY, String(zen));
+  } catch {
+    /* ignore */
+  }
+}

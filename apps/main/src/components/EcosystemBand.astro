@@ -1,0 +1,305 @@
+---
+import { resolveSubdomain } from '../config';
+
+const APPS = [
+  {
+    name: '思维图谱',
+    en: 'Graph',
+    desc: '思考的经纬与概念网络',
+    url: 'https://graph.newmaybe.com',
+    icon: '✦',
+    tag: 'D3 互动',
+  },
+  {
+    name: 'AI 园丁',
+    en: 'Gardener',
+    desc: '数字花园漫游与语料问答',
+    url: 'https://ai.newmaybe.com',
+    icon: '🌱',
+    tag: 'RAG 智能',
+  },
+  {
+    name: '林下书房',
+    en: 'Study',
+    desc: '四十三部古籍与写作研习',
+    url: 'https://study.newmaybe.com',
+    icon: '书',
+    tag: '典籍文库',
+  },
+  {
+    name: '排版工具',
+    en: 'Tools',
+    desc: '诗文排版与古典金句卡片',
+    url: 'https://tools.newmaybe.com',
+    icon: '✒️',
+    tag: '卡片导出',
+  },
+  {
+    name: '创意工坊',
+    en: 'Studio',
+    desc: '沉浸灵感记录与写作画布',
+    url: 'https://studio.newmaybe.com',
+    icon: '🎨',
+    tag: '灵感工坊',
+  },
+  {
+    name: '实验室',
+    en: 'Lab',
+    desc: '图形感知与声色交互实验',
+    url: 'https://lab.newmaybe.com',
+    icon: '🧪',
+    tag: 'Canvas 实验',
+  },
+];
+---
+
+<section class="ecosystem-section" id="ecosystem">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow">Ecosystem & Subspaces</span>
+        <h2>
+          数字生态<span class="cn">工坊与漫游</span>
+        </h2>
+      </div>
+      <p class="section-intro">从思维脉络到典籍研读，由文字延伸出的独立探索子空间。</p>
+    </div>
+
+    <div class="eco-grid">
+      {
+        APPS.map((app, idx) => (
+          <a
+            href={resolveSubdomain(app.url)}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="eco-card reveal"
+            style={`animation-delay: ${0.08 * idx}s;`}
+          >
+            <div class="eco-card-top">
+              <div class="eco-icon-badge">{app.icon}</div>
+              <span class="eco-tag">{app.tag}</span>
+            </div>
+            <div class="eco-card-body">
+              <div class="eco-title-row">
+                <h3 class="eco-name">{app.name}</h3>
+                <span class="eco-en">{app.en}</span>
+              </div>
+              <p class="eco-desc">{app.desc}</p>
+            </div>
+            <div class="eco-card-foot">
+              <span class="eco-action">前往探索</span>
+              <span class="eco-arrow">↗</span>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .ecosystem-section {
+    padding: 5rem 0;
+    position: relative;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .section-head h2 {
+    font-family: var(--serif-en);
+    font-weight: 600;
+    font-size: 2.2rem;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+  }
+
+  .section-head h2 .cn {
+    font-family: var(--serif-cn);
+    font-size: 1.4rem;
+    color: var(--ink-faint);
+    font-weight: 400;
+    margin-left: 0.8rem;
+  }
+
+  .section-intro {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    max-width: 32ch;
+    line-height: 1.6;
+  }
+
+  .eco-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .eco-card {
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+    transition:
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.35s ease,
+      box-shadow 0.35s ease,
+      background-color 0.35s ease;
+  }
+
+  .eco-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--ochre);
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition:
+      opacity 0.35s ease,
+      transform 0.35s ease;
+  }
+
+  .eco-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--ochre) 40%, var(--line));
+    box-shadow: 0 10px 28px rgba(43, 39, 34, 0.06);
+  }
+
+  :root.dark .eco-card:hover,
+  :root:not(.light) .eco-card:hover {
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  }
+
+  .eco-card:hover::before {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  .eco-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+  }
+
+  .eco-icon-badge {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    background: color-mix(in srgb, var(--ochre) 12%, transparent);
+    color: var(--ochre);
+    border-radius: 4px;
+    border: 1px solid color-mix(in srgb, var(--ochre) 25%, transparent);
+    font-family: var(--serif-cn);
+    font-weight: 500;
+  }
+
+  .eco-tag {
+    font-family: var(--serif-en);
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--ink-faint);
+    background: color-mix(in srgb, var(--ink) 4%, transparent);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+    border: 1px solid var(--line);
+    letter-spacing: 0.05em;
+  }
+
+  .eco-card-body {
+    margin-bottom: 1.5rem;
+  }
+
+  .eco-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .eco-name {
+    font-family: var(--serif-cn);
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--ink);
+    transition: color 0.3s ease;
+  }
+
+  .eco-card:hover .eco-name {
+    color: var(--ochre);
+  }
+
+  .eco-en {
+    font-family: var(--serif-en);
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--ink-faint);
+  }
+
+  .eco-desc {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .eco-card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    transition: color 0.3s ease;
+  }
+
+  .eco-card:hover .eco-card-foot {
+    color: var(--ochre);
+  }
+
+  .eco-arrow {
+    transition: transform 0.3s ease;
+  }
+
+  .eco-card:hover .eco-arrow {
+    transform: translate(2px, -2px);
+  }
+
+  @media (max-width: 900px) {
+    .eco-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .eco-grid {
+      grid-template-columns: 1fr;
+    }
+    .section-head {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+    }
+  }
+</style>

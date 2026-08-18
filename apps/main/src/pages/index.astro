@@ -5,6 +5,7 @@ import Hero from '../components/Hero.astro';
 import PostList from '../components/PostList.astro';
 import HomeFragment from '../components/HomeFragment.astro';
 import HomeExcerpt from '../components/HomeExcerpt.astro';
+import EcosystemBand from '../components/EcosystemBand.astro';
 import QuoteBand from '../components/QuoteBand.astro';
 import { sortPostsForDisplay } from '../lib/posts';
 
@@ -29,6 +30,8 @@ const latestExcerpt = (await getCollection('excerpts', ({ data }) => !data.draft
   <Hero />
   <div class="rule"></div>
   <PostList posts={posts} />
+  <div class="rule"></div>
+  <EcosystemBand />
   {latestFragment && <HomeFragment fragment={latestFragment} />}
   {latestExcerpt && <HomeExcerpt excerpt={latestExcerpt} />}
   <QuoteBand />

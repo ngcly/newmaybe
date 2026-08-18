@@ -191,6 +191,102 @@ const isActive = (href: string) => {
             ))
           }
         </ul>
+
+        <!-- 数字生态快捷入口 -->
+        <div class="eco-nav-wrap">
+          <button
+            class="eco-nav-trigger"
+            id="ecoNavTrigger"
+            aria-label="探索数字生态"
+            aria-expanded="false"
+            title="数字生态子空间"
+          >
+            <span class="eco-nav-icon">✦</span>
+            <span class="eco-nav-label">生态</span>
+            <span class="eco-nav-chevron">▾</span>
+          </button>
+          <div class="eco-dropdown" id="ecoDropdown" aria-hidden="true">
+            <div class="eco-dropdown-header">
+              <span class="eco-dropdown-title">数字生态 · 子空间</span>
+              <span class="eco-dropdown-sub">6 个独立探索领域</span>
+            </div>
+            <div class="eco-dropdown-grid">
+              <a
+                href={resolveSubdomain('https://graph.newmaybe.com')}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="eco-item"
+              >
+                <div class="eco-item-icon">✦</div>
+                <div class="eco-item-text">
+                  <div class="eco-item-name">思维图谱 <span class="eco-item-tag">D3</span></div>
+                  <div class="eco-item-desc">思考的经纬与网络</div>
+                </div>
+              </a>
+              <a
+                href={resolveSubdomain('https://ai.newmaybe.com')}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="eco-item"
+              >
+                <div class="eco-item-icon">🌱</div>
+                <div class="eco-item-text">
+                  <div class="eco-item-name">AI 园丁 <span class="eco-item-tag">智能</span></div>
+                  <div class="eco-item-desc">数字花园漫游与问答</div>
+                </div>
+              </a>
+              <a
+                href={resolveSubdomain('https://study.newmaybe.com')}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="eco-item"
+              >
+                <div class="eco-item-icon">书</div>
+                <div class="eco-item-text">
+                  <div class="eco-item-name">林下书房 <span class="eco-item-tag">典籍</span></div>
+                  <div class="eco-item-desc">古籍研习与古风写读</div>
+                </div>
+              </a>
+              <a
+                href={resolveSubdomain('https://tools.newmaybe.com')}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="eco-item"
+              >
+                <div class="eco-item-icon">✒️</div>
+                <div class="eco-item-text">
+                  <div class="eco-item-name">排版工具 <span class="eco-item-tag">排版</span></div>
+                  <div class="eco-item-desc">诗文排版与金句卡片</div>
+                </div>
+              </a>
+              <a
+                href={resolveSubdomain('https://studio.newmaybe.com')}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="eco-item"
+              >
+                <div class="eco-item-icon">🎨</div>
+                <div class="eco-item-text">
+                  <div class="eco-item-name">创意工坊 <span class="eco-item-tag">灵感</span></div>
+                  <div class="eco-item-desc">灵感记录与写作画布</div>
+                </div>
+              </a>
+              <a
+                href={resolveSubdomain('https://lab.newmaybe.com')}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="eco-item"
+              >
+                <div class="eco-item-icon">🧪</div>
+                <div class="eco-item-text">
+                  <div class="eco-item-name">实验室 <span class="eco-item-tag">实验</span></div>
+                  <div class="eco-item-desc">图形感知与声色交互</div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
         <button class="search-nav-btn" id="search-nav-trigger" aria-label="搜索" title="搜索 (⌘K)">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -205,6 +301,7 @@ const isActive = (href: string) => {
             <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"
             ></line>
           </svg>
+          <kbd class="kbd-chip">⌘K</kbd>
         </button>
         <button class="theme-toggle" id="themeToggle" aria-label="切换主题" title="切换主题">
           <span class="mode-icon"></span>
@@ -233,6 +330,55 @@ const isActive = (href: string) => {
             ))
           }
         </nav>
+
+        <div class="drawer-eco">
+          <div class="drawer-eco-title">数字生态矩阵</div>
+          <div class="drawer-eco-grid">
+            <a
+              href={resolveSubdomain('https://graph.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ✦ 思维图谱
+            </a>
+            <a
+              href={resolveSubdomain('https://ai.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              🌱 AI 园丁
+            </a>
+            <a
+              href={resolveSubdomain('https://study.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              📖 林下书房
+            </a>
+            <a
+              href={resolveSubdomain('https://tools.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ✒️ 排版工具
+            </a>
+            <a
+              href={resolveSubdomain('https://studio.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              🎨 创意工坊
+            </a>
+            <a
+              href={resolveSubdomain('https://lab.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              🧪 实验室
+            </a>
+          </div>
+        </div>
+
         <div class="drawer-foot">
           <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
         </div>
@@ -381,6 +527,25 @@ const isActive = (href: string) => {
         document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
         window._revealObserver = io;
 
+        // 生态下拉菜单
+        const ecoTrigger = document.getElementById('ecoNavTrigger');
+        const ecoDropdown = document.getElementById('ecoDropdown');
+        const toggleEco = (show?: boolean) => {
+          const isOpen = show !== undefined ? show : !ecoDropdown?.classList.contains('open');
+          ecoDropdown?.classList.toggle('open', isOpen);
+          ecoTrigger?.setAttribute('aria-expanded', String(isOpen));
+          ecoDropdown?.setAttribute('aria-hidden', String(!isOpen));
+        };
+        ecoTrigger?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleEco();
+        });
+        document.addEventListener('click', (e) => {
+          if (!ecoDropdown?.contains(e.target as Node) && e.target !== ecoTrigger) {
+            toggleEco(false);
+          }
+        });
+
         // 暗色模式手动切换
         const themeToggle = document.getElementById('themeToggle');
         if (themeToggle) {
@@ -490,6 +655,152 @@ const isActive = (href: string) => {
         background: var(--ochre);
       }
 
+      /* 头部生态下拉入口 */
+      .eco-nav-wrap {
+        position: relative;
+        margin-left: 2rem;
+      }
+      .eco-nav-trigger {
+        background: var(--paper-deep);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        cursor: pointer;
+        padding: 0.35rem 0.7rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-family: var(--serif-cn);
+        font-size: 0.88rem;
+        color: var(--ink-soft);
+        transition: all 0.3s ease;
+      }
+      .eco-nav-trigger:hover,
+      .eco-nav-trigger[aria-expanded='true'] {
+        color: var(--ink);
+        border-color: color-mix(in srgb, var(--ochre) 45%, var(--line));
+        background: var(--paper);
+      }
+      .eco-nav-icon {
+        color: var(--ochre);
+        font-size: 0.85rem;
+      }
+      .eco-nav-chevron {
+        font-size: 0.7rem;
+        color: var(--ink-faint);
+        transition: transform 0.3s ease;
+      }
+      .eco-nav-trigger[aria-expanded='true'] .eco-nav-chevron {
+        transform: rotate(180deg);
+      }
+
+      .eco-dropdown {
+        position: absolute;
+        top: calc(100% + 12px);
+        right: 0;
+        width: 360px;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: 0 14px 38px rgba(43, 39, 34, 0.09);
+        padding: 1.2rem;
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+        pointer-events: none;
+        transition:
+          opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 110;
+      }
+      :root.dark .eco-dropdown,
+      :root:not(.light) .eco-dropdown {
+        box-shadow: 0 14px 38px rgba(0, 0, 0, 0.45);
+      }
+      .eco-dropdown.open {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+      }
+      .eco-dropdown-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        padding-bottom: 0.8rem;
+        margin-bottom: 0.8rem;
+        border-bottom: 1px dashed var(--line);
+      }
+      .eco-dropdown-title {
+        font-family: var(--serif-cn);
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: var(--ink);
+      }
+      .eco-dropdown-sub {
+        font-family: var(--serif-en);
+        font-style: italic;
+        font-size: 0.75rem;
+        color: var(--ink-faint);
+      }
+      .eco-dropdown-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.6rem;
+      }
+      .eco-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: 4px;
+        background: var(--paper-deep);
+        border: 1px solid transparent;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.25s ease;
+      }
+      .eco-item:hover {
+        border-color: color-mix(in srgb, var(--ochre) 35%, var(--line));
+        background: color-mix(in srgb, var(--ochre) 5%, var(--paper));
+        transform: translateY(-1px);
+      }
+      .eco-item-icon {
+        font-size: 0.95rem;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--ochre);
+        flex-shrink: 0;
+      }
+      .eco-item-text {
+        flex: 1;
+        min-width: 0;
+      }
+      .eco-item-name {
+        font-family: var(--serif-cn);
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.2rem;
+      }
+      .eco-item-tag {
+        font-family: var(--serif-en);
+        font-style: italic;
+        font-size: 0.68rem;
+        color: var(--ink-faint);
+      }
+      .eco-item-desc {
+        font-size: 0.72rem;
+        color: var(--ink-soft);
+        margin-top: 0.15rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
       .search-nav-btn {
         background: none;
         border: none;
@@ -498,7 +809,7 @@ const isActive = (href: string) => {
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-left: 2.4rem;
+        margin-left: 2rem;
         color: var(--ink-soft);
         transition:
           color 0.3s ease,
@@ -512,6 +823,19 @@ const isActive = (href: string) => {
         width: 17px;
         height: 17px;
         color: var(--ink-soft);
+      }
+      .kbd-chip {
+        display: inline-block;
+        font-family: var(--serif-en);
+        font-size: 0.68rem;
+        color: var(--ink-faint);
+        background: color-mix(in srgb, var(--ink) 4%, transparent);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        padding: 0.1rem 0.35rem;
+        margin-left: 0.4rem;
+        line-height: 1;
+        letter-spacing: 0.05em;
       }
 
       .theme-toggle {
@@ -779,6 +1103,43 @@ const isActive = (href: string) => {
         color: var(--ink-faint);
         flex-shrink: 0;
       }
+      /* 抽屉内生态矩阵 */
+      .drawer-eco {
+        padding: 1.2rem 2rem;
+        border-top: 1px solid var(--line);
+        background: color-mix(in srgb, var(--paper-deep) 60%, transparent);
+      }
+      .drawer-eco-title {
+        font-family: var(--serif-cn);
+        font-size: 0.8rem;
+        color: var(--ink-faint);
+        letter-spacing: 0.08em;
+        margin-bottom: 0.8rem;
+      }
+      .drawer-eco-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+      }
+      .drawer-eco-grid a {
+        font-family: var(--serif-cn);
+        font-size: 0.84rem;
+        color: var(--ink-soft);
+        text-decoration: none;
+        padding: 0.4rem 0.5rem;
+        border-radius: 4px;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+      .drawer-eco-grid a:hover {
+        color: var(--ochre);
+        border-color: var(--ochre);
+      }
+
       .drawer-foot {
         flex-shrink: 0;
         padding: 1.5rem 2rem;
@@ -797,12 +1158,16 @@ const isActive = (href: string) => {
       }
 
       @media (max-width: 680px) {
-        .nav-links {
+        .nav-links,
+        .eco-nav-wrap {
           display: none;
         }
         .search-nav-btn {
           margin-left: auto;
           margin-right: 0.5rem;
+        }
+        .kbd-chip {
+          display: none;
         }
         .theme-toggle {
           margin-left: 0;
