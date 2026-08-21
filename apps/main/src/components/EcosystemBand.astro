@@ -7,7 +7,7 @@ const APPS = [
     en: 'Graph',
     desc: '思考的经纬与概念网络',
     url: 'https://graph.newmaybe.com',
-    icon: '✦',
+    type: 'graph',
     tag: 'D3 互动',
   },
   {
@@ -15,7 +15,7 @@ const APPS = [
     en: 'Gardener',
     desc: '数字花园漫游与语料问答',
     url: 'https://ai.newmaybe.com',
-    icon: '🌱',
+    type: 'ai',
     tag: 'RAG 智能',
   },
   {
@@ -23,7 +23,7 @@ const APPS = [
     en: 'Study',
     desc: '四十三部古籍与写作研习',
     url: 'https://study.newmaybe.com',
-    icon: '书',
+    type: 'study',
     tag: '典籍文库',
   },
   {
@@ -31,7 +31,7 @@ const APPS = [
     en: 'Tools',
     desc: '诗文排版与古典金句卡片',
     url: 'https://tools.newmaybe.com',
-    icon: '✒️',
+    type: 'tools',
     tag: '卡片导出',
   },
   {
@@ -39,7 +39,7 @@ const APPS = [
     en: 'Studio',
     desc: '沉浸灵感记录与写作画布',
     url: 'https://studio.newmaybe.com',
-    icon: '🎨',
+    type: 'studio',
     tag: '灵感工坊',
   },
   {
@@ -47,7 +47,7 @@ const APPS = [
     en: 'Lab',
     desc: '图形感知与声色交互实验',
     url: 'https://lab.newmaybe.com',
-    icon: '🧪',
+    type: 'lab',
     tag: 'Canvas 实验',
   },
 ];
@@ -76,7 +76,107 @@ const APPS = [
             style={`animation-delay: ${0.08 * idx}s;`}
           >
             <div class="eco-card-top">
-              <div class="eco-icon-badge">{app.icon}</div>
+              <div class="eco-icon-badge">
+                {app.type === 'graph' && (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="6" cy="6" r="3" />
+                    <circle cx="18" cy="18" r="3" />
+                    <circle cx="18" cy="6" r="3" />
+                    <line x1="8.5" y1="7.5" x2="15.5" y2="16.5" />
+                    <line x1="8.5" y1="6" x2="15.5" y2="6" />
+                  </svg>
+                )}
+                {app.type === 'ai' && (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 22v-9" />
+                    <path d="M12 13c0-4.5 3.5-7 8-7 0 4.5-2.5 8-7 8" />
+                    <path d="M12 17c0-3-2.5-5-6-5 0 3 2 5 6 5" />
+                  </svg>
+                )}
+                {app.type === 'study' && (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+                    <path d="M6 6h10" />
+                    <path d="M6 10h10" />
+                  </svg>
+                )}
+                {app.type === 'tools' && (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="m18 2 4 4-14 14H4v-4L18 2z" />
+                    <path d="m14.5 5.5 4 4" />
+                  </svg>
+                )}
+                {app.type === 'studio' && (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
+                    <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
+                    <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
+                    <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+                    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z" />
+                  </svg>
+                )}
+                {app.type === 'lab' && (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M10 2v7.31a2 2 0 0 1-.37 1.17l-4.26 6.39A2 2 0 0 0 7 20h10a2 2 0 0 0 1.63-3.13l-4.26-6.39A2 2 0 0 1 14 9.31V2" />
+                    <path d="M8.5 2h7" />
+                    <path d="M14 9.3a6.5 6.5 0 1 1-4 0" />
+                  </svg>
+                )}
+              </div>
               <span class="eco-tag">{app.tag}</span>
             </div>
             <div class="eco-card-body">

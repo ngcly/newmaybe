@@ -190,102 +190,227 @@ const isActive = (href: string) => {
               </li>
             ))
           }
+          <li class="nav-eco-li">
+            <button
+              class="nav-eco-trigger"
+              id="ecoNavTrigger"
+              aria-label="探索数字生态"
+              aria-expanded="false"
+              type="button"
+            >
+              <span>生态</span>
+              <svg
+                class="eco-caret"
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+            </button>
+            <div class="eco-dropdown" id="ecoDropdown" aria-hidden="true">
+              <div class="eco-dropdown-header">
+                <span class="eco-dropdown-title">数字生态 · 漫游子空间</span>
+                <span class="eco-dropdown-sub">6 Spaces</span>
+              </div>
+              <div class="eco-dropdown-grid">
+                <a
+                  href={resolveSubdomain('https://graph.newmaybe.com')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="eco-item"
+                >
+                  <div class="eco-item-icon">
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="6" cy="6" r="3"></circle>
+                      <circle cx="18" cy="18" r="3"></circle>
+                      <circle cx="18" cy="6" r="3"></circle>
+                      <line x1="8.5" y1="7.5" x2="15.5" y2="16.5"></line>
+                      <line x1="8.5" y1="6" x2="15.5" y2="6"></line>
+                    </svg>
+                  </div>
+                  <div class="eco-item-text">
+                    <div class="eco-item-name">
+                      <span>思维图谱</span>
+                      <span class="eco-arrow-icon">↗</span>
+                    </div>
+                    <div class="eco-item-desc">概念经纬与网络</div>
+                  </div>
+                </a>
+                <a
+                  href={resolveSubdomain('https://ai.newmaybe.com')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="eco-item"
+                >
+                  <div class="eco-item-icon">
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M12 22v-9"></path>
+                      <path d="M12 13c0-4.5 3.5-7 8-7 0 4.5-2.5 8-7 8"></path>
+                      <path d="M12 17c0-3-2.5-5-6-5 0 3 2 5 6 5"></path>
+                    </svg>
+                  </div>
+                  <div class="eco-item-text">
+                    <div class="eco-item-name">
+                      <span>AI 园丁</span>
+                      <span class="eco-arrow-icon">↗</span>
+                    </div>
+                    <div class="eco-item-desc">数字花园与问答</div>
+                  </div>
+                </a>
+                <a
+                  href={resolveSubdomain('https://study.newmaybe.com')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="eco-item"
+                >
+                  <div class="eco-item-icon">
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"
+                      ></path>
+                      <path d="M6 6h10"></path>
+                      <path d="M6 10h10"></path>
+                    </svg>
+                  </div>
+                  <div class="eco-item-text">
+                    <div class="eco-item-name">
+                      <span>林下书房</span>
+                      <span class="eco-arrow-icon">↗</span>
+                    </div>
+                    <div class="eco-item-desc">古籍研习与写读</div>
+                  </div>
+                </a>
+                <a
+                  href={resolveSubdomain('https://tools.newmaybe.com')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="eco-item"
+                >
+                  <div class="eco-item-icon">
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="m18 2 4 4-14 14H4v-4L18 2z"></path>
+                      <path d="m14.5 5.5 4 4"></path>
+                    </svg>
+                  </div>
+                  <div class="eco-item-text">
+                    <div class="eco-item-name">
+                      <span>排版工具</span>
+                      <span class="eco-arrow-icon">↗</span>
+                    </div>
+                    <div class="eco-item-desc">诗文与金句卡片</div>
+                  </div>
+                </a>
+                <a
+                  href={resolveSubdomain('https://studio.newmaybe.com')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="eco-item"
+                >
+                  <div class="eco-item-icon">
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
+                      <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
+                      <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle>
+                      <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle>
+                      <path
+                        d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <div class="eco-item-text">
+                    <div class="eco-item-name">
+                      <span>创意工坊</span>
+                      <span class="eco-arrow-icon">↗</span>
+                    </div>
+                    <div class="eco-item-desc">灵感记录与画布</div>
+                  </div>
+                </a>
+                <a
+                  href={resolveSubdomain('https://lab.newmaybe.com')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="eco-item"
+                >
+                  <div class="eco-item-icon">
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M10 2v7.31a2 2 0 0 1-.37 1.17l-4.26 6.39A2 2 0 0 0 7 20h10a2 2 0 0 0 1.63-3.13l-4.26-6.39A2 2 0 0 1 14 9.31V2"
+                      ></path>
+                      <path d="M8.5 2h7"></path>
+                      <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
+                    </svg>
+                  </div>
+                  <div class="eco-item-text">
+                    <div class="eco-item-name">
+                      <span>实验室</span>
+                      <span class="eco-arrow-icon">↗</span>
+                    </div>
+                    <div class="eco-item-desc">图形感知与声色</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </li>
         </ul>
-
-        <!-- 数字生态快捷入口 -->
-        <div class="eco-nav-wrap">
-          <button
-            class="eco-nav-trigger"
-            id="ecoNavTrigger"
-            aria-label="探索数字生态"
-            aria-expanded="false"
-            title="数字生态子空间"
-          >
-            <span class="eco-nav-icon">✦</span>
-            <span class="eco-nav-label">生态</span>
-            <span class="eco-nav-chevron">▾</span>
-          </button>
-          <div class="eco-dropdown" id="ecoDropdown" aria-hidden="true">
-            <div class="eco-dropdown-header">
-              <span class="eco-dropdown-title">数字生态 · 子空间</span>
-              <span class="eco-dropdown-sub">6 个独立探索领域</span>
-            </div>
-            <div class="eco-dropdown-grid">
-              <a
-                href={resolveSubdomain('https://graph.newmaybe.com')}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="eco-item"
-              >
-                <div class="eco-item-icon">✦</div>
-                <div class="eco-item-text">
-                  <div class="eco-item-name">思维图谱 <span class="eco-item-tag">D3</span></div>
-                  <div class="eco-item-desc">思考的经纬与网络</div>
-                </div>
-              </a>
-              <a
-                href={resolveSubdomain('https://ai.newmaybe.com')}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="eco-item"
-              >
-                <div class="eco-item-icon">🌱</div>
-                <div class="eco-item-text">
-                  <div class="eco-item-name">AI 园丁 <span class="eco-item-tag">智能</span></div>
-                  <div class="eco-item-desc">数字花园漫游与问答</div>
-                </div>
-              </a>
-              <a
-                href={resolveSubdomain('https://study.newmaybe.com')}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="eco-item"
-              >
-                <div class="eco-item-icon">书</div>
-                <div class="eco-item-text">
-                  <div class="eco-item-name">林下书房 <span class="eco-item-tag">典籍</span></div>
-                  <div class="eco-item-desc">古籍研习与古风写读</div>
-                </div>
-              </a>
-              <a
-                href={resolveSubdomain('https://tools.newmaybe.com')}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="eco-item"
-              >
-                <div class="eco-item-icon">✒️</div>
-                <div class="eco-item-text">
-                  <div class="eco-item-name">排版工具 <span class="eco-item-tag">排版</span></div>
-                  <div class="eco-item-desc">诗文排版与金句卡片</div>
-                </div>
-              </a>
-              <a
-                href={resolveSubdomain('https://studio.newmaybe.com')}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="eco-item"
-              >
-                <div class="eco-item-icon">🎨</div>
-                <div class="eco-item-text">
-                  <div class="eco-item-name">创意工坊 <span class="eco-item-tag">灵感</span></div>
-                  <div class="eco-item-desc">灵感记录与写作画布</div>
-                </div>
-              </a>
-              <a
-                href={resolveSubdomain('https://lab.newmaybe.com')}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="eco-item"
-              >
-                <div class="eco-item-icon">🧪</div>
-                <div class="eco-item-text">
-                  <div class="eco-item-name">实验室 <span class="eco-item-tag">实验</span></div>
-                  <div class="eco-item-desc">图形感知与声色交互</div>
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
 
         <button class="search-nav-btn" id="search-nav-trigger" aria-label="搜索" title="搜索 (⌘K)">
           <svg
@@ -332,49 +457,49 @@ const isActive = (href: string) => {
         </nav>
 
         <div class="drawer-eco">
-          <div class="drawer-eco-title">数字生态矩阵</div>
+          <div class="drawer-eco-title">数字生态 · 独立子空间</div>
           <div class="drawer-eco-grid">
             <a
               href={resolveSubdomain('https://graph.newmaybe.com')}
               target="_blank"
               rel="noopener noreferrer"
             >
-              ✦ 思维图谱
+              思维图谱 ↗
             </a>
             <a
               href={resolveSubdomain('https://ai.newmaybe.com')}
               target="_blank"
               rel="noopener noreferrer"
             >
-              🌱 AI 园丁
+              AI 园丁 ↗
             </a>
             <a
               href={resolveSubdomain('https://study.newmaybe.com')}
               target="_blank"
               rel="noopener noreferrer"
             >
-              📖 林下书房
+              林下书房 ↗
             </a>
             <a
               href={resolveSubdomain('https://tools.newmaybe.com')}
               target="_blank"
               rel="noopener noreferrer"
             >
-              ✒️ 排版工具
+              排版工具 ↗
             </a>
             <a
               href={resolveSubdomain('https://studio.newmaybe.com')}
               target="_blank"
               rel="noopener noreferrer"
             >
-              🎨 创意工坊
+              创意工坊 ↗
             </a>
             <a
               href={resolveSubdomain('https://lab.newmaybe.com')}
               target="_blank"
               rel="noopener noreferrer"
             >
-              🧪 实验室
+              实验室 ↗
             </a>
           </div>
         </div>
@@ -391,59 +516,47 @@ const isActive = (href: string) => {
 
     <footer>
       <div class="wrap">
-        <div class="foot-grid reveal">
-          <div class="foot-left">
-            <h4>{SITE.title}<span class="dot">.</span></h4>
-            <p>{SITE.description}</p>
+        <div class="foot-colophon reveal">
+          <div class="foot-seal" aria-hidden="true">✦</div>
+
+          <div class="foot-brand">
+            <span class="foot-brand-title">{SITE.title}<span class="dot">.</span></span>
           </div>
 
-          <div class="foot-col">
-            <span class="foot-col-title">工具与实验</span>
-            <div class="foot-col-links">
-              <a
-                href={resolveSubdomain('https://graph.newmaybe.com')}
-                target="_blank"
-                rel="noopener noreferrer">思维图谱</a
-              >
-              <a
-                href={resolveSubdomain('https://ai.newmaybe.com')}
-                target="_blank"
-                rel="noopener noreferrer">AI 园丁</a
-              >
-              <a
-                href={resolveSubdomain('https://lab.newmaybe.com')}
-                target="_blank"
-                rel="noopener noreferrer">实验室</a
-              >
-              <a
-                href={resolveSubdomain('https://tools.newmaybe.com')}
-                target="_blank"
-                rel="noopener noreferrer">排版工具</a
-              >
-              <a
-                href={resolveSubdomain('https://studio.newmaybe.com')}
-                target="_blank"
-                rel="noopener noreferrer">创意工坊</a
-              >
-              <a
-                href={resolveSubdomain('https://study.newmaybe.com')}
-                target="_blank"
-                rel="noopener noreferrer">林下书房</a
-              >
-            </div>
-          </div>
+          <nav class="foot-nav-line" aria-label="页尾导航">
+            {
+              NAV.map((item) => (
+                <>
+                  <a href={item.href} class="foot-link">
+                    {item.label}
+                  </a>
+                  <span class="foot-divider" aria-hidden="true">
+                    ·
+                  </span>
+                </>
+              ))
+            }
+            <a
+              href={resolveSubdomain('https://graph.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="foot-link foot-eco"
+            >
+              数字生态 <span class="arrow">↗</span>
+            </a>
+            <span class="foot-divider" aria-hidden="true">·</span>
+            <a href="/rss.xml" class="foot-link">RSS</a>
+            <span class="foot-divider" aria-hidden="true">·</span>
+            <a href={`mailto:${SITE.email}`} class="foot-link">联络</a>
+          </nav>
 
-          <div class="foot-col">
-            <span class="foot-col-title">联络</span>
-            <div class="foot-col-links">
-              <a href={`mailto:${SITE.email}`}>电子邮件</a>
-              <a href="/rss.xml">订阅 RSS</a>
-            </div>
+          <div class="foot-colophon-base">
+            <span>© {year} {SITE.url.replace('https://', '')}</span>
+            <span class="foot-sep">·</span>
+            <span>以 Astro 构筑，栖于 Cloudflare</span>
+            <span class="foot-sep">·</span>
+            <span class="foot-slowly">Made slowly.</span>
           </div>
-        </div>
-        <div class="foot-base">
-          <span>© {year} {SITE.url.replace('https://', '')} · 以 Astro 构筑，栖于 Cloudflare</span>
-          <span>Made slowly.</span>
         </div>
       </div>
     </footer>
@@ -655,122 +768,168 @@ const isActive = (href: string) => {
         background: var(--ochre);
       }
 
-      /* 头部生态下拉入口 */
-      .eco-nav-wrap {
+      /* 头部生态纯文字导航入口 */
+      .nav-eco-li {
         position: relative;
-        margin-left: 2rem;
-      }
-      .eco-nav-trigger {
-        background: var(--paper-deep);
-        border: 1px solid var(--line);
-        border-radius: 4px;
-        cursor: pointer;
-        padding: 0.35rem 0.7rem;
         display: flex;
         align-items: center;
-        gap: 0.35rem;
-        font-family: var(--serif-cn);
-        font-size: 0.88rem;
+      }
+      .nav-eco-trigger {
+        background: none;
+        border: none;
+        padding: 0 0 2px 0;
+        margin: 0;
+        font-family: inherit;
+        font-size: 0.92rem;
+        letter-spacing: 0.08em;
         color: var(--ink-soft);
-        transition: all 0.3s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.28rem;
+        position: relative;
+        transition: color 0.3s ease;
       }
-      .eco-nav-trigger:hover,
-      .eco-nav-trigger[aria-expanded='true'] {
+      .nav-eco-trigger::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 0;
+        height: 1px;
+        background: var(--ochre);
+        transition: width 0.35s ease;
+      }
+      .nav-eco-trigger:hover,
+      .nav-eco-trigger[aria-expanded='true'] {
         color: var(--ink);
-        border-color: color-mix(in srgb, var(--ochre) 45%, var(--line));
-        background: var(--paper);
       }
-      .eco-nav-icon {
-        color: var(--ochre);
-        font-size: 0.85rem;
+      .nav-eco-trigger:hover::after,
+      .nav-eco-trigger[aria-expanded='true']::after {
+        width: 100%;
       }
-      .eco-nav-chevron {
-        font-size: 0.7rem;
+      .eco-caret {
         color: var(--ink-faint);
-        transition: transform 0.3s ease;
+        transition:
+          transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+          color 0.3s ease;
       }
-      .eco-nav-trigger[aria-expanded='true'] .eco-nav-chevron {
+      .nav-eco-trigger:hover .eco-caret,
+      .nav-eco-trigger[aria-expanded='true'] .eco-caret {
+        color: var(--ochre);
+      }
+      .nav-eco-trigger[aria-expanded='true'] .eco-caret {
         transform: rotate(180deg);
       }
 
+      /* 纸墨风微光下拉气泡卡片 */
       .eco-dropdown {
         position: absolute;
-        top: calc(100% + 12px);
-        right: 0;
-        width: 360px;
-        background: var(--paper);
+        top: calc(100% + 14px);
+        right: -24px;
+        width: 320px;
+        background: color-mix(in srgb, var(--paper) 94%, var(--paper-deep));
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         border: 1px solid var(--line);
-        border-radius: 8px;
-        box-shadow: 0 14px 38px rgba(43, 39, 34, 0.09);
-        padding: 1.2rem;
+        border-radius: 4px;
+        box-shadow:
+          0 4px 16px rgba(43, 39, 34, 0.05),
+          0 12px 32px rgba(43, 39, 34, 0.08);
+        padding: 0.9rem 1rem;
         opacity: 0;
-        transform: translateY(8px) scale(0.98);
+        transform: translateY(6px);
         pointer-events: none;
         transition:
           opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
           transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        z-index: 110;
+        z-index: 120;
       }
-      :root.dark .eco-dropdown,
-      :root:not(.light) .eco-dropdown {
-        box-shadow: 0 14px 38px rgba(0, 0, 0, 0.45);
+      :root.dark .eco-dropdown {
+        box-shadow:
+          0 4px 16px rgba(0, 0, 0, 0.3),
+          0 12px 36px rgba(0, 0, 0, 0.5);
       }
       .eco-dropdown.open {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0);
         pointer-events: auto;
       }
+      /* 顶部小三角 */
+      .eco-dropdown::before {
+        content: '';
+        position: absolute;
+        top: -5px;
+        right: 34px;
+        width: 8px;
+        height: 8px;
+        background: color-mix(in srgb, var(--paper) 94%, var(--paper-deep));
+        border-left: 1px solid var(--line);
+        border-top: 1px solid var(--line);
+        transform: rotate(45deg);
+      }
+
       .eco-dropdown-header {
         display: flex;
         align-items: baseline;
         justify-content: space-between;
-        padding-bottom: 0.8rem;
-        margin-bottom: 0.8rem;
+        padding-bottom: 0.6rem;
+        margin-bottom: 0.6rem;
         border-bottom: 1px dashed var(--line);
       }
       .eco-dropdown-title {
         font-family: var(--serif-cn);
-        font-size: 0.88rem;
+        font-size: 0.82rem;
+        letter-spacing: 0.04em;
+        color: var(--ink-soft);
         font-weight: 500;
-        color: var(--ink);
       }
       .eco-dropdown-sub {
         font-family: var(--serif-en);
         font-style: italic;
-        font-size: 0.75rem;
-        color: var(--ink-faint);
+        font-size: 0.72rem;
+        color: var(--ochre);
       }
       .eco-dropdown-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 0.6rem;
+        gap: 0.4rem;
       }
       .eco-item {
         display: flex;
         align-items: flex-start;
-        gap: 0.6rem;
-        padding: 0.65rem 0.75rem;
-        border-radius: 4px;
-        background: var(--paper-deep);
+        gap: 0.55rem;
+        padding: 0.55rem 0.6rem;
+        border-radius: 3px;
+        background: transparent;
         border: 1px solid transparent;
         text-decoration: none;
         color: inherit;
-        transition: all 0.25s ease;
+        transition:
+          background-color 0.25s ease,
+          border-color 0.25s ease,
+          transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .eco-item:hover {
-        border-color: color-mix(in srgb, var(--ochre) 35%, var(--line));
-        background: color-mix(in srgb, var(--ochre) 5%, var(--paper));
+        background: color-mix(in srgb, var(--ochre) 5%, transparent);
+        border-color: color-mix(in srgb, var(--ochre) 25%, var(--line));
         transform: translateY(-1px);
       }
       .eco-item-icon {
-        font-size: 0.95rem;
-        width: 22px;
-        height: 22px;
+        color: var(--ochre);
+        opacity: 0.85;
+        margin-top: 0.15rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--ochre);
         flex-shrink: 0;
+        transition:
+          transform 0.25s ease,
+          opacity 0.25s ease;
+      }
+      .eco-item:hover .eco-item-icon {
+        opacity: 1;
+        transform: scale(1.1);
       }
       .eco-item-text {
         flex: 1;
@@ -778,27 +937,40 @@ const isActive = (href: string) => {
       }
       .eco-item-name {
         font-family: var(--serif-cn);
-        font-size: 0.88rem;
+        font-size: 0.84rem;
         font-weight: 500;
         color: var(--ink);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 0.2rem;
+        transition: color 0.25s ease;
       }
-      .eco-item-tag {
+      .eco-item:hover .eco-item-name {
+        color: var(--ochre);
+      }
+      .eco-arrow-icon {
         font-family: var(--serif-en);
-        font-style: italic;
-        font-size: 0.68rem;
+        font-size: 0.72rem;
         color: var(--ink-faint);
+        opacity: 0.5;
+        transition:
+          opacity 0.25s ease,
+          transform 0.25s ease,
+          color 0.25s ease;
+      }
+      .eco-item:hover .eco-arrow-icon {
+        opacity: 1;
+        color: var(--ochre);
+        transform: translate(1px, -1px);
       }
       .eco-item-desc {
-        font-size: 0.72rem;
-        color: var(--ink-soft);
-        margin-top: 0.15rem;
+        font-size: 0.69rem;
+        color: var(--ink-faint);
+        margin-top: 0.12rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        line-height: 1.3;
       }
 
       .search-nav-btn {
@@ -882,94 +1054,114 @@ const isActive = (href: string) => {
       }
 
       footer {
-        padding: 6rem 0 3rem;
-        margin-top: 6rem;
+        padding: 4rem 0 3rem;
+        margin-top: 0;
         border-top: 1px solid var(--line);
       }
-      .foot-grid {
-        display: grid;
-        grid-template-columns: 2fr 1.5fr 1fr;
-        gap: 3rem;
-        align-items: flex-start;
-      }
-      .foot-left {
+      .foot-colophon {
         display: flex;
         flex-direction: column;
-        gap: 0.8rem;
+        align-items: center;
+        text-align: center;
+        gap: 1.2rem;
+        max-width: 640px;
+        margin: 0 auto;
       }
-      .foot-left h4 {
+      .foot-seal {
+        color: var(--ochre);
+        font-size: 0.95rem;
+        opacity: 0.8;
+        letter-spacing: 0.2em;
+        line-height: 1;
+      }
+      .foot-brand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.2rem;
+      }
+      .foot-brand-title {
         font-family: var(--serif-en);
-        font-size: 1.8rem;
+        font-size: 1.4rem;
         font-weight: 600;
-        line-height: 1.2;
-        margin: 0;
+        letter-spacing: 0.02em;
         color: var(--ink);
       }
-      .foot-left h4 .dot {
+      .foot-brand-title .dot {
         color: var(--ochre);
       }
-      .foot-left p {
-        color: var(--ink-soft);
-        font-size: 0.95rem;
-        line-height: 1.7;
-        font-weight: 300;
-        max-width: 32ch;
-        margin: 0;
-      }
-      .foot-col {
+      .foot-nav-line {
         display: flex;
-        flex-direction: column;
-        gap: 1.1rem;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.65rem 0.85rem;
+        margin-top: 0.2rem;
       }
-      .foot-col-title {
-        font-size: 0.78rem;
-        color: var(--ink-faint);
-        letter-spacing: 0.08em;
-        font-family: var(--serif-cn), serif;
-        font-weight: 500;
-        opacity: 0.8;
-      }
-      .foot-col-links {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-      .foot-col-links a {
+      .foot-link {
         color: var(--ink-soft);
         text-decoration: none;
-        font-size: 0.92rem;
+        font-size: 0.88rem;
         font-family: var(--serif-cn), serif;
-        transition:
-          color 0.3s,
-          transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        display: inline-block;
-        width: fit-content;
+        transition: color 0.25s ease;
       }
-      .foot-col-links a:hover {
+      .foot-link:hover {
         color: var(--ochre);
-        transform: translateX(4px);
       }
-      .foot-base {
-        margin-top: 4rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--line);
+      .foot-divider {
+        color: var(--ink-faint);
+        font-size: 0.75rem;
+        opacity: 0.6;
+        user-select: none;
+      }
+      .foot-eco {
+        color: var(--ochre);
+      }
+      .foot-eco .arrow {
+        font-family: var(--serif-en);
+        font-size: 0.78rem;
+        display: inline-block;
+        transition: transform 0.25s ease;
+      }
+      .foot-eco:hover .arrow {
+        transform: translate(1px, -1px);
+      }
+      .foot-colophon-base {
         display: flex;
-        justify-content: space-between;
+        align-items: center;
+        justify-content: center;
         flex-wrap: wrap;
         gap: 0.5rem;
-        font-size: 0.82rem;
+        font-size: 0.78rem;
         color: var(--ink-faint);
-        letter-spacing: 0.04em;
+        margin-top: 0.8rem;
+        padding-top: 1.2rem;
+        border-top: 1px dashed var(--line);
+        width: 100%;
+        letter-spacing: 0.03em;
+      }
+      .foot-sep {
+        color: var(--line);
+      }
+      .foot-slowly {
+        font-family: var(--serif-en);
+        font-style: italic;
       }
 
-      /* Unified 680px breakpoint — matches the global mobile nav convention */
+      /* Unified 680px breakpoint */
       @media (max-width: 680px) {
-        .foot-grid {
-          grid-template-columns: 1fr 1fr;
-          gap: 2.5rem 1.5rem;
+        footer {
+          padding: 3rem 0 2rem;
         }
-        .foot-left {
-          grid-column: span 2;
+        .foot-nav-line {
+          gap: 0.5rem 0.6rem;
+        }
+        .foot-colophon-base {
+          flex-direction: column;
+          gap: 0.3rem;
+        }
+        .foot-sep {
+          display: none;
         }
       }
       .menu-btn {
