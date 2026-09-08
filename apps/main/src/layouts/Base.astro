@@ -547,13 +547,8 @@ const isActive = (href: string) => {
                 </>
               ))
             }
-            <a
-              href={resolveSubdomain('https://graph.newmaybe.com')}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="foot-link foot-eco"
-            >
-              数字生态 <span class="arrow">↗</span>
+            <a href="/#ecosystem" class="foot-link foot-eco">
+              数字生态 <span class="arrow">→</span>
             </a>
             <span class="foot-divider" aria-hidden="true">·</span>
             <a href="/rss.xml" class="foot-link">RSS</a>
@@ -1148,7 +1143,7 @@ const isActive = (href: string) => {
         transition: transform 0.25s ease;
       }
       .foot-eco:hover .arrow {
-        transform: translate(1px, -1px);
+        transform: translateX(3px);
       }
       .foot-colophon-base {
         display: flex;
