@@ -13,6 +13,8 @@ interface Props {
   article?: boolean;
   /** 发布时间，用于 JSON-LD 结构化数据 */
   publishDate?: Date;
+  /** 可选的页尾题记跋文（金句） */
+  epigraph?: string;
 }
 
 const {
@@ -21,6 +23,7 @@ const {
   image = '/og-default.png',
   article = false,
   publishDate,
+  epigraph,
 } = Astro.props;
 
 const pageTitle = title ? `${title} · ${SITE.title}` : `${SITE.title} — ${SITE.tagline}`;
@@ -518,6 +521,14 @@ const isActive = (href: string) => {
       <div class="wrap">
         <div class="foot-colophon reveal">
           <div class="foot-seal" aria-hidden="true">✦</div>
+
+          {
+            epigraph && (
+              <div class="foot-epigraph">
+                <p>“{epigraph}”</p>
+              </div>
+            )
+          }
 
           <div class="foot-brand">
             <span class="foot-brand-title">{SITE.title}<span class="dot">.</span></span>
@@ -1054,7 +1065,7 @@ const isActive = (href: string) => {
       }
 
       footer {
-        padding: 4rem 0 3rem;
+        padding: 3.2rem 0 2.4rem;
         margin-top: 0;
         border-top: 1px solid var(--line);
       }
@@ -1063,7 +1074,7 @@ const isActive = (href: string) => {
         flex-direction: column;
         align-items: center;
         text-align: center;
-        gap: 1.2rem;
+        gap: 0.95rem;
         max-width: 640px;
         margin: 0 auto;
       }
@@ -1074,6 +1085,19 @@ const isActive = (href: string) => {
         letter-spacing: 0.2em;
         line-height: 1;
       }
+      .foot-epigraph {
+        max-width: 36ch;
+        margin: 0.1rem auto 0.2rem;
+      }
+      .foot-epigraph p {
+        font-family: var(--serif-cn), serif;
+        font-size: 1.15rem;
+        font-weight: 300;
+        color: var(--ink);
+        letter-spacing: 0.08em;
+        line-height: 1.8;
+        text-align: center;
+      }
       .foot-brand {
         display: flex;
         flex-direction: column;
@@ -1082,7 +1106,7 @@ const isActive = (href: string) => {
       }
       .foot-brand-title {
         font-family: var(--serif-en);
-        font-size: 1.4rem;
+        font-size: 1.35rem;
         font-weight: 600;
         letter-spacing: 0.02em;
         color: var(--ink);
@@ -1096,7 +1120,7 @@ const isActive = (href: string) => {
         justify-content: center;
         flex-wrap: wrap;
         gap: 0.65rem 0.85rem;
-        margin-top: 0.2rem;
+        margin-top: 0.1rem;
       }
       .foot-link {
         color: var(--ink-soft);
@@ -1134,8 +1158,8 @@ const isActive = (href: string) => {
         gap: 0.5rem;
         font-size: 0.78rem;
         color: var(--ink-faint);
-        margin-top: 0.8rem;
-        padding-top: 1.2rem;
+        margin-top: 0.4rem;
+        padding-top: 1rem;
         border-top: 1px dashed var(--line);
         width: 100%;
         letter-spacing: 0.03em;
@@ -1151,7 +1175,13 @@ const isActive = (href: string) => {
       /* Unified 680px breakpoint */
       @media (max-width: 680px) {
         footer {
-          padding: 3rem 0 2rem;
+          padding: 2.5rem 0 2rem;
+        }
+        .foot-colophon {
+          gap: 0.8rem;
+        }
+        .foot-epigraph p {
+          font-size: 1.05rem;
         }
         .foot-nav-line {
           gap: 0.5rem 0.6rem;

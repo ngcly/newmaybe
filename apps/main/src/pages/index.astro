@@ -6,7 +6,6 @@ import PostList from '../components/PostList.astro';
 import HomeFragment from '../components/HomeFragment.astro';
 import HomeExcerpt from '../components/HomeExcerpt.astro';
 import EcosystemBand from '../components/EcosystemBand.astro';
-import QuoteBand from '../components/QuoteBand.astro';
 import { sortPostsForDisplay } from '../lib/posts';
 
 // 取所有非草稿文章，按编辑权重排序，首页只展示前 3 篇
@@ -26,13 +25,12 @@ const latestExcerpt = (await getCollection('excerpts', ({ data }) => !data.draft
 )[0];
 ---
 
-<Base>
+<Base epigraph="留白处，自有新可能。">
   <Hero />
   <div class="rule"></div>
   <PostList posts={posts} />
-  <div class="rule"></div>
-  <EcosystemBand />
   {latestFragment && <HomeFragment fragment={latestFragment} />}
   {latestExcerpt && <HomeExcerpt excerpt={latestExcerpt} />}
-  <QuoteBand />
+  <div class="rule"></div>
+  <EcosystemBand />
 </Base>

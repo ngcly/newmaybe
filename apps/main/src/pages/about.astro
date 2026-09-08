@@ -1,10 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
-import QuoteBand from '../components/QuoteBand.astro';
 import { SITE } from '../config';
 ---
 
-<Base title="关于" description="关于 newmaybe，以及写下这些文字的人。">
+<Base
+  title="关于"
+  description="关于 newmaybe，以及写下这些文字的人。"
+  epigraph="每一次写下，都是给未来的自己种一粒新可能。"
+>
   <section class="about">
     <div class="wrap">
       <header class="about-head reveal">
@@ -174,8 +177,6 @@ import { SITE } from '../config';
       </div>
     </div>
   </section>
-
-  <QuoteBand text={'每一次写下，\n都是给未来的自己，种一粒新可能。'} cite="— 关于为何而写" />
 </Base>
 
 <style>

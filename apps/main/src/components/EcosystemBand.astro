@@ -57,12 +57,12 @@ const APPS = [
   <div class="wrap">
     <div class="section-head reveal">
       <div>
-        <span class="eyebrow">Ecosystem & Subspaces</span>
+        <span class="eyebrow">Extension & Subspaces</span>
         <h2>
-          数字生态<span class="cn">工坊与漫游</span>
+          数字生态<span class="cn">独立子空间</span>
         </h2>
       </div>
-      <p class="section-intro">从思维脉络到典籍研读，由文字延伸出的独立探索子空间。</p>
+      <p class="section-intro">从思维脉络到典籍研读，由文字延伸出的 6 处探索天地。</p>
     </div>
 
     <div class="eco-grid">
@@ -238,14 +238,14 @@ const APPS = [
   .eco-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    gap: 1.2rem;
   }
 
   .eco-card {
-    background: var(--paper-deep);
+    background: color-mix(in srgb, var(--paper-deep) 65%, var(--paper));
     border: 1px solid var(--line);
     border-radius: 4px;
-    padding: 1.8rem;
+    padding: 1.5rem 1.6rem;
     box-shadow: var(--shadow-paper);
     display: flex;
     flex-direction: column;
@@ -278,6 +278,7 @@ const APPS = [
   }
 
   .eco-card:hover {
+    background: var(--paper-deep);
     transform: translateY(-3px);
     border-color: color-mix(in srgb, var(--ochre) 40%, var(--line));
     box-shadow: var(--shadow-paper-hover);
@@ -388,7 +389,7 @@ const APPS = [
     }
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 680px) {
     .eco-grid {
       grid-template-columns: 1fr;
     }
