@@ -246,6 +246,7 @@ const APPS = [
     border: 1px solid var(--line);
     border-radius: 4px;
     padding: 1.8rem;
+    box-shadow: var(--shadow-paper);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -279,12 +280,7 @@ const APPS = [
   .eco-card:hover {
     transform: translateY(-3px);
     border-color: color-mix(in srgb, var(--ochre) 40%, var(--line));
-    box-shadow: 0 10px 28px rgba(43, 39, 34, 0.06);
-  }
-
-  :root.dark .eco-card:hover,
-  :root:not(.light) .eco-card:hover {
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--shadow-paper-hover);
   }
 
   .eco-card:hover::before {

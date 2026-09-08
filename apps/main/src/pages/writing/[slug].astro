@@ -546,26 +546,26 @@ const connections = await resolveConnections(post.data.connections);
       -90deg,
       transparent,
       transparent calc(2.5rem - 1px),
-      rgba(197, 61, 49, 0.07) calc(2.5rem - 1px),
-      rgba(197, 61, 49, 0.07) 2.5rem
+      color-mix(in srgb, var(--cinnabar) 7%, transparent) calc(2.5rem - 1px),
+      color-mix(in srgb, var(--cinnabar) 7%, transparent) 2.5rem
     );
     background-position: right 1.25rem top 0;
     padding: 3rem 2rem;
-    border: 1px solid rgba(197, 61, 49, 0.15); /* 赭红外框 */
+    border: 1px solid color-mix(in srgb, var(--cinnabar) 15%, transparent); /* 朱砂红外框 */
     border-radius: 2px;
-    box-shadow: inset 0 0 40px rgba(197, 61, 49, 0.02);
+    box-shadow: inset 0 0 40px color-mix(in srgb, var(--cinnabar) 2%, transparent);
   }
 
   :root.dark .poem-wrap.vertical .prose {
-    /* 暗色模式下降低红色格线的对比度，改用极淡的暗红色 */
+    /* 暗色模式下由于 --cinnabar 自动切换为深色变体，微调浓度即可保持雅致格线 */
     background-image: repeating-linear-gradient(
       -90deg,
       transparent,
       transparent calc(2.5rem - 1px),
-      rgba(230, 80, 70, 0.05) calc(2.5rem - 1px),
-      rgba(230, 80, 70, 0.05) 2.5rem
+      color-mix(in srgb, var(--cinnabar) 5%, transparent) calc(2.5rem - 1px),
+      color-mix(in srgb, var(--cinnabar) 5%, transparent) 2.5rem
     );
-    border-color: rgba(230, 80, 70, 0.12);
+    border-color: color-mix(in srgb, var(--cinnabar) 12%, transparent);
   }
 
   .poem-wrap.vertical .prose :global(p) {

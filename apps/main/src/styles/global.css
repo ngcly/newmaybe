@@ -143,20 +143,30 @@ p {
 }
 
 /* 滚动进场 —— 仅在 JS 可用时隐藏初始态，禁用 JS 也能读到全部内容 */
-/* 滚动进场 —— 仅在 JS 可用时隐藏初始态，采用高斯模糊与对比度复合渐变，模拟水墨晕开聚焦效果 */
+/* 滚动进场 —— 仅在 JS 可用时隐藏初始态，采用轻量水墨晕开聚焦与平滑位移 */
 html.js .reveal {
   opacity: 0;
-  transform: translateY(18px) scale(0.99);
-  filter: blur(12px) contrast(1.2);
+  transform: translateY(16px);
+  filter: blur(4px);
   transition:
-    opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 1.2s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 html.js .reveal.in {
   opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0) contrast(1);
+  transform: translateY(0);
+  filter: none;
+}
+@media (max-width: 680px) {
+  /* 移动端停用 GPU 密集的 filter blur，确保 60fps 丝滑滚动体验 */
+  html.js .reveal {
+    filter: none;
+    transform: translateY(12px);
+    transition:
+      opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   html.js .reveal {

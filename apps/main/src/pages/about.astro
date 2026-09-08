@@ -119,6 +119,7 @@ import { SITE } from '../config';
                 >
                   <!-- 左折边 -->
                   <polygon
+                    class="poly-left"
                     points="0,0 230,147.5 0,295"
                     fill="var(--paper-deep)"
                     opacity="0.98"
@@ -126,6 +127,7 @@ import { SITE } from '../config';
                     stroke-width="0.5"></polygon>
                   <!-- 右折边 -->
                   <polygon
+                    class="poly-right"
                     points="460,0 230,147.5 460,295"
                     fill="var(--paper-deep)"
                     opacity="0.98"
@@ -133,6 +135,7 @@ import { SITE } from '../config';
                     stroke-width="0.5"></polygon>
                   <!-- 下折边 -->
                   <polygon
+                    class="poly-bottom"
                     points="0,295 230,135 460,295"
                     fill="var(--paper)"
                     stroke="var(--line)"
@@ -150,6 +153,7 @@ import { SITE } from '../config';
                   fill="none"
                 >
                   <polygon
+                    class="poly-flap"
                     points="0,0 460,0 230,162.25"
                     fill="var(--paper-deep)"
                     stroke="var(--line)"
@@ -405,8 +409,33 @@ import { SITE } from '../config';
       transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.35s,
       box-shadow 0.45s ease 0.35s;
   }
-  :root.dark .envelope:hover .letter {
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.25);
+  :root.dark .envelope:hover .letter,
+  :root:not(.light) .envelope:hover .letter {
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45);
+  }
+
+  /* 暗色模式下强化信封折纸层级与高光折线 */
+  :root.dark .env-back,
+  :root:not(.light) .env-back {
+    background: color-mix(in srgb, var(--paper-deep) 75%, #000);
+    border-color: color-mix(in srgb, var(--line) 80%, #fff 15%);
+  }
+  :root.dark .poly-left,
+  :root:not(.light) .poly-left,
+  :root.dark .poly-right,
+  :root:not(.light) .poly-right {
+    fill: color-mix(in srgb, var(--paper-deep) 85%, #000);
+    stroke: color-mix(in srgb, var(--line) 75%, #fff 15%);
+  }
+  :root.dark .poly-bottom,
+  :root:not(.light) .poly-bottom {
+    fill: color-mix(in srgb, var(--paper-deep) 90%, #fff 5%);
+    stroke: color-mix(in srgb, var(--line) 75%, #fff 15%);
+  }
+  :root.dark .poly-flap,
+  :root:not(.light) .poly-flap {
+    fill: color-mix(in srgb, var(--paper-deep) 88%, #fff 9%);
+    stroke: color-mix(in srgb, var(--line) 75%, #fff 15%);
   }
 
   .env-front {

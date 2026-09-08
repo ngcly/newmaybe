@@ -675,4 +675,26 @@ const aiUrl = resolveSubdomain('https://ai.newmaybe.com');
     border-radius: 2px;
     margin-right: 0.2rem;
   }
+
+  @media (max-width: 680px) {
+    .search-overlay {
+      padding: 1.2rem 1rem 1rem;
+      align-items: flex-start;
+    }
+    .search-modal {
+      max-height: calc(100vh - 2.4rem);
+      border-radius: 4px;
+    }
+    .search-results {
+      max-height: 55vh;
+      padding: 0.8rem;
+    }
+    .search-footer {
+      display: none;
+    }
+    #search-input {
+      font-size: 1rem;
+      padding: 1rem 0.6rem;
+    }
+  }
 </style>
