@@ -33,7 +33,7 @@ type Props = {
 };
 
 const { post, prev, next } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 
 const longDate = post.data.pubDate.toLocaleDateString('zh-CN', {
   year: 'numeric',
@@ -45,6 +45,9 @@ const isPoetry = post.data.category === '诗歌';
 const watermark = post.data.watermark;
 
 const connections = await resolveConnections(post.data.connections);
+
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const hasToc = !isPoetry && toc.length >= 2;
 ---
 
 <Base
@@ -55,6 +58,19 @@ const connections = await resolveConnections(post.data.connections);
   publishDate={post.data.pubDate}
 >
   <div id="reading-bar" aria-hidden="true"></div>
+  <aside
+    id="resume-toast"
+    class="resume-toast"
+    role="status"
+    aria-live="polite"
+    data-post-id={post.id}
+  >
+    <span class="resume-text">
+      上次读到 <strong id="resume-pct" class="resume-pct">0%</strong>
+    </span>
+    <button type="button" class="resume-btn" id="resumeBtn">续读</button>
+    <button type="button" class="resume-close" id="resumeClose" aria-label="关闭提示">×</button>
+  </aside>
   <article class="article">
     <div class="wrap">
       {
@@ -86,6 +102,26 @@ const connections = await resolveConnections(post.data.connections);
                   {longDate}
                 </time>
                 {post.data.readingTime && <span> · 约 {post.data.readingTime} 分钟</span>}
+                <span class="font-scaler" aria-label="字号调节">
+                  <span class="scaler-sep">·</span>
+                  <button
+                    type="button"
+                    class="scaler-btn font-scale-down"
+                    title="减小字号"
+                    aria-label="减小字号"
+                  >
+                    A-
+                  </button>
+                  <span class="scaler-divider">/</span>
+                  <button
+                    type="button"
+                    class="scaler-btn font-scale-up"
+                    title="增大字号"
+                    aria-label="增大字号"
+                  >
+                    A+
+                  </button>
+                </span>
               </div>
             </header>
 
@@ -119,11 +155,66 @@ const connections = await resolveConnections(post.data.connections);
                   {longDate}
                 </time>
                 {post.data.readingTime && <span> · 约 {post.data.readingTime} 分钟</span>}
+                <span class="font-scaler" aria-label="字号调节">
+                  <span class="scaler-sep">·</span>
+                  <button
+                    type="button"
+                    class="scaler-btn font-scale-down"
+                    title="减小字号"
+                    aria-label="减小字号"
+                  >
+                    A-
+                  </button>
+                  <span class="scaler-divider">/</span>
+                  <button
+                    type="button"
+                    class="scaler-btn font-scale-up"
+                    title="增大字号"
+                    aria-label="增大字号"
+                  >
+                    A+
+                  </button>
+                </span>
               </div>
+
+              {hasToc && (
+                <nav class="toc-desktop" aria-label="文章目录">
+                  <div class="toc-title">目录</div>
+                  <ul class="toc-list">
+                    {toc.map((item) => (
+                      <li class={`toc-item depth-${item.depth}`}>
+                        <a href={`#${item.slug}`} class="toc-link" data-toc-slug={item.slug}>
+                          {item.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              )}
             </header>
 
-            <div class="prose editorial">
-              <Content />
+            <div class="editorial-content">
+              {hasToc && (
+                <details class="toc-mobile">
+                  <summary class="toc-mobile-summary">
+                    <span class="toc-mobile-label">目录</span>
+                    <span class="toc-mobile-count">{toc.length} 节</span>
+                  </summary>
+                  <ul class="toc-list">
+                    {toc.map((item) => (
+                      <li class={`toc-item depth-${item.depth}`}>
+                        <a href={`#${item.slug}`} class="toc-link">
+                          {item.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+
+              <div class="prose editorial">
+                <Content />
+              </div>
             </div>
           </div>
         )
@@ -612,15 +703,30 @@ const connections = await resolveConnections(post.data.connections);
       margin: 0 auto;
     }
     .editorial-container .article-head {
+      position: sticky;
+      top: 5rem;
       text-align: left;
       margin: 0;
       max-width: 100%;
       border-right: 1px solid var(--line);
       padding-right: 2.2rem;
+      max-height: calc(100vh - 6rem);
+      overflow-y: auto;
+      scrollbar-width: thin;
       transition: border-color 0.5s ease;
+    }
+    .editorial-container .article-head::-webkit-scrollbar {
+      width: 3px;
+    }
+    .editorial-container .article-head::-webkit-scrollbar-thumb {
+      background: var(--line);
+      border-radius: 2px;
     }
     .editorial-container .article-head .back {
       margin-bottom: 2rem;
+    }
+    .editorial-container .editorial-content {
+      min-width: 0;
     }
     .editorial-container .prose {
       margin: 0;
@@ -807,11 +913,256 @@ const connections = await resolveConnections(post.data.connections);
   .poem-wrap.vertical .scroll-hint-poetry {
     display: block;
   }
+
+  :root {
+    scroll-padding-top: 5.5rem;
+  }
+
+  /* ── 字号调节器 ── */
+  .font-scaler {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    font-family: var(--serif-en);
+    vertical-align: middle;
+  }
+  .scaler-sep {
+    color: var(--ink-faint);
+    margin: 0 0.25rem;
+  }
+  .scaler-btn {
+    background: transparent;
+    border: none;
+    color: var(--ink-faint);
+    font-family: var(--serif-en);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0 0.15rem;
+    line-height: 1;
+    transition:
+      color 0.2s ease,
+      transform 0.15s ease;
+  }
+  .scaler-btn:hover {
+    color: var(--ochre);
+    transform: scale(1.12);
+  }
+  .scaler-divider {
+    color: var(--line);
+    font-size: 0.72rem;
+    margin: 0 0.05rem;
+  }
+
+  /* 字号缩放阶梯 (sm / base / lg) */
+  .prose.font-size-sm :global(p) {
+    font-size: 1rem;
+    line-height: 1.9;
+  }
+  .prose.font-size-lg :global(p) {
+    font-size: 1.25rem;
+    line-height: 2.15;
+  }
+  .poem-wrap .prose.font-size-sm :global(p) {
+    font-size: 1.02rem;
+  }
+  .poem-wrap .prose.font-size-lg :global(p) {
+    font-size: 1.28rem;
+  }
+
+  /* ── 目录 (Table of Contents) ── */
+  .toc-desktop {
+    margin-top: 2.2rem;
+    padding-top: 1.5rem;
+    border-top: 1px dashed var(--line);
+    display: none;
+  }
+  @media (min-width: 960px) {
+    .toc-desktop {
+      display: block;
+    }
+  }
+  .toc-title {
+    font-family: var(--serif-cn);
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    margin-bottom: 0.8rem;
+  }
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+  .toc-item {
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+  .toc-item.depth-3 {
+    padding-left: 0.85rem;
+    font-size: 0.82rem;
+  }
+  .toc-link {
+    display: block;
+    color: var(--ink-soft);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    padding-left: 0.55rem;
+    margin-left: -0.55rem;
+    border-bottom: none !important;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.2s ease;
+  }
+  .toc-link:hover {
+    color: var(--ochre);
+    transform: translateX(2px);
+  }
+  .toc-link.active {
+    color: var(--ochre);
+    border-left-color: var(--ochre);
+    font-weight: 500;
+  }
+
+  /* 移动端可折叠目录 */
+  .toc-mobile {
+    display: block;
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0.75rem 1.1rem;
+    margin-bottom: 2.2rem;
+    font-size: 0.9rem;
+    transition: background 0.3s;
+  }
+  @media (min-width: 960px) {
+    .toc-mobile {
+      display: none;
+    }
+  }
+  .toc-mobile[open] {
+    padding-bottom: 1rem;
+  }
+  .toc-mobile-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    font-family: var(--serif-cn);
+    color: var(--ink);
+    font-weight: 500;
+    list-style: none;
+  }
+  .toc-mobile-summary::-webkit-details-marker {
+    display: none;
+  }
+  .toc-mobile-label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .toc-mobile-label::before {
+    content: '§';
+    color: var(--ochre);
+    font-family: var(--serif-en);
+    font-size: 0.95rem;
+  }
+  .toc-mobile-count {
+    font-family: var(--serif-en);
+    font-size: 0.82rem;
+    font-style: italic;
+    color: var(--ink-faint);
+  }
+  .toc-mobile .toc-list {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px dashed var(--line);
+  }
+
+  /* ── 续读书签提示条 ── */
+  .resume-toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-paper-hover);
+    padding: 0.55rem 0.85rem 0.55rem 1.1rem;
+    border-radius: 4px;
+    font-family: var(--serif-cn);
+    font-size: 0.88rem;
+    color: var(--ink);
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+    transition:
+      opacity 0.35s ease,
+      transform 0.35s ease;
+  }
+  .resume-toast.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .resume-pct {
+    color: var(--ochre);
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-weight: 600;
+  }
+  .resume-btn {
+    background: var(--ochre);
+    color: var(--paper);
+    border: none;
+    border-radius: 3px;
+    padding: 0.25rem 0.65rem;
+    font-family: var(--serif-cn);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background 0.2s ease,
+      transform 0.2s ease;
+  }
+  .resume-btn:hover {
+    background: var(--ochre-deep);
+    transform: scale(1.03);
+  }
+  .resume-close {
+    background: transparent;
+    border: none;
+    color: var(--ink-faint);
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 0.2rem;
+    transition: color 0.2s ease;
+  }
+  .resume-close:hover {
+    color: var(--ink);
+  }
+  @media (max-width: 680px) {
+    .resume-toast {
+      bottom: 1.2rem;
+      right: 1rem;
+      left: 1rem;
+      justify-content: space-between;
+    }
+  }
 </style>
 
 <script>
   function setupReadingBar() {
-    // 清理上一次残留的滚动监听，防止导航到非文章页后仍报错或漏电
     if (window._onScrollReadingBar) {
       window.removeEventListener('scroll', window._onScrollReadingBar);
       delete window._onScrollReadingBar;
@@ -837,6 +1188,226 @@ const connections = await resolveConnections(post.data.connections);
     update();
   }
 
-  // 绑定初次载入与 View Transitions 页面切换
-  document.addEventListener('astro:page-load', setupReadingBar);
+  function setupTocSpy() {
+    if (window._onScrollToc) {
+      window.removeEventListener('scroll', window._onScrollToc);
+      delete window._onScrollToc;
+    }
+
+    const tocLinks = Array.from(document.querySelectorAll('.toc-link'));
+    if (tocLinks.length === 0) return;
+
+    const headings = Array.from(
+      document.querySelectorAll<HTMLElement>('.editorial-content .prose h2[id], .editorial-content .prose h3[id]')
+    );
+    if (headings.length === 0) return;
+
+    const linkMap = new Map<string, Element[]>();
+    tocLinks.forEach((link) => {
+      const href = link.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        const rawId = href.slice(1);
+        const decodedId = decodeURIComponent(rawId);
+        if (!linkMap.has(decodedId)) linkMap.set(decodedId, []);
+        linkMap.get(decodedId)!.push(link);
+        if (rawId !== decodedId) {
+          if (!linkMap.has(rawId)) linkMap.set(rawId, []);
+          linkMap.get(rawId)!.push(link);
+        }
+      }
+    });
+
+    const setActive = (activeId: string | null) => {
+      tocLinks.forEach((link) => link.classList.remove('active'));
+      if (activeId && linkMap.has(activeId)) {
+        linkMap.get(activeId)!.forEach((link) => link.classList.add('active'));
+      }
+    };
+
+    let ticking = false;
+    const updateActiveHeading = () => {
+      if (window.scrollY < 120) {
+        setActive(null);
+        return;
+      }
+      let currentId: string | null = null;
+      for (const h of headings) {
+        const rect = h.getBoundingClientRect();
+        if (rect.top <= 150) {
+          currentId = h.id;
+        } else {
+          break;
+        }
+      }
+      setActive(currentId);
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          updateActiveHeading();
+          ticking = false;
+        });
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window._onScrollToc = onScroll;
+    updateActiveHeading();
+
+    document.querySelectorAll('.toc-mobile .toc-link').forEach((link) => {
+      link.addEventListener('click', () => {
+        const details = link.closest('.toc-mobile');
+        if (details) details.removeAttribute('open');
+      });
+    });
+  }
+
+  function setupReadingBookmark() {
+    if (window._onScrollReadingBookmark) {
+      window.removeEventListener('scroll', window._onScrollReadingBookmark);
+      delete window._onScrollReadingBookmark;
+    }
+
+    const toast = document.getElementById('resume-toast');
+    if (!toast) return;
+
+    const postId = toast.dataset.postId;
+    if (!postId) return;
+
+    const pctSpan = document.getElementById('resume-pct');
+    const resumeBtn = document.getElementById('resumeBtn');
+    const closeBtn = document.getElementById('resumeClose');
+
+    const STORAGE_KEY = `newmaybe:read-pos:${postId}`;
+
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (saved && saved.pct >= 15 && saved.pct <= 90 && window.scrollY < 120) {
+          if (pctSpan) pctSpan.textContent = `${saved.pct}%`;
+          toast.classList.add('is-visible');
+
+          const dismissToast = () => {
+            toast.classList.remove('is-visible');
+          };
+
+          if (resumeBtn) {
+            resumeBtn.onclick = () => {
+              window.scrollTo({ top: saved.y, behavior: 'smooth' });
+              dismissToast();
+            };
+          }
+
+          if (closeBtn) {
+            closeBtn.onclick = () => {
+              dismissToast();
+            };
+          }
+
+          const autoDismissCheck = () => {
+            if (window.scrollY > 350) {
+              dismissToast();
+              window.removeEventListener('scroll', autoDismissCheck);
+            }
+          };
+          window.addEventListener('scroll', autoDismissCheck, { passive: true });
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+
+    let ticking = false;
+    const recordProgress = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      if (total <= 0) return;
+      const pct = Math.round((window.scrollY / total) * 100);
+
+      try {
+        if (pct > 92) {
+          localStorage.removeItem(STORAGE_KEY);
+        } else if (pct >= 15) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ y: window.scrollY, pct }));
+        }
+      } catch {
+        /* ignore */
+      }
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          recordProgress();
+          ticking = false;
+        });
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window._onScrollReadingBookmark = onScroll;
+  }
+
+  function setupFontScaler() {
+    const STORAGE_KEY = 'newmaybe:font-scale';
+    type Level = 'sm' | 'base' | 'lg';
+
+    const getScale = (): Level => {
+      try {
+        const val = localStorage.getItem(STORAGE_KEY);
+        if (val === 'sm' || val === 'lg') return val;
+      } catch {}
+      return 'base';
+    };
+
+    const applyScale = (level: Level) => {
+      document.querySelectorAll('.prose').forEach((el) => {
+        el.classList.remove('font-size-sm', 'font-size-lg');
+        if (level === 'sm') el.classList.add('font-size-sm');
+        if (level === 'lg') el.classList.add('font-size-lg');
+      });
+    };
+
+    const setScale = (level: Level) => {
+      try {
+        localStorage.setItem(STORAGE_KEY, level);
+      } catch {}
+      applyScale(level);
+    };
+
+    applyScale(getScale());
+
+    if (window._handleFontScaleClick) {
+      document.removeEventListener('click', window._handleFontScaleClick);
+    }
+
+    const handleFontScaleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const downBtn = target.closest('.font-scale-down');
+      const upBtn = target.closest('.font-scale-up');
+      if (downBtn) {
+        const cur = getScale();
+        if (cur === 'lg') setScale('base');
+        else if (cur === 'base') setScale('sm');
+      } else if (upBtn) {
+        const cur = getScale();
+        if (cur === 'sm') setScale('base');
+        else if (cur === 'base') setScale('lg');
+      }
+    };
+
+    document.addEventListener('click', handleFontScaleClick);
+    window._handleFontScaleClick = handleFontScaleClick;
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    setupReadingBar();
+    setupTocSpy();
+    setupReadingBookmark();
+    setupFontScaler();
+  });
 </script>

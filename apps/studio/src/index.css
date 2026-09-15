@@ -1,16 +1,19 @@
-@import 'tailwindcss';
-@import '@fontsource/cormorant-garamond/latin-400.css';
-@import '@fontsource/cormorant-garamond/latin-400-italic.css';
-@import '@fontsource/cormorant-garamond/latin-600.css';
-@import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
-@import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
-@import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
-@import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
-
 @import '@newmaybe/shared-styles/tokens.css';
+@import 'tailwindcss';
 
 @theme {
   --font-serif: var(--serif-cn);
+  --font-kai: var(--serif-kai);
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-ochre: var(--ochre);
+  --color-ochre-deep: var(--ochre-deep);
+  --color-cinnabar: var(--cinnabar);
+  --color-line: var(--line);
+  --color-bamboo: var(--bamboo);
 }
 
 @layer base {

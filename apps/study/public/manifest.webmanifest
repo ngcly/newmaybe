@@ -1,0 +1,28 @@
+{
+  "name": "林下书房 · 为古风写作而读",
+  "short_name": "林下书房",
+  "description": "精选古籍四十三部，分类梳理为何读、怎么读、仿写范例，提供系统化进阶路径与沉浸式古风阅读体验。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f3ec",
+  "theme_color": "#f7f3ec",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

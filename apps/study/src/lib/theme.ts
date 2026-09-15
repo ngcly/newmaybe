@@ -2,9 +2,34 @@
 export type Theme = 'light' | 'dark';
 const KEY = 'linxia:theme';
 
+function getCookieTheme(): Theme | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)theme=(dark|light)/);
+  return match ? (match[1] as Theme) : null;
+}
+
+function setCookieTheme(t: Theme) {
+  if (typeof document === 'undefined') return;
+  const domainAttr = window.location.hostname.includes('newmaybe.com')
+    ? '; domain=.newmaybe.com'
+    : '';
+  document.cookie = `theme=${t}; path=/${domainAttr}; max-age=31536000; SameSite=Lax`;
+}
+
 export function getTheme(): Theme {
   try {
-    return localStorage.getItem(KEY) === 'dark' ? 'dark' : 'light';
+    // 优先读取根域 Cookie（跨子应用共享），其次读取本地缓存与系统偏好
+    const cookieTheme = getCookieTheme();
+    if (cookieTheme) return cookieTheme;
+    const local = localStorage.getItem(KEY);
+    if (local === 'dark' || local === 'light') return local;
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+    ) {
+      return 'dark';
+    }
+    return 'light';
   } catch {
     return 'light';
   }
@@ -12,6 +37,7 @@ export function getTheme(): Theme {
 
 export function applyTheme(t: Theme) {
   document.documentElement.classList.toggle('dark', t === 'dark');
+  setCookieTheme(t);
 }
 
 export function toggleTheme(): Theme {

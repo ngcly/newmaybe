@@ -77,6 +77,7 @@ function drawWrappedText(
 export default function CardExporter({ initialContent }: CardExporterProps) {
   const [cardType, setCardType] = useState<CardType>('fragment');
   const [cardTheme, setCardTheme] = useState<CardTheme>('paper');
+  const [exportScale, setExportScale] = useState<1 | 2 | 3>(2);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [imageExportSuccess, setImageExportSuccess] = useState(false);
 
@@ -128,40 +129,45 @@ ${excForm.content}
   };
 
   const handleDownloadCard = () => {
+    const scale = exportScale;
+    const width = 800;
+    const height = 500;
     const canvas = document.createElement('canvas');
-    canvas.width = 800;
-    canvas.height = 500;
+    canvas.width = width * scale;
+    canvas.height = height * scale;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    ctx.scale(scale, scale);
 
     const themeColors = CARD_THEMES[cardTheme];
 
     ctx.fillStyle = themeColors.bg;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, width, height);
 
     ctx.strokeStyle = themeColors.line;
     ctx.lineWidth = 1;
-    ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
+    ctx.strokeRect(30, 30, width - 60, height - 60);
 
     if (cardType === 'fragment') {
       ctx.fillStyle = themeColors.textFaint;
       ctx.font = 'italic 16px "Cormorant Garamond", Georgia, serif';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'top';
-      ctx.fillText(fragForm.pubDate, canvas.width - 60, 60);
+      ctx.fillText(fragForm.pubDate, width - 60, 60);
 
       ctx.fillStyle = themeColors.textSoft;
       ctx.font = '22px "Noto Serif SC", "Songti SC", serif';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
 
-      drawWrappedText(ctx, fragForm.content, 60, 120, canvas.width - 120, 38, 350);
+      drawWrappedText(ctx, fragForm.content, 60, 120, width - 120, 38, 350);
 
       ctx.strokeStyle = themeColors.line + '99';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(60, canvas.height - 90);
-      ctx.lineTo(canvas.width - 60, canvas.height - 90);
+      ctx.moveTo(60, height - 90);
+      ctx.lineTo(width - 60, height - 90);
       ctx.stroke();
 
       ctx.fillStyle = themeColors.textFaint;
@@ -169,11 +175,11 @@ ${excForm.content}
       ctx.textBaseline = 'middle';
       if (fragForm.location) {
         ctx.textAlign = 'left';
-        ctx.fillText(`📍 ${fragForm.location}`, 60, canvas.height - 65);
+        ctx.fillText(`📍 ${fragForm.location}`, 60, height - 65);
       }
       if (fragForm.mood) {
         ctx.textAlign = 'right';
-        ctx.fillText(fragForm.mood, canvas.width - 60, canvas.height - 65);
+        ctx.fillText(fragForm.mood, width - 60, height - 65);
       }
     } else {
       ctx.fillStyle = themeColors.accent;
@@ -189,35 +195,27 @@ ${excForm.content}
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
 
-      const endY = drawWrappedText(
-        ctx,
-        excForm.content,
-        60,
-        110,
-        canvas.width - 120,
-        38,
-        canvas.height - 205,
-      );
+      const endY = drawWrappedText(ctx, excForm.content, 60, 110, width - 120, 38, height - 205);
 
       ctx.fillStyle = themeColors.textSoft;
       ctx.font = '16px "Noto Serif SC", "Songti SC", serif';
       ctx.textAlign = 'right';
-      const authorY = endY + 15 > canvas.height - 180 ? canvas.height - 170 : endY + 15;
-      ctx.fillText(`— ${excForm.author}`, canvas.width - 60, authorY);
+      const authorY = endY + 15 > height - 180 ? height - 170 : endY + 15;
+      ctx.fillText(`— ${excForm.author}`, width - 60, authorY);
       if (excForm.source) {
         ctx.fillStyle = themeColors.textFaint;
         ctx.font = 'italic 14px "Noto Serif SC", "Songti SC", serif';
-        ctx.fillText(excForm.source, canvas.width - 60, authorY + 22);
+        ctx.fillText(excForm.source, width - 60, authorY + 22);
       }
 
       if (excForm.comment) {
-        const commentStartY = canvas.height - 110;
+        const commentStartY = height - 110;
         ctx.strokeStyle = themeColors.line;
         ctx.lineWidth = 1;
         ctx.setLineDash([4, 4]);
         ctx.beginPath();
         ctx.moveTo(60, commentStartY);
-        ctx.lineTo(canvas.width - 60, commentStartY);
+        ctx.lineTo(width - 60, commentStartY);
         ctx.stroke();
         ctx.setLineDash([]);
 
@@ -228,21 +226,13 @@ ${excForm.content}
 
         ctx.fillStyle = themeColors.textSoft;
         ctx.font = '14px "Noto Serif SC", "Songti SC", serif';
-        drawWrappedText(
-          ctx,
-          excForm.comment,
-          60,
-          commentStartY + 35,
-          canvas.width - 120,
-          22,
-          canvas.height - 50,
-        );
+        drawWrappedText(ctx, excForm.comment, 60, commentStartY + 35, width - 120, 22, height - 50);
       }
     }
 
     const url = canvas.toDataURL('image/png');
     const link = document.createElement('a');
-    link.download = `newmaybe-card-${cardType}-${cardTheme}.png`;
+    link.download = `newmaybe-card-${cardType}-${cardTheme}-${scale}x.png`;
     link.href = url;
     link.click();
 
@@ -430,7 +420,27 @@ ${excForm.content}
             </div>
           )}
 
-          <div className="flex flex-col gap-2 mt-2">
+          <div className="flex flex-col gap-2.5 mt-2">
+            <div className="flex items-center justify-between text-xs text-[var(--ink-soft)] px-1">
+              <span>导出清晰度：</span>
+              <div className="flex gap-1 bg-[var(--paper)] border border-[var(--line)] rounded p-0.5">
+                {([1, 2, 3] as const).map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setExportScale(s)}
+                    className={`px-2 py-0.5 rounded text-xs transition-all cursor-pointer ${
+                      exportScale === s
+                        ? 'bg-[var(--ochre)] text-[var(--paper)] font-medium shadow-xs'
+                        : 'text-[var(--ink-soft)] hover:text-[var(--ink)]'
+                    }`}
+                  >
+                    {s}x {s === 1 ? '标准' : s === 2 ? '超清' : '印刷'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <button
               onClick={handleExportMarkdown}
               className="w-full bg-[var(--paper)] hover:bg-[var(--paper-deep)] border border-[var(--line)] text-[var(--ink-soft)] py-3 px-4 rounded font-medium text-sm transition-all hover:scale-[1.01] active:scale-[0.99] shadow-sm hover:shadow cursor-pointer"
@@ -441,7 +451,9 @@ ${excForm.content}
               onClick={handleDownloadCard}
               className="w-full bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] text-[var(--paper)] py-3 px-4 rounded font-medium text-sm transition-all hover:scale-[1.01] active:scale-[0.99] shadow-sm hover:shadow cursor-pointer"
             >
-              {imageExportSuccess ? '图片已下载！✔' : '导出卡片图片 (PNG)'}
+              {imageExportSuccess
+                ? '图片已下载！✔'
+                : `导出卡片图片 (${exportScale}x ${exportScale === 1 ? '标准' : exportScale === 2 ? '超清' : '印刷级'} PNG)`}
             </button>
           </div>
         </div>

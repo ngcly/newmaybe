@@ -14,6 +14,10 @@
   --line: #d9cfbf; /* 细线 */
   --watermark-opacity: 0.032;
 
+  /* 毛玻璃半透变量 */
+  --paper-blur: rgba(247, 243, 236, 0.85);
+  --paper-deep-blur: rgba(239, 233, 222, 0.88);
+
   /* 物理阴影变量 */
   --shadow-paper: 0 4px 20px rgba(43, 39, 34, 0.015), 0 12px 40px rgba(43, 39, 34, 0.025);
   --shadow-paper-hover: 0 6px 28px rgba(43, 39, 34, 0.025), 0 18px 56px rgba(43, 39, 34, 0.045);
@@ -41,6 +45,8 @@
     --ochre-deep: #a8643c;
     --line: #3a3430;
     --watermark-opacity: 0.045;
+    --paper-blur: rgba(30, 27, 24, 0.85);
+    --paper-deep-blur: rgba(38, 35, 32, 0.88);
 
     --shadow-paper: 0 4px 20px rgba(0, 0, 0, 0.18), 0 12px 40px rgba(0, 0, 0, 0.28);
     --shadow-paper-hover: 0 6px 28px rgba(0, 0, 0, 0.25), 0 18px 56px rgba(0, 0, 0, 0.38);
@@ -63,6 +69,8 @@
   --ochre-deep: #a8643c;
   --line: #3a3430;
   --watermark-opacity: 0.045;
+  --paper-blur: rgba(30, 27, 24, 0.85);
+  --paper-deep-blur: rgba(38, 35, 32, 0.88);
 
   --shadow-paper: 0 4px 20px rgba(0, 0, 0, 0.18), 0 12px 40px rgba(0, 0, 0, 0.28);
   --shadow-paper-hover: 0 6px 28px rgba(0, 0, 0, 0.25), 0 18px 56px rgba(0, 0, 0, 0.38);

@@ -22,6 +22,12 @@ interface Window {
   _onScrollReadingBar?: () => void;
   /** Search overlay Cmd+K keydown handler (Search.astro). */
   _searchKeydownHandler?: (e: KeyboardEvent) => void;
+  /** Table of Contents active heading scroll handler (writing/[slug].astro). */
+  _onScrollToc?: () => void;
+  /** Reading bookmark scroll handler (writing/[slug].astro). */
+  _onScrollReadingBookmark?: () => void;
+  /** Font scale toggle click handler (writing/[slug].astro). */
+  _handleFontScaleClick?: (e: MouseEvent) => void;
 }
 
 interface Document {

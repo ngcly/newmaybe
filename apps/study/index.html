@@ -9,6 +9,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#f7f3ec" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1e1b18" media="(prefers-color-scheme: dark)" />
 
     <title>林下书房 · 为古风写作而读</title>
     <meta
@@ -45,14 +48,32 @@
       rel="stylesheet"
     />
     <script>
-      try {
-        if (localStorage.getItem('linxia:theme') === 'dark')
-          document.documentElement.classList.add('dark');
-      } catch (e) {}
+      (function () {
+        try {
+          const match = document.cookie.match(/(?:^|;\s*)theme=(dark|light)/);
+          const cookieTheme = match ? match[1] : null;
+          const theme =
+            cookieTheme ||
+            localStorage.getItem('linxia:theme') ||
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
     </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator && !window.location.hostname.includes('localhost')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>

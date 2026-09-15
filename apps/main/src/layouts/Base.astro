@@ -180,7 +180,7 @@ const isActive = (href: string) => {
   </head>
 
   <body>
-    <header id="hdr">
+    <header id="hdr" data-pagefind-ignore="all">
       <nav>
         <a href="/" class="logo">{SITE.title}<span class="dot">.</span></a>
         <ul class="nav-links">
@@ -442,7 +442,7 @@ const isActive = (href: string) => {
       </nav>
     </header>
 
-    <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <div class="mobile-menu" id="mobileMenu" aria-hidden="true" data-pagefind-ignore="all">
       <div class="mobile-overlay" id="mobileOverlay"></div>
       <div class="mobile-drawer">
         <div class="drawer-head">
@@ -513,11 +513,11 @@ const isActive = (href: string) => {
       </div>
     </div>
 
-    <main>
+    <main data-pagefind-body>
       <slot />
     </main>
 
-    <footer>
+    <footer data-pagefind-ignore="all">
       <div class="wrap">
         <div class="foot-colophon reveal">
           <div class="foot-seal" aria-hidden="true">✦</div>

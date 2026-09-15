@@ -194,6 +194,24 @@ export default function Reader() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [bookId, num, data, total, writingMode, zenMode, showSettingsDrawer, navigate]);
 
+  // 竖排模式下桌面端鼠标滚轮横向平滑翻卷支持
+  useEffect(() => {
+    if (writingMode !== 'vertical') return;
+    const el = verticalScrollRef.current;
+    if (!el) return;
+
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaY !== 0 && Math.abs(e.deltaY) >= Math.abs(e.deltaX)) {
+        // 自右向左古籍翻卷：向下滚动 deltaY > 0 往左翻（查看后续篇章内容）
+        el.scrollBy({ left: -e.deltaY, behavior: 'auto' });
+        e.preventDefault();
+      }
+    };
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, [writingMode, data]);
+
   if (!book) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center text-muted-foreground">
