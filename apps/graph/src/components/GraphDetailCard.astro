@@ -1,0 +1,27 @@
+---
+// 选定节点/连线时的浮动详情卡片及跨域操作按钮
+---
+
+<div id="detail-card" class="detail-card">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <div id="detail-type" class="detail-type">Note</div>
+    <button
+      id="btn-delete-selected"
+      style="display: none; background: none; border: none; color: var(--ochre); font-size: 0.72rem; cursor: pointer; font-weight: 500; font-family: var(--serif-cn);"
+      >[删除节点]</button
+    >
+    <button
+      id="btn-delete-link"
+      style="display: none; background: none; border: none; color: var(--ochre); font-size: 0.72rem; cursor: pointer; font-weight: 500; font-family: var(--serif-cn);"
+      >[断开连线]</button
+    >
+  </div>
+  <div id="detail-title" class="detail-title">想法的生成</div>
+  <div id="detail-tip" class="detail-tip">双击该圆点跳转主域查看全文 ↗</div>
+
+  <!-- 跨域生成联动 -->
+  <div id="detail-cross-actions" class="detail-cross-actions">
+    <button id="btn-send-to-tools" class="cross-action-btn">✨ 发送至卡片加工厂</button>
+    <button id="btn-send-to-studio" class="cross-action-btn">🎨 发送至海报工作室</button>
+  </div>
+</div>

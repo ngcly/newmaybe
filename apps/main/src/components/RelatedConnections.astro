@@ -1,0 +1,26 @@
+---
+import { connUrl, connTitle, COLL_LABEL, type ResolvedConnection } from '../lib/connections';
+
+interface Props {
+  connections: ResolvedConnection[];
+}
+
+const { connections } = Astro.props;
+---
+
+{
+  connections.length > 0 && (
+    <aside class="related reveal">
+      <div class="related-title">延伸阅读与关联</div>
+      <div class="related-list">
+        {connections.map((c) => (
+          <a href={connUrl(c)} class="related-item">
+            <span class="related-type">{COLL_LABEL[c.collection]}</span>
+            <span class="related-name">{connTitle(c)}</span>
+            <span class="related-arrow">→</span>
+          </a>
+        ))}
+      </div>
+    </aside>
+  )
+}

@@ -1,0 +1,21 @@
+---
+interface Props {
+  postId: string;
+}
+
+const { postId } = Astro.props;
+---
+
+<aside
+  id="resume-toast"
+  class="resume-toast"
+  role="status"
+  aria-live="polite"
+  data-post-id={postId}
+>
+  <span class="resume-text">
+    上次读到 <strong id="resume-pct" class="resume-pct">0%</strong>
+  </span>
+  <button type="button" class="resume-btn" id="resumeBtn">续读</button>
+  <button type="button" class="resume-close" id="resumeClose" aria-label="关闭提示">×</button>
+</aside>

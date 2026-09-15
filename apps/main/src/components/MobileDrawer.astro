@@ -1,0 +1,87 @@
+---
+import { SITE, NAV, resolveSubdomain } from '../config';
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+
+const isActive = (href: string) => {
+  if (href === '/') return currentPath === '/' || currentPath === '';
+  const pathPart = currentPath.endsWith('/') ? currentPath.slice(0, -1) : currentPath;
+  const hrefPart = href.endsWith('/') ? href.slice(0, -1) : href;
+  return pathPart === hrefPart || pathPart.startsWith(hrefPart + '/');
+};
+---
+
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true" data-pagefind-ignore="all">
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+  <div class="mobile-drawer">
+    <div class="drawer-head">
+      <a href="/" class="drawer-logo">{SITE.title}<span class="dot">.</span></a>
+    </div>
+    <nav class="drawer-links">
+      {
+        NAV.map((item, i) => (
+          <a href={item.href} class={isActive(item.href) ? 'active' : ''}>
+            <span class="drawer-idx">{String(i + 1).padStart(2, '0')}</span>
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="drawer-eco">
+      <div class="drawer-eco-title">数字生态 · 独立子空间</div>
+      <div class="drawer-eco-grid">
+        <a
+          href={resolveSubdomain('https://graph.newmaybe.com')}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          思维图谱 ↗
+        </a>
+        <a
+          href={resolveSubdomain('https://ai.newmaybe.com')}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          AI 园丁 ↗
+        </a>
+        <a
+          href={resolveSubdomain('https://study.newmaybe.com')}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          林下书房 ↗
+        </a>
+        <a
+          href={resolveSubdomain('https://tools.newmaybe.com')}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          排版工具 ↗
+        </a>
+        <a
+          href={resolveSubdomain('https://studio.newmaybe.com')}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          创意工坊 ↗
+        </a>
+        <a
+          href={resolveSubdomain('https://lab.newmaybe.com')}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          实验室 ↗
+        </a>
+      </div>
+    </div>
+
+    <div class="drawer-foot">
+      <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { BOOK_MAP } from '@/data/catalog';
 import { loadChapter, loadIndex, type ChapterData } from '@/lib/texts';
 import { markChapterRead, isChapterRead } from '@/lib/store';
@@ -17,84 +17,11 @@ import {
   getZenMode,
   setZenMode as saveZenMode,
 } from '@/lib/theme';
-import {
-  ChevronLeft,
-  ChevronRight,
-  List,
-  Minus,
-  Plus,
-  Check,
-  SlidersHorizontal,
-  Eye,
-  EyeOff,
-  Maximize2,
-  Minimize2,
-  X,
-} from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-
-function ReaderSkeleton() {
-  return (
-    <div className="py-6 space-y-8 animate-pulse">
-      <div className="flex flex-col items-center space-y-3 mb-10">
-        <Skeleton className="h-4 w-32 bg-muted/60" />
-        <Skeleton className="h-8 w-64 bg-muted/80" />
-        <div className="mt-4 flex items-center justify-center gap-2">
-          <span className="h-px w-12 bg-cinnabar/30" />
-          <span className="w-1.5 h-1.5 rotate-45 bg-cinnabar/40" />
-          <span className="h-px w-12 bg-cinnabar/30" />
-        </div>
-      </div>
-      <div className="space-y-4 max-w-2xl mx-auto">
-        <Skeleton className="h-5 w-[92%] bg-muted/50" />
-        <Skeleton className="h-5 w-[98%] bg-muted/50" />
-        <Skeleton className="h-5 w-[85%] bg-muted/50" />
-        <Skeleton className="h-5 w-[95%] bg-muted/50" />
-        <Skeleton className="h-5 w-[76%] bg-muted/50" />
-        <div className="py-2" />
-        <Skeleton className="h-5 w-[90%] bg-muted/50" />
-        <Skeleton className="h-5 w-[96%] bg-muted/50" />
-        <Skeleton className="h-5 w-[88%] bg-muted/50" />
-      </div>
-    </div>
-  );
-}
-
-function notify() {
-  window.dispatchEvent(new Event('linxia:update'));
-}
-
-// 谱式行（平仄谱、符号谱）识别：谱式符号占绝对多数的行
-function isPatternLine(s: string): boolean {
-  if (s === '‖') return true;
-  const pz = (s.match(/[○平仄＋－｜＝＄‖]/g) || []).length;
-  if (pz < 4) return false;
-  const rest = s.replace(/[○平仄＋－｜＝＄‖\s，。、．·,（）()]/g, '');
-  return pz >= rest.length * 1.5;
-}
-
-function paraClass(s: string): string {
-  if (s === '—— 注释 ——') return 'reader-divider';
-  if (isPatternLine(s)) return 'reader-pattern';
-  return '';
-}
-
-// 解析并高亮朱砂夹批/括号注释
-function renderAnnotatedText(text: string) {
-  const regex = /(（[^）]+）|\([^)]+\))/g;
-  const parts = text.split(regex);
-  if (parts.length === 1) return text;
-  return parts.map((part, i) => {
-    if (regex.test(part)) {
-      return (
-        <span key={i} className="cinnabar-annotation">
-          {part}
-        </span>
-      );
-    }
-    return part;
-  });
-}
+import { ChevronLeft, ChevronRight, Minimize2 } from 'lucide-react';
+import { ReaderSkeleton } from '@/components/ReaderSkeleton';
+import { ReaderSettingsDrawer } from '@/components/ReaderSettingsDrawer';
+import { ReaderToolbar } from '@/components/ReaderToolbar';
+import { notify, paraClass, renderAnnotatedText } from '@/lib/reader-utils';
 
 export default function Reader() {
   const { bookId = '', n = '0' } = useParams();
@@ -257,6 +184,14 @@ export default function Reader() {
     saveZenMode(next);
   };
 
+  const toggleDone = () => {
+    if (!data || error || total === 0 || num >= total) return;
+    const next = !done;
+    setDone(next);
+    markChapterRead(bookId, num, next);
+    notify();
+  };
+
   return (
     <div ref={bodyRef} className={`relative min-h-screen ${zenMode ? 'zen-active' : ''}`}>
       {/* 顶部进度条 */}
@@ -281,322 +216,56 @@ export default function Reader() {
 
       <div className={`mx-auto max-w-3xl px-4 ${zenMode ? 'py-6 md:py-12' : 'py-6 md:py-8'}`}>
         {/* 控制工具栏 */}
-        {!zenMode && (
-          <div className="flex items-center justify-between mb-8 pb-3 border-b gap-2">
-            <Link
-              to={`/book/${bookId}`}
-              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-cinnabar transition-colors shrink-0"
-            >
-              <List className="w-4 h-4" /> <span className="hidden sm:inline">目录</span>
-            </Link>
-
-            {/* 中间章节标头（移动端可见） */}
-            <span className="text-xs text-muted-foreground truncate max-w-[140px] sm:max-w-[220px] font-medium text-center">
-              {book.title} · {num + 1}
-              {total ? `/${total}` : ''}
-            </span>
-
-            {/* 桌面端平铺工具条 */}
-            <div className="hidden md:flex items-center gap-2.5">
-              {/* 竖排 / 横排 切换 */}
-              <button
-                onClick={toggleWritingMode}
-                className="px-2.5 py-1.5 rounded-md border text-xs hover:border-cinnabar/50 hover:text-cinnabar transition-colors"
-              >
-                {writingMode === 'horizontal' ? '切换竖排' : '切换横排'}
-              </button>
-
-              {/* 字体切换 */}
-              <div className="flex items-center border rounded-md overflow-hidden bg-surface">
-                <button
-                  onClick={() => {
-                    setFontFam('song');
-                    setReaderFont('song');
-                  }}
-                  className={`px-2.5 py-1 text-xs transition-colors border-r ${
-                    fontFam === 'song'
-                      ? 'bg-secondary font-semibold text-foreground'
-                      : 'text-muted-foreground hover:bg-secondary/30'
-                  }`}
-                >
-                  宋体
-                </button>
-                <button
-                  onClick={() => {
-                    setFontFam('kai');
-                    setReaderFont('kai');
-                  }}
-                  className={`px-2.5 py-1 text-xs transition-colors ${
-                    fontFam === 'kai'
-                      ? 'bg-secondary font-semibold text-foreground'
-                      : 'text-muted-foreground hover:bg-secondary/30'
-                  }`}
-                >
-                  楷体
-                </button>
-              </div>
-
-              {/* 字号缩放 */}
-              <div className="flex items-center border rounded-md overflow-hidden bg-surface">
-                <button
-                  onClick={() => {
-                    const next = Math.max(14, fontSize - 1);
-                    setFontSize(next);
-                    saveFontSize(next);
-                  }}
-                  className="p-1.5 hover:bg-secondary/30 text-muted-foreground"
-                  aria-label="缩小字号"
-                >
-                  <Minus className="w-3.5 h-3.5" />
-                </button>
-                <span className="px-2 text-xs border-x select-none">{fontSize}</span>
-                <button
-                  onClick={() => {
-                    const next = Math.min(26, fontSize + 1);
-                    setFontSize(next);
-                    saveFontSize(next);
-                  }}
-                  className="p-1.5 hover:bg-secondary/30 text-muted-foreground"
-                  aria-label="放大字号"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* 夹注开关 */}
-              <button
-                onClick={toggleAnnotation}
-                className={`p-1.5 rounded-md border text-xs transition-colors ${
-                  showAnnotation
-                    ? 'text-foreground/80 hover:border-cinnabar/40'
-                    : 'text-muted-foreground bg-secondary/40'
-                }`}
-                title={showAnnotation ? '点击隐藏夹注' : '点击显示夹注'}
-                aria-label="夹注开关"
-              >
-                {showAnnotation ? (
-                  <Eye className="w-3.5 h-3.5" />
-                ) : (
-                  <EyeOff className="w-3.5 h-3.5" />
-                )}
-              </button>
-
-              {/* 专注模式 */}
-              <button
-                onClick={toggleZen}
-                className="p-1.5 rounded-md border text-xs text-foreground/80 hover:border-cinnabar/40 transition-colors"
-                title="进入禅定专注阅读 (Esc 退出)"
-                aria-label="专注模式"
-              >
-                <Maximize2 className="w-3.5 h-3.5" />
-              </button>
-
-              {/* 标记已读 */}
-              <button
-                disabled={!data || error || total === 0 || num >= total}
-                onClick={() => {
-                  if (!data || error || total === 0 || num >= total) return;
-                  const next = !done;
-                  setDone(next);
-                  markChapterRead(bookId, num, next);
-                  notify();
-                }}
-                className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs border transition-colors ${
-                  done
-                    ? 'bg-cinnabar/10 text-cinnabar border-cinnabar/20'
-                    : 'bg-surface hover:border-cinnabar/40'
-                }`}
-              >
-                <Check className="w-3.5 h-3.5" />
-                {done ? '已读' : '标记已读'}
-              </button>
-            </div>
-
-            {/* 移动端右侧快捷区 */}
-            <div className="flex md:hidden items-center gap-1.5">
-              <button
-                disabled={!data || error || total === 0 || num >= total}
-                onClick={() => {
-                  if (!data || error || total === 0 || num >= total) return;
-                  const next = !done;
-                  setDone(next);
-                  markChapterRead(bookId, num, next);
-                  notify();
-                }}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs border transition-colors ${
-                  done
-                    ? 'bg-cinnabar/10 text-cinnabar border-cinnabar/20'
-                    : 'bg-surface hover:border-cinnabar/40'
-                }`}
-              >
-                <Check className="w-3 h-3" />
-                {done ? '已读' : '已读'}
-              </button>
-
-              <button
-                onClick={() => setShowSettingsDrawer(true)}
-                className="p-1.5 rounded-md border bg-surface hover:border-cinnabar/50 text-foreground/80 transition-colors"
-                aria-label="打开排版设置"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
+        <ReaderToolbar
+          bookId={bookId}
+          bookTitle={book.title}
+          num={num}
+          total={total}
+          zenMode={zenMode}
+          writingMode={writingMode}
+          onToggleWritingMode={toggleWritingMode}
+          fontFam={fontFam}
+          onFontFamChange={(f) => {
+            setFontFam(f);
+            setReaderFont(f);
+          }}
+          fontSize={fontSize}
+          onFontSizeChange={(s) => {
+            setFontSize(s);
+            saveFontSize(s);
+          }}
+          showAnnotation={showAnnotation}
+          onToggleAnnotation={toggleAnnotation}
+          onToggleZen={toggleZen}
+          done={done}
+          onToggleDone={toggleDone}
+          canMarkRead={Boolean(data && !error && total > 0 && num < total)}
+          onOpenSettings={() => setShowSettingsDrawer(true)}
+        />
 
         {/* 移动端排版设置底部抽屉 */}
-        {showSettingsDrawer && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm">
-            <div className="fixed inset-0" onClick={() => setShowSettingsDrawer(false)} />
-            <div className="relative w-full max-w-lg bg-surface border-t rounded-t-2xl p-6 shadow-2xl space-y-5 z-10">
-              <div className="flex items-center justify-between border-b pb-3">
-                <h3 className="font-semibold text-base flex items-center gap-2">
-                  <SlidersHorizontal className="w-4 h-4 text-cinnabar" /> 排版与阅读偏好
-                </h3>
-                <button
-                  onClick={() => setShowSettingsDrawer(false)}
-                  className="p-1 rounded-full text-muted-foreground hover:text-foreground"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* 版式与字体 */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-muted-foreground block mb-1.5">排版方向</label>
-                  <div className="grid grid-cols-2 gap-1 border rounded-lg p-1 bg-paper">
-                    <button
-                      onClick={() => {
-                        setWritingModeState('horizontal');
-                        setWritingMode('horizontal');
-                      }}
-                      className={`py-1.5 text-xs rounded transition-colors ${
-                        writingMode === 'horizontal'
-                          ? 'bg-surface font-semibold text-cinnabar shadow-xs'
-                          : 'text-muted-foreground'
-                      }`}
-                    >
-                      横排
-                    </button>
-                    <button
-                      onClick={() => {
-                        setWritingModeState('vertical');
-                        setWritingMode('vertical');
-                      }}
-                      className={`py-1.5 text-xs rounded transition-colors ${
-                        writingMode === 'vertical'
-                          ? 'bg-surface font-semibold text-cinnabar shadow-xs'
-                          : 'text-muted-foreground'
-                      }`}
-                    >
-                      竖排
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs text-muted-foreground block mb-1.5">字体选择</label>
-                  <div className="grid grid-cols-2 gap-1 border rounded-lg p-1 bg-paper">
-                    <button
-                      onClick={() => {
-                        setFontFam('song');
-                        setReaderFont('song');
-                      }}
-                      className={`py-1.5 text-xs rounded transition-colors ${
-                        fontFam === 'song'
-                          ? 'bg-surface font-semibold text-cinnabar shadow-xs'
-                          : 'text-muted-foreground'
-                      }`}
-                    >
-                      宋体
-                    </button>
-                    <button
-                      onClick={() => {
-                        setFontFam('kai');
-                        setReaderFont('kai');
-                      }}
-                      className={`py-1.5 text-xs rounded transition-colors ${
-                        fontFam === 'kai'
-                          ? 'bg-surface font-semibold text-cinnabar shadow-xs'
-                          : 'text-muted-foreground'
-                      }`}
-                    >
-                      楷体
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* 字号调节 */}
-              <div>
-                <label className="text-xs text-muted-foreground block mb-1.5">
-                  字号大小 ({fontSize}px)
-                </label>
-                <div className="flex items-center gap-3 border rounded-lg p-2 bg-paper">
-                  <button
-                    onClick={() => {
-                      const next = Math.max(14, fontSize - 1);
-                      setFontSize(next);
-                      saveFontSize(next);
-                    }}
-                    className="p-1.5 rounded bg-surface border hover:border-cinnabar/40 text-sm font-semibold"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <input
-                    type="range"
-                    min={14}
-                    max={26}
-                    step={1}
-                    value={fontSize}
-                    onChange={(e) => {
-                      const next = Number(e.target.value);
-                      setFontSize(next);
-                      saveFontSize(next);
-                    }}
-                    className="flex-1 accent-cinnabar cursor-pointer"
-                  />
-                  <button
-                    onClick={() => {
-                      const next = Math.min(26, fontSize + 1);
-                      setFontSize(next);
-                      saveFontSize(next);
-                    }}
-                    className="p-1.5 rounded bg-surface border hover:border-cinnabar/40 text-sm font-semibold"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* 夹注开关与禅定模式 */}
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                <button
-                  onClick={toggleAnnotation}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded-lg border text-xs transition-colors ${
-                    showAnnotation
-                      ? 'bg-cinnabar/5 border-cinnabar/30 text-cinnabar font-medium'
-                      : 'bg-paper text-muted-foreground'
-                  }`}
-                >
-                  {showAnnotation ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                  {showAnnotation ? '夹注：已开启' : '夹注：已隐藏'}
-                </button>
-
-                <button
-                  onClick={() => {
-                    setShowSettingsDrawer(false);
-                    toggleZen();
-                  }}
-                  className="flex items-center justify-center gap-2 py-2.5 rounded-lg border bg-paper text-xs hover:border-cinnabar/40 font-medium transition-colors"
-                >
-                  <Maximize2 className="w-4 h-4" /> 禅定专注模式
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ReaderSettingsDrawer
+          isOpen={showSettingsDrawer}
+          onClose={() => setShowSettingsDrawer(false)}
+          writingMode={writingMode}
+          onWritingModeChange={(mode) => {
+            setWritingModeState(mode);
+            setWritingMode(mode);
+          }}
+          fontFam={fontFam}
+          onFontFamChange={(font) => {
+            setFontFam(font);
+            setReaderFont(font);
+          }}
+          fontSize={fontSize}
+          onFontSizeChange={(size) => {
+            setFontSize(size);
+            saveFontSize(size);
+          }}
+          showAnnotation={showAnnotation}
+          onToggleAnnotation={toggleAnnotation}
+          onToggleZen={toggleZen}
+        />
 
         {error && (
           <div className="py-20 text-center text-destructive">加载失败，请检查网络或刷新重试。</div>

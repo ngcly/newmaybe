@@ -1,0 +1,60 @@
+---
+import { SITE, NAV } from '../config';
+
+interface Props {
+  epigraph?: string;
+  year: number;
+}
+
+const { epigraph, year } = Astro.props;
+---
+
+<footer data-pagefind-ignore="all">
+  <div class="wrap">
+    <div class="foot-colophon reveal">
+      <div class="foot-seal" aria-hidden="true">✦</div>
+
+      {
+        epigraph && (
+          <div class="foot-epigraph">
+            <p>“{epigraph}”</p>
+          </div>
+        )
+      }
+
+      <div class="foot-brand">
+        <span class="foot-brand-title">{SITE.title}<span class="dot">.</span></span>
+      </div>
+
+      <nav class="foot-nav-line" aria-label="页尾导航">
+        {
+          NAV.map((item) => (
+            <>
+              <a href={item.href} class="foot-link">
+                {item.label}
+              </a>
+              <span class="foot-divider" aria-hidden="true">
+                ·
+              </span>
+            </>
+          ))
+        }
+        <a href="/#ecosystem" class="foot-link foot-eco">
+          数字生态 <span class="arrow">→</span>
+        </a>
+        <span class="foot-divider" aria-hidden="true">·</span>
+        <a href="/rss.xml" class="foot-link">RSS</a>
+        <span class="foot-divider" aria-hidden="true">·</span>
+        <a href={`mailto:${SITE.email}`} class="foot-link">联络</a>
+      </nav>
+
+      <div class="foot-colophon-base">
+        <span>© {year} {SITE.url.replace('https://', '')}</span>
+        <span class="foot-sep">·</span>
+        <span>以 Astro 构筑，栖于 Cloudflare</span>
+        <span class="foot-sep">·</span>
+        <span class="foot-slowly">Made slowly.</span>
+      </div>
+    </div>
+  </div>
+</footer>

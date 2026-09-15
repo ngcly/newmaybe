@@ -1,0 +1,276 @@
+---
+import { SITE, NAV, resolveSubdomain } from '../config';
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+
+const isActive = (href: string) => {
+  if (href === '/') return currentPath === '/' || currentPath === '';
+  const pathPart = currentPath.endsWith('/') ? currentPath.slice(0, -1) : currentPath;
+  const hrefPart = href.endsWith('/') ? href.slice(0, -1) : href;
+  return pathPart === hrefPart || pathPart.startsWith(hrefPart + '/');
+};
+---
+
+<header id="hdr" data-pagefind-ignore="all">
+  <nav>
+    <a href="/" class="logo">{SITE.title}<span class="dot">.</span></a>
+    <ul class="nav-links">
+      {
+        NAV.map((item) => (
+          <li>
+            <a href={item.href} class={isActive(item.href) ? 'active' : ''}>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+      <li class="nav-eco-li">
+        <button
+          class="nav-eco-trigger"
+          id="ecoNavTrigger"
+          aria-label="探索数字生态"
+          aria-expanded="false"
+          type="button"
+        >
+          <span>生态</span>
+          <svg
+            class="eco-caret"
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="m6 9 6 6 6-6"></path>
+          </svg>
+        </button>
+        <div class="eco-dropdown" id="ecoDropdown" aria-hidden="true">
+          <div class="eco-dropdown-header">
+            <span class="eco-dropdown-title">数字生态 · 漫游子空间</span>
+            <span class="eco-dropdown-sub">6 Spaces</span>
+          </div>
+          <div class="eco-dropdown-grid">
+            <a
+              href={resolveSubdomain('https://graph.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="eco-item"
+            >
+              <div class="eco-item-icon">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="6" cy="6" r="3"></circle>
+                  <circle cx="18" cy="18" r="3"></circle>
+                  <circle cx="18" cy="6" r="3"></circle>
+                  <line x1="8.5" y1="7.5" x2="15.5" y2="16.5"></line>
+                  <line x1="8.5" y1="6" x2="15.5" y2="6"></line>
+                </svg>
+              </div>
+              <div class="eco-item-text">
+                <div class="eco-item-name">
+                  <span>思维图谱</span>
+                  <span class="eco-arrow-icon">↗</span>
+                </div>
+                <div class="eco-item-desc">概念经纬与网络</div>
+              </div>
+            </a>
+            <a
+              href={resolveSubdomain('https://ai.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="eco-item"
+            >
+              <div class="eco-item-icon">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 22v-9"></path>
+                  <path d="M12 13c0-4.5 3.5-7 8-7 0 4.5-2.5 8-7 8"></path>
+                  <path d="M12 17c0-3-2.5-5-6-5 0 3 2 5 6 5"></path>
+                </svg>
+              </div>
+              <div class="eco-item-text">
+                <div class="eco-item-name">
+                  <span>AI 园丁</span>
+                  <span class="eco-arrow-icon">↗</span>
+                </div>
+                <div class="eco-item-desc">数字花园与问答</div>
+              </div>
+            </a>
+            <a
+              href={resolveSubdomain('https://study.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="eco-item"
+            >
+              <div class="eco-item-icon">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+                  <path d="M6 6h10"></path>
+                  <path d="M6 10h10"></path>
+                </svg>
+              </div>
+              <div class="eco-item-text">
+                <div class="eco-item-name">
+                  <span>林下书房</span>
+                  <span class="eco-arrow-icon">↗</span>
+                </div>
+                <div class="eco-item-desc">古籍研习与写读</div>
+              </div>
+            </a>
+            <a
+              href={resolveSubdomain('https://tools.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="eco-item"
+            >
+              <div class="eco-item-icon">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m18 2 4 4-14 14H4v-4L18 2z"></path>
+                  <path d="m14.5 5.5 4 4"></path>
+                </svg>
+              </div>
+              <div class="eco-item-text">
+                <div class="eco-item-name">
+                  <span>排版工具</span>
+                  <span class="eco-arrow-icon">↗</span>
+                </div>
+                <div class="eco-item-desc">诗文与金句卡片</div>
+              </div>
+            </a>
+            <a
+              href={resolveSubdomain('https://studio.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="eco-item"
+            >
+              <div class="eco-item-icon">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
+                  <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
+                  <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle>
+                  <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle>
+                  <path
+                    d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"
+                  ></path>
+                </svg>
+              </div>
+              <div class="eco-item-text">
+                <div class="eco-item-name">
+                  <span>创意工坊</span>
+                  <span class="eco-arrow-icon">↗</span>
+                </div>
+                <div class="eco-item-desc">灵感记录与画布</div>
+              </div>
+            </a>
+            <a
+              href={resolveSubdomain('https://lab.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="eco-item"
+            >
+              <div class="eco-item-icon">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M10 2v7.31a2 2 0 0 1-.37 1.17l-4.26 6.39A2 2 0 0 0 7 20h10a2 2 0 0 0 1.63-3.13l-4.26-6.39A2 2 0 0 1 14 9.31V2"
+                  ></path>
+                  <path d="M8.5 2h7"></path>
+                  <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
+                </svg>
+              </div>
+              <div class="eco-item-text">
+                <div class="eco-item-name">
+                  <span>实验室</span>
+                  <span class="eco-arrow-icon">↗</span>
+                </div>
+                <div class="eco-item-desc">图形感知与声色</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </li>
+    </ul>
+
+    <button class="search-nav-btn" id="search-nav-trigger" aria-label="搜索" title="搜索 (⌘K)">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="search-nav-icon"
+      >
+        <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <kbd class="kbd-chip">⌘K</kbd>
+    </button>
+    <button class="theme-toggle" id="themeToggle" aria-label="切换主题" title="切换主题">
+      <span class="mode-icon"></span>
+    </button>
+    <button class="menu-btn" aria-label="菜单" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+</header>

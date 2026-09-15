@@ -1,0 +1,758 @@
+.article {
+  padding: 4rem 0 2rem;
+}
+.article-head {
+  max-width: 65ch;
+  margin: 0 auto 3.5rem;
+  text-align: center;
+}
+.back {
+  display: inline-block;
+  font-family: var(--serif-en);
+  font-style: italic;
+  color: var(--ink-faint);
+  text-decoration: none;
+  font-size: 1rem;
+  margin-bottom: 2.5rem;
+  letter-spacing: 0.03em;
+  transition: color 0.3s;
+}
+.back:hover {
+  color: var(--ochre);
+}
+.layout-toggle-minimal {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--serif-cn);
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 1.5rem;
+  transition: color 0.3s;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+.layout-toggle-minimal .opt {
+  transition:
+    color 0.3s,
+    font-weight 0.3s;
+  padding: 0 0.25rem;
+}
+.layout-toggle-minimal:not(.is-vertical) .opt-horiz,
+.layout-toggle-minimal.is-vertical .opt-vert {
+  color: var(--ochre);
+  font-weight: 500;
+}
+.layout-toggle-minimal .opt:hover {
+  color: var(--ink);
+}
+.layout-toggle-minimal .divider {
+  color: var(--line);
+  margin: 0 0.1rem;
+}
+.layout-toggle-minimal .label {
+  margin-right: 0.1rem;
+}
+.cat {
+  display: block;
+  font-family: var(--serif-en);
+  font-style: italic;
+  color: var(--ochre);
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+}
+.article-head h1 {
+  font-weight: 500;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.25;
+  color: var(--ink);
+  margin-bottom: 1.4rem;
+}
+.meta {
+  color: var(--ink-faint);
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+.meta time {
+  font-family: var(--serif-en);
+  font-style: italic;
+}
+
+/* 正文排版 —— 文艺向：窄栏、宽行高、首字微调 */
+.prose {
+  max-width: 65ch;
+  margin: 0 auto;
+}
+.prose p {
+  font-size: 1.12rem;
+  line-height: 2;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  margin-bottom: 1.6rem;
+  font-weight: 300;
+}
+.prose h2 {
+  font-family: var(--serif-cn);
+  font-weight: 500;
+  font-size: 1.6rem;
+  color: var(--ink);
+  margin: 3rem 0 1.2rem;
+}
+.prose h3 {
+  font-weight: 500;
+  font-size: 1.3rem;
+  color: var(--ink);
+  margin: 2.4rem 0 1rem;
+}
+.prose blockquote {
+  border-left: 2px solid var(--ochre);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+  font-style: italic;
+  color: var(--ink);
+  font-size: 1.18rem;
+  line-height: 1.8;
+}
+.prose a {
+  color: var(--ochre);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+}
+.prose a:hover {
+  border-color: var(--ochre);
+}
+.prose img {
+  max-width: 100%;
+  border-radius: 2px;
+  margin: 2rem 0;
+}
+.prose code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.9em;
+  background: var(--paper-deep);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+.prose pre {
+  background: var(--paper-deep);
+  padding: 1.4rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 2rem 0;
+  border: 1px solid var(--line);
+}
+.prose pre code {
+  background: none;
+  padding: 0;
+}
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 3rem 0;
+}
+
+/* ── 诗歌专属排版 ── */
+.poem-wrap {
+  position: relative;
+  max-width: 65ch;
+  margin: 0 auto;
+}
+.watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--serif-cn);
+  font-size: 22rem;
+  color: var(--ink);
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  line-height: 1;
+  animation: ink-fade 3s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+}
+.poem-wrap .prose {
+  position: relative;
+  z-index: 1;
+  max-width: 36ch;
+  margin: 0 auto;
+}
+/* 诗行：居中、字距、实色 */
+.poem-wrap .prose p {
+  text-align: center;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  font-size: 1.15rem;
+  line-height: 2.2;
+  font-weight: 400;
+  margin-bottom: 0;
+}
+/* 节间距 */
+.poem-wrap .prose p + p {
+  margin-top: 2.6rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+/* ── 竖排版式 ── */
+.poem-wrap.vertical {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  overflow-x: auto; /* 让外层容器进行横向滚动 */
+  overflow-y: hidden;
+  scrollbar-width: none; /* 隐藏滚动条 */
+  scroll-snap-type: x mandatory; /* 逐列吸附，翻页体验 */
+  direction: rtl; /* 从右往左滚动流淌 */
+}
+.poem-wrap.vertical::-webkit-scrollbar {
+  display: none;
+}
+
+.poem-wrap.vertical .watermark {
+  writing-mode: vertical-rl;
+  font-size: 16rem;
+}
+
+.poem-wrap.vertical .prose {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  direction: rtl;
+  max-width: none; /* 解锁宽度限制，防止 WebKit 自动坍缩 */
+  width: max-content; /* 让纸张宽度根据诗歌排数自然延展，根治 Safari 挤压 Bug */
+  height: 60vh;
+  max-height: 650px;
+  overflow-x: visible; /* 外层已管理滚动，内层设为可见 */
+  overflow-y: hidden;
+
+  /* 纸张红栏线、外框与阴影全部落于 prose 容器，使其随滚动整体平移 */
+  background-image: repeating-linear-gradient(
+    -90deg,
+    transparent,
+    transparent calc(2.5rem - 1px),
+    color-mix(in srgb, var(--cinnabar) 7%, transparent) calc(2.5rem - 1px),
+    color-mix(in srgb, var(--cinnabar) 7%, transparent) 2.5rem
+  );
+  background-position: right 1.25rem top 0;
+  padding: 3rem 2rem;
+  border: 1px solid color-mix(in srgb, var(--cinnabar) 15%, transparent); /* 朱砂红外框 */
+  border-radius: 2px;
+  box-shadow: inset 0 0 40px color-mix(in srgb, var(--cinnabar) 2%, transparent);
+}
+
+:root.dark .poem-wrap.vertical .prose {
+  /* 暗色模式下由于 --cinnabar 自动切换为深色变体，微调浓度即可保持雅致格线 */
+  background-image: repeating-linear-gradient(
+    -90deg,
+    transparent,
+    transparent calc(2.5rem - 1px),
+    color-mix(in srgb, var(--cinnabar) 5%, transparent) calc(2.5rem - 1px),
+    color-mix(in srgb, var(--cinnabar) 5%, transparent) 2.5rem
+  );
+  border-color: color-mix(in srgb, var(--cinnabar) 12%, transparent);
+}
+
+.poem-wrap.vertical .prose p {
+  text-align: start;
+  letter-spacing: 0.35em; /* 竖排古典字间距偏宽 */
+  line-height: 2.5rem; /* 强制行高为 2.5rem 以对齐红格 */
+  font-size: 1.15rem;
+  margin-bottom: 0;
+  writing-mode: vertical-rl;
+  scroll-snap-align: start; /* 每段吸附为独立一"页" */
+  scroll-snap-stop: always; /* 每次滚动只跳一段 */
+  direction: ltr; /* 防止继承父级 scroll-RTL 导致的倒序自下而上流动，使文字从上往下流淌 */
+}
+
+/* 竖排下的诗节间距：腾出格线空间 */
+.poem-wrap.vertical .prose p + p {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+  margin-right: 2.5rem; /* 空出整整一列红格 */
+  padding-right: 0;
+  border-right: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .poem-wrap {
+    transition: background-image 0.4s ease;
+  }
+  .poem-wrap .prose {
+    transition:
+      writing-mode 0s,
+      max-height 0.5s ease;
+  }
+}
+
+/* ── 散文/随笔 非对称式双栏排版 ── */
+@media (min-width: 960px) {
+  .editorial-container {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 4.5rem;
+    align-items: start;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  .editorial-container .article-head {
+    position: sticky;
+    top: 5rem;
+    text-align: left;
+    margin: 0;
+    max-width: 100%;
+    border-right: 1px solid var(--line);
+    padding-right: 2.2rem;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    transition: border-color 0.5s ease;
+  }
+  .editorial-container .article-head::-webkit-scrollbar {
+    width: 3px;
+  }
+  .editorial-container .article-head::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 2px;
+  }
+  .editorial-container .article-head .back {
+    margin-bottom: 2rem;
+  }
+  .editorial-container .editorial-content {
+    min-width: 0;
+  }
+  .editorial-container .prose {
+    margin: 0;
+    max-width: 68ch;
+  }
+}
+
+/* ── 上一篇 / 下一篇 导航 ── */
+.post-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 65ch;
+  margin: 4.5rem auto 1rem;
+  padding-top: 2.2rem;
+  border-top: 1px solid var(--line);
+}
+.post-nav a {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease;
+}
+.nav-prev a {
+  align-items: flex-start;
+}
+.nav-next a {
+  align-items: flex-end;
+  text-align: right;
+}
+.post-nav .nav-label {
+  font-family: var(--serif-en);
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--ochre);
+  margin-bottom: 0.4rem;
+}
+.post-nav .nav-title {
+  font-size: 1.1rem;
+  color: var(--ink);
+  font-weight: 500;
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+.post-nav a:hover .nav-title {
+  color: var(--ochre);
+}
+.nav-prev a:hover {
+  transform: translateX(-4px);
+}
+.nav-next a:hover {
+  transform: translateX(4px);
+}
+
+@media (max-width: 680px) {
+  .watermark {
+    font-size: 14rem;
+  }
+  .poem-wrap .prose p {
+    font-size: 1.05rem;
+  }
+  .post-nav {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    text-align: left;
+  }
+  .nav-next a {
+    align-items: flex-start;
+    text-align: left;
+  }
+  .nav-next a:hover {
+    transform: translateX(-4px);
+  }
+}
+
+/* ── 延伸阅读 ── */
+.related {
+  max-width: 65ch;
+  margin: 3rem auto 0;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+.related-title {
+  font-family: var(--serif-en);
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.06em;
+  margin-bottom: 1.2rem;
+}
+.related-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.related-item {
+  display: grid;
+  grid-template-columns: 3rem 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  background: var(--paper-deep);
+  text-decoration: none;
+  transition:
+    background 0.3s ease,
+    padding-left 0.3s ease;
+}
+.related-item:hover {
+  background: var(--paper);
+  padding-left: 1.6rem;
+}
+.related-type {
+  font-family: var(--serif-en);
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--ochre);
+}
+.related-name {
+  font-size: 1rem;
+  color: var(--ink);
+  font-weight: 400;
+  transition: color 0.3s;
+}
+.related-item:hover .related-name {
+  color: var(--ochre);
+}
+.related-arrow {
+  color: var(--ink-faint);
+  font-size: 1rem;
+  transition:
+    transform 0.3s,
+    color 0.3s;
+}
+.related-item:hover .related-arrow {
+  transform: translateX(4px);
+  color: var(--ochre);
+}
+
+#reading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background: var(--ochre);
+  z-index: 200;
+  transition: width 80ms linear;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  #reading-bar {
+    transition: none;
+  }
+}
+
+.scroll-hint-poetry {
+  display: none;
+  font-family: var(--serif-cn);
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+  text-align: center;
+  margin-top: 1.8rem;
+  letter-spacing: 0.1em;
+  animation: fade-hint-po 2s infinite alternate;
+  width: 100%;
+  opacity: 0.8;
+  transition: opacity 0.5s ease;
+}
+@keyframes fade-hint-po {
+  0% {
+    opacity: 0.35;
+    transform: translateX(3px);
+  }
+  100% {
+    opacity: 0.85;
+    transform: translateX(-3px);
+  }
+}
+.poem-wrap.vertical .scroll-hint-poetry {
+  display: block;
+}
+
+:root {
+  scroll-padding-top: 5.5rem;
+}
+
+/* ── 字号调节器 ── */
+.font-scaler {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-family: var(--serif-en);
+  vertical-align: middle;
+}
+.scaler-sep {
+  color: var(--ink-faint);
+  margin: 0 0.25rem;
+}
+.scaler-btn {
+  background: transparent;
+  border: none;
+  color: var(--ink-faint);
+  font-family: var(--serif-en);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0 0.15rem;
+  line-height: 1;
+  transition:
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+.scaler-btn:hover {
+  color: var(--ochre);
+  transform: scale(1.12);
+}
+.scaler-divider {
+  color: var(--line);
+  font-size: 0.72rem;
+  margin: 0 0.05rem;
+}
+
+/* 字号缩放阶梯 (sm / base / lg) */
+.prose.font-size-sm p {
+  font-size: 1rem;
+  line-height: 1.9;
+}
+.prose.font-size-lg p {
+  font-size: 1.25rem;
+  line-height: 2.15;
+}
+.poem-wrap .prose.font-size-sm p {
+  font-size: 1.02rem;
+}
+.poem-wrap .prose.font-size-lg p {
+  font-size: 1.28rem;
+}
+
+/* ── 目录 (Table of Contents) ── */
+.toc-desktop {
+  margin-top: 2.2rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--line);
+  display: none;
+}
+@media (min-width: 960px) {
+  .toc-desktop {
+    display: block;
+  }
+}
+.toc-title {
+  font-family: var(--serif-cn);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--ink-faint);
+  margin-bottom: 0.8rem;
+}
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.toc-item {
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+.toc-item.depth-3 {
+  padding-left: 0.85rem;
+  font-size: 0.82rem;
+}
+.toc-link {
+  display: block;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  padding-left: 0.55rem;
+  margin-left: -0.55rem;
+  border-bottom: none !important;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+.toc-link:hover {
+  color: var(--ochre);
+  transform: translateX(2px);
+}
+.toc-link.active {
+  color: var(--ochre);
+  border-left-color: var(--ochre);
+  font-weight: 500;
+}
+
+/* 移动端可折叠目录 */
+.toc-mobile {
+  display: block;
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.75rem 1.1rem;
+  margin-bottom: 2.2rem;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+@media (min-width: 960px) {
+  .toc-mobile {
+    display: none;
+  }
+}
+.toc-mobile[open] {
+  padding-bottom: 1rem;
+}
+.toc-mobile-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--serif-cn);
+  color: var(--ink);
+  font-weight: 500;
+  list-style: none;
+}
+.toc-mobile-summary::-webkit-details-marker {
+  display: none;
+}
+.toc-mobile-label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.toc-mobile-label::before {
+  content: '§';
+  color: var(--ochre);
+  font-family: var(--serif-en);
+  font-size: 0.95rem;
+}
+.toc-mobile-count {
+  font-family: var(--serif-en);
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--ink-faint);
+}
+.toc-mobile .toc-list {
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--line);
+}
+
+/* ── 续读书签提示条 ── */
+.resume-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-paper-hover);
+  padding: 0.55rem 0.85rem 0.55rem 1.1rem;
+  border-radius: 4px;
+  font-family: var(--serif-cn);
+  font-size: 0.88rem;
+  color: var(--ink);
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+.resume-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.resume-pct {
+  color: var(--ochre);
+  font-family: var(--serif-en);
+  font-style: italic;
+  font-weight: 600;
+}
+.resume-btn {
+  background: var(--ochre);
+  color: var(--paper);
+  border: none;
+  border-radius: 3px;
+  padding: 0.25rem 0.65rem;
+  font-family: var(--serif-cn);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+.resume-btn:hover {
+  background: var(--ochre-deep);
+  transform: scale(1.03);
+}
+.resume-close {
+  background: transparent;
+  border: none;
+  color: var(--ink-faint);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.2rem;
+  transition: color 0.2s ease;
+}
+.resume-close:hover {
+  color: var(--ink);
+}
+@media (max-width: 680px) {
+  .resume-toast {
+    bottom: 1.2rem;
+    right: 1rem;
+    left: 1rem;
+    justify-content: space-between;
+  }
+}

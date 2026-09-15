@@ -1,0 +1,36 @@
+---
+interface NavItem {
+  id: string;
+  title: string;
+}
+
+interface Props {
+  prev?: NavItem;
+  next?: NavItem;
+}
+
+const { prev, next } = Astro.props;
+---
+
+{
+  (prev || next) && (
+    <nav class="post-nav reveal">
+      <div class="nav-prev">
+        {prev && (
+          <a href={`/writing/${prev.id}`}>
+            <span class="nav-label">← 上一篇</span>
+            <span class="nav-title">{prev.title}</span>
+          </a>
+        )}
+      </div>
+      <div class="nav-next">
+        {next && (
+          <a href={`/writing/${next.id}`}>
+            <span class="nav-label">下一篇 →</span>
+            <span class="nav-title">{next.title}</span>
+          </a>
+        )}
+      </div>
+    </nav>
+  )
+}

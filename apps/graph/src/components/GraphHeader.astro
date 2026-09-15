@@ -1,0 +1,176 @@
+---
+interface Props {
+  mainSiteUrl: string;
+}
+
+const { mainSiteUrl } = Astro.props;
+---
+
+<header class="graph-header">
+  <a href={mainSiteUrl} class="back-btn">← 返回主站 newmaybe.com</a>
+  <h1>思考的经纬</h1>
+  <p class="desc">
+    这是您的数字花园关联图谱。每一个圆点代表一个想法、一篇文章、一个念头，线段代表它们之间的连接。双击任意节点可跳转阅读。
+  </p>
+
+  <!-- 模式切换 Tabs -->
+  <div class="mode-tabs" role="tablist" aria-label="图谱模式切换">
+    <button
+      class="mode-tab-btn active"
+      id="btn-mode-view"
+      role="tab"
+      aria-selected="true"
+      aria-label="查看网络模式">查看网络</button
+    >
+    <button
+      class="mode-tab-btn"
+      id="btn-mode-sandbox"
+      role="tab"
+      aria-selected="false"
+      aria-label="思维沙盒模式">思维沙盒</button
+    >
+  </div>
+
+  <!-- 搜索功能 -->
+  <div class="search-container">
+    <input
+      type="text"
+      id="graph-search"
+      placeholder="在图谱中查找想法/节点..."
+      aria-label="搜索图谱节点"
+    />
+    <button id="search-clear-btn" style="display:none;" aria-label="清除搜索">✕</button>
+  </div>
+
+  <!-- 沙盒编辑器控制区 -->
+  <div id="sandbox-controls">
+    <div class="sandbox-section-title">添加新想法</div>
+    <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+      <input
+        type="text"
+        id="node-title-input"
+        class="sandbox-input"
+        placeholder="输入节点名称..."
+      />
+      <div style="display: flex; gap: 0.4rem;">
+        <select id="node-group-input" class="sandbox-select">
+          <option value="notes">笔记 (Note)</option>
+          <option value="posts">文章 (Writing)</option>
+          <option value="memories">记忆 (Memory)</option>
+          <option value="excerpts">拾遗 (Excerpt)</option>
+          <option value="fragments">念头 (Fragment)</option>
+        </select>
+        <button id="btn-add-node" class="sandbox-btn sandbox-btn-primary">添加节点</button>
+      </div>
+    </div>
+
+    <div class="sandbox-section-title">连接想法节点</div>
+    <div class="link-editor-box">
+      <div class="link-editor-title">单击选中图谱节点并设置为端点：</div>
+      <div class="link-nodes-status">
+        <span id="link-source-label" class="link-node-label">起点: 未选择</span>
+        <span id="link-target-label" class="link-node-label">终点: 未选择</span>
+      </div>
+      <div class="link-btn-group">
+        <button id="btn-set-source" class="link-sub-btn">设为起点</button>
+        <button id="btn-set-target" class="link-sub-btn">设为终点</button>
+        <button id="btn-create-link" class="link-sub-btn link-sub-btn-primary">建立连线</button>
+      </div>
+    </div>
+
+    <div class="sandbox-section-title">画布操作</div>
+    <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+      <div style="display: flex; gap: 0.4rem;">
+        <button id="btn-load-garden" class="sandbox-btn" style="flex:1;">加载花园模板</button>
+        <button id="btn-clear-all" class="sandbox-btn" style="flex:1; color:var(--ochre);"
+          >清空画布</button
+        >
+      </div>
+      <div style="display: flex; gap: 0.4rem;">
+        <button id="btn-export-json" class="sandbox-btn" style="flex:1;">导出 JSON 配置</button>
+        <label
+          for="import-json-file"
+          class="sandbox-btn"
+          style="flex:1; text-align:center; display:flex; align-items:center; justify-content:center; margin:0; cursor:pointer;"
+          >导入 JSON 配置</label
+        >
+        <input type="file" id="import-json-file" accept=".json" style="display: none;" />
+      </div>
+    </div>
+  </div>
+
+  <!-- 物理学模拟调节面板 -->
+  <details id="physics-panel">
+    <summary>物理力调优</summary>
+    <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.6rem;">
+      <div class="physics-slider-row">
+        <label for="slider-link-dist">连线长度: <span id="val-link-dist">120</span>px</label>
+        <input
+          type="range"
+          id="slider-link-dist"
+          class="physics-slider"
+          min="40"
+          max="300"
+          value="120"
+        />
+      </div>
+      <div class="physics-slider-row">
+        <label for="slider-charge">排斥强度: <span id="val-charge">240</span></label>
+        <input
+          type="range"
+          id="slider-charge"
+          class="physics-slider"
+          min="50"
+          max="800"
+          value="240"
+        />
+      </div>
+      <div class="physics-slider-row">
+        <label for="slider-collision">碰撞间距: <span id="val-collision">25</span>px</label>
+        <input
+          type="range"
+          id="slider-collision"
+          class="physics-slider"
+          min="5"
+          max="60"
+          value="25"
+        />
+      </div>
+    </div>
+  </details>
+
+  <!-- 下载面板 -->
+  <div class="download-panel">
+    <button id="btn-download-svg" class="download-btn" aria-label="下载 SVG 矢量图"
+      >下载 SVG 矢量图</button
+    >
+    <button id="btn-download-png" class="download-btn" aria-label="下载 PNG 高清图"
+      >下载 PNG 高清图</button
+    >
+  </div>
+
+  <!-- 原始图例 -->
+  <div
+    class="legend"
+    style="margin-top: 1rem; border-top: 1px dashed var(--line); padding-top: 1rem;"
+  >
+    <div class="legend-item"><span class="dot dot-posts"></span>文章 (Writing)</div>
+    <div class="legend-item"><span class="dot dot-notes"></span>笔记 (Note)</div>
+    <div class="legend-item"><span class="dot dot-memories"></span>记忆 (Memory)</div>
+    <div class="legend-item"><span class="dot dot-excerpts"></span>拾遗 (Excerpt)</div>
+    <div class="legend-item"><span class="dot dot-fragments"></span>念头 (Fragment)</div>
+  </div>
+
+  <!-- 节点列表替代视图（无障碍） -->
+  <details class="node-list-panel" id="node-list-panel">
+    <summary>📋 所有节点列表（无障碍键盘访问）</summary>
+    <div id="node-list-content" style="max-height: 240px; overflow-y: auto; margin-top: 0.5rem;">
+      <div
+        class="search-empty"
+        style="font-size:0.78rem; color:var(--ink-faint); padding:1rem 0; text-align:center;"
+      >
+        图谱数据加载中...
+      </div>
+    </div>
+  </details>
+</header>

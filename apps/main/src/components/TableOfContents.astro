@@ -1,0 +1,51 @@
+---
+interface TocItem {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  toc: TocItem[];
+  variant?: 'desktop' | 'mobile';
+}
+
+const { toc, variant = 'desktop' } = Astro.props;
+---
+
+{
+  toc.length > 0 && variant === 'desktop' && (
+    <nav class="toc-desktop" aria-label="文章目录">
+      <div class="toc-title">目录</div>
+      <ul class="toc-list">
+        {toc.map((item) => (
+          <li class={`toc-item depth-${item.depth}`}>
+            <a href={`#${item.slug}`} class="toc-link" data-toc-slug={item.slug}>
+              {item.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+{
+  toc.length > 0 && variant === 'mobile' && (
+    <details class="toc-mobile">
+      <summary class="toc-mobile-summary">
+        <span class="toc-mobile-label">目录</span>
+        <span class="toc-mobile-count">{toc.length} 节</span>
+      </summary>
+      <ul class="toc-list">
+        {toc.map((item) => (
+          <li class={`toc-item depth-${item.depth}`}>
+            <a href={`#${item.slug}`} class="toc-link">
+              {item.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </details>
+  )
+}
