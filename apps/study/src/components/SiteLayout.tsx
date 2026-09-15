@@ -50,19 +50,31 @@ export default function SiteLayout() {
     <div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-cinnabar/20 selection:text-cinnabar">
       <header className="sticky top-0 z-40 border-b bg-paper/90 backdrop-blur">
         <div className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between gap-4">
-          <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-            <span className="seal w-8 h-8 text-lg leading-none group-hover:scale-105 transition-transform">
-              书
-            </span>
-            <div className="flex flex-col">
-              <span className="font-brush text-xl tracking-wide leading-tight group-hover:text-cinnabar transition-colors">
-                林下书房
+          <div className="flex items-center gap-3 shrink-0">
+            <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
+              <span className="seal w-8 h-8 text-lg leading-none group-hover:scale-105 transition-transform">
+                书
               </span>
-              <span className="text-[10px] text-muted-foreground scale-90 origin-left hidden sm:inline -mt-0.5">
-                为古风写作而读
-              </span>
-            </div>
-          </Link>
+              <div className="flex flex-col">
+                <span className="font-brush text-xl tracking-wide leading-tight group-hover:text-cinnabar transition-colors">
+                  林下书房
+                </span>
+                <span className="text-[10px] text-muted-foreground scale-90 origin-left hidden sm:inline -mt-0.5">
+                  为古风写作而读
+                </span>
+              </div>
+            </Link>
+            <a
+              href="https://newmaybe.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground/75 hover:text-cinnabar border-l pl-2.5 py-0.5 transition-colors"
+              title="返回 newmaybe 首页与数字生态"
+            >
+              <span>newmaybe</span>
+              <span className="text-[9px] opacity-70">↗</span>
+            </a>
+          </div>
 
           {/* 桌面端导航 */}
           <nav className="hidden md:flex items-center gap-1">
@@ -107,7 +119,13 @@ export default function SiteLayout() {
                 <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
                 已读 <strong className="text-foreground">{read}</strong> 章
               </span>
-              <span className="text-cinnabar font-medium">连续 {streak} 天</span>
+              <span
+                className={
+                  streak > 0 ? 'text-cinnabar font-medium' : 'text-muted-foreground/70 font-normal'
+                }
+              >
+                连续 {streak} 天
+              </span>
             </div>
 
             {/* 移动端汉堡按钮 */}
@@ -128,9 +146,17 @@ export default function SiteLayout() {
               <span>阅读进度</span>
               <div className="flex items-center gap-3">
                 <span>
-                  已读 <strong className="text-cinnabar">{read}</strong> 章
+                  已读 <strong className="text-foreground font-semibold">{read}</strong> 章
                 </span>
-                <span className="text-cinnabar font-medium">连续 {streak} 天</span>
+                <span
+                  className={
+                    streak > 0
+                      ? 'text-cinnabar font-medium'
+                      : 'text-muted-foreground/70 font-normal'
+                  }
+                >
+                  连续 {streak} 天
+                </span>
               </div>
             </div>
 

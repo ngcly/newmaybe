@@ -145,6 +145,8 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'palt' 1;
+    text-wrap: pretty;
     background-image:
       radial-gradient(ellipse at 15% 0%, rgba(166, 58, 44, 0.03), transparent 55%),
       radial-gradient(ellipse at 90% 100%, rgba(61, 85, 96, 0.04), transparent 50%);

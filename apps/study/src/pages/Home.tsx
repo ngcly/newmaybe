@@ -62,7 +62,7 @@ export default function Home() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden border-b bg-paper/30">
-        <div className="pointer-events-none absolute right-8 top-10 hidden lg:flex gap-4 opacity-[0.09] select-none">
+        <div className="pointer-events-none absolute right-8 top-10 hidden lg:flex gap-4 opacity-[0.09] dark:opacity-[0.16] select-none transition-opacity">
           {['晓声', '识器', '操千曲', '观千剑'].map((t) => (
             <span key={t} className="writing-vertical font-brush text-7xl text-cinnabar">
               {t}
@@ -75,8 +75,9 @@ export default function Home() {
             <Feather className="w-3.5 h-3.5" /> 读书破万卷 · 下笔如有神
           </div>
 
-          <h1 className="font-brush text-5xl md:text-7xl leading-tight">
-            为古风写作<span className="text-cinnabar">而读</span>
+          <h1 className="font-brush text-5xl md:text-7xl leading-tight tracking-wide">
+            <span>为古风写作</span>
+            <span className="text-cinnabar ml-1.5 inline-block">而读</span>
           </h1>
 
           <p className="mt-6 max-w-2xl text-muted-foreground leading-8 text-base md:text-lg">
@@ -102,7 +103,7 @@ export default function Home() {
 
           {/* 数据看板 */}
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl">
-            <div className="bg-surface/80 backdrop-blur border rounded-xl p-4 shadow-xs">
+            <div className="bg-surface/65 dark:bg-card/90 backdrop-blur-xs border border-border/80 hover:border-cinnabar/30 transition-all rounded-xl p-4 shadow-xs">
               <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                 <BookOpen className="w-3.5 h-3.5 text-cinnabar" /> 收录典籍
               </div>
@@ -111,7 +112,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="bg-surface/80 backdrop-blur border rounded-xl p-4 shadow-xs">
+            <div className="bg-surface/65 dark:bg-card/90 backdrop-blur-xs border border-border/80 hover:border-cinnabar/30 transition-all rounded-xl p-4 shadow-xs">
               <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                 <Layers className="w-3.5 h-3.5 text-cinnabar" /> 全文篇章
               </div>
@@ -121,7 +122,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="bg-surface/80 backdrop-blur border rounded-xl p-4 shadow-xs">
+            <div className="bg-surface/65 dark:bg-card/90 backdrop-blur-xs border border-border/80 hover:border-cinnabar/30 transition-all rounded-xl p-4 shadow-xs">
               <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                 <Target className="w-3.5 h-3.5 text-cinnabar" /> 阶梯层次
               </div>
@@ -131,7 +132,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="bg-surface/80 backdrop-blur border rounded-xl p-4 shadow-xs">
+            <div className="bg-surface/65 dark:bg-card/90 backdrop-blur-xs border border-border/80 hover:border-cinnabar/30 transition-all rounded-xl p-4 shadow-xs">
               <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                 <Feather className="w-3.5 h-3.5 text-cinnabar" /> 仿写实战
               </div>
