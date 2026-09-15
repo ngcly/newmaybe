@@ -1,7 +1,6 @@
 ---
 import { SITE } from '../config';
 import '../styles/global.css';
-import '../styles/layout.css';
 import { ClientRouter } from 'astro:transitions';
 import Header from '../components/Header.astro';
 import MobileDrawer from '../components/MobileDrawer.astro';
@@ -185,3 +184,9 @@ const currentPath = Astro.url.pathname;
     <script src="../scripts/layout-interactions.ts"></script>
   </body>
 </html>
+
+<style>
+  main {
+    padding-top: 72px;
+  }
+</style>

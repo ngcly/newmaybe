@@ -58,3 +58,135 @@ const { epigraph, year } = Astro.props;
     </div>
   </div>
 </footer>
+
+<style>
+  footer {
+    padding: 3.2rem 0 2.4rem;
+    margin-top: 0;
+    border-top: 1px solid var(--line);
+  }
+  .foot-colophon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.95rem;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .foot-seal {
+    color: var(--ochre);
+    font-size: 0.95rem;
+    opacity: 0.8;
+    letter-spacing: 0.2em;
+    line-height: 1;
+  }
+  .foot-epigraph {
+    max-width: 36ch;
+    margin: 0.1rem auto 0.2rem;
+  }
+  .foot-epigraph p {
+    font-family: var(--serif-cn), serif;
+    font-size: 1.15rem;
+    font-weight: 300;
+    color: var(--ink);
+    letter-spacing: 0.08em;
+    line-height: 1.8;
+    text-align: center;
+  }
+  .foot-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+  }
+  .foot-brand-title {
+    font-family: var(--serif-en);
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+  .foot-brand-title .dot {
+    color: var(--ochre);
+  }
+  .foot-nav-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.65rem 0.85rem;
+    margin-top: 0.1rem;
+  }
+  .foot-link {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-family: var(--serif-cn), serif;
+    transition: color 0.25s ease;
+  }
+  .foot-link:hover {
+    color: var(--ochre);
+  }
+  .foot-divider {
+    color: var(--ink-faint);
+    font-size: 0.75rem;
+    opacity: 0.6;
+    user-select: none;
+  }
+  .foot-eco {
+    color: var(--ochre);
+  }
+  .foot-eco .arrow {
+    font-family: var(--serif-en);
+    font-size: 0.78rem;
+    display: inline-block;
+    transition: transform 0.25s ease;
+  }
+  .foot-eco:hover .arrow {
+    transform: translateX(3px);
+  }
+  .foot-colophon-base {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    margin-top: 0.4rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--line);
+    width: 100%;
+    letter-spacing: 0.03em;
+  }
+  .foot-sep {
+    color: var(--line);
+  }
+  .foot-slowly {
+    font-family: var(--serif-en);
+    font-style: italic;
+  }
+
+  @media (max-width: 680px) {
+    footer {
+      padding: 2.5rem 0 2rem;
+    }
+    .foot-colophon {
+      gap: 0.8rem;
+    }
+    .foot-epigraph p {
+      font-size: 1.05rem;
+    }
+    .foot-nav-line {
+      gap: 0.5rem 0.6rem;
+    }
+    .foot-colophon-base {
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .foot-sep {
+      display: none;
+    }
+  }
+</style>

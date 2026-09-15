@@ -85,3 +85,155 @@ const isActive = (href: string) => {
     </div>
   </div>
 </div>
+
+<style>
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    pointer-events: none;
+    visibility: hidden;
+    transition: visibility 0s 0.4s;
+  }
+  .mobile-menu.open {
+    pointer-events: auto;
+    visibility: visible;
+    transition: visibility 0s;
+  }
+  .mobile-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(30, 25, 18, 0.35);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .mobile-menu.open .mobile-overlay {
+    opacity: 1;
+  }
+  .mobile-drawer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(78%, 320px);
+    background: var(--paper);
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .mobile-menu.open .mobile-drawer {
+    transform: translateX(0);
+  }
+  .drawer-head {
+    height: 72px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .drawer-logo {
+    font-family: var(--serif-en);
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .drawer-logo .dot {
+    color: var(--ochre);
+  }
+  .drawer-links {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1.5rem 2rem;
+  }
+  .drawer-links a {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    font-family: var(--serif-cn);
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--ink-soft);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--line);
+    transition:
+      color 0.2s,
+      padding-left 0.3s ease;
+  }
+  .drawer-links a:first-child {
+    border-top: 1px solid var(--line);
+  }
+  .drawer-links a:hover,
+  .drawer-links a.active {
+    color: var(--ochre);
+    padding-left: 0.4rem;
+  }
+  .drawer-idx {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+  }
+  /* 抽屉内生态矩阵 */
+  .drawer-eco {
+    padding: 1.2rem 2rem;
+    border-top: 1px solid var(--line);
+    background: color-mix(in srgb, var(--paper-deep) 60%, transparent);
+  }
+  .drawer-eco-title {
+    font-family: var(--serif-cn);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.08em;
+    margin-bottom: 0.8rem;
+  }
+  .drawer-eco-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  .drawer-eco-grid a {
+    font-family: var(--serif-cn);
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 0.4rem 0.5rem;
+    border-radius: 4px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .drawer-eco-grid a:hover {
+    color: var(--ochre);
+    border-color: var(--ochre);
+  }
+
+  .drawer-foot {
+    flex-shrink: 0;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--line);
+  }
+  .drawer-foot a {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .drawer-foot a:hover {
+    color: var(--ochre);
+  }
+</style>
