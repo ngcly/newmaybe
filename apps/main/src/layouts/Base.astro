@@ -88,7 +88,7 @@ const currentPath = Astro.url.pathname;
         const poemWrap = document.querySelector('.poem-wrap');
         if (!poemWrap) return;
         const isVertical = localStorage.getItem('poetry-layout') === 'vertical';
-        poemWrap.classList.toggle('vertical', isVertical);
+        poemWrap.classList.toggle('is-horizontal', !isVertical);
         const toggle = document.getElementById('layoutToggle');
         if (toggle) toggle.classList.toggle('is-vertical', isVertical);
       });

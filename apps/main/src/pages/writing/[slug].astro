@@ -83,9 +83,9 @@ const hasToc = !isPoetry && toc.length >= 2;
                 aria-label="切换诗歌版式"
               >
                 <span class="label">版式：</span>
-                <span class="opt opt-vert">竖</span>
-                <span class="divider">/</span>
                 <span class="opt opt-horiz">横</span>
+                <span class="divider">/</span>
+                <span class="opt opt-vert">竖</span>
               </button>
               <h1 transition:name={`post-title-${post.id}`}>{post.data.title}</h1>
               <div class="meta">
@@ -100,7 +100,7 @@ const hasToc = !isPoetry && toc.length >= 2;
               </div>
             </header>
 
-            <div class="poem-wrap">
+            <div class="poem-wrap is-horizontal">
               {watermark && (
                 <span class="watermark" aria-hidden="true">
                   {watermark}
@@ -157,7 +157,7 @@ const hasToc = !isPoetry && toc.length >= 2;
       <script is:inline>
         try {
           if (localStorage.getItem('poetry-layout') === 'vertical') {
-            document.querySelector('.poem-wrap')?.classList.add('vertical');
+            document.querySelector('.poem-wrap')?.classList.remove('is-horizontal');
             document.getElementById('layoutToggle')?.classList.add('is-vertical');
           }
         } catch {}

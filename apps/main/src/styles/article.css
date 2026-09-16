@@ -198,7 +198,8 @@
   border-top: 1px solid var(--line);
 }
 
-/* ── 竖排版式 ── */
+/* ── 横向长卷版式（红格左右横滑） ── */
+.poem-wrap.is-horizontal,
 .poem-wrap.vertical {
   max-width: 100%;
   width: 100%;
@@ -209,15 +210,18 @@
   scroll-snap-type: x mandatory; /* 逐列吸附，翻页体验 */
   direction: rtl; /* 从右往左滚动流淌 */
 }
+.poem-wrap.is-horizontal::-webkit-scrollbar,
 .poem-wrap.vertical::-webkit-scrollbar {
   display: none;
 }
 
+.poem-wrap.is-horizontal .watermark,
 .poem-wrap.vertical .watermark {
   writing-mode: vertical-rl;
   font-size: 16rem;
 }
 
+.poem-wrap.is-horizontal .prose,
 .poem-wrap.vertical .prose {
   writing-mode: vertical-rl;
   text-orientation: mixed;
@@ -244,6 +248,7 @@
   box-shadow: inset 0 0 40px color-mix(in srgb, var(--cinnabar) 2%, transparent);
 }
 
+:root.dark .poem-wrap.is-horizontal .prose,
 :root.dark .poem-wrap.vertical .prose {
   /* 暗色模式下由于 --cinnabar 自动切换为深色变体，微调浓度即可保持雅致格线 */
   background-image: repeating-linear-gradient(
@@ -256,6 +261,7 @@
   border-color: color-mix(in srgb, var(--cinnabar) 12%, transparent);
 }
 
+.poem-wrap.is-horizontal .prose p,
 .poem-wrap.vertical .prose p {
   text-align: start;
   letter-spacing: 0.35em; /* 竖排古典字间距偏宽 */
@@ -269,6 +275,7 @@
 }
 
 /* 竖排下的诗节间距：腾出格线空间 */
+.poem-wrap.is-horizontal .prose p + p,
 .poem-wrap.vertical .prose p + p {
   margin-top: 0;
   padding-top: 0;
@@ -507,6 +514,7 @@
     transform: translateX(-3px);
   }
 }
+.poem-wrap.is-horizontal .scroll-hint-poetry,
 .poem-wrap.vertical .scroll-hint-poetry {
   display: block;
 }

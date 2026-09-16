@@ -294,14 +294,16 @@ export function setupPoetryLayout() {
     window._onScrollPoetry = onScrollPoetry;
   }
 
-  // 2. 应用排版（竖排 vs 横排）及滚动交互
-  const applyLayout = (isVertical: boolean) => {
-    poemWrap.classList.toggle('vertical', isVertical);
+  // 2. 应用排版：
+  // isHorizontal: true  -> 横向长卷模式（红格左右横滑，高亮「横」）
+  // isHorizontal: false -> 常规纵向滚动模式（现代居中段落，高亮「竖」）
+  const applyLayout = (isHorizontal: boolean) => {
+    poemWrap.classList.toggle('is-horizontal', isHorizontal);
     if (toggle) {
-      toggle.classList.toggle('is-vertical', isVertical);
+      toggle.classList.toggle('is-vertical', !isHorizontal);
       toggle.setAttribute(
         'aria-label',
-        isVertical ? '切换诗歌版式（当前：竖排）' : '切换诗歌版式（当前：横排）',
+        isHorizontal ? '切换诗歌版式（当前：横向长卷）' : '切换诗歌版式（当前：纵向滚动）',
       );
     }
 
@@ -329,7 +331,7 @@ export function setupPoetryLayout() {
       wrapWithHandlers._onScrollPoetryHint = undefined;
     }
 
-    if (isVertical && prose) {
+    if (isHorizontal && prose) {
       const onProseScroll = () => {
         if (watermark) {
           // 水印视差滚动平移（监听外层滚动容器 poemWrap 的 scrollLeft）
@@ -371,15 +373,15 @@ export function setupPoetryLayout() {
     }
   };
 
-  // 读取已保存的排版偏好，若未设置则默认为横排
+  // 读取已保存的排版偏好：默认是横向长卷 (horizontal)
   let savedLayout = 'horizontal';
   try {
     savedLayout = localStorage.getItem(LAYOUT_KEY) || 'horizontal';
   } catch {
     /* ignore */
   }
-  const initialVertical = savedLayout === 'vertical';
-  applyLayout(initialVertical);
+  const initialHorizontal = savedLayout !== 'vertical';
+  applyLayout(initialHorizontal);
 
   // 3. 布局切换按钮点击事件
   if (window._handleLayoutClick) {
@@ -392,26 +394,26 @@ export function setupPoetryLayout() {
     const btn = target.closest('#layoutToggle');
     if (!btn) return;
 
-    const currentVertical = poemWrap.classList.contains('vertical');
+    const currentHorizontal = poemWrap.classList.contains('is-horizontal');
     const optHoriz = target.closest('.opt-horiz');
     const optVert = target.closest('.opt-vert');
 
-    let nextVertical: boolean;
+    let nextHorizontal: boolean;
     if (optHoriz) {
-      nextVertical = false;
+      nextHorizontal = true; // 点击「横」明确切为横向长卷
     } else if (optVert) {
-      nextVertical = true;
+      nextHorizontal = false; // 点击「竖」明确切为常规纵向滚动
     } else {
-      nextVertical = !currentVertical;
+      nextHorizontal = !currentHorizontal;
     }
 
     try {
-      localStorage.setItem(LAYOUT_KEY, nextVertical ? 'vertical' : 'horizontal');
+      localStorage.setItem(LAYOUT_KEY, nextHorizontal ? 'horizontal' : 'vertical');
     } catch {
       /* ignore */
     }
 
-    applyLayout(nextVertical);
+    applyLayout(nextHorizontal);
   };
 
   document.addEventListener('click', handleLayoutClick);
