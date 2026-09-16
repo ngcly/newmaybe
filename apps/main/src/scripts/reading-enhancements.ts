@@ -246,9 +246,182 @@ export function setupFontScaler() {
   window._handleFontScaleClick = handleFontScaleClick;
 }
 
+export function setupPoetryLayout() {
+  const poemWrap = document.querySelector<HTMLElement>('.poem-wrap');
+  const toggle = document.getElementById('layoutToggle');
+
+  // 如果不是诗歌页面，清理诗歌专属的滚动和点击监听器
+  if (!poemWrap) {
+    if (window._onScrollPoetry) {
+      window.removeEventListener('scroll', window._onScrollPoetry);
+      delete window._onScrollPoetry;
+      const hdr = document.getElementById('hdr');
+      if (hdr) {
+        hdr.style.transform = '';
+        hdr.style.opacity = '';
+        hdr.style.transition = '';
+      }
+    }
+    if (window._handleLayoutClick) {
+      document.removeEventListener('click', window._handleLayoutClick);
+      delete window._handleLayoutClick;
+    }
+    return;
+  }
+
+  const LAYOUT_KEY = 'poetry-layout';
+
+  // 1. 沉浸式滚动监听器：向上滚动露出导航，向下滚动自动隐藏
+  let lastScrollY = window.scrollY;
+  const hdr = document.getElementById('hdr');
+  if (hdr) {
+    if (window._onScrollPoetry) {
+      window.removeEventListener('scroll', window._onScrollPoetry);
+    }
+    const onScrollPoetry = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > 100 && currentScrollY > lastScrollY) {
+        hdr.style.transform = 'translateY(-100%)';
+        hdr.style.opacity = '0';
+        hdr.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+      } else {
+        hdr.style.transform = 'translateY(0)';
+        hdr.style.opacity = '1';
+      }
+      lastScrollY = currentScrollY;
+    };
+    window.addEventListener('scroll', onScrollPoetry, { passive: true });
+    window._onScrollPoetry = onScrollPoetry;
+  }
+
+  // 2. 应用排版（竖排 vs 横排）及滚动交互
+  const applyLayout = (isVertical: boolean) => {
+    poemWrap.classList.toggle('vertical', isVertical);
+    if (toggle) {
+      toggle.classList.toggle('is-vertical', isVertical);
+      toggle.setAttribute(
+        'aria-label',
+        isVertical ? '切换诗歌版式（当前：竖排）' : '切换诗歌版式（当前：横排）',
+      );
+    }
+
+    const watermark = poemWrap.querySelector<HTMLElement>('.watermark');
+    const hint = document.getElementById('poetryScrollHint');
+    const prose = poemWrap.querySelector<HTMLElement>('.prose');
+
+    // 清理上一次的事件监听，防止 View Transitions 页面载入时泄漏与重复绑定
+    const wrapWithHandlers = poemWrap as HTMLElement & {
+      _onProseScroll?: () => void;
+      _onProseWheel?: (e: WheelEvent) => void;
+      _onScrollPoetryHint?: () => void;
+    };
+
+    if (wrapWithHandlers._onProseScroll) {
+      poemWrap.removeEventListener('scroll', wrapWithHandlers._onProseScroll);
+      wrapWithHandlers._onProseScroll = undefined;
+    }
+    if (wrapWithHandlers._onProseWheel) {
+      poemWrap.removeEventListener('wheel', wrapWithHandlers._onProseWheel);
+      wrapWithHandlers._onProseWheel = undefined;
+    }
+    if (wrapWithHandlers._onScrollPoetryHint) {
+      poemWrap.removeEventListener('scrollend', wrapWithHandlers._onScrollPoetryHint);
+      wrapWithHandlers._onScrollPoetryHint = undefined;
+    }
+
+    if (isVertical && prose) {
+      const onProseScroll = () => {
+        if (watermark) {
+          // 水印视差滚动平移（监听外层滚动容器 poemWrap 的 scrollLeft）
+          watermark.style.transform = `translate(calc(-50% - ${poemWrap.scrollLeft * 0.25}px), -50%)`;
+        }
+      };
+      poemWrap.addEventListener('scroll', onProseScroll, { passive: true });
+      wrapWithHandlers._onProseScroll = onProseScroll;
+      onProseScroll(); // 初始化对齐
+
+      // 解决桌面端鼠标滚轮无法横向滚动的问题
+      const onProseWheel = (e: WheelEvent) => {
+        if (e.deltaY !== 0) {
+          poemWrap.scrollLeft -= e.deltaY;
+          e.preventDefault();
+        }
+      };
+      poemWrap.addEventListener('wheel', onProseWheel, { passive: false });
+      wrapWithHandlers._onProseWheel = onProseWheel;
+
+      if (hint) {
+        hint.style.opacity = '';
+        hint.style.pointerEvents = '';
+        const handleScrollEnd = () => {
+          hint.style.opacity = '0';
+          hint.style.pointerEvents = 'none';
+          poemWrap.removeEventListener('scrollend', handleScrollEnd);
+        };
+        poemWrap.addEventListener('scrollend', handleScrollEnd);
+        wrapWithHandlers._onScrollPoetryHint = handleScrollEnd;
+      }
+    } else {
+      poemWrap.scrollLeft = 0;
+      if (watermark) watermark.style.transform = '';
+      if (hint) {
+        hint.style.opacity = '0';
+        hint.style.pointerEvents = 'none';
+      }
+    }
+  };
+
+  // 读取已保存的排版偏好，若未设置则默认为横排
+  let savedLayout = 'horizontal';
+  try {
+    savedLayout = localStorage.getItem(LAYOUT_KEY) || 'horizontal';
+  } catch {
+    /* ignore */
+  }
+  const initialVertical = savedLayout === 'vertical';
+  applyLayout(initialVertical);
+
+  // 3. 布局切换按钮点击事件
+  if (window._handleLayoutClick) {
+    document.removeEventListener('click', window._handleLayoutClick);
+  }
+
+  const handleLayoutClick = (e: MouseEvent) => {
+    const target = e.target as HTMLElement | null;
+    if (!target) return;
+    const btn = target.closest('#layoutToggle');
+    if (!btn) return;
+
+    const currentVertical = poemWrap.classList.contains('vertical');
+    const optHoriz = target.closest('.opt-horiz');
+    const optVert = target.closest('.opt-vert');
+
+    let nextVertical: boolean;
+    if (optHoriz) {
+      nextVertical = false;
+    } else if (optVert) {
+      nextVertical = true;
+    } else {
+      nextVertical = !currentVertical;
+    }
+
+    try {
+      localStorage.setItem(LAYOUT_KEY, nextVertical ? 'vertical' : 'horizontal');
+    } catch {
+      /* ignore */
+    }
+
+    applyLayout(nextVertical);
+  };
+
+  document.addEventListener('click', handleLayoutClick);
+  window._handleLayoutClick = handleLayoutClick;
+}
+
 document.addEventListener('astro:page-load', () => {
   setupReadingBar();
   setupTocSpy();
   setupReadingBookmark();
   setupFontScaler();
+  setupPoetryLayout();
 });
