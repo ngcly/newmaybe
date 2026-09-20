@@ -341,7 +341,7 @@ export default function App() {
                     <span className="text-xs font-serif text-[var(--ochre)] italic tracking-wider">
                       Echoes & Writers Club · 文友雅集
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-serif px-2 py-0.2 rounded-full border border-emerald-600/30 text-emerald-700 dark:text-emerald-400 bg-emerald-500/10">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-serif px-2 py-0.2 rounded-full border border-emerald-700/30 dark:border-emerald-400/30 text-emerald-900 dark:text-emerald-200 bg-emerald-600/10 font-medium">
                       <Globe className="w-2.5 h-2.5" />
                       <span>云端同步社区</span>
                     </span>
@@ -464,7 +464,9 @@ export default function App() {
                     >
                       <span>{t.icon}</span>
                       <span>{t.name}</span>
-                      <span className="text-[10px] opacity-75">({count})</span>
+                      <span className="text-[10px] text-[var(--ink-soft)] font-medium">
+                        ({count})
+                      </span>
                     </button>
                   );
                 })}

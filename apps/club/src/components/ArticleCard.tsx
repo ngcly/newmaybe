@@ -25,7 +25,7 @@ export default function ArticleCard({ article, onSelect, onSelectTopic }: Articl
             </button>
 
             {article.seriesTitle && (
-              <span className="text-[11px] font-serif px-1.5 py-0.2 rounded bg-[color-mix(in_srgb,var(--bamboo)_12%,transparent)] border border-[color-mix(in_srgb,var(--bamboo)_25%,transparent)] text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
+              <span className="text-[11px] font-serif px-1.5 py-0.2 rounded bg-[color-mix(in_srgb,var(--bamboo)_12%,transparent)] border border-[color-mix(in_srgb,var(--bamboo)_25%,transparent)] text-emerald-800 dark:text-emerald-300 flex items-center gap-1 font-medium">
                 <BookOpen className="w-2.5 h-2.5" />
                 <span>
                   {article.seriesTitle}
@@ -35,7 +35,7 @@ export default function ArticleCard({ article, onSelect, onSelectTopic }: Articl
             )}
 
             {article.featured && (
-              <span className="text-[10px] font-serif px-1.5 py-0.2 rounded bg-[color-mix(in_srgb,var(--cinnabar)_10%,transparent)] border border-[color-mix(in_srgb,var(--cinnabar)_25%,transparent)] text-[var(--cinnabar)]">
+              <span className="text-[10px] font-serif px-1.5 py-0.2 rounded bg-[var(--cinnabar-text)] text-[var(--paper)] font-medium">
                 精选
               </span>
             )}
@@ -45,7 +45,7 @@ export default function ArticleCard({ article, onSelect, onSelectTopic }: Articl
               {article.author}
             </span>
             {article.authorSeal && (
-              <span className="text-[10px] px-1 py-0.2 rounded border border-[var(--cinnabar)] text-[var(--cinnabar)] font-serif scale-90">
+              <span className="text-[10px] px-1 py-0.2 rounded border border-[var(--cinnabar-text)] dark:border-[#ff7a6d] text-[var(--cinnabar-text)] dark:text-[#ff7a6d] font-serif scale-90">
                 {article.authorSeal}
               </span>
             )}
@@ -82,8 +82,8 @@ export default function ArticleCard({ article, onSelect, onSelectTopic }: Articl
           <span>约 {article.readingTime} 分钟阅读</span>
         </div>
         <div className="flex items-center gap-3 font-serif">
-          <span className="flex items-center gap-1 hover:text-[var(--cinnabar)] transition-colors">
-            <Heart className="w-3.5 h-3.5 text-[var(--cinnabar)]/80" />
+          <span className="flex items-center gap-1 hover:text-[var(--cinnabar-text)] transition-colors">
+            <Heart className="w-3.5 h-3.5 text-[var(--cinnabar-text)] dark:text-[#ff7a6d]" />
             <span>{article.likes}</span>
           </span>
           <span className="flex items-center gap-1 hover:text-[var(--ochre)] transition-colors">
