@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Heart } from 'lucide-react';
 import type { Comment } from '../types';
 
 interface CommentSectionProps {
@@ -34,10 +35,12 @@ export default function CommentSection({
   };
 
   return (
-    <section className="mt-12 pt-10 border-t border-[var(--line)]">
+    <section className="mt-12 pt-10 border-t border-[var(--line)]/60">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-baseline gap-2">
-          <h3 className="font-serif font-semibold text-xl text-[var(--ink)]">文友评注与回响</h3>
+          <h3 className="font-serif font-medium text-lg sm:text-xl text-[var(--ink)]">
+            文友评注与回响
+          </h3>
           <span className="text-xs font-serif text-[var(--ink-faint)]">({comments.length} 条)</span>
         </div>
         <span className="text-xs text-[var(--ink-faint)] font-serif italic">
@@ -45,12 +48,12 @@ export default function CommentSection({
         </span>
       </div>
 
-      {/* Post Comment Form */}
+      {/* Post Comment Form - Refined & Blending with Paper */}
       <form
         onSubmit={handleSubmit}
-        className="bg-[color-mix(in_srgb,var(--paper-deep)_70%,var(--paper))] border border-[var(--line)] rounded p-5 mb-10 shadow-sm"
+        className="border border-[var(--line)]/70 bg-[var(--paper)] rounded p-5 sm:p-6 mb-10 shadow-2xs"
       >
-        <div className="mb-3">
+        <div className="mb-3.5">
           <label className="block text-xs font-serif text-[var(--ink-faint)] mb-1">
             您的署名 / 笔名（选填）
           </label>
@@ -59,7 +62,7 @@ export default function CommentSection({
             value={authorName}
             onChange={(e) => setAuthorName(e.target.value)}
             placeholder="例如：林下客、青木、素子..."
-            className="w-full max-w-xs px-3 py-1.5 text-sm bg-[var(--paper)] border border-[var(--line)] rounded text-[var(--ink)] focus:border-[var(--ochre)] focus:outline-none transition-colors"
+            className="w-full max-w-xs px-3 py-1.5 text-xs sm:text-sm bg-[color-mix(in_srgb,var(--paper-deep)_35%,var(--paper))] border border-[var(--line)]/60 rounded text-[var(--ink)] focus:border-[var(--ochre)] focus:outline-none transition-colors font-serif"
           />
         </div>
 
@@ -73,7 +76,7 @@ export default function CommentSection({
             onChange={(e) => setCommentText(e.target.value)}
             placeholder="以此字句，安放此刻的心绪与回响..."
             required
-            className="w-full px-3 py-2 text-sm bg-[var(--paper)] border border-[var(--line)] rounded text-[var(--ink)] focus:border-[var(--ochre)] focus:outline-none transition-colors resize-y leading-relaxed"
+            className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-[color-mix(in_srgb,var(--paper-deep)_35%,var(--paper))] border border-[var(--line)]/60 rounded text-[var(--ink)] focus:border-[var(--ochre)] focus:outline-none transition-colors resize-y leading-relaxed font-serif"
           />
         </div>
 
@@ -86,7 +89,7 @@ export default function CommentSection({
           <button
             type="submit"
             disabled={isSubmitting || !commentText.trim()}
-            className="px-4 py-2 text-xs font-medium text-[var(--paper)] bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] rounded transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-sm"
+            className="px-4 py-2 text-xs font-serif text-[var(--paper)] bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] rounded transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-xs"
           >
             发表纸签评注
           </button>
@@ -95,15 +98,15 @@ export default function CommentSection({
 
       {/* Comment List */}
       {comments.length === 0 ? (
-        <div className="text-center py-10 border border-dashed border-[var(--line)] rounded text-[var(--ink-faint)] text-sm font-serif">
+        <div className="text-center py-10 border border-dashed border-[var(--line)]/60 rounded text-[var(--ink-faint)] text-sm font-serif">
           暂无文友留言，落笔成为第一条回响吧。
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {comments.map((c) => (
             <div
               key={c.id}
-              className="p-4 rounded border border-[var(--line)] bg-[color-mix(in_srgb,var(--paper-deep)_40%,var(--paper))] transition-colors hover:border-[color-mix(in_srgb,var(--ochre)_30%,var(--line))]"
+              className="p-4 sm:p-5 rounded border border-[var(--line)]/60 bg-[var(--paper)] transition-all hover:border-[var(--ochre)]/40"
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
@@ -119,11 +122,11 @@ export default function CommentSection({
                   className="flex items-center gap-1 text-xs text-[var(--ink-faint)] hover:text-[var(--cinnabar)] transition-colors cursor-pointer"
                   title="为评注点赞"
                 >
-                  <span>❤️</span>
-                  <span>{c.likes}</span>
+                  <Heart className="w-3 h-3 text-[var(--cinnabar)]/70" />
+                  <span className="text-[11px] font-sans">{c.likes}</span>
                 </button>
               </div>
-              <p className="text-sm text-[var(--ink-soft)] font-light leading-relaxed text-justify">
+              <p className="text-xs sm:text-sm text-[var(--ink-soft)] font-light leading-relaxed text-justify font-serif">
                 {c.content}
               </p>
             </div>

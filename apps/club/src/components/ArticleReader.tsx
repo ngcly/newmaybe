@@ -202,18 +202,20 @@ export default function ArticleReader({
           </div>
         </header>
 
-        {/* Golden Quote Banner if present */}
+        {/* Golden Quote Epigraph if present */}
         {article.goldenQuote && (
-          <div className="mb-10 p-5 rounded border border-dashed border-[color-mix(in_srgb,var(--ochre)_40%,var(--line))] bg-[color-mix(in_srgb,var(--ochre)_6%,transparent)] flex items-start justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl text-[var(--ochre)] font-serif leading-none">“</span>
-              <p className="text-sm font-serif italic text-inherit leading-relaxed">
+          <div className="mb-12 py-3.5 pl-4 pr-5 border-l-2 border-[var(--ochre)]/50 bg-[color-mix(in_srgb,var(--ochre)_3%,transparent)] rounded-r flex items-start justify-between gap-4">
+            <div className="flex items-start gap-2">
+              <span className="text-xl text-[var(--ochre)] font-serif leading-none select-none">
+                “
+              </span>
+              <p className="text-sm font-serif italic text-inherit leading-relaxed opacity-90">
                 {article.goldenQuote}
               </p>
             </div>
             <button
               onClick={() => handleOpenQuoteWithText(article.goldenQuote || '')}
-              className="text-xs font-serif text-[var(--ochre)] hover:underline whitespace-nowrap cursor-pointer flex items-center gap-1 shrink-0"
+              className="text-xs font-serif text-[var(--ochre)] hover:underline whitespace-nowrap cursor-pointer flex items-center gap-1 shrink-0 mt-0.5"
             >
               <Sparkles className="w-3 h-3" />
               <span>做成书签</span>
@@ -223,7 +225,7 @@ export default function ArticleReader({
 
         {/* Article Body Content */}
         <article
-          className={`prose max-w-none text-inherit ${fontClass} ${fontSizeClass} ${lineHeightClass} tracking-wide mb-14 transition-all duration-200`}
+          className={`prose max-w-none text-inherit ${fontClass} ${fontSizeClass} ${lineHeightClass} tracking-wide mb-16 transition-all duration-200`}
         >
           {paragraphs.map((para, idx) => (
             <p
@@ -237,38 +239,40 @@ export default function ArticleReader({
           ))}
         </article>
 
-        {/* Colophon & Like Section */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 py-8 border-y border-[var(--line)] bg-[color-mix(in_srgb,var(--paper-deep)_40%,transparent)] px-6 rounded mb-10">
+        {/* Colophon & Like Section - Pure Book Colophon without heavy grey fill */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 py-7 border-y border-[var(--line)]/60 my-12">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded border border-[var(--cinnabar)] flex items-center justify-center text-xs font-serif text-[var(--cinnabar)] shadow-xs bg-[color-mix(in_srgb,var(--cinnabar)_5%,transparent)]">
+            <div className="w-11 h-11 rounded border border-[var(--cinnabar)]/70 flex items-center justify-center text-xs font-serif text-[var(--cinnabar)] shadow-2xs bg-[color-mix(in_srgb,var(--cinnabar)_4%,transparent)]">
               {article.authorSeal || '文友'}
             </div>
             <div className="text-xs font-serif">
-              <div className="font-semibold text-inherit text-sm mb-0.5">
+              <div className="font-medium text-inherit text-sm mb-0.5">
                 {article.author} · 题跋落款
               </div>
-              <div className="opacity-70 italic">字里相逢，行间留白，共护文雅。</div>
+              <div className="opacity-60 italic text-[11px]">字里相逢，行间留白，共护文雅。</div>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <button
               onClick={() => handleOpenQuoteWithText(article.goldenQuote || article.summary)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-[var(--line)] hover:border-[var(--ochre)] text-xs font-serif transition-all cursor-pointer bg-[color-mix(in_srgb,var(--paper)_80%,transparent)] shadow-xs text-inherit"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[var(--line)]/70 hover:border-[var(--ochre)] text-xs font-serif transition-all cursor-pointer bg-transparent text-inherit"
             >
               <Sparkles className="w-3.5 h-3.5 text-[var(--ochre)]" />
-              <span>生成书签便签</span>
+              <span>雅集便签</span>
             </button>
 
             <button
               onClick={handleLike}
-              className={`flex items-center gap-2 px-5 py-2 rounded-full border transition-all cursor-pointer active:scale-95 shadow-xs text-xs font-medium ${
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full border transition-all cursor-pointer active:scale-95 text-xs font-medium ${
                 hasLiked
-                  ? 'bg-[color-mix(in_srgb,var(--cinnabar)_12%,transparent)] border-[var(--cinnabar)] text-[var(--cinnabar)]'
-                  : 'bg-[color-mix(in_srgb,var(--paper)_80%,transparent)] border-[var(--line)] opacity-90 hover:opacity-100 hover:border-[var(--cinnabar)] hover:text-[var(--cinnabar)]'
+                  ? 'bg-[color-mix(in_srgb,var(--cinnabar)_10%,transparent)] border-[var(--cinnabar)] text-[var(--cinnabar)]'
+                  : 'bg-transparent border-[var(--line)]/70 opacity-80 hover:opacity-100 hover:border-[var(--cinnabar)] hover:text-[var(--cinnabar)]'
               }`}
             >
-              <Heart className={`w-3.5 h-3.5 ${hasLiked ? 'fill-current' : ''}`} />
+              <Heart
+                className={`w-3.5 h-3.5 ${hasLiked ? 'fill-current text-[var(--cinnabar)]' : ''}`}
+              />
               <span>{hasLiked ? '已共鸣' : '投递喜欢'}</span>
               <span className="font-serif">({article.likes})</span>
             </button>
@@ -282,34 +286,34 @@ export default function ArticleReader({
 
         {/* Series Notebook Navigation if article belongs to a series */}
         {article.seriesTitle && seriesArticles.length > 1 && (
-          <div className="mb-10 p-5 rounded border border-[var(--line)] bg-[color-mix(in_srgb,var(--paper-deep)_50%,transparent)]">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[var(--line)]">
+          <div className="mb-12 p-5 rounded border border-[var(--line)]/60 bg-[var(--paper)]">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[var(--line)]/50">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-[var(--ochre)]" />
-                <h4 className="font-serif font-semibold text-sm text-inherit">
+                <h4 className="font-serif font-medium text-sm text-inherit">
                   专栏文集 · 《{article.seriesTitle}》
                 </h4>
               </div>
-              <span className="text-xs font-serif opacity-60">
+              <span className="text-xs font-serif opacity-50">
                 共收录 {seriesArticles.length} 卷
               </span>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {seriesArticles.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => onSelectArticle(item)}
                   className={`p-2.5 rounded transition-all cursor-pointer flex items-center justify-between text-xs font-serif ${
                     item.id === article.id
-                      ? 'bg-[color-mix(in_srgb,var(--ochre)_15%,transparent)] text-[var(--ochre)] font-semibold border-l-2 border-[var(--ochre)]'
-                      : 'hover:bg-[color-mix(in_srgb,var(--paper-deep)_80%,transparent)] opacity-80 hover:opacity-100'
+                      ? 'bg-[color-mix(in_srgb,var(--ochre)_10%,transparent)] text-[var(--ochre)] font-medium border-l-2 border-[var(--ochre)]'
+                      : 'hover:bg-[var(--paper-deep)]/50 opacity-75 hover:opacity-100'
                   }`}
                 >
                   <div className="flex items-center gap-2">
                     <span className="opacity-50">第 {item.seriesOrder || 1} 卷</span>
                     <span>{item.title}</span>
                   </div>
-                  <span className="opacity-50">{item.wordCount} 字</span>
+                  <span className="opacity-40">{item.wordCount} 字</span>
                 </div>
               ))}
             </div>

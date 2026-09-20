@@ -284,7 +284,7 @@ export default function App() {
         ) : currentTab === 'plaza' ? (
           <div className="max-w-[1080px] mx-auto px-6 py-8 md:py-12">
             {/* Community Hero Intro */}
-            <div className="mb-10 pb-8 border-b border-[var(--line)]">
+            <div className="mb-8 pb-6 border-b border-[var(--line)]/60">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                   <span className="text-xs font-serif text-[var(--ochre)] italic tracking-wider block mb-1">
@@ -302,19 +302,19 @@ export default function App() {
                 </p>
               </div>
 
-              {/* Feed Mode Tabs & Topic Filters */}
-              <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--line)] pb-3">
-                {/* 3 Main Feeds */}
-                <div className="flex items-center gap-2">
+              {/* Feed Mode Tabs & Topic Filters - Harmonious and Airy */}
+              <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--line)]/50 pb-0">
+                {/* 3 Main Feeds as Minimalist Editorial Underline Tabs */}
+                <div className="flex items-center gap-6">
                   <button
                     onClick={() => {
                       setFeedFilter('featured');
                       setSelectedTopicId(null);
                     }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-serif transition-all cursor-pointer ${
+                    className={`flex items-center gap-1.5 pb-2.5 text-xs sm:text-sm font-serif transition-all cursor-pointer border-b-2 -mb-[1px] ${
                       feedFilter === 'featured'
-                        ? 'bg-[var(--ochre)] text-[var(--paper)] font-semibold shadow-xs'
-                        : 'text-[var(--ink-soft)] hover:bg-[var(--paper-deep)]'
+                        ? 'text-[var(--ochre)] border-[var(--ochre)] font-medium'
+                        : 'text-[var(--ink-soft)] border-transparent hover:text-[var(--ink)]'
                     }`}
                   >
                     <Sparkles className="w-3.5 h-3.5" />
@@ -326,10 +326,10 @@ export default function App() {
                       setFeedFilter('latest');
                       setSelectedTopicId(null);
                     }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-serif transition-all cursor-pointer ${
+                    className={`flex items-center gap-1.5 pb-2.5 text-xs sm:text-sm font-serif transition-all cursor-pointer border-b-2 -mb-[1px] ${
                       feedFilter === 'latest'
-                        ? 'bg-[var(--ochre)] text-[var(--paper)] font-semibold shadow-xs'
-                        : 'text-[var(--ink-soft)] hover:bg-[var(--paper-deep)]'
+                        ? 'text-[var(--ochre)] border-[var(--ochre)] font-medium'
+                        : 'text-[var(--ink-soft)] border-transparent hover:text-[var(--ink)]'
                     }`}
                   >
                     <Clock className="w-3.5 h-3.5" />
@@ -341,10 +341,10 @@ export default function App() {
                       setFeedFilter('series');
                       setSelectedTopicId(null);
                     }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-serif transition-all cursor-pointer ${
+                    className={`flex items-center gap-1.5 pb-2.5 text-xs sm:text-sm font-serif transition-all cursor-pointer border-b-2 -mb-[1px] ${
                       feedFilter === 'series'
-                        ? 'bg-[var(--ochre)] text-[var(--paper)] font-semibold shadow-xs'
-                        : 'text-[var(--ink-soft)] hover:bg-[var(--paper-deep)]'
+                        ? 'text-[var(--ochre)] border-[var(--ochre)] font-medium'
+                        : 'text-[var(--ink-soft)] border-transparent hover:text-[var(--ink)]'
                     }`}
                   >
                     <BookOpen className="w-3.5 h-3.5" />
@@ -354,7 +354,7 @@ export default function App() {
 
                 {/* Search status indicator */}
                 {searchQuery && (
-                  <div className="flex items-center gap-2 text-xs font-serif text-[var(--ochre)]">
+                  <div className="flex items-center gap-2 pb-2 text-xs font-serif text-[var(--ochre)]">
                     <Search className="w-3.5 h-3.5" />
                     <span>
                       包含 “{searchQuery}” 的篇章 ({displayedArticles.length})
@@ -369,17 +369,18 @@ export default function App() {
                 )}
               </div>
 
-              {/* Topic Filters Chip Bar */}
-              <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-1 text-xs font-serif">
+              {/* Topic Filters Ribbon: Lightweight Text Tags */}
+              <div className="flex items-center gap-1.5 mt-3.5 overflow-x-auto pb-1 text-xs font-serif">
                 <button
                   onClick={() => setSelectedTopicId(null)}
-                  className={`px-3 py-1 rounded-full transition-all cursor-pointer whitespace-nowrap ${
+                  className={`px-2.5 py-1 rounded transition-colors cursor-pointer whitespace-nowrap ${
                     selectedTopicId === null
-                      ? 'bg-[var(--paper-deep)] text-[var(--ochre)] border border-[var(--ochre)] font-medium shadow-2xs'
-                      : 'bg-[color-mix(in_srgb,var(--paper-deep)_70%,var(--paper))] text-[var(--ink-soft)] border border-[var(--line)] hover:border-[var(--ochre)]'
+                      ? 'text-[var(--ochre)] bg-[color-mix(in_srgb,var(--ochre)_10%,transparent)] font-medium'
+                      : 'text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[var(--paper-deep)]/50'
                   }`}
                 >
-                  全部专题 ({articles.length})
+                  全部专题
+                  <span className="opacity-50 text-[10px] ml-1 font-sans">({articles.length})</span>
                 </button>
                 {TOPICS.map((t) => {
                   const count = articles.filter((a) => a.topicId === t.id).length;
@@ -387,17 +388,15 @@ export default function App() {
                     <button
                       key={t.id}
                       onClick={() => setSelectedTopicId(t.id)}
-                      className={`px-3 py-1 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                      className={`px-2.5 py-1 rounded transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                         selectedTopicId === t.id
-                          ? 'bg-[var(--paper-deep)] text-[var(--ochre)] border border-[var(--ochre)] font-medium shadow-2xs'
-                          : 'bg-[color-mix(in_srgb,var(--paper-deep)_70%,var(--paper))] text-[var(--ink-soft)] border border-[var(--line)] hover:border-[var(--ochre)]'
+                          ? 'text-[var(--ochre)] bg-[color-mix(in_srgb,var(--ochre)_10%,transparent)] font-medium'
+                          : 'text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[var(--paper-deep)]/50'
                       }`}
                     >
                       <span>{t.icon}</span>
                       <span>{t.name}</span>
-                      <span className="text-[10px] text-[var(--ink-soft)] font-medium">
-                        ({count})
-                      </span>
+                      <span className="opacity-50 text-[10px] font-sans">({count})</span>
                     </button>
                   );
                 })}
@@ -441,15 +440,15 @@ export default function App() {
                 )}
               </div>
 
-              {/* Right Column: Topics & Series & Rules */}
+              {/* Right Column: Topics & Series & Rules - Deconstructed & Airy */}
               <aside className="lg:col-span-4 flex flex-col gap-6">
-                {/* Series Showcase Box */}
+                {/* Series Showcase */}
                 {seriesList.length > 0 && (
-                  <div className="p-5 rounded border border-[var(--line)] bg-[color-mix(in_srgb,var(--paper-deep)_50%,var(--paper))]">
-                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-[var(--line)]">
+                  <div className="p-5 rounded border border-[var(--line)]/60 bg-[var(--paper)]">
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-[var(--line)]/50">
                       <div className="flex items-center gap-1.5">
                         <BookOpen className="w-3.5 h-3.5 text-[var(--ochre)]" />
-                        <h3 className="font-serif font-medium text-sm text-[var(--ink)]">
+                        <h3 className="font-serif font-medium text-xs sm:text-sm text-[var(--ink)]">
                           专栏文集 · 连载推荐
                         </h3>
                       </div>
@@ -460,7 +459,7 @@ export default function App() {
                         全部连载 →
                       </button>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-1.5">
                       {seriesList.map((s) => (
                         <div
                           key={s.title}
@@ -468,17 +467,17 @@ export default function App() {
                             setSearchQuery(s.title);
                             setFeedFilter('series');
                           }}
-                          className="p-2.5 rounded hover:bg-[var(--paper-deep)] transition-colors cursor-pointer flex items-center justify-between"
+                          className="p-2.5 rounded hover:bg-[var(--paper-deep)]/50 transition-colors cursor-pointer flex items-center justify-between group"
                         >
                           <div className="flex flex-col">
-                            <span className="text-xs font-serif font-semibold text-[var(--ink)]">
+                            <span className="text-xs font-serif font-medium text-[var(--ink)] group-hover:text-[var(--ochre)] transition-colors">
                               《{s.title}》
                             </span>
                             <span className="text-[10px] font-serif text-[var(--ink-faint)]">
                               主笔 · {s.author}
                             </span>
                           </div>
-                          <span className="text-[11px] font-serif text-[var(--ink-soft)] px-2 py-0.5 rounded bg-[var(--paper)] border border-[var(--line)]">
+                          <span className="text-[11px] font-serif text-[var(--ink-faint)] px-2 py-0.5 rounded border border-[var(--line)]/50">
                             {s.count} 卷连载
                           </span>
                         </div>
@@ -487,10 +486,10 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Topic Showcase Box */}
-                <div className="p-5 rounded border border-[var(--line)] bg-[color-mix(in_srgb,var(--paper-deep)_50%,var(--paper))]">
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-[var(--line)]">
-                    <h3 className="font-serif font-medium text-sm text-[var(--ink)]">
+                {/* Topic Showcase */}
+                <div className="p-5 rounded border border-[var(--line)]/60 bg-[var(--paper)]">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-[var(--line)]/50">
+                    <h3 className="font-serif font-medium text-xs sm:text-sm text-[var(--ink)]">
                       推荐专题分类
                     </h3>
                     <button
@@ -500,20 +499,20 @@ export default function App() {
                       全部专题 →
                     </button>
                   </div>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1.5">
                     {TOPICS.slice(0, 4).map((t) => (
                       <div
                         key={t.id}
                         onClick={() => setSelectedTopicId(t.id)}
-                        className="p-2.5 rounded hover:bg-[var(--paper-deep)] transition-colors cursor-pointer flex items-center justify-between"
+                        className="p-2.5 rounded hover:bg-[var(--paper-deep)]/50 transition-colors cursor-pointer flex items-center justify-between group"
                       >
                         <div className="flex items-center gap-2">
                           <span className="text-base">{t.icon}</span>
-                          <span className="text-xs font-serif font-medium text-[var(--ink)]">
+                          <span className="text-xs font-serif font-normal text-[var(--ink)] group-hover:text-[var(--ochre)] transition-colors">
                             {t.name}
                           </span>
                         </div>
-                        <span className="text-[11px] font-serif text-[var(--ink-faint)]">
+                        <span className="text-[11px] font-serif text-[var(--ink-faint)] font-sans">
                           {articles.filter((a) => a.topicId === t.id).length} 篇
                         </span>
                       </div>
@@ -521,9 +520,9 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Community Vision Box */}
-                <div className="p-5 rounded border border-[var(--line)] bg-[color-mix(in_srgb,var(--paper-deep)_50%,var(--paper))]">
-                  <h3 className="font-serif font-medium text-sm text-[var(--ink)] mb-2 flex items-center gap-1.5">
+                {/* Community Colophon Note */}
+                <div className="p-5 rounded border border-dashed border-[color-mix(in_srgb,var(--ochre)_30%,var(--line))] bg-[color-mix(in_srgb,var(--ochre)_3%,transparent)]">
+                  <h3 className="font-serif font-medium text-xs sm:text-sm text-[var(--ink)] mb-2 flex items-center gap-1.5">
                     <Flame className="w-3.5 h-3.5 text-[var(--cinnabar)]" />
                     <span>雅集守则 · 留白之约</span>
                   </h3>
@@ -532,10 +531,10 @@ export default function App() {
                     <li>· 支持创建个人专栏文集，享受连载成卷的写作乐趣。</li>
                     <li>· 读者评语如题跋，温和互通，共护文雅。</li>
                   </ul>
-                  <div className="mt-4 pt-3 border-t border-dashed border-[var(--line)]">
+                  <div className="mt-4 pt-3 border-t border-dashed border-[color-mix(in_srgb,var(--ochre)_25%,var(--line))]">
                     <button
                       onClick={() => setIsWriterOpen(true)}
-                      className="w-full py-2 text-xs font-serif text-[var(--paper)] bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] rounded transition-all cursor-pointer shadow-xs"
+                      className="w-full py-2 text-xs font-serif text-[var(--ochre)] border border-[var(--ochre)]/40 hover:bg-[var(--ochre)] hover:text-[var(--paper)] rounded transition-all cursor-pointer shadow-2xs"
                     >
                       我要投稿至雅集
                     </button>
