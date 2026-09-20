@@ -1,6 +1,12 @@
 name = "newmaybe-club"
+main = "src/worker.ts"
 compatibility_date = "2026-06-01"
 
 [assets]
 directory = "./dist"
 not_found_handling = "single-page-application"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "newmaybe-club-db"
+database_id = "local-club-db"
