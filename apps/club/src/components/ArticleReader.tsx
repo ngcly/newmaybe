@@ -75,13 +75,6 @@ export default function ArticleReader({
     : [];
 
   // Theme styling classes mapping
-  const themeContainerClasses = {
-    paper: 'bg-[var(--paper)] text-[var(--ink)]',
-    parchment: 'bg-[#f4ecd8] text-[#3b3226] dark:bg-[#28231c] dark:text-[#dfd5c5]',
-    bamboo: 'bg-[#edf3ea] text-[#253227] dark:bg-[#1c241e] dark:text-[#d0ded0]',
-    ink: 'bg-[#181716] text-[#c8c3bc]',
-  }[preferences.theme];
-
   const fontClass = {
     song: 'font-serif',
     kai: 'font-[var(--serif-kai)]',
@@ -110,7 +103,9 @@ export default function ArticleReader({
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${themeContainerClasses}`}>
+    <div
+      className={`club-reader-theme-${preferences.theme} min-h-screen bg-[var(--paper)] text-[var(--ink)] transition-colors duration-300`}
+    >
       {/* Top Reading Progress Bar */}
       <ReadingProgressBar />
 
@@ -163,7 +158,7 @@ export default function ArticleReader({
               {article.topicName}
             </span>
             {article.seriesTitle && (
-              <span className="text-xs font-serif px-2 py-0.5 rounded bg-[color-mix(in_srgb,var(--bamboo)_15%,transparent)] border border-[color-mix(in_srgb,var(--bamboo)_30%,transparent)] text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
+              <span className="text-xs font-serif px-2 py-0.5 rounded bg-[color-mix(in_srgb,var(--bamboo)_15%,transparent)] border border-[color-mix(in_srgb,var(--bamboo)_30%,transparent)] text-[var(--ink)] flex items-center gap-1">
                 <BookOpen className="w-3 h-3" />
                 <span>
                   连载 · 《{article.seriesTitle}》

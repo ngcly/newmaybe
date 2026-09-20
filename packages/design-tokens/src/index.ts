@@ -46,6 +46,91 @@ export const dark = {
   'withered-ink': '#d4c7bc',
   bamboo: '#7da08c',
 } as const;
+
+// Club reading surfaces override the shared semantic colors inside the reader.
+// The ink palette stays dark even when the rest of the site uses the light theme.
+export const clubReaderLight = {
+  paper: {
+    paper: light.paper,
+    'paper-deep': light['paper-deep'],
+    ink: light.ink,
+    'ink-soft': light['ink-soft'],
+    'ink-faint': light['ink-faint'],
+    ochre: light.ochre,
+    'ochre-deep': light['ochre-deep'],
+    cinnabar: light.cinnabar,
+    line: light.line,
+  },
+  parchment: {
+    paper: '#f4ecd8',
+    'paper-deep': '#eae0c9',
+    ink: '#3b3226',
+    'ink-soft': '#615442',
+    'ink-faint': '#71624e',
+    ochre: light.ochre,
+    'ochre-deep': light['ochre-deep'],
+    cinnabar: light.cinnabar,
+    line: '#cfc0a4',
+  },
+  bamboo: {
+    paper: '#edf3ea',
+    'paper-deep': '#e1eadc',
+    ink: '#253227',
+    'ink-soft': '#465a48',
+    'ink-faint': '#526b56',
+    ochre: light.ochre,
+    'ochre-deep': light['ochre-deep'],
+    cinnabar: light.cinnabar,
+    line: '#bdcfbc',
+  },
+  ink: {
+    paper: '#181716',
+    'paper-deep': '#24211f',
+    ink: '#e9e3da',
+    'ink-soft': '#c6bcb0',
+    'ink-faint': '#aa9f92',
+    ochre: dark.ochre,
+    'ochre-deep': dark['ochre-deep'],
+    cinnabar: dark.cinnabar,
+    line: '#48413b',
+  },
+} as const;
+
+export const clubReaderDark = {
+  paper: {
+    paper: dark.paper,
+    'paper-deep': dark['paper-deep'],
+    ink: dark.ink,
+    'ink-soft': dark['ink-soft'],
+    'ink-faint': dark['ink-faint'],
+    ochre: dark.ochre,
+    'ochre-deep': dark['ochre-deep'],
+    cinnabar: dark.cinnabar,
+    line: dark.line,
+  },
+  parchment: {
+    paper: '#28231c',
+    'paper-deep': '#352c22',
+    ink: '#ece1ce',
+    'ink-soft': '#c7b8a0',
+    'ink-faint': '#ac9b83',
+    ochre: dark.ochre,
+    'ochre-deep': dark['ochre-deep'],
+    cinnabar: dark.cinnabar,
+    line: '#54483a',
+  },
+  bamboo: {
+    paper: '#1c241e',
+    'paper-deep': '#28332b',
+    ink: '#e0ebdf',
+    'ink-soft': '#b9ccb9',
+    'ink-faint': '#a0b5a0',
+    ochre: dark.ochre,
+    'ochre-deep': dark['ochre-deep'],
+    cinnabar: dark.cinnabar,
+    line: '#465749',
+  },
+} as const;
 export const studyLight = {
   background: '42 33% 96%',
   foreground: '30 10% 16%',

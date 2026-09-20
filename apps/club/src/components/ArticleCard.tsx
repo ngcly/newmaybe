@@ -9,7 +9,7 @@ interface ArticleCardProps {
 
 export default function ArticleCard({ article, onSelect, onSelectTopic }: ArticleCardProps) {
   return (
-    <article className="group bg-[var(--paper)] border border-[var(--line)]/70 hover:border-[var(--ochre)]/60 rounded p-6 sm:p-7 transition-all duration-300 hover:shadow-[0_4px_24px_-6px_rgba(43,39,34,0.07)] dark:hover:shadow-[0_4px_24px_-6px_rgba(0,0,0,0.35)] hover:-translate-y-0.5 flex flex-col justify-between cursor-pointer relative">
+    <article className="group bg-[var(--paper)] border border-[var(--line)]/70 hover:border-[var(--ochre)]/60 rounded p-6 sm:p-7 transition-all duration-300 hover:shadow-[var(--shadow-paper-hover)] hover:-translate-y-0.5 flex flex-col justify-between cursor-pointer relative">
       <div onClick={() => onSelect(article)}>
         {/* Card Header: Topic, Author & Meta in a harmonious line */}
         <div className="flex items-center justify-between gap-3 mb-3.5 flex-wrap">
@@ -81,7 +81,7 @@ export default function ArticleCard({ article, onSelect, onSelectTopic }: Articl
         )}
 
         {/* Summary */}
-        <p className="text-xs sm:text-sm text-[var(--ink-soft)] line-clamp-2 leading-relaxed font-light mb-5 text-justify font-serif opacity-80">
+        <p className="text-xs sm:text-sm text-[var(--ink-soft)] line-clamp-2 leading-relaxed font-light mb-5 text-justify font-serif">
           {article.summary}
         </p>
       </div>
@@ -95,7 +95,7 @@ export default function ArticleCard({ article, onSelect, onSelectTopic }: Articl
         </div>
         <div className="flex items-center gap-3.5">
           <span className="flex items-center gap-1 hover:text-[var(--cinnabar-text)] transition-colors">
-            <Heart className="w-3.5 h-3.5 text-[var(--cinnabar)]/70 dark:text-[#ff7a6d]" />
+            <Heart className="w-3.5 h-3.5 text-[var(--cinnabar)]/70" />
             <span className="text-[11px]">{article.likes}</span>
           </span>
           <span className="flex items-center gap-1 hover:text-[var(--ochre)] transition-colors">

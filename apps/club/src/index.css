@@ -1,6 +1,8 @@
 @import '@newmaybe/shared-styles/tokens.css';
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-serif: var(--serif-cn);
   --font-kai: var(--serif-kai);
@@ -25,8 +27,16 @@
     letter-spacing: 0.02em;
     min-height: 100vh;
     background-image:
-      radial-gradient(circle at 10% 20%, rgba(168, 100, 60, 0.02) 0%, transparent 40%),
-      radial-gradient(circle at 90% 80%, rgba(43, 39, 34, 0.015) 0%, transparent 40%);
+      radial-gradient(
+        circle at 10% 20%,
+        color-mix(in srgb, var(--ochre) 2%, transparent) 0%,
+        transparent 40%
+      ),
+      radial-gradient(
+        circle at 90% 80%,
+        color-mix(in srgb, var(--ink) 1.5%, transparent) 0%,
+        transparent 40%
+      );
   }
 }
 

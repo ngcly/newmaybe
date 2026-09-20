@@ -107,6 +107,8 @@ function jsonResponse(data: unknown, status = 200, request?: Request): Response 
 }
 
 type WriteAction = 'article' | 'comment' | 'like';
+const MAX_ARTICLE_LENGTH = 50_000;
+const MAX_COMMENT_LENGTH = 1_000;
 const WRITE_LIMITS: Record<WriteAction, number> = {
   article: 3,
   comment: 20,
@@ -311,24 +313,26 @@ export default {
         if (!body.title?.trim() || !body.content?.trim() || !body.topicId) {
           return jsonResponse({ error: '标题、正文与投稿专题不能为空' }, 400, request);
         }
+        const content = body.content.trim();
+        if (content.length > MAX_ARTICLE_LENGTH) {
+          return jsonResponse({ error: '正文最多 50000 字，请缩短后再投稿' }, 400, request);
+        }
         const limited = await enforceWriteLimit(request, env.DB, 'article');
         if (limited) return limited;
 
-        const wordCount = body.content.trim().length;
+        const wordCount = content.length;
         const readingTime = Math.max(1, Math.ceil(wordCount / 130));
         const summary =
-          body.summary?.trim() ||
-          body.content
+          content
             .split('\n')
             .find((l) => l.trim().length > 10)
-            ?.slice(0, 80) ||
-          body.content.slice(0, 60);
+            ?.slice(0, 80) || content.slice(0, 60);
 
         const newArticle: Article = {
           id: `club-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           title: body.title.trim().slice(0, 100),
           summary: summary.trim() + '...',
-          content: body.content.trim().slice(0, 50000),
+          content,
           author: body.author?.trim().slice(0, 30) || '文友',
           authorSeal:
             body.authorSeal?.trim().slice(0, 2) || body.author?.trim().slice(0, 2) || '文友',
@@ -340,7 +344,7 @@ export default {
           likes: 1,
           commentsCount: 0,
           seriesTitle: body.seriesTitle?.trim().slice(0, 50) || undefined,
-          seriesOrder: body.seriesOrder ?? undefined,
+          seriesOrder: undefined,
           goldenQuote: body.goldenQuote?.trim().slice(0, 200) || undefined,
           featured: false,
           isUserCreated: true,
@@ -351,7 +355,10 @@ export default {
             id, title, summary, content, author, author_seal,
             topic_id, topic_name, pub_date, reading_time, word_count,
             likes, comments_count, series_title, series_order, golden_quote, featured
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+            CASE WHEN ? IS NULL THEN NULL ELSE
+              (SELECT COALESCE(MAX(series_order), 0) + 1 FROM articles WHERE series_title = ?)
+            END, ?, ?)`,
         )
           .bind(
             newArticle.id,
@@ -368,13 +375,22 @@ export default {
             newArticle.likes,
             newArticle.commentsCount,
             newArticle.seriesTitle || null,
-            newArticle.seriesOrder || null,
+            newArticle.seriesTitle || null,
+            newArticle.seriesTitle || null,
             newArticle.goldenQuote || null,
             0,
           )
           .run();
 
-        return jsonResponse({ success: true, article: newArticle }, 201, request);
+        const savedRow = await env.DB.prepare('SELECT * FROM articles WHERE id = ?')
+          .bind(newArticle.id)
+          .first<RawArticleRow>();
+        if (!savedRow) throw new Error('Published article could not be loaded');
+        return jsonResponse(
+          { success: true, article: { ...mapArticle(savedRow), isUserCreated: true } },
+          201,
+          request,
+        );
       }
 
       // 4. POST /api/articles/:id/like - Like article
@@ -398,6 +414,10 @@ export default {
         if (!body.content?.trim()) {
           return jsonResponse({ error: '评注内容不能为空' }, 400, request);
         }
+        const content = body.content.trim();
+        if (content.length > MAX_COMMENT_LENGTH) {
+          return jsonResponse({ error: '评注最多 1000 字，请缩短后再发表' }, 400, request);
+        }
         const limited = await enforceWriteLimit(request, env.DB, 'comment');
         if (limited) return limited;
 
@@ -405,7 +425,7 @@ export default {
           id: `comm-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           articleId,
           author: body.author?.trim().slice(0, 30) || '文友',
-          content: body.content.trim().slice(0, 1000),
+          content,
           createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
           likes: 0,
         };

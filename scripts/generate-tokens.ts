@@ -1,6 +1,13 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { format, resolveConfig } from 'prettier';
-import { light, dark, studyLight, studyDark } from '../packages/design-tokens/src/index';
+import {
+  light,
+  dark,
+  clubReaderLight,
+  clubReaderDark,
+  studyLight,
+  studyDark,
+} from '../packages/design-tokens/src/index';
 const block = (selector: string, values: Record<string, string>) =>
   selector +
   ' {\n' +
@@ -17,7 +24,18 @@ const outputs = {
     '@media (prefers-color-scheme: dark) {\n' +
     block(':root:not(.light)', dark) +
     '}\n' +
-    block(':root.dark', dark),
+    block(':root.dark', dark) +
+    Object.entries(clubReaderLight)
+      .map(([theme, values]) => block(`.club-reader-theme-${theme}`, values))
+      .join('') +
+    '@media (prefers-color-scheme: dark) {\n' +
+    Object.entries(clubReaderDark)
+      .map(([theme, values]) => block(`:root:not(.light) .club-reader-theme-${theme}`, values))
+      .join('') +
+    '}\n' +
+    Object.entries(clubReaderDark)
+      .map(([theme, values]) => block(`:root.dark .club-reader-theme-${theme}`, values))
+      .join(''),
   'packages/design-tokens/study.css':
     header + '@layer base {\n' + block(':root', studyLight) + block('.dark', studyDark) + '}\n',
 };

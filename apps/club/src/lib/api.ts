@@ -28,14 +28,6 @@ function getLocalArticles(): Article[] {
   return INITIAL_ARTICLES;
 }
 
-function saveLocalArticles(articles: Article[]): void {
-  try {
-    localStorage.setItem(STORAGE_ARTICLES_KEY, JSON.stringify(articles));
-  } catch {
-    /* ignore */
-  }
-}
-
 function getLocalComments(): Record<string, Comment[]> {
   if (typeof window === 'undefined') return INITIAL_COMMENTS;
   try {
@@ -55,7 +47,6 @@ export const ClubAPI = {
       if (res.ok) {
         const data = (await res.json()) as { articles: Article[] };
         if (Array.isArray(data.articles)) {
-          saveLocalArticles(data.articles);
           return data.articles;
         }
       }
@@ -86,7 +77,7 @@ export const ClubAPI = {
 
   // 3. Create new article. A failed request is not a published article.
   async createArticle(
-    newArticleData: Omit<Article, 'id' | 'likes' | 'commentsCount'>,
+    newArticleData: Omit<Article, 'id' | 'likes' | 'commentsCount' | 'summary'>,
   ): Promise<Article> {
     const res = await fetch('/api/articles', {
       method: 'POST',

@@ -69,3 +69,115 @@
   --withered-ink: #d4c7bc;
   --bamboo: #7da08c;
 }
+.club-reader-theme-paper {
+  --paper: #f7f3ec;
+  --paper-deep: #efe9de;
+  --ink: #2b2722;
+  --ink-soft: #5b5349;
+  --ink-faint: #685e51;
+  --ochre: #92502d;
+  --ochre-deep: #8a4f2e;
+  --cinnabar: #c53d31;
+  --line: #d9cfbf;
+}
+.club-reader-theme-parchment {
+  --paper: #f4ecd8;
+  --paper-deep: #eae0c9;
+  --ink: #3b3226;
+  --ink-soft: #615442;
+  --ink-faint: #71624e;
+  --ochre: #92502d;
+  --ochre-deep: #8a4f2e;
+  --cinnabar: #c53d31;
+  --line: #cfc0a4;
+}
+.club-reader-theme-bamboo {
+  --paper: #edf3ea;
+  --paper-deep: #e1eadc;
+  --ink: #253227;
+  --ink-soft: #465a48;
+  --ink-faint: #526b56;
+  --ochre: #92502d;
+  --ochre-deep: #8a4f2e;
+  --cinnabar: #c53d31;
+  --line: #bdcfbc;
+}
+.club-reader-theme-ink {
+  --paper: #181716;
+  --paper-deep: #24211f;
+  --ink: #e9e3da;
+  --ink-soft: #c6bcb0;
+  --ink-faint: #aa9f92;
+  --ochre: #c4814e;
+  --ochre-deep: #a8643c;
+  --cinnabar: #e85548;
+  --line: #48413b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) .club-reader-theme-paper {
+    --paper: #1e1b18;
+    --paper-deep: #262320;
+    --ink: #e8e0d5;
+    --ink-soft: #b5a99a;
+    --ink-faint: #a49789;
+    --ochre: #c4814e;
+    --ochre-deep: #a8643c;
+    --cinnabar: #e85548;
+    --line: #3a3430;
+  }
+  :root:not(.light) .club-reader-theme-parchment {
+    --paper: #28231c;
+    --paper-deep: #352c22;
+    --ink: #ece1ce;
+    --ink-soft: #c7b8a0;
+    --ink-faint: #ac9b83;
+    --ochre: #c4814e;
+    --ochre-deep: #a8643c;
+    --cinnabar: #e85548;
+    --line: #54483a;
+  }
+  :root:not(.light) .club-reader-theme-bamboo {
+    --paper: #1c241e;
+    --paper-deep: #28332b;
+    --ink: #e0ebdf;
+    --ink-soft: #b9ccb9;
+    --ink-faint: #a0b5a0;
+    --ochre: #c4814e;
+    --ochre-deep: #a8643c;
+    --cinnabar: #e85548;
+    --line: #465749;
+  }
+}
+:root.dark .club-reader-theme-paper {
+  --paper: #1e1b18;
+  --paper-deep: #262320;
+  --ink: #e8e0d5;
+  --ink-soft: #b5a99a;
+  --ink-faint: #a49789;
+  --ochre: #c4814e;
+  --ochre-deep: #a8643c;
+  --cinnabar: #e85548;
+  --line: #3a3430;
+}
+:root.dark .club-reader-theme-parchment {
+  --paper: #28231c;
+  --paper-deep: #352c22;
+  --ink: #ece1ce;
+  --ink-soft: #c7b8a0;
+  --ink-faint: #ac9b83;
+  --ochre: #c4814e;
+  --ochre-deep: #a8643c;
+  --cinnabar: #e85548;
+  --line: #54483a;
+}
+:root.dark .club-reader-theme-bamboo {
+  --paper: #1c241e;
+  --paper-deep: #28332b;
+  --ink: #e0ebdf;
+  --ink-soft: #b9ccb9;
+  --ink-faint: #a0b5a0;
+  --ochre: #c4814e;
+  --ochre-deep: #a8643c;
+  --cinnabar: #e85548;
+  --line: #465749;
+}

@@ -14,6 +14,7 @@ export default defineConfig({
       'apps/ai/src/**/*.test.ts',
       'apps/study/src/**/*.test.ts',
       'apps/graph/src/**/*.test.ts',
+      'apps/club/src/**/*.test.ts',
       'scripts/**/*.test.ts',
     ],
   },

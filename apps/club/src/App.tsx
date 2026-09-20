@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { resolveSubdomain as _resolveSubdomain } from '@newmaybe/content/utils';
 import { Sparkles, Clock, BookOpen, Flame, Search } from 'lucide-react';
 import type { Article, Comment, ReaderPreferences, FeedFilter } from './types';
@@ -34,6 +34,14 @@ export default function App() {
   const [isWriterOpen, setIsWriterOpen] = useState(false);
   const [feedFilter, setFeedFilter] = useState<FeedFilter>('featured');
   const [searchQuery, setSearchQuery] = useState('');
+  const articleMutationVersions = useRef<Record<string, number>>({});
+  const feedMutationVersion = useRef(0);
+
+  const markMutation = (articleId: string) => {
+    articleMutationVersions.current[articleId] =
+      (articleMutationVersions.current[articleId] || 0) + 1;
+    feedMutationVersion.current += 1;
+  };
 
   // Reader Preferences
   const [preferences, setPreferences] = useState<ReaderPreferences>(() => {
@@ -88,8 +96,9 @@ export default function App() {
   // Keep the complete article collection independent of the current view filters.
   useEffect(() => {
     let active = true;
+    const version = feedMutationVersion.current;
     ClubAPI.fetchArticles().then((cloudArticles) => {
-      if (!active) return;
+      if (!active || feedMutationVersion.current !== version) return;
       setArticles(cloudArticles);
     });
 
@@ -103,12 +112,14 @@ export default function App() {
   useEffect(() => {
     if (!activeArticleId) return;
     let active = true;
+    const version = articleMutationVersions.current[activeArticleId] || 0;
+    window.scrollTo(0, 0);
     ClubAPI.fetchArticle(activeArticleId).then(({ article: refreshed, comments }) => {
-      if (!active) return;
+      if (!active || (articleMutationVersions.current[activeArticleId] || 0) !== version) return;
       if (refreshed) {
         setSelectedArticle((prev) => (prev?.id === refreshed.id ? refreshed : prev));
       }
-      if (comments && comments.length > 0) {
+      if (Array.isArray(comments)) {
         setCommentsMap((prev) => ({ ...prev, [activeArticleId]: comments }));
       }
     });
@@ -200,6 +211,7 @@ export default function App() {
 
   // Handlers
   const handleLikeArticle = async (articleId: string) => {
+    markMutation(articleId);
     const likes = await ClubAPI.likeArticle(articleId);
     if (likes === null) return;
     setArticles((prev) => prev.map((a) => (a.id === articleId ? { ...a, likes } : a)));
@@ -207,23 +219,23 @@ export default function App() {
   };
 
   const handleAddComment = async (articleId: string, author: string, content: string) => {
+    markMutation(articleId);
     const saved = await ClubAPI.addComment(articleId, author, content);
     setCommentsMap((prev) => ({
       ...prev,
-      [articleId]: [saved, ...(prev[articleId] || [])],
+      [articleId]: [saved, ...(prev[articleId] || []).filter((comment) => comment.id !== saved.id)],
     }));
 
     setArticles((prev) =>
       prev.map((a) => (a.id === articleId ? { ...a, commentsCount: a.commentsCount + 1 } : a)),
     );
-    if (selectedArticle?.id === articleId) {
-      setSelectedArticle((prev) =>
-        prev ? { ...prev, commentsCount: prev.commentsCount + 1 } : null,
-      );
-    }
+    setSelectedArticle((prev) =>
+      prev?.id === articleId ? { ...prev, commentsCount: prev.commentsCount + 1 } : prev,
+    );
   };
 
   const handleLikeComment = (commentId: string) => {
+    if (activeArticleId) markMutation(activeArticleId);
     ClubAPI.likeComment(commentId)
       .then(() => {
         setCommentsMap((prev) => {
@@ -240,8 +252,9 @@ export default function App() {
   };
 
   const handleSubmitArticle = async (
-    newArticleData: Omit<Article, 'id' | 'likes' | 'commentsCount'>,
+    newArticleData: Omit<Article, 'id' | 'likes' | 'commentsCount' | 'summary'>,
   ) => {
+    feedMutationVersion.current += 1;
     const saved = await ClubAPI.createArticle(newArticleData);
     setArticles((prev) => [saved, ...prev.filter((a) => a.id !== saved.id)]);
     setSelectedTopicId(null);
@@ -380,7 +393,9 @@ export default function App() {
                   }`}
                 >
                   全部专题
-                  <span className="opacity-50 text-[10px] ml-1 font-sans">({articles.length})</span>
+                  <span className="text-[var(--ink-faint)] text-[10px] ml-1 font-sans">
+                    ({articles.length})
+                  </span>
                 </button>
                 {TOPICS.map((t) => {
                   const count = articles.filter((a) => a.topicId === t.id).length;
@@ -396,7 +411,9 @@ export default function App() {
                     >
                       <span>{t.icon}</span>
                       <span>{t.name}</span>
-                      <span className="opacity-50 text-[10px] font-sans">({count})</span>
+                      <span className="text-[var(--ink-faint)] text-[10px] font-sans">
+                        ({count})
+                      </span>
                     </button>
                   );
                 })}

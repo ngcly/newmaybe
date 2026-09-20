@@ -19,36 +19,26 @@ const PAPER_THEMES: {
   id: PaperTheme;
   name: string;
   desc: string;
-  previewBg: string;
-  previewText: string;
 }[] = [
   {
     id: 'paper',
     name: '宣纸白',
     desc: '天然纸感',
-    previewBg: 'bg-[#faf8f5] dark:bg-[#1a1816]',
-    previewText: 'text-[#2b2723] dark:text-[#eae6e1]',
   },
   {
     id: 'parchment',
     name: '羊皮暖',
     desc: '温润护眼',
-    previewBg: 'bg-[#f4ecd8] dark:bg-[#28231c]',
-    previewText: 'text-[#3b3226] dark:text-[#dfd5c5]',
   },
   {
     id: 'bamboo',
     name: '竹青静',
     desc: '清雅微凉',
-    previewBg: 'bg-[#edf3ea] dark:bg-[#1c241e]',
-    previewText: 'text-[#253227] dark:text-[#d0ded0]',
   },
   {
     id: 'ink',
     name: '松墨夜',
     desc: '沉浸夜读',
-    previewBg: 'bg-[#181716]',
-    previewText: 'text-[#c8c3bc]',
   },
 ];
 
@@ -62,7 +52,7 @@ const FONT_SIZES: { id: ReaderFontSize; label: string; px: string }[] = [
   { id: 'sm', label: '小', px: '16px' },
   { id: 'md', label: '标准', px: '18px' },
   { id: 'lg', label: '较大', px: '20px' },
-  { id: 'xl', label: '特大', px: '22px' },
+  { id: 'xl', label: '特大', px: '24px' },
 ];
 
 const LINE_HEIGHTS: { id: ReaderLineHeight; label: string }[] = [
@@ -126,7 +116,7 @@ export default function ReaderSettingsDrawer({
                 <button
                   key={theme.id}
                   onClick={() => onChange({ ...preferences, theme: theme.id })}
-                  className={`p-3 rounded border text-left transition-all cursor-pointer flex flex-col justify-between h-18 ${theme.previewBg} ${theme.previewText} ${
+                  className={`club-reader-theme-${theme.id} p-3 rounded border text-left transition-all cursor-pointer flex flex-col justify-between h-18 bg-[var(--paper)] text-[var(--ink)] ${
                     active
                       ? 'border-[var(--ochre)] ring-2 ring-[var(--ochre)]/20 shadow-xs'
                       : 'border-[var(--line)] opacity-85 hover:opacity-100'

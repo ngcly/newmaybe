@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Download, Copy, Check, Sparkles } from 'lucide-react';
+import { light } from '@newmaybe/design-tokens';
 
 interface QuoteCardModalProps {
   isOpen: boolean;
@@ -38,40 +39,38 @@ export default function QuoteCardModal({
 
     canvas.width = width * dpr;
     canvas.height = height * dpr;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
 
     ctx.scale(dpr, dpr);
 
     // Background: Warm Rice Paper
-    ctx.fillStyle = '#faf7f2';
+    ctx.fillStyle = light.paper;
     ctx.fillRect(0, 0, width, height);
 
     // Subtle paper edge border
-    ctx.strokeStyle = '#e6ded3';
+    ctx.strokeStyle = light.line;
     ctx.lineWidth = 1;
     ctx.strokeRect(20, 20, width - 40, height - 40);
 
     // Inner subtle decorative dashed border
-    ctx.strokeStyle = '#dfd5c5';
+    ctx.strokeStyle = light.line;
     ctx.lineWidth = 0.8;
     ctx.setLineDash([4, 4]);
     ctx.strokeRect(28, 28, width - 56, height - 56);
     ctx.setLineDash([]);
 
     // Top Header: Branding & Topic
-    ctx.fillStyle = '#9b5d38'; // Ochre
+    ctx.fillStyle = light.ochre;
     ctx.font = 'italic 13px "Noto Serif SC", "Songti SC", "SimSun", serif';
     ctx.textAlign = 'left';
     ctx.fillText(`NEWMAYBE CLUB · ${topicName.toUpperCase()}`, 52, 68);
 
-    ctx.fillStyle = '#8f887f';
+    ctx.fillStyle = light['ink-faint'];
     ctx.font = '12px "Noto Serif SC", "Songti SC", "SimSun", serif';
     ctx.textAlign = 'right';
     ctx.fillText('文友雅集 · 纸签便览', width - 52, 68);
 
     // Divider
-    ctx.strokeStyle = '#e4dcd0';
+    ctx.strokeStyle = light.line;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(52, 86);
@@ -79,13 +78,15 @@ export default function QuoteCardModal({
     ctx.stroke();
 
     // Decorative Quote Marks
-    ctx.fillStyle = 'rgba(168, 100, 60, 0.18)';
+    ctx.fillStyle = light.ochre;
+    ctx.globalAlpha = 0.18;
     ctx.font = '72px "Noto Serif SC", "Songti SC", Georgia, serif';
     ctx.textAlign = 'left';
     ctx.fillText('“', 48, 158);
+    ctx.globalAlpha = 1;
 
     // Body: Wrap and draw quote text
-    ctx.fillStyle = '#2d2925'; // Ink
+    ctx.fillStyle = light.ink;
     ctx.font = '300 20px/1.8 "Noto Serif SC", "Songti SC", "SimSun", serif';
     const maxWidth = width - 110;
     const lineHeight = 38;
@@ -128,17 +129,19 @@ export default function QuoteCardModal({
     });
 
     // Decorative Closing Quote Mark
-    ctx.fillStyle = 'rgba(168, 100, 60, 0.18)';
+    ctx.fillStyle = light.ochre;
+    ctx.globalAlpha = 0.18;
     ctx.font = '72px "Noto Serif SC", "Songti SC", Georgia, serif';
     ctx.textAlign = 'right';
     const lastY = Math.min(height - 230, startY + visibleLines.length * lineHeight + 20);
     ctx.fillText('”', width - 52, lastY);
+    ctx.globalAlpha = 1;
 
     // Bottom Colophon Area
     const colophonY = height - 160;
 
     // Divider
-    ctx.strokeStyle = '#e4dcd0';
+    ctx.strokeStyle = light.line;
     ctx.beginPath();
     ctx.moveTo(52, colophonY);
     ctx.lineTo(width - 52, colophonY);
@@ -146,16 +149,16 @@ export default function QuoteCardModal({
 
     // Source Article & Author info
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#6b635a';
+    ctx.fillStyle = light['ink-soft'];
     ctx.font = '13px "Noto Serif SC", "Songti SC", "SimSun", serif';
     ctx.fillText('引自篇章', 52, colophonY + 34);
 
-    ctx.fillStyle = '#221e1a';
+    ctx.fillStyle = light.ink;
     ctx.font = 'bold 15px "Noto Serif SC", "Songti SC", "SimSun", serif';
     const displayTitle = articleTitle.length > 22 ? articleTitle.slice(0, 21) + '…' : articleTitle;
     ctx.fillText(`《${displayTitle}》`, 52, colophonY + 58);
 
-    ctx.fillStyle = '#7a7268';
+    ctx.fillStyle = light['ink-soft'];
     ctx.font = '13px "Noto Serif SC", "Songti SC", "SimSun", serif';
     ctx.fillText(`作者 · ${author}`, 52, colophonY + 82);
 
@@ -164,11 +167,11 @@ export default function QuoteCardModal({
     const sealX = width - 52 - sealSize;
     const sealY = colophonY + 30;
 
-    ctx.strokeStyle = '#b83b26'; // Cinnabar
+    ctx.strokeStyle = light.cinnabar;
     ctx.lineWidth = 1.8;
     ctx.strokeRect(sealX, sealY, sealSize, sealSize);
 
-    ctx.fillStyle = '#b83b26';
+    ctx.fillStyle = light.cinnabar;
     ctx.font = '15px "Noto Serif SC", "STKaiti", "KaiTi", serif';
     ctx.textAlign = 'center';
     const sealChars = (authorSeal || '文友').slice(0, 2);
@@ -176,7 +179,7 @@ export default function QuoteCardModal({
     ctx.fillText(sealChars[1] || '友', sealX + sealSize / 2, sealY + 42);
 
     // Footer Watermark
-    ctx.fillStyle = '#a69f95';
+    ctx.fillStyle = light['ink-faint'];
     ctx.font = '11px "Noto Serif SC", "Songti SC", serif';
     ctx.textAlign = 'center';
     ctx.fillText('club.newmaybe.com · 字里相逢，行间留白', width / 2, height - 38);
@@ -293,8 +296,8 @@ export default function QuoteCardModal({
               >
                 {copied ? (
                   <>
-                    <Check className="w-4 h-4 text-emerald-600" />
-                    <span className="text-emerald-600">已复制金句到剪贴板</span>
+                    <Check className="w-4 h-4 text-[var(--bamboo)]" />
+                    <span className="text-[var(--bamboo)]">已复制金句到剪贴板</span>
                   </>
                 ) : (
                   <>
@@ -308,7 +311,7 @@ export default function QuoteCardModal({
 
           {/* Right / Bottom: Live Preview Canvas */}
           <div className="md:col-span-6 flex flex-col items-center">
-            <div className="border border-[var(--line)] rounded shadow-md overflow-hidden max-w-[280px] sm:max-w-[320px] bg-[#faf7f2]">
+            <div className="border border-[var(--line)] rounded shadow-md overflow-hidden w-full max-w-[280px] sm:max-w-[320px] bg-[var(--paper)]">
               <canvas ref={canvasRef} className="w-full h-auto block" />
             </div>
             <span className="text-[11px] font-serif text-[var(--ink-faint)] mt-2 italic">

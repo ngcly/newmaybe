@@ -13,7 +13,7 @@ export default function TopicCard({ topic, isSelected, onSelect }: TopicCardProp
       className={`p-6 rounded border transition-all duration-300 cursor-pointer flex flex-col justify-between group ${
         isSelected
           ? 'bg-[var(--paper)] border-[var(--ochre)] shadow-sm'
-          : 'bg-[var(--paper)] border-[var(--line)]/70 hover:border-[var(--ochre)]/60 hover:shadow-[0_4px_20px_-4px_rgba(43,39,34,0.06)] dark:hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.3)] hover:-translate-y-0.5'
+          : 'bg-[var(--paper)] border-[var(--line)]/70 hover:border-[var(--ochre)]/60 hover:shadow-[var(--shadow-paper-hover)] hover:-translate-y-0.5'
       }`}
     >
       <div>
@@ -26,7 +26,7 @@ export default function TopicCard({ topic, isSelected, onSelect }: TopicCardProp
         <h4 className="font-serif font-medium text-base sm:text-lg text-[var(--ink)] group-hover:text-[var(--ochre)] transition-colors mb-2">
           {topic.name}
         </h4>
-        <p className="text-xs sm:text-sm text-[var(--ink-soft)] leading-relaxed font-light line-clamp-2 font-serif opacity-80">
+        <p className="text-xs sm:text-sm text-[var(--ink-soft)] leading-relaxed font-light line-clamp-2 font-serif">
           {topic.desc}
         </p>
       </div>
