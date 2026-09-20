@@ -18,6 +18,8 @@
 
 > `ai` / `studio` / `study` / `club` 是 React + Vite 应用，框架预设选 **Vite**；`main` / `graph` / `lab` 选 **Astro**。
 
+`club` 的写入限额使用 D1 `write_limits` 表。首次部署或升级 Worker 前，先在仓库根目录执行 `npx wrangler d1 execute newmaybe-club-db --remote --file=apps/club/schema.sql`。SQL 使用 `IF NOT EXISTS`，不会删除已有文章或评论。当前限额按 Cloudflare 提供的访问来源计算，每小时最多投稿 3 篇、评论 20 条、点赞 60 次。
+
 ---
 
 ## 创建 Workers 项目

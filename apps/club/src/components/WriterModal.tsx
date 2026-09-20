@@ -6,7 +6,7 @@ interface WriterModalProps {
   topics: Topic[];
   isOpen: boolean;
   onClose: () => void;
-  onSubmitArticle: (newArticle: Omit<Article, 'id' | 'likes' | 'commentsCount'>) => void;
+  onSubmitArticle: (newArticle: Omit<Article, 'id' | 'likes' | 'commentsCount'>) => Promise<void>;
 }
 
 const STORAGE_DRAFT_KEY = 'newmaybe_club_writer_draft';
@@ -63,6 +63,8 @@ export default function WriterModal({
   const [goldenQuote, setGoldenQuote] = useState(() => initialDraft?.goldenQuote || '');
   const [content, setContent] = useState(() => initialDraft?.content || '');
   const [hasRestoredDraft, setHasRestoredDraft] = useState(() => Boolean(initialDraft));
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   // Auto-save draft every 2s
   useEffect(() => {
@@ -105,9 +107,9 @@ export default function WriterModal({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) return;
+    if (!title.trim() || !content.trim() || isSubmitting) return;
 
     const summary =
       content
@@ -117,26 +119,52 @@ export default function WriterModal({
 
     const today = new Date().toISOString().split('T')[0];
 
-    onSubmitArticle({
-      title: title.trim(),
-      summary: summary.trim() + '...',
-      content: content.trim(),
-      author: author.trim() || '文友',
-      authorSeal: authorSeal.trim() || (author.trim() ? author.trim().slice(0, 2) : '未定'),
-      topicId: chosenTopic.id,
-      topicName: chosenTopic.name,
-      pubDate: today,
-      readingTime,
-      wordCount,
-      isUserCreated: true,
-      seriesTitle: seriesTitle.trim() || undefined,
-      goldenQuote: goldenQuote.trim() || undefined,
-      featured: false,
-    });
-
-    // Clear saved draft on successful submit
-    localStorage.removeItem(STORAGE_DRAFT_KEY);
-    onClose();
+    setIsSubmitting(true);
+    setSubmitError('');
+    try {
+      await onSubmitArticle({
+        title: title.trim(),
+        summary: summary.trim() + '...',
+        content: content.trim(),
+        author: author.trim() || '文友',
+        authorSeal: authorSeal.trim() || (author.trim() ? author.trim().slice(0, 2) : '未定'),
+        topicId: chosenTopic.id,
+        topicName: chosenTopic.name,
+        pubDate: today,
+        readingTime,
+        wordCount,
+        isUserCreated: true,
+        seriesTitle: seriesTitle.trim() || undefined,
+        goldenQuote: goldenQuote.trim() || undefined,
+        featured: false,
+      });
+      try {
+        localStorage.removeItem(STORAGE_DRAFT_KEY);
+      } catch {
+        // Publishing succeeded even if local storage is unavailable.
+      }
+      onClose();
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : '投稿失败，请稍后重试');
+      try {
+        localStorage.setItem(
+          STORAGE_DRAFT_KEY,
+          JSON.stringify({
+            title,
+            author,
+            authorSeal,
+            topicId,
+            seriesTitle,
+            goldenQuote,
+            content,
+          }),
+        );
+      } catch {
+        // The current editor still retains the draft if storage is unavailable.
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -390,6 +418,11 @@ export default function WriterModal({
           )}
 
           {/* Footer Actions */}
+          {submitError && (
+            <p role="alert" className="text-xs font-serif text-[var(--cinnabar)]">
+              {submitError}。草稿已保留，可重试发布。
+            </p>
+          )}
           <div className="flex items-center justify-between pt-4 border-t border-[var(--line)]">
             <span className="text-xs font-serif text-[var(--ink-faint)] italic hidden sm:inline">
               字里相逢，行间留白。
@@ -404,10 +437,10 @@ export default function WriterModal({
               </button>
               <button
                 type="submit"
-                disabled={!title.trim() || !content.trim()}
+                disabled={isSubmitting || !title.trim() || !content.trim()}
                 className="px-5 py-2 text-xs font-serif font-medium text-[var(--paper)] bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] rounded transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-xs"
               >
-                发布到文友雅集
+                {isSubmitting ? '发布中…' : '发布到文友雅集'}
               </button>
             </div>
           </div>

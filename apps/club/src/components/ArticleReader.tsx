@@ -23,8 +23,8 @@ interface ArticleReaderProps {
   onResetPreferences: () => void;
   onBack: () => void;
   onSelectArticle: (article: Article) => void;
-  onLikeArticle: (articleId: string) => void;
-  onAddComment: (articleId: string, author: string, content: string) => void;
+  onLikeArticle: (articleId: string) => Promise<void>;
+  onAddComment: (articleId: string, author: string, content: string) => Promise<void>;
   onLikeComment: (commentId: string) => void;
 }
 
@@ -42,16 +42,22 @@ export default function ArticleReader({
   onLikeComment,
 }: ArticleReaderProps) {
   const [hasLiked, setHasLiked] = useState(false);
+  const [likeError, setLikeError] = useState('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isQuoteCardOpen, setIsQuoteCardOpen] = useState(false);
   const [selectedQuoteText, setSelectedQuoteText] = useState(
     article.goldenQuote || article.summary || '',
   );
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (!hasLiked) {
-      onLikeArticle(article.id);
-      setHasLiked(true);
+      try {
+        await onLikeArticle(article.id);
+        setHasLiked(true);
+        setLikeError('');
+      } catch {
+        setLikeError('点赞失败，请稍后重试');
+      }
     }
   };
 
@@ -266,6 +272,11 @@ export default function ArticleReader({
               <span>{hasLiked ? '已共鸣' : '投递喜欢'}</span>
               <span className="font-serif">({article.likes})</span>
             </button>
+            {likeError && (
+              <span role="alert" className="text-xs text-[var(--cinnabar)]">
+                {likeError}
+              </span>
+            )}
           </div>
         </div>
 

@@ -3,7 +3,7 @@ import type { Comment } from '../types';
 
 interface CommentSectionProps {
   comments: Comment[];
-  onAddComment: (author: string, content: string) => void;
+  onAddComment: (author: string, content: string) => Promise<void>;
   onLikeComment: (commentId: string) => void;
 }
 
@@ -15,15 +15,22 @@ export default function CommentSection({
   const [authorName, setAuthorName] = useState('');
   const [commentText, setCommentText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentText.trim()) return;
     setIsSubmitting(true);
+    setSubmitError('');
     const author = authorName.trim() || '文友';
-    onAddComment(author, commentText.trim());
-    setCommentText('');
-    setIsSubmitting(false);
+    try {
+      await onAddComment(author, commentText.trim());
+      setCommentText('');
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : '评注发表失败，请重试');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -70,6 +77,11 @@ export default function CommentSection({
           />
         </div>
 
+        {submitError && (
+          <p role="alert" className="mb-3 text-xs text-[var(--cinnabar)]">
+            {submitError}
+          </p>
+        )}
         <div className="flex justify-end">
           <button
             type="submit"

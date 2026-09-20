@@ -85,24 +85,18 @@ export default function App() {
     return INITIAL_COMMENTS;
   });
 
-  // Fetch articles from Cloudflare D1 backend on mount / filter change
+  // Keep the complete article collection independent of the current view filters.
   useEffect(() => {
     let active = true;
-    ClubAPI.fetchArticles({
-      topicId: selectedTopicId,
-      filter: feedFilter,
-      q: searchQuery,
-    }).then((cloudArticles) => {
+    ClubAPI.fetchArticles().then((cloudArticles) => {
       if (!active) return;
-      if (cloudArticles && cloudArticles.length > 0) {
-        setArticles(cloudArticles);
-      }
+      setArticles(cloudArticles);
     });
 
     return () => {
       active = false;
     };
-  }, [selectedTopicId, feedFilter, searchQuery]);
+  }, []);
 
   // Fetch comments from Cloudflare D1 when an article is opened
   const activeArticleId = selectedArticle?.id;
@@ -205,27 +199,18 @@ export default function App() {
     });
 
   // Handlers
-  const handleLikeArticle = (articleId: string) => {
-    setArticles((prev) => prev.map((a) => (a.id === articleId ? { ...a, likes: a.likes + 1 } : a)));
-    if (selectedArticle?.id === articleId) {
-      setSelectedArticle((prev) => (prev ? { ...prev, likes: prev.likes + 1 } : null));
-    }
-    ClubAPI.likeArticle(articleId).catch(() => {});
+  const handleLikeArticle = async (articleId: string) => {
+    const likes = await ClubAPI.likeArticle(articleId);
+    if (likes === null) return;
+    setArticles((prev) => prev.map((a) => (a.id === articleId ? { ...a, likes } : a)));
+    setSelectedArticle((prev) => (prev?.id === articleId ? { ...prev, likes } : prev));
   };
 
-  const handleAddComment = (articleId: string, author: string, content: string) => {
-    const tempComment: Comment = {
-      id: 'comm-' + Date.now(),
-      articleId,
-      author,
-      content,
-      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      likes: 0,
-    };
-
+  const handleAddComment = async (articleId: string, author: string, content: string) => {
+    const saved = await ClubAPI.addComment(articleId, author, content);
     setCommentsMap((prev) => ({
       ...prev,
-      [articleId]: [tempComment, ...(prev[articleId] || [])],
+      [articleId]: [saved, ...(prev[articleId] || [])],
     }));
 
     setArticles((prev) =>
@@ -236,50 +221,32 @@ export default function App() {
         prev ? { ...prev, commentsCount: prev.commentsCount + 1 } : null,
       );
     }
-
-    ClubAPI.addComment(articleId, author, content)
-      .then((saved) => {
-        setCommentsMap((prev) => ({
-          ...prev,
-          [articleId]: (prev[articleId] || []).map((c) => (c.id === tempComment.id ? saved : c)),
-        }));
-      })
-      .catch(() => {});
   };
 
   const handleLikeComment = (commentId: string) => {
-    setCommentsMap((prev) => {
-      const next = { ...prev };
-      for (const key of Object.keys(next)) {
-        next[key] = next[key].map((c) => (c.id === commentId ? { ...c, likes: c.likes + 1 } : c));
-      }
-      return next;
-    });
-    ClubAPI.likeComment(commentId).catch(() => {});
+    ClubAPI.likeComment(commentId)
+      .then(() => {
+        setCommentsMap((prev) => {
+          const next = { ...prev };
+          for (const key of Object.keys(next)) {
+            next[key] = next[key].map((c) =>
+              c.id === commentId ? { ...c, likes: c.likes + 1 } : c,
+            );
+          }
+          return next;
+        });
+      })
+      .catch(() => {});
   };
 
   const handleSubmitArticle = async (
     newArticleData: Omit<Article, 'id' | 'likes' | 'commentsCount'>,
   ) => {
-    const tempArticle: Article = {
-      ...newArticleData,
-      id: 'club-' + Date.now(),
-      likes: 1,
-      commentsCount: 0,
-    };
-
-    setArticles((prev) => [tempArticle, ...prev]);
+    const saved = await ClubAPI.createArticle(newArticleData);
+    setArticles((prev) => [saved, ...prev.filter((a) => a.id !== saved.id)]);
     setSelectedTopicId(null);
     setCurrentTab('plaza');
-    setSelectedArticle(tempArticle);
-
-    try {
-      const saved = await ClubAPI.createArticle(newArticleData);
-      setArticles((prev) => [saved, ...prev.filter((a) => a.id !== tempArticle.id)]);
-      setSelectedArticle(saved);
-    } catch {
-      /* ignore */
-    }
+    setSelectedArticle(saved);
   };
 
   return (
@@ -301,6 +268,7 @@ export default function App() {
       <main className="flex-grow">
         {selectedArticle ? (
           <ArticleReader
+            key={selectedArticle.id}
             article={selectedArticle}
             allArticles={articles}
             comments={commentsMap[selectedArticle.id] || []}

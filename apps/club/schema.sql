@@ -38,3 +38,13 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 
 CREATE INDEX IF NOT EXISTS idx_comments_article_id ON comments (article_id, created_at DESC);
+
+-- Anonymous writes are bounded per source and hour. Keys contain a SHA-256 digest,
+-- not the source IP address. Apply this schema before deploying the updated Worker.
+CREATE TABLE IF NOT EXISTS write_limits (
+  key TEXT PRIMARY KEY,
+  period_start INTEGER NOT NULL,
+  hits INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_write_limits_period ON write_limits (period_start);

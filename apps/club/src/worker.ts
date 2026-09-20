@@ -106,6 +106,45 @@ function jsonResponse(data: unknown, status = 200, request?: Request): Response 
   return new Response(JSON.stringify(data), { status, headers });
 }
 
+type WriteAction = 'article' | 'comment' | 'like';
+const WRITE_LIMITS: Record<WriteAction, number> = {
+  article: 3,
+  comment: 20,
+  like: 60,
+};
+
+async function enforceWriteLimit(
+  request: Request,
+  db: D1Database,
+  action: WriteAction,
+): Promise<Response | null> {
+  // Cloudflare supplies this header to Workers. Missing addresses share one bucket.
+  const address = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const bytes = new TextEncoder().encode(address);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  const source = Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, '0'),
+  ).join('');
+  const periodStart = Math.floor(Date.now() / 3_600_000) * 3_600;
+  const key = `${action}:${source}:${periodStart}`;
+  await db
+    .prepare('DELETE FROM write_limits WHERE period_start < ?')
+    .bind(periodStart - 86_400)
+    .run();
+  const result = await db
+    .prepare(
+      `INSERT INTO write_limits (key, period_start, hits) VALUES (?, ?, 1)
+     ON CONFLICT(key) DO UPDATE SET hits = hits + 1
+       WHERE hits < ?
+     RETURNING hits`,
+    )
+    .bind(key, periodStart, WRITE_LIMITS[action])
+    .first<{ hits: number }>();
+
+  if (result) return null;
+  return jsonResponse({ error: '操作过于频繁，请稍后再试' }, 429, request);
+}
+
 // Auto seed initial data if DB is empty
 async function ensureSeedData(db: D1Database): Promise<void> {
   try {
@@ -272,6 +311,8 @@ export default {
         if (!body.title?.trim() || !body.content?.trim() || !body.topicId) {
           return jsonResponse({ error: '标题、正文与投稿专题不能为空' }, 400, request);
         }
+        const limited = await enforceWriteLimit(request, env.DB, 'article');
+        if (limited) return limited;
 
         const wordCount = body.content.trim().length;
         const readingTime = Math.max(1, Math.ceil(wordCount / 130));
@@ -340,6 +381,8 @@ export default {
       const articleLikeMatch = url.pathname.match(/^\/api\/articles\/([^/]+)\/like$/);
       if (request.method === 'POST' && articleLikeMatch) {
         const id = articleLikeMatch[1];
+        const limited = await enforceWriteLimit(request, env.DB, 'like');
+        if (limited) return limited;
         await env.DB.prepare('UPDATE articles SET likes = likes + 1 WHERE id = ?').bind(id).run();
         const row = await env.DB.prepare('SELECT likes FROM articles WHERE id = ?')
           .bind(id)
@@ -355,6 +398,8 @@ export default {
         if (!body.content?.trim()) {
           return jsonResponse({ error: '评注内容不能为空' }, 400, request);
         }
+        const limited = await enforceWriteLimit(request, env.DB, 'comment');
+        if (limited) return limited;
 
         const newComment: Comment = {
           id: `comm-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
@@ -388,6 +433,8 @@ export default {
       const commentLikeMatch = url.pathname.match(/^\/api\/comments\/([^/]+)\/like$/);
       if (request.method === 'POST' && commentLikeMatch) {
         const commentId = commentLikeMatch[1];
+        const limited = await enforceWriteLimit(request, env.DB, 'like');
+        if (limited) return limited;
         await env.DB.prepare('UPDATE comments SET likes = likes + 1 WHERE id = ?')
           .bind(commentId)
           .run();
