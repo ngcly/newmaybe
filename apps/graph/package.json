@@ -6,7 +6,8 @@
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev --port 4322",
     "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "typecheck": "ASTRO_TELEMETRY_DISABLED=1 astro check"
   },
   "dependencies": {
     "@newmaybe/content": "*",

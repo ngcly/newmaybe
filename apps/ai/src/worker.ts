@@ -1,4 +1,12 @@
 import { AI_MAX_TOTAL_CHARS } from '@newmaybe/ai-client';
+import {
+  ALLOWED_ORIGINS,
+  securityReady,
+  isLocalTest,
+  verifyChallenge,
+  readBoundedBody,
+  type SecurityEnv,
+} from './security';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -9,14 +17,15 @@ interface RateLimitResult {
   success: boolean;
 }
 
-interface Env {
+export interface Env extends SecurityEnv {
   AI: {
     run: (
       model: string,
       input: { messages: ChatMessage[]; stream: boolean; max_tokens: number },
     ) => Promise<ReadableStream>;
   };
-  RATE_LIMITER: {
+  BURST_LIMITER?: { limit: (options: { key: string }) => Promise<RateLimitResult> };
+  RATE_LIMITER?: {
     limit: (options: { key: string }) => Promise<RateLimitResult>;
   };
 }
@@ -24,15 +33,6 @@ interface Env {
 const MAX_TOKENS = 2048;
 const MAX_BODY_BYTES = 32 * 1024;
 const MAX_MESSAGES = 30;
-const ALLOWED_ORIGINS = new Set([
-  'https://newmaybe.com',
-  'https://ai.newmaybe.com',
-  'https://study.newmaybe.com',
-  'https://studio.newmaybe.com',
-  'http://localhost:4324',
-  'http://localhost:4326',
-  'http://localhost:4327',
-]);
 
 function corsHeaders(request: Request): Record<string, string> {
   const origin = request.headers.get('Origin');
@@ -40,8 +40,8 @@ function corsHeaders(request: Request): Record<string, string> {
     ? {
         'Access-Control-Allow-Origin': origin,
         Vary: 'Origin',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, X-Turnstile-Token',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       }
     : {};
 }
@@ -72,16 +72,35 @@ export default {
     const url = new URL(request.url);
     const cors = corsHeaders(request);
 
+    if (url.pathname === '/api/security' && request.method === 'GET') {
+      const ready =
+        securityReady(request, env) && Boolean(env.AI && env.RATE_LIMITER && env.BURST_LIMITER);
+      return Response.json(
+        ready
+          ? { required: !isLocalTest(request, env), siteKey: env.TURNSTILE_SITE_KEY }
+          : { error: 'Service not configured' },
+        { status: ready ? 200 : 503, headers: { ...cors, 'Cache-Control': 'no-store' } },
+      );
+    }
     if (url.pathname === '/api/chat' && request.method === 'POST') {
       try {
         const origin = request.headers.get('Origin');
-        if (origin && !ALLOWED_ORIGINS.has(origin)) {
+        if (!origin || !ALLOWED_ORIGINS.has(origin)) {
           return new Response(JSON.stringify({ error: 'Origin not allowed' }), {
             status: 403,
             headers: { 'Content-Type': 'application/json' },
           });
         }
 
+        if (!request.headers.get('Content-Type')?.toLowerCase().startsWith('application/json')) {
+          return Response.json(
+            { error: 'Expected application/json' },
+            { status: 415, headers: cors },
+          );
+        }
+        if (!securityReady(request, env) || !env.AI || !env.RATE_LIMITER || !env.BURST_LIMITER) {
+          return Response.json({ error: 'Service not configured' }, { status: 503, headers: cors });
+        }
         const contentLength = Number(request.headers.get('Content-Length') || 0);
         if (contentLength > MAX_BODY_BYTES) {
           return new Response(JSON.stringify({ error: 'Request body too large' }), {
@@ -90,13 +109,13 @@ export default {
           });
         }
 
-        const clientKey =
-          request.headers.get('CF-Connecting-IP') ||
-          request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim() ||
-          'unknown';
+        const clientKey = request.headers.get('CF-Connecting-IP') || 'unknown';
         if (env.RATE_LIMITER) {
           const rate = await env.RATE_LIMITER.limit({ key: clientKey });
-          if (!rate.success) {
+          const burst = rate.success
+            ? await env.BURST_LIMITER.limit({ key: 'free-ai' })
+            : { success: false };
+          if (!rate.success || !burst.success) {
             return new Response(JSON.stringify({ error: 'Too many requests' }), {
               status: 429,
               headers: { 'Content-Type': 'application/json', 'Retry-After': '60', ...cors },
@@ -104,15 +123,15 @@ export default {
           }
         }
 
-        const rawBody = await request.text();
+        const rawBody = await readBoundedBody(request, MAX_BODY_BYTES);
         if (new TextEncoder().encode(rawBody).byteLength > MAX_BODY_BYTES) {
           return new Response(JSON.stringify({ error: 'Request body too large' }), {
             status: 413,
             headers: { 'Content-Type': 'application/json', ...cors },
           });
         }
-        const payload = JSON.parse(rawBody) as { messages?: unknown };
-        const messages = validateMessages(payload.messages);
+        const payload = JSON.parse(rawBody) as { messages?: unknown } | null;
+        const messages = validateMessages(payload?.messages);
         if (!messages) {
           return new Response(JSON.stringify({ error: 'Invalid messages' }), {
             status: 400,
@@ -120,11 +139,8 @@ export default {
           });
         }
 
-        if (!env.AI) {
-          return new Response(JSON.stringify({ error: 'Workers AI binding is missing.' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json', ...cors },
-          });
+        if (!(await verifyChallenge(request, env))) {
+          return Response.json({ error: '验证失败，请重试。' }, { status: 403, headers: cors });
         }
 
         const primaryModel = '@cf/meta/llama-3.1-8b-instruct';
@@ -167,9 +183,15 @@ export default {
           });
         }
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Internal Server Error';
+        const status = err instanceof SyntaxError ? 400 : err instanceof RangeError ? 413 : 503;
+        const message =
+          status === 400
+            ? 'Invalid JSON'
+            : status === 413
+              ? 'Request body too large'
+              : 'AI 服务暂不可用，请稍后重试。';
         return new Response(JSON.stringify({ error: message }), {
-          status: 500,
+          status,
           headers: { 'Content-Type': 'application/json', ...cors },
         });
       }

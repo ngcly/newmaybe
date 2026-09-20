@@ -14,5 +14,16 @@ name = "RATE_LIMITER"
 namespace_id = "1001"
 
   [ratelimits.simple]
+  limit = 6
+  period = 60
+
+[[ratelimits]]
+name = "BURST_LIMITER"
+namespace_id = "1002"
+
+  [ratelimits.simple]
   limit = 30
   period = 60
+
+# Set TURNSTILE_SITE_KEY as a Worker variable, TURNSTILE_SECRET_KEY via wrangler secret.
+# ALLOW_LOCAL_TESTS is accepted only on localhost, never on a production host.

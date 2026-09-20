@@ -82,6 +82,7 @@ export function setupPage() {
     ecoDropdown?.classList.toggle('open', isOpen);
     ecoTrigger?.setAttribute('aria-expanded', String(isOpen));
     ecoDropdown?.setAttribute('aria-hidden', String(!isOpen));
+    if (ecoDropdown) ecoDropdown.inert = !isOpen;
   };
   ecoTrigger?.addEventListener('click', (e) => {
     e.stopPropagation();

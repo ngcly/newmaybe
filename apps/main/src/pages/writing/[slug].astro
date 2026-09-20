@@ -9,6 +9,7 @@ import FontScaler from '../../components/FontScaler.astro';
 import ResumeToast from '../../components/ResumeToast.astro';
 import PostNav from '../../components/PostNav.astro';
 import RelatedConnections from '../../components/RelatedConnections.astro';
+import SealStamp from '../../components/SealStamp.astro';
 import '../../styles/article.css';
 
 // 为每篇文章生成一个静态页面
@@ -146,6 +147,12 @@ const hasToc = !isPoetry && toc.length >= 2;
           </div>
         )
       }
+
+      <div class="post-colophon reveal" aria-hidden="true">
+        <div class="colophon-line"></div>
+        <SealStamp text="留白" type="yin" size="sm" title="留白印款" />
+        <div class="colophon-line"></div>
+      </div>
 
       <PostNav prev={prev ?? undefined} next={next ?? undefined} />
       <RelatedConnections connections={connections} />

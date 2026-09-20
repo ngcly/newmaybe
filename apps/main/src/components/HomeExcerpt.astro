@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { render } from 'astro:content';
+import SealStamp from './SealStamp.astro';
 
 interface Props {
   excerpt: CollectionEntry<'excerpts'>;
@@ -22,11 +23,14 @@ const { Content } = await render(excerpt);
       <blockquote class="excerpt-text">
         <Content />
       </blockquote>
-      <figcaption class="excerpt-source">
-        <span class="dash">—</span>
-        <span class="author">{excerpt.data.author}</span>
-        {excerpt.data.source && <cite class="source">《{excerpt.data.source}》</cite>}
-      </figcaption>
+      <div class="excerpt-footer-row">
+        <figcaption class="excerpt-source">
+          <span class="dash">—</span>
+          <span class="author">{excerpt.data.author}</span>
+          {excerpt.data.source && <cite class="source">《{excerpt.data.source}》</cite>}
+        </figcaption>
+        <SealStamp text="拾遗" type="yang" size="sm" title="拾遗印记" />
+      </div>
       {excerpt.data.comment && <p class="excerpt-comment">{excerpt.data.comment}</p>}
     </figure>
   </div>
@@ -111,9 +115,10 @@ const { Content } = await render(excerpt);
   }
 
   .excerpt-text {
-    font-family: var(--serif-en);
-    font-size: 1.22rem;
-    line-height: 1.85;
+    font-family: var(--serif-kai), 'Kaiti SC', 'STKaiti', 'KaiTi', var(--serif-cn), serif;
+    font-size: 1.3rem;
+    line-height: 2;
+    letter-spacing: 0.04em;
     color: var(--ink);
     margin: 0 0 1.4rem;
     padding: 0;
@@ -126,9 +131,17 @@ const { Content } = await render(excerpt);
     margin: 0;
     text-align: justify;
     text-justify: inter-character;
+    font-weight: 400;
   }
   .excerpt-text :global(p + p) {
-    margin-top: 0.6rem;
+    margin-top: 0.8rem;
+  }
+
+  .excerpt-footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
   }
 
   .excerpt-source {
@@ -136,7 +149,7 @@ const { Content } = await render(excerpt);
     align-items: baseline;
     gap: 0.4rem;
     font-family: var(--serif-cn);
-    font-size: 0.92rem;
+    font-size: 0.95rem;
     color: var(--ink-soft);
   }
   .dash {

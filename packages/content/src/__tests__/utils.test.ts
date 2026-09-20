@@ -13,10 +13,6 @@ describe('resolveSubdomain', () => {
     expect(resolveSubdomain('https://graph.newmaybe.com', true)).toBe('http://localhost:4322');
   });
 
-  it('resolves tools subdomain to localhost:4323', () => {
-    expect(resolveSubdomain('https://tools.newmaybe.com', true)).toBe('http://localhost:4323');
-  });
-
   it('resolves ai subdomain to localhost:4324', () => {
     expect(resolveSubdomain('https://ai.newmaybe.com', true)).toBe('http://localhost:4324');
   });
@@ -27,6 +23,10 @@ describe('resolveSubdomain', () => {
 
   it('resolves studio subdomain to localhost:4326', () => {
     expect(resolveSubdomain('https://studio.newmaybe.com', true)).toBe('http://localhost:4326');
+  });
+
+  it('resolves club subdomain to localhost:4328', () => {
+    expect(resolveSubdomain('https://club.newmaybe.com', true)).toBe('http://localhost:4328');
   });
 
   it('resolves main domain to localhost:4321 (last match)', () => {

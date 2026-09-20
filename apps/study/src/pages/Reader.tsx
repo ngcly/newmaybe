@@ -47,6 +47,8 @@ export default function Reader() {
 
   useEffect(() => {
     const controller = new AbortController();
+    // Reset loading state synchronously when the external chapter identity changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setData(null);
     setError(false);
     setTotal(0);

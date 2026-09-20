@@ -9,7 +9,7 @@
 ## 核心理念
 
 - **留白与专注**：无算法推荐、无信息流、无评论区，让阅读回归文字本身。
-- **隐私优先**：无第三方追踪（无 Google Analytics），无 Cookie 追踪，不采集读者数据。
+- **隐私优先**：无 Google Analytics 等行为追踪；文章、草稿与进度保存在本地。免费 AI 会将输入发送至 Workers AI，并使用 Cloudflare Turnstile 防滥用；自带密钥模式直连所选提供商。
 - **极简高性能**：主站零客户端 JS 框架，所有字体自托管（无外部字体请求），Astro SSG + Cloudflare CDN。
 - **纸墨美学**：东方「纸底墨色」视觉调性，赭石点缀，自适应暗黑模式，无主题切换闪烁。
 
@@ -24,14 +24,15 @@ newmaybe/
 ├── apps/
 │   ├── main/        # newmaybe.com        — 主站（写作、花园、念头、拾遗）
 │   ├── graph/       # graph.newmaybe.com  — 知识关系网络可视化
-│   ├── tools/       # tools.newmaybe.com  — 排版工具与分享卡片导出
 │   ├── ai/          # ai.newmaybe.com     — RAG 智能园丁对话
 │   ├── lab/         # lab.newmaybe.com    — 感官艺术与交互实验
 │   ├── studio/      # studio.newmaybe.com — 海报生成与创意工坊
+│   ├── club/        # club.newmaybe.com   — 文友雅集（本地文章、点赞与评论）
 │   └── study/       # study.newmaybe.com  — 林下书房、阅读路径与写作练习
 ├── packages/
 │   ├── content/        # 统一内容数据库（Markdown + Zod schemas）
-│   ├── shared-styles/  # 全局 CSS 设计 Token（7 个子应用共用）
+│   ├── design-tokens/  # TypeScript 设计 Token 单一源，生成 CSS
+│   ├── shared-styles/  # 全局样式与 Token 兼容入口（7 个子应用共用）
 │   └── ai-client/      # Studio / Study / AI 共用的 AI 请求与流式响应客户端
 └── scripts/
     ├── new.ts          # 内容创建 CLI
@@ -44,11 +45,11 @@ newmaybe/
 | :-------------------- | :----------------------------------- | :--------------------- | :------- |
 | `newmaybe.com`        | 主站（文字、花园、念头、拾遗、作品） | Astro 7 + Vanilla CSS  | `4321`   |
 | `graph.newmaybe.com`  | 知识网络力导向图谱（D3.js）          | Astro 7 + D3.js        | `4322`   |
-| `tools.newmaybe.com`  | 中英文排版工具 + 念头卡片导出        | React 19 + Tailwind v4 | `4323`   |
 | `ai.newmaybe.com`     | 基于 RAG 的 AI 智能园丁对话          | React 19 + Workers AI  | `4324`   |
 | `lab.newmaybe.com`    | 感官艺术与 Canvas 物理交互实验       | Astro 7 + Canvas       | `4325`   |
 | `studio.newmaybe.com` | Canvas 海报生成与品牌资产工坊        | React 19 + Tailwind v4 | `4326`   |
 | `study.newmaybe.com`  | 林下书房、古籍阅读、学习路径与练习   | React 19 + Tailwind v4 | `4327`   |
+| `club.newmaybe.com`   | 文友雅集、本地文章与评论             | React 19 + Tailwind v4 | `4328`   |
 
 ### 共享内容库 (`packages/content`)
 
@@ -74,11 +75,11 @@ npm install          # 安装所有子应用依赖
 # 启动各子应用开发服务器
 npm run dev:main     # http://localhost:4321
 npm run dev:graph    # http://localhost:4322
-npm run dev:tools    # http://localhost:4323
 npm run dev:ai       # http://localhost:4324
 npm run dev:lab      # http://localhost:4325
 npm run dev:studio   # http://localhost:4326
 npm run dev:study    # http://localhost:4327
+npm run dev:club     # http://localhost:4328
 ```
 
 本地开发模式下，各子应用的跨域链接会自动映射至对应的本地端口（由 `resolveSubdomain()` 处理）。
@@ -117,11 +118,12 @@ npm run audit
 ```bash
 npm run build:main     # Astro 构建 + Pagefind 全文索引
 npm run build:graph
-npm run build:tools
 npm run build:ai
 npm run build:lab
 npm run build:studio
 npm run build:study
+npm run build:club
+npm run typecheck     # Astro 模板 + TypeScript
 ```
 
 ---
@@ -131,3 +133,19 @@ npm run build:study
 项目部署在 **Cloudflare Pages / Workers**，7 个子应用各自对应一个独立项目，连接同一个 Git 仓库，并通过各自的构建命令与 `wrangler.toml` 配置独立发布。
 
 详见 [DEPLOY.md](./DEPLOY.md)。
+
+## 质量检查
+
+```bash
+npm run check
+npm run typecheck
+npm run typecheck:scripts
+npm run tokens:check
+npm test
+npm run build
+npm run budget
+npx playwright install chromium
+npm run test:e2e
+```
+
+浏览器测试使用生产构建、真实 Pagefind 索引与本地文本数据；AI 回复采用模拟响应，不消耗线上推理额度。无障碍门禁检查七个应用入口的 WCAG A/AA serious/critical 违规，JS gzip 预算位于 `scripts/check-budgets.ts`（不含字体、图片和 Pagefind 按需索引）。这不是完整人工无障碍认证或网络性能测试。

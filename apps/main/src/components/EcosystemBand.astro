@@ -27,20 +27,20 @@ const APPS = [
     tag: '典籍文库',
   },
   {
-    name: '排版工具',
-    en: 'Tools',
-    desc: '诗文排版与古典金句卡片',
-    url: 'https://tools.newmaybe.com',
-    type: 'tools',
-    tag: '卡片导出',
-  },
-  {
-    name: '创意工坊',
+    name: '创作工坊',
     en: 'Studio',
-    desc: '沉浸灵感记录与写作画布',
+    desc: '排版工具、卡片海报与灵感引擎',
     url: 'https://studio.newmaybe.com',
     type: 'studio',
-    tag: '灵感工坊',
+    tag: '创作工坊',
+  },
+  {
+    name: '文友雅集',
+    en: 'Club',
+    desc: '慢节奏人文写作与专题文集社区',
+    url: 'https://club.newmaybe.com',
+    type: 'club',
+    tag: '文友共写',
   },
   {
     name: '实验室',
@@ -127,7 +127,7 @@ const APPS = [
                     <path d="M6 10h10" />
                   </svg>
                 )}
-                {app.type === 'tools' && (
+                {app.type === 'club' && (
                   <svg
                     width="18"
                     height="18"
@@ -138,8 +138,8 @@ const APPS = [
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
-                    <path d="m18 2 4 4-14 14H4v-4L18 2z" />
-                    <path d="m14.5 5.5 4 4" />
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                   </svg>
                 )}
                 {app.type === 'studio' && (
@@ -199,7 +199,7 @@ const APPS = [
 
 <style>
   .ecosystem-section {
-    padding: 5rem 0;
+    padding: 4.5rem 0;
     position: relative;
     scroll-margin-top: 80px;
   }
@@ -384,13 +384,16 @@ const APPS = [
     transform: translate(2px, -2px);
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 960px) {
     .eco-grid {
       grid-template-columns: repeat(2, 1fr);
     }
   }
 
   @media (max-width: 680px) {
+    .ecosystem-section {
+      padding: 3.5rem 0;
+    }
     .eco-grid {
       grid-template-columns: 1fr;
     }

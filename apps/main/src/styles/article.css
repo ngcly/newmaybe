@@ -24,36 +24,50 @@
   display: inline-flex;
   align-items: center;
   font-family: var(--serif-cn);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--ink-faint);
   cursor: pointer;
   user-select: none;
   margin-bottom: 1.5rem;
-  transition: color 0.3s;
-  background: none;
-  border: 0;
-  padding: 0;
+  background: color-mix(in srgb, var(--paper-deep) 70%, var(--paper));
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 0.2rem 0.65rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+.layout-toggle-minimal:hover {
+  border-color: color-mix(in srgb, var(--ochre) 40%, var(--line));
+  color: var(--ink);
 }
 .layout-toggle-minimal .opt {
   transition:
-    color 0.3s,
-    font-weight 0.3s;
-  padding: 0 0.25rem;
+    color 0.25s ease,
+    background-color 0.25s ease,
+    font-weight 0.25s ease;
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
 }
 .layout-toggle-minimal:not(.is-vertical) .opt-horiz,
 .layout-toggle-minimal.is-vertical .opt-vert {
   color: var(--ochre);
   font-weight: 500;
+  background: color-mix(in srgb, var(--ochre) 12%, transparent);
 }
 .layout-toggle-minimal .opt:hover {
   color: var(--ink);
 }
 .layout-toggle-minimal .divider {
   color: var(--line);
-  margin: 0 0.1rem;
+  margin: 0 0.15rem;
+  opacity: 0.6;
 }
 .layout-toggle-minimal .label {
-  margin-right: 0.1rem;
+  margin-right: 0.2rem;
+  letter-spacing: 0.04em;
 }
 .cat {
   display: block;
@@ -108,13 +122,15 @@
   margin: 2.4rem 0 1rem;
 }
 .prose blockquote {
+  font-family: var(--serif-kai), 'Kaiti SC', 'STKaiti', 'KaiTi', var(--serif-cn), serif;
   border-left: 2px solid var(--ochre);
   padding-left: 1.5rem;
   margin: 2rem 0;
-  font-style: italic;
+  font-style: normal;
   color: var(--ink);
   font-size: 1.18rem;
-  line-height: 1.8;
+  line-height: 1.95;
+  letter-spacing: 0.03em;
 }
 .prose a {
   color: var(--ochre);
@@ -159,6 +175,26 @@
   position: relative;
   max-width: 65ch;
   margin: 0 auto;
+  transition:
+    opacity 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.poem-wrap.is-switching {
+  opacity: 0.15;
+  filter: blur(4px);
+  transform: scale(0.995);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .poem-wrap {
+    transition: none;
+  }
+  .poem-wrap.is-switching {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
 }
 .watermark {
   position: absolute;
@@ -296,14 +332,14 @@
   }
 }
 
-/* ── 散文/随笔 非对称式双栏排版 ── */
+/* ── 散文/随笔 典雅双栏排版 ── */
 @media (min-width: 960px) {
   .editorial-container {
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 240px 1fr;
     gap: 4.5rem;
     align-items: start;
-    max-width: 980px;
+    max-width: var(--max, 1080px);
     margin: 0 auto;
   }
   .editorial-container .article-head {
@@ -313,7 +349,7 @@
     margin: 0;
     max-width: 100%;
     border-right: 1px solid var(--line);
-    padding-right: 2.2rem;
+    padding-right: 2.4rem;
     max-height: calc(100vh - 6rem);
     overflow-y: auto;
     scrollbar-width: thin;
@@ -331,11 +367,30 @@
   }
   .editorial-container .editorial-content {
     min-width: 0;
+    padding-left: 0.5rem;
   }
   .editorial-container .prose {
     margin: 0;
-    max-width: 68ch;
+    max-width: 72ch;
   }
+}
+
+/* ── 文末题跋印款 ── */
+.post-colophon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  max-width: 65ch;
+  margin: 4.5rem auto 2.2rem;
+  user-select: none;
+}
+.colophon-line {
+  flex: 1;
+  max-width: 140px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--line) 50%, transparent 100%);
+  opacity: 0.85;
 }
 
 /* ── 上一篇 / 下一篇 导航 ── */
@@ -344,7 +399,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
   max-width: 65ch;
-  margin: 4.5rem auto 1rem;
+  margin: 1.5rem auto 1rem;
   padding-top: 2.2rem;
   border-top: 1px solid var(--line);
 }
@@ -422,6 +477,7 @@
   letter-spacing: 0.06em;
   margin-bottom: 1.2rem;
 }
+
 .related-list {
   display: flex;
   flex-direction: column;
@@ -629,8 +685,8 @@
   transform: translateX(2px);
 }
 .toc-link.active {
-  color: var(--ochre);
-  border-left-color: var(--ochre);
+  color: var(--cinnabar);
+  border-left-color: var(--cinnabar);
   font-weight: 500;
 }
 

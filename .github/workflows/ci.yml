@@ -1,14 +1,35 @@
 name: CI
-
 on:
   push:
     branches: [main, dev]
   pull_request:
     branches: [main]
-
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  lint:
-    name: Lint & Format Check
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.detect.outputs.apps }}
+      has_changes: ${{ steps.detect.outputs.has_changes }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - id: detect
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: npm run affected
+  quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,43 +40,17 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run format:check
-
-  typecheck:
-    name: Type Check (${{ matrix.app }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        app: [main, graph, tools, ai, lab, studio, study]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npx tsc --noEmit -p apps/${{ matrix.app }}/tsconfig.json
-
-  test:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
+      - run: npm run tokens:check
+      - run: npm run typecheck:scripts
       - run: npm test
-
   build:
-    name: Build (${{ matrix.app }})
-    needs: [lint, typecheck, test]
+    needs: [changes, quality]
+    if: needs.changes.outputs.has_changes == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        app: [main, graph, tools, ai, lab, studio, study]
+        app: ${{ fromJSON(needs.changes.outputs.apps) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -63,4 +58,49 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: |
+            apps/${{ matrix.app }}/node_modules/.vite
+            apps/${{ matrix.app }}/.astro
+          key: build-${{ runner.os }}-${{ matrix.app }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: build-${{ runner.os }}-${{ matrix.app }}-${{ hashFiles('package-lock.json') }}-
+      - run: npm run typecheck -w apps/${{ matrix.app }}
       - run: npm run build:${{ matrix.app }}
+      - run: npm run budget -- ${{ matrix.app }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.app }}
+          path: apps/${{ matrix.app }}/dist
+          retention-days: 3
+  browser:
+    needs: [changes, build]
+    runs-on: ubuntu-latest
+    env:
+      TEST_APPS: ${{ needs.changes.outputs.apps }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: dist-*
+          path: build-artifacts
+      - run: |
+          for directory in build-artifacts/dist-*; do
+            app="${directory##*/dist-}"
+            mv "$directory" "apps/$app/dist"
+          done
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-failures
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7

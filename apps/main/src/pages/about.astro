@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { SITE } from '../config';
+import SealStamp from '../components/SealStamp.astro';
 ---
 
 <Base
@@ -37,6 +38,7 @@ import { SITE } from '../config';
           <div class="signature">
             <span class="line"></span>
             <span class="name">newmaybe</span>
+            <SealStamp text="未定" type="yang" size="sm" title="未定印款" />
           </div>
         </div>
 
@@ -418,25 +420,25 @@ import { SITE } from '../config';
   /* 暗色模式下强化信封折纸层级与高光折线 */
   :root.dark .env-back,
   :root:not(.light) .env-back {
-    background: color-mix(in srgb, var(--paper-deep) 75%, #000);
-    border-color: color-mix(in srgb, var(--line) 80%, #fff 15%);
+    background: color-mix(in srgb, var(--paper-deep) 75%, var(--black));
+    border-color: color-mix(in srgb, var(--line) 80%, var(--white) 15%);
   }
   :root.dark .poly-left,
   :root:not(.light) .poly-left,
   :root.dark .poly-right,
   :root:not(.light) .poly-right {
-    fill: color-mix(in srgb, var(--paper-deep) 85%, #000);
-    stroke: color-mix(in srgb, var(--line) 75%, #fff 15%);
+    fill: color-mix(in srgb, var(--paper-deep) 85%, var(--black));
+    stroke: color-mix(in srgb, var(--line) 75%, var(--white) 15%);
   }
   :root.dark .poly-bottom,
   :root:not(.light) .poly-bottom {
-    fill: color-mix(in srgb, var(--paper-deep) 90%, #fff 5%);
-    stroke: color-mix(in srgb, var(--line) 75%, #fff 15%);
+    fill: color-mix(in srgb, var(--paper-deep) 90%, var(--white) 5%);
+    stroke: color-mix(in srgb, var(--line) 75%, var(--white) 15%);
   }
   :root.dark .poly-flap,
   :root:not(.light) .poly-flap {
-    fill: color-mix(in srgb, var(--paper-deep) 88%, #fff 9%);
-    stroke: color-mix(in srgb, var(--line) 75%, #fff 15%);
+    fill: color-mix(in srgb, var(--paper-deep) 88%, var(--white) 9%);
+    stroke: color-mix(in srgb, var(--line) 75%, var(--white) 15%);
   }
 
   .env-front {

@@ -62,11 +62,30 @@ export default function Home() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden border-b bg-paper/30">
-        <div className="pointer-events-none absolute right-8 top-10 hidden lg:flex gap-4 opacity-[0.09] dark:opacity-[0.16] select-none transition-opacity">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-8 top-10 hidden lg:flex gap-4 opacity-[0.09] dark:opacity-[0.16] select-none transition-opacity"
+        >
           {['晓声', '识器', '操千曲', '观千剑'].map((t) => (
-            <span key={t} className="writing-vertical font-brush text-7xl text-cinnabar">
-              {t}
-            </span>
+            <svg
+              key={t}
+              width="72"
+              height="280"
+              viewBox="0 0 90 350"
+              className="font-brush text-cinnabar"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <text
+                x="45"
+                y="0"
+                fill="currentColor"
+                fontSize="72"
+                style={{ writingMode: 'vertical-rl' }}
+              >
+                {t}
+              </text>
+            </svg>
           ))}
         </div>
 

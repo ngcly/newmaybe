@@ -69,6 +69,8 @@ export default function BookDetail() {
 
   useEffect(() => {
     const controller = new AbortController();
+    // Reset the previous book before starting the abortable index request.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setChapters(null);
     setError(false);
     setActiveChunk(0);

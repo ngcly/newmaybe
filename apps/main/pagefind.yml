@@ -1,0 +1,2 @@
+site: dist
+glob: '{index.html,about/index.html,garden/index.html,fragments/index.html,excerpts/index.html,writing/**/*.html,notes/*/index.html,memory/*/index.html}'

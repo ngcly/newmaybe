@@ -1,3 +1,4 @@
+/* global self, caches, URL, fetch */
 // 林下书房 · 离线阅读 Service Worker
 const CACHE_NAME = 'linxia-study-v1';
 

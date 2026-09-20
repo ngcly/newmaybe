@@ -1,3 +1,4 @@
+import { fetchFreeAI } from '@newmaybe/ai-client/free-ai';
 import { useState } from 'react';
 import { type ProviderType } from '../types';
 import { createGeminiRequest, readAIResponse } from '@newmaybe/ai-client';
@@ -78,7 +79,11 @@ connections: []
                 stream: false,
               });
 
-        const res = await fetch(endpoint, { method: 'POST', headers, body });
+        const res = await (provider === 'free' ? fetchFreeAI : fetch)(endpoint, {
+          method: 'POST',
+          headers,
+          body,
+        });
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
           throw new Error(errData.error?.message || errData.error || '接口请求失败');

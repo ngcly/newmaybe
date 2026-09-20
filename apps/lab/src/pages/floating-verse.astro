@@ -291,7 +291,7 @@ import '@newmaybe/shared-styles/base.css';
           const lineLen = chars.length;
           const startX = (width - lineLen * charSize) / 2 + charSize / 2;
 
-          chars.forEach((char, charIdx) => {
+          chars.forEach((_char, charIdx) => {
             const tx = startX + charIdx * charSize;
             const ty = startY + lineIdx * lineSpacing;
             if (particles[pIdx]) {

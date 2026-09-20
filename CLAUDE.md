@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**newmaybe** is a Chinese-language personal brand site and digital garden built as an **npm Monorepo** with 7 sub-applications deployed to Cloudflare Pages. The main site is a minimalist editorial blog; the subdomains extend it with a knowledge graph, AI assistant, interactive experiments, creative tools, a writing studio, and a classical reading app.
+**newmaybe** is a Chinese-language personal brand site and digital garden built as an **npm Monorepo** with 7 sub-applications deployed to Cloudflare. The main site is a minimalist editorial blog; the subdomains extend it with a knowledge graph, AI assistant, interactive experiments, a creative studio, a classical reading app, and a writers club. The former tools app is retired; its capabilities live in Studio.
 
 - **Architecture**: npm Workspaces Monorepo
 - **Main framework**: Astro 7 (SSG, Node 22.12+ required)
-- **Sub-app stacks**: React 19 + Vite (tools / ai / studio / study), Astro 7 + D3 (graph), Astro 7 + Canvas (lab)
-- **Hosting**: Cloudflare Pages (7 independent projects, one per sub-app)
+- **Sub-app stacks**: React 19 + Vite (ai / studio / study / club), Astro 7 + D3 (graph), Astro 7 + Canvas (lab)
+- **Hosting**: Cloudflare Pages for static apps; Workers + static assets for AI (see DEPLOY.md)
 - **Domains**: `newmaybe.com` + 6 subdomains
 
 ## Monorepo Structure
@@ -19,14 +19,16 @@ newmaybe/
 ├── apps/
 │   ├── main/        # newmaybe.com       — Astro 7, pure SSG, Vanilla CSS
 │   ├── graph/       # graph.newmaybe.com — Astro 7, D3.js force graph
-│   ├── tools/       # tools.newmaybe.com — React 19, Tailwind v4, Vite
 │   ├── ai/          # ai.newmaybe.com    — React 19, Vite, RAG + Workers AI
 │   ├── lab/         # lab.newmaybe.com   — Astro 7, Canvas/WebGL experiments
-│   ├── studio/      # studio.newmaybe.com — React 19, Tailwind v4, Vite
-│   └── study/       # study.newmaybe.com — React 19, Tailwind v4, Vite, Book library & reader
+│   ├── studio/      # studio.newmaybe.com — React 19, Tailwind v4, Vite, Creative studio (formatting, cards, posters, prompts, assets)
+│   ├── study/       # study.newmaybe.com — React 19, Tailwind v4, Vite, Book library & reader
+│   └── club/        # club.newmaybe.com  — React 19, Tailwind v4, Vite, Jianshu-style writing community
 ├── packages/
 │   ├── content/         # Shared content database (all Markdown + Zod schemas)
-│   └── shared-styles/   # Single source of truth for CSS design tokens
+│   ├── ai-client/       # Shared AI transport helpers
+│   ├── design-tokens/   # Canonical TypeScript tokens + generated CSS
+│   └── shared-styles/   # Shared styles and compatibility token import
 └── scripts/
     ├── new.ts           # Content creation CLI  (npm run new)
     └── audit-posts.ts   # Post quality auditor  (npm run audit)
@@ -40,20 +42,20 @@ npm install              # Install all workspace dependencies
 # Dev servers
 npm run dev:main         # http://localhost:4321
 npm run dev:graph        # http://localhost:4322
-npm run dev:tools        # http://localhost:4323
 npm run dev:ai           # http://localhost:4324
 npm run dev:lab          # http://localhost:4325
 npm run dev:studio       # http://localhost:4326
 npm run dev:study        # http://localhost:4327
+npm run dev:club         # http://localhost:4328
 
 # Builds
 npm run build:main       # Astro build + pagefind index
 npm run build:graph
-npm run build:tools
 npm run build:ai
 npm run build:lab
 npm run build:studio
 npm run build:study
+npm run build:club
 
 # Content workflow
 npm run new fragment     # Create a fragment (zero-interaction)
@@ -86,7 +88,7 @@ Content database and utilities consumed by all sub-apps.
 
 ### `@newmaybe/shared-styles`
 
-**`packages/shared-styles/tokens.css`**: Single source of truth for all CSS design tokens. All 6 sub-apps import this file. Do not hardcode token values anywhere else.
+**`packages/design-tokens/src/index.ts`**: Single source of truth for CSS and TypeScript tokens. Run `npm run tokens:build` after edits; `npm run tokens:check` detects drift. `packages/shared-styles/tokens.css` is a compatibility import. All 7 sub-apps import this file. Do not hardcode token values anywhere else.
 
 ```css
 /* Key tokens */
@@ -118,16 +120,19 @@ apps/main/src/
 │   ├── Hero.astro         # Homepage hero with staggered word animations
 │   ├── PostList.astro     # Reusable post list (date, title, description, category)
 │   ├── QuoteBand.astro    # Full-width editorial quote band
+│   ├── HomeEchoes.astro   # Paired diptych of latest fragment + excerpt on homepage
 │   ├── HomeFragment.astro # Latest fragment displayed on homepage
 │   ├── HomeExcerpt.astro  # Latest excerpt displayed on homepage
+│   ├── SealStamp.astro    # Cinnabar seal stamp component (yang/yin, square/round)
+│   ├── EcosystemBand.astro # Ecosystem extension subspaces card grid
 │   ├── Search.astro       # Pagefind full-text search UI
 │   └── WorkCardInner.astro # Work item card content
 ├── lib/
 │   ├── posts.ts           # sortPostsForDisplay(): weight DESC → pubDate DESC
 │   ├── connections.ts     # resolveConnections(), connUrl(), connTitle(), COLL_LABEL, ResolvedConnection type
-│   └── og-tokens.ts       # OG_COLORS constant (mirrors tokens.css for satori)
+│   └── og-tokens.ts       # OG_COLORS derived from design-tokens for satori
 └── pages/
-    ├── index.astro            # Homepage: recent posts + latest fragment + latest excerpt + QuoteBand
+    ├── index.astro            # Homepage: recent posts + HomeEchoes (fragment & excerpt) + EcosystemBand
     ├── writing/
     │   ├── index.astro        # Full writing archive (sorted by weight then date)
     │   └── [slug].astro       # Post detail: reading bar, poetry layout, connections/related reading
@@ -163,7 +168,7 @@ apps/main/src/
 
 **View Transitions**: Enabled globally. All scripts that attach DOM event listeners use `astro:page-load` to re-bind after navigation and `astro:before-swap` for pre-swap cleanup. The theme class sync uses `astro:before-swap` to eliminate dark-mode flash.
 
-**Theme system**: `dark` / `light` class on `<html>`. Stored in cookie (not localStorage) so the server can read it pre-render. No theme flash on load.
+**Theme system**: `dark` / `light` class on `<html>`. Stored in a shared-domain cookie and read by an early inline script; the main site is static, with no per-request server render.
 
 **Styling rules**:
 - Main site: pure Vanilla CSS, no framework. All tokens via CSS custom properties.
@@ -208,7 +213,7 @@ connections:         # optional cross-collection links
 
 ### Customizing Colors
 
-Edit `packages/shared-styles/tokens.css` `:root` block. Changes propagate to all 6 sub-apps automatically. Also update `apps/main/src/lib/og-tokens.ts` to match (OG images cannot use CSS variables).
+Edit `packages/design-tokens/src/index.ts` and run `npm run tokens:build`. CSS, Canvas and OG images share these values; do not manually edit generated CSS.
 
 ### Navigation & Site Structure
 
@@ -221,22 +226,22 @@ Edit `apps/main/src/config.ts`:
 ## Sub-application Notes
 
 ### `apps/graph` — Knowledge Graph
-Astro 7 SSG. Fetches `all-content.json` from the main site at build time to build the D3 force-directed graph. Uses View Transitions. Shares token CSS.
-
-### `apps/tools` — Writing Tools
-React 19 + Vite. Two tabs: text formatter (Chinese/English mixed typography) and card exporter (fragment/excerpt share cards). Reads no live content at runtime.
+Astro 7 SSG. Reads the shared content collections at build time to build the D3 force-directed graph. Uses View Transitions. Shares token CSS.
 
 ### `apps/ai` — AI Garden Assistant
-React 19 + Vite. RAG system: fetches `all-content.json` from main site, builds semantic index, answers questions with source citations. Free tier uses Cloudflare Workers AI (via Pages Function). Supports BYO API key for OpenAI/Gemini/DeepSeek/etc. — stored in localStorage, requests go directly to provider, no server relay.
+React 19 + Vite. RAG system: fetches `all-content.json` from main site, ranks content using keyword matching, answers questions with source citations. Free tier uses Cloudflare Workers AI (via a Worker). Supports BYO API key for OpenAI/Gemini/DeepSeek/etc. — stored in localStorage, requests go directly to provider, no server relay.
 
 ### `apps/lab` — Interactive Experiments
 Astro 7 SSG. Five experiments: audio-zen (Web Audio API white noise), floating-verse (Canvas particle poems), ink-flow (ink simulation), zen-writer (distraction-free writing space), index with card grid. Each is a standalone page.
 
-### `apps/studio` — Creative Studio
-React 19 + Vite. Three tabs: poster generator (HTML5 Canvas, multiple themes), inspiration engine (writing prompts), asset gallery (brand assets).
+### `apps/studio` — Creative Studio (创作工坊)
+React 19 + Tailwind v4 + Vite. Unified creative workshop with 5 capabilities: poster generator (HTML5 Canvas), fragment/excerpt card exporter, Chinese/English text formatter, inspiration engine, and asset gallery.
 
 ### `apps/study` — Study (林下书房)
 React 19 + Tailwind v4 + Vite. A writing studio book library & reader. Features reading progress tracking, interactive practice exercises, and classical poetry reading mode. Runs on port 4327.
+
+### `apps/club` — Writers Club (文友雅集)
+React 19 + Tailwind v4 + Vite. A Jianshu-style minimalist writing and reading community. Features topic collections (专题文集), reader feeds, immersive reading, author seal colophon, article liking, and reader commenting. Runs on port 4328.
 
 ---
 

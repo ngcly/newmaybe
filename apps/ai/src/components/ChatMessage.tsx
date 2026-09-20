@@ -56,7 +56,7 @@ export default function ChatMessage({ msg, resolveSubdomain }: ChatMessageProps)
             <button
               onClick={() => {
                 window.open(
-                  `${resolveSubdomain('https://tools.newmaybe.com')}?content=${encodeURIComponent(msg.text)}`,
+                  `${resolveSubdomain('https://studio.newmaybe.com')}?tab=card&content=${encodeURIComponent(msg.text)}`,
                   '_blank',
                 );
               }}

@@ -28,8 +28,12 @@ export default function SiteLayout() {
   const [read, setRead] = useState(0);
   const [streak, setStreak] = useState(0);
   const [theme, setTheme] = useState<Theme>(getTheme());
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const [menu, setMenu] = useState({ path: location.pathname, open: false });
+  // Reset on navigation, including returning to a previously visited route.
+  if (menu.path !== location.pathname) setMenu({ path: location.pathname, open: false });
+  const mobileMenuOpen = menu.path === location.pathname && menu.open;
+  const setMobileMenuOpen = (open: boolean) => setMenu({ path: location.pathname, open });
 
   useEffect(() => {
     const f = () => {
@@ -40,11 +44,6 @@ export default function SiteLayout() {
     window.addEventListener('linxia:update', f);
     return () => window.removeEventListener('linxia:update', f);
   }, []);
-
-  // 路由跳转时自动关闭移动端菜单
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [location.pathname]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-cinnabar/20 selection:text-cinnabar">
@@ -68,7 +67,7 @@ export default function SiteLayout() {
               href="https://newmaybe.com"
               target="_blank"
               rel="noreferrer"
-              className="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground/75 hover:text-cinnabar border-l pl-2.5 py-0.5 transition-colors"
+              className="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-cinnabar border-l pl-2.5 py-0.5 transition-colors"
               title="返回 newmaybe 首页与数字生态"
             >
               <span>newmaybe</span>
@@ -121,7 +120,7 @@ export default function SiteLayout() {
               </span>
               <span
                 className={
-                  streak > 0 ? 'text-cinnabar font-medium' : 'text-muted-foreground/70 font-normal'
+                  streak > 0 ? 'text-cinnabar font-medium' : 'text-muted-foreground font-normal'
                 }
               >
                 连续 {streak} 天
@@ -150,9 +149,7 @@ export default function SiteLayout() {
                 </span>
                 <span
                   className={
-                    streak > 0
-                      ? 'text-cinnabar font-medium'
-                      : 'text-muted-foreground/70 font-normal'
+                    streak > 0 ? 'text-cinnabar font-medium' : 'text-muted-foreground font-normal'
                   }
                 >
                   连续 {streak} 天

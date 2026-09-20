@@ -1,5 +1,6 @@
 ---
 import { SITE, NAV } from '../config';
+import SealStamp from './SealStamp.astro';
 
 interface Props {
   epigraph?: string;
@@ -12,7 +13,9 @@ const { epigraph, year } = Astro.props;
 <footer data-pagefind-ignore="all">
   <div class="wrap">
     <div class="foot-colophon reveal">
-      <div class="foot-seal" aria-hidden="true">✦</div>
+      <div class="foot-seal" aria-hidden="true">
+        <SealStamp text="留白" type="yang" shape="round" size="sm" title="留白印款" />
+      </div>
 
       {
         epigraph && (
@@ -75,11 +78,10 @@ const { epigraph, year } = Astro.props;
     margin: 0 auto;
   }
   .foot-seal {
-    color: var(--ochre);
-    font-size: 0.95rem;
-    opacity: 0.8;
-    letter-spacing: 0.2em;
-    line-height: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0.1rem;
   }
   .foot-epigraph {
     max-width: 36ch;

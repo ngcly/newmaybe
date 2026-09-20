@@ -213,8 +213,11 @@ import '@newmaybe/shared-styles/base.css';
           id="colorOchre"
           style="background-color: var(--ochre);"
           title="赭石"></button>
-        <button class="color-btn" id="colorBamboo" style="background-color: #6B8E7B;" title="竹青"
-        ></button>
+        <button
+          class="color-btn"
+          id="colorBamboo"
+          style="background-color: var(--bamboo);"
+          title="竹青"></button>
       </div>
       <div class="control-item">
         <span>墨滴大小：</span>
@@ -309,7 +312,7 @@ import '@newmaybe/shared-styles/base.css';
       // 获得当前选择的墨汁颜色字符串
       function getCurrentColorStr() {
         if (inkColorType === 'ochre') return getThemeColor('--ochre');
-        if (inkColorType === 'bamboo') return '#6B8E7B';
+        if (inkColorType === 'bamboo') return getThemeColor('--bamboo');
         return getThemeColor('--ink');
       }
 

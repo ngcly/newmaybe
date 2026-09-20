@@ -3,8 +3,7 @@ import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import PostList from '../components/PostList.astro';
-import HomeFragment from '../components/HomeFragment.astro';
-import HomeExcerpt from '../components/HomeExcerpt.astro';
+import HomeEchoes from '../components/HomeEchoes.astro';
 import EcosystemBand from '../components/EcosystemBand.astro';
 import { sortPostsForDisplay } from '../lib/posts';
 
@@ -29,8 +28,14 @@ const latestExcerpt = (await getCollection('excerpts', ({ data }) => !data.draft
   <Hero />
   <div class="rule"></div>
   <PostList posts={posts} />
-  {latestFragment && <HomeFragment fragment={latestFragment} />}
-  {latestExcerpt && <HomeExcerpt excerpt={latestExcerpt} />}
+  {
+    (latestFragment || latestExcerpt) && (
+      <>
+        <div class="rule" />
+        <HomeEchoes fragment={latestFragment} excerpt={latestExcerpt} />
+      </>
+    )
+  }
   <div class="rule"></div>
   <EcosystemBand />
 </Base>

@@ -7,14 +7,18 @@
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
     "build": "ASTRO_TELEMETRY_DISABLED=1 astro build && pagefind --site dist",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "typecheck": "ASTRO_TELEMETRY_DISABLED=1 astro check"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "astro": "^7.0.7",
     "satori": "^0.26.0",
-    "sharp": "^0.35.2"
+    "sharp": "^0.35.2",
+    "@newmaybe/design-tokens": "*",
+    "@newmaybe/shared-styles": "*",
+    "@newmaybe/content": "*"
   },
   "devDependencies": {
     "@fontsource/cormorant-garamond": "^5.2.11",

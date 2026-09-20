@@ -1,3 +1,4 @@
+import { fetchFreeAI } from '@newmaybe/ai-client/free-ai';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   fetchAllContent,
@@ -229,7 +230,11 @@ export function useChat(): UseChatReturn {
                   stream: true,
                 });
 
-          const res = await fetch(endpoint, { method: 'POST', headers, body });
+          const res = await (provider === 'free' ? fetchFreeAI : fetch)(endpoint, {
+            method: 'POST',
+            headers,
+            body,
+          });
           if (!res.ok) {
             const errData = (await res.json().catch(() => ({}))) as {
               error?: { message?: string } | string;

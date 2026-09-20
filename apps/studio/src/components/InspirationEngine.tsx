@@ -1,3 +1,4 @@
+import { fetchFreeAI } from '@newmaybe/ai-client/free-ai';
 import { useState, useEffect } from 'react';
 import type { DailyPoem, Prompt } from '../types';
 import { readAIResponse } from '@newmaybe/ai-client';
@@ -79,7 +80,7 @@ export default function InspirationEngine({ resolveSubdomain }: InspirationEngin
     setAiPrompt(null);
     try {
       const endpoint = resolveSubdomain('https://ai.newmaybe.com') + '/api/chat';
-      const res = await fetch(endpoint, {
+      const res = await fetchFreeAI(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

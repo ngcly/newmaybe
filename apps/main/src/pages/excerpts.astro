@@ -108,7 +108,7 @@ const allTags = Array.from(new Set(excerpts.flatMap((excerpt) => excerpt.data.ta
         buttons.forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
 
-        const selectedTag = btn.getAttribute('data-tag');
+        const selectedTag = btn.getAttribute('data-tag') || 'all';
 
         cards.forEach((card) => {
           const tagsAttr = card.getAttribute('data-tags') || '';

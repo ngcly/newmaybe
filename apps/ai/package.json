@@ -6,13 +6,15 @@
   "scripts": {
     "dev": "vite --port 4324",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@newmaybe/ai-client": "*",
     "@newmaybe/content": "*",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "@newmaybe/shared-styles": "*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",

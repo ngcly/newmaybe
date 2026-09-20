@@ -10,3 +10,6 @@ package-lock.json
 CLAUDE.md
 AGENTS.md
 apps/main/src/pages/writing/\[slug\].astro
+
+test-results/
+playwright-report/

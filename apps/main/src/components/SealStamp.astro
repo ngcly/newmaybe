@@ -1,0 +1,195 @@
+---
+interface Props {
+  /** 印文文字（推荐 1~4 字，如：留白、拾遗、未定、完、林） */
+  text: string;
+  /** 印章形制：阳刻/朱文（红字透底）、阴刻/白文（红底白字） */
+  type?: 'yang' | 'yin';
+  /** 形状：方形、圆形、长方形 */
+  shape?: 'square' | 'round' | 'rect';
+  /** 尺寸等级：xs (19px), sm (25px), md (35px), lg (48px) */
+  size?: 'xs' | 'sm' | 'md' | 'lg';
+  /** 是否应用微小手工雕刻倾斜角，更具自然金石手盖印痕 */
+  tilt?: boolean;
+  /** 可选附加类名 */
+  class?: string;
+  /** 提示文本 */
+  title?: string;
+}
+
+const {
+  text,
+  type = 'yang',
+  shape = 'square',
+  size = 'sm',
+  tilt = true,
+  class: className = '',
+  title = text,
+} = Astro.props;
+
+// 计算文字布局：如果是 2 字或 4 字，在方印或长方印下自动采用纵排古典阅读顺序
+const isMultiChar = text.length >= 2;
+---
+
+<span
+  class:list={[
+    'seal-stamp',
+    `seal-${type}`,
+    `seal-${shape}`,
+    `seal-${size}`,
+    { 'seal-tilt': tilt, 'seal-multi': isMultiChar },
+    className,
+  ]}
+  title={title}
+  aria-label={`印章：${text}`}
+  role="img"
+>
+  <span class="seal-inner">
+    <span class="seal-text">{text}</span>
+  </span>
+</span>
+
+<style>
+  .seal-stamp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    line-height: 1;
+    position: relative;
+    vertical-align: middle;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    transition:
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 0.3s ease;
+  }
+
+  /* 倾斜角营造手工石印自然盖压质感 */
+  .seal-tilt {
+    transform: rotate(-1deg);
+  }
+  .seal-tilt:hover {
+    transform: rotate(0deg) scale(1.04);
+  }
+
+  .seal-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    box-sizing: border-box;
+  }
+
+  .seal-text {
+    font-family: var(--serif-kai), 'Kaiti SC', 'STKaiti', 'KaiTi', var(--serif-cn), serif;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-align: center;
+    white-space: nowrap;
+    display: inline-block;
+  }
+
+  /* 纵排双字或多字在方印下的字距微调 */
+  .seal-multi.seal-square .seal-text,
+  .seal-multi.seal-rect .seal-text {
+    writing-mode: vertical-rl;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── 形状设定 ── */
+  .seal-square {
+    aspect-ratio: 1 / 1;
+    /* 微不对称圆角模拟金石残边 */
+    border-radius: 2px 3px 2px 2.5px;
+  }
+
+  .seal-round {
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+  }
+
+  .seal-rect {
+    border-radius: 2px 3px 2px 2px;
+    padding: 0.2em 0.3em;
+  }
+
+  /* ── 尺寸设定 ── */
+  .seal-xs {
+    width: 19px;
+    height: 19px;
+    font-size: 0.65rem;
+  }
+  .seal-xs.seal-rect {
+    width: auto;
+    height: 19px;
+  }
+
+  .seal-sm {
+    width: 25px;
+    height: 25px;
+    font-size: 0.78rem;
+  }
+  .seal-sm.seal-rect {
+    width: auto;
+    height: 25px;
+  }
+
+  .seal-md {
+    width: 35px;
+    height: 35px;
+    font-size: 0.98rem;
+  }
+  .seal-md.seal-rect {
+    width: auto;
+    height: 35px;
+  }
+
+  .seal-lg {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+  }
+  .seal-lg.seal-rect {
+    width: auto;
+    height: 48px;
+  }
+
+  /* ── 阳刻（朱文：红字透底，细红框） ── */
+  .seal-yang {
+    background-color: color-mix(in srgb, var(--cinnabar) 4%, transparent);
+    border: 1.5px solid var(--cinnabar);
+    color: var(--cinnabar);
+    box-shadow: inset 0 0 1px color-mix(in srgb, var(--cinnabar) 20%, transparent);
+  }
+  .seal-yang .seal-text {
+    color: var(--cinnabar);
+    /* 微弱红泥扩散效果 */
+    text-shadow: 0 0 0.5px color-mix(in srgb, var(--cinnabar) 40%, transparent);
+  }
+
+  /* ── 阴刻（白文：红底透纸色字，石章浑厚） ── */
+  .seal-yin {
+    background-color: var(--cinnabar);
+    border: 1px solid var(--cinnabar);
+    color: var(--paper);
+    box-shadow: 0 1px 3px rgba(197, 61, 49, 0.2);
+  }
+  .seal-yin .seal-text {
+    color: var(--paper);
+    /* 纸色文字微内陷 */
+    text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.15);
+  }
+
+  /* 暗色模式下微发光与朱砂对比度优化 */
+  :root.dark .seal-yang,
+  :root:not(.light) .seal-yang {
+    background-color: color-mix(in srgb, var(--cinnabar) 8%, transparent);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--cinnabar) 18%, transparent);
+  }
+  :root.dark .seal-yin,
+  :root:not(.light) .seal-yin {
+    box-shadow: 0 1px 8px color-mix(in srgb, var(--cinnabar) 25%, transparent);
+  }
+</style>

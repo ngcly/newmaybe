@@ -1,3 +1,4 @@
+import { light } from '@newmaybe/design-tokens';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { POSTER_THEMES } from '../constants/themes';
 import type { ThemeType, RatioType, AlignType } from '../types';
@@ -163,9 +164,9 @@ export default function PosterGenerator({ initialQuote }: PosterGeneratorProps) 
       const stampSize = 50;
       const stampX = width - 80 - stampSize;
       const stampY = height - 80 - stampSize;
-      ctx.fillStyle = theme === 'ochre' || theme === 'sunset' ? '#2B2722' : colors.accent;
+      ctx.fillStyle = theme === 'ochre' || theme === 'sunset' ? light.ink : colors.accent;
       ctx.fillRect(stampX, stampY, stampSize, stampSize);
-      ctx.fillStyle = '#F7F3EC';
+      ctx.fillStyle = light.paper;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.font = 'bold 24px "Noto Serif SC", "Songti SC", serif';

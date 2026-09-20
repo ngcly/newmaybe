@@ -1,4 +1,5 @@
 @import '@newmaybe/shared-styles/tokens.css';
+@import '@newmaybe/design-tokens/study.css';
 @import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -81,62 +82,6 @@
 }
 
 @layer base {
-  :root {
-    --background: 42 33% 96%;
-    --foreground: 30 10% 16%;
-    --card: 45 60% 99%;
-    --card-foreground: 30 10% 16%;
-    --popover: 45 60% 99%;
-    --popover-foreground: 30 10% 16%;
-    --primary: 6 58% 40%;
-    --primary-foreground: 45 60% 98%;
-    --secondary: 42 24% 90%;
-    --secondary-foreground: 30 10% 20%;
-    --muted: 42 20% 91%;
-    --muted-foreground: 32 8% 44%;
-    --accent: 193 24% 31%;
-    --accent-foreground: 45 60% 98%;
-    --destructive: 0 70% 45%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 40 22% 84%;
-    --input: 40 22% 84%;
-    --ring: 6 58% 40%;
-    --radius: 0.5rem;
-    --study-cinnabar: #a63a2c;
-    --study-dai: #3d5560;
-    --study-paper: #f7f4ee;
-    --study-surface: #fffdf8;
-  }
-
-  /* 玄青夜读 */
-  .dark {
-    --background: 213 30% 9%;
-    --foreground: 46 18% 86%;
-    --card: 213 26% 13%;
-    --card-foreground: 46 18% 86%;
-    --popover: 213 26% 13%;
-    --popover-foreground: 46 18% 86%;
-    --primary: 7 52% 55%;
-    --primary-foreground: 45 40% 96%;
-    --secondary: 213 20% 18%;
-    --secondary-foreground: 46 15% 82%;
-    --muted: 213 18% 16%;
-    --muted-foreground: 46 8% 58%;
-    --accent: 194 26% 55%;
-    --accent-foreground: 46 18% 88%;
-    --destructive: 0 60% 50%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 213 18% 22%;
-    --input: 213 18% 22%;
-    --ring: 7 52% 55%;
-    --study-cinnabar: #b04a38;
-    --study-dai: #46626e;
-    --study-paper: #10171f;
-    --study-surface: #151e28;
-  }
-}
-
-@layer base {
   * {
     @apply border-border;
   }
@@ -171,20 +116,20 @@
     width: 4px;
   }
   .chapter-nav::-webkit-scrollbar-thumb {
-    background: #d8cdb8;
+    background: var(--study-scrollbar);
     border-radius: 2px;
   }
 }
 
 /* 玄青夜读：硬编码工具类的暗色映射 */
 .dark .text-cinnabar {
-  color: #cd6a55;
+  color: var(--study-cinnabar-text);
 }
 .dark .text-dai {
-  color: #7fa3b3;
+  color: var(--study-dai-text);
 }
 .dark .chapter-nav::-webkit-scrollbar-thumb {
-  background: #2b3a47;
+  background: var(--study-scrollbar);
 }
 
 /* 阅读器正文 */
@@ -245,11 +190,11 @@
   height: 6px;
 }
 .reader-vertical-wrapper::-webkit-scrollbar-thumb {
-  background: #d8cdb8;
+  background: var(--study-scrollbar);
   border-radius: 3px;
 }
 .dark .reader-vertical-wrapper::-webkit-scrollbar-thumb {
-  background: #2b3a47;
+  background: var(--study-scrollbar);
 }
 
 .reader-vertical {
@@ -281,15 +226,15 @@
   align-items: center;
   justify-content: center;
   padding: 0.25rem 0.75rem;
-  background-color: #a63a2c;
-  color: #ffffff;
+  background-color: var(--study-cinnabar);
+  color: var(--study-on-accent);
   border-radius: 4px;
   font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
   box-shadow: 0 2px 6px rgba(166, 58, 44, 0.35);
   letter-spacing: 0.1em;
 }
 .dark .tune-seal-badge {
-  background-color: #b04a38;
+  background-color: var(--study-cinnabar);
 }
 
 /* 声律对仗卡片 */
@@ -400,7 +345,7 @@
 
 /* 朱砂小字夹注 */
 .cinnabar-annotation {
-  color: #a63a2c;
+  color: var(--study-cinnabar);
   font-size: 0.82em;
   font-weight: 400;
   opacity: 0.88;
@@ -410,7 +355,7 @@
   vertical-align: baseline;
 }
 .dark .cinnabar-annotation {
-  color: #cd6a55;
+  color: var(--study-cinnabar-text);
   opacity: 0.9;
 }
 
@@ -422,8 +367,8 @@
 /* 古籍线装书质感卡片 (Refined Literary Book Card) */
 .book-spine-card {
   position: relative;
-  background: var(--card, #fffdf8);
-  border: 1px solid var(--border, rgba(166, 58, 44, 0.15));
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -465,13 +410,13 @@
 
 /* 结构化 AI 评阅卡片 */
 .critique-section {
-  border-left: 3px solid #a63a2c;
+  border-left: 3px solid var(--study-cinnabar);
   padding: 0.75rem 1rem;
   background: rgba(166, 58, 44, 0.025);
   border-radius: 0 6px 6px 0;
   margin-top: 0.75rem;
 }
 .dark .critique-section {
-  border-left-color: #cd6a55;
+  border-left-color: var(--study-cinnabar-text);
   background: rgba(205, 106, 85, 0.05);
 }

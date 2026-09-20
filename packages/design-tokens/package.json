@@ -1,0 +1,11 @@
+{
+  "name": "@newmaybe/design-tokens",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./tokens.css",
+    "./study.css": "./study.css"
+  }
+}

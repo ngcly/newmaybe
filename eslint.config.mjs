@@ -18,6 +18,8 @@ export default [
       '**/.wrangler/**',
       '**/.astro/types.d.ts',
       '**/env.d.ts',
+      '**/test-results/**',
+      '**/playwright-report/**',
     ],
   },
 
@@ -30,7 +32,7 @@ export default [
 
   // React app files — hooks & refresh rules only
   {
-    files: ['apps/tools/**/*.{ts,tsx}', 'apps/ai/**/*.{ts,tsx}', 'apps/studio/**/*.{ts,tsx}'],
+    files: ['apps/*/**/*.{ts,tsx}'],
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,

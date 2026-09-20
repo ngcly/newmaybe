@@ -8,18 +8,18 @@
   "scripts": {
     "dev:main": "ASTRO_TELEMETRY_DISABLED=1 npm run dev -w apps/main",
     "dev:graph": "ASTRO_TELEMETRY_DISABLED=1 npm run dev -w apps/graph",
-    "dev:tools": "npm run dev -w apps/tools",
     "dev:ai": "npm run dev -w apps/ai",
     "dev:lab": "ASTRO_TELEMETRY_DISABLED=1 npm run dev -w apps/lab",
     "dev:studio": "npm run dev -w apps/studio",
     "dev:study": "npm run dev -w apps/study",
+    "dev:club": "npm run dev -w apps/club",
     "build:main": "ASTRO_TELEMETRY_DISABLED=1 npm run build -w apps/main",
     "build:graph": "ASTRO_TELEMETRY_DISABLED=1 npm run build -w apps/graph",
-    "build:tools": "npm run build -w apps/tools",
     "build:ai": "npm run build -w apps/ai",
     "build:lab": "ASTRO_TELEMETRY_DISABLED=1 npm run build -w apps/lab",
     "build:studio": "npm run build -w apps/studio",
     "build:study": "npm run build -w apps/study",
+    "build:club": "npm run build -w apps/club",
     "audit": "tsx scripts/audit-posts.ts",
     "new": "tsx scripts/new.ts",
     "lint": "eslint .",
@@ -29,7 +29,16 @@
     "check": "npm run lint && npm run format:check",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepare": "husky"
+    "prepare": "husky",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "tokens:build": "node --import tsx scripts/generate-tokens.ts",
+    "tokens:check": "node --import tsx scripts/generate-tokens.ts --check",
+    "test:e2e": "playwright test",
+    "budget": "node --import tsx scripts/check-budgets.ts",
+    "affected": "node --import tsx scripts/affected-apps.ts",
+    "smoke": "node --import tsx scripts/smoke.ts",
+    "typecheck:scripts": "tsc --noEmit -p tsconfig.json"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,mjs,cjs}": [
@@ -41,7 +50,11 @@
     ]
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
+    "@types/d3": "^7.4.3",
     "@types/js-yaml": "^4.0.9",
     "eslint": "^10.7.0",
     "eslint-config-prettier": "^10.1.8",
@@ -55,5 +68,8 @@
     "tsx": "^4.20.6",
     "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.10"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

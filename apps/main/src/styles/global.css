@@ -224,6 +224,21 @@ html.js .reveal.in {
   line-break: loose;
 }
 
+/* 楷体金句与传统文字辅助类 */
+.font-kai {
+  font-family: var(--serif-kai), 'Kaiti SC', 'STKaiti', 'KaiTi', var(--serif-cn), serif !important;
+}
+
+/* 正文开篇导语提要排版 */
+.prose .lead {
+  font-size: 1.22rem;
+  line-height: 1.95;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+  font-weight: 400;
+  margin-bottom: 2rem;
+}
+
 h1 .zh {
   font-family: var(--serif-cn);
   font-size: 0.55em;

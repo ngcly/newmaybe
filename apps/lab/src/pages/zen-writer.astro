@@ -487,7 +487,7 @@ const isDev = import.meta.env.DEV;
         if (!isDev) return url;
         if (url.startsWith('https://newmaybe.com')) return 'http://localhost:4321';
         if (url.startsWith('https://graph.newmaybe.com')) return 'http://localhost:4322';
-        if (url.startsWith('https://tools.newmaybe.com')) return 'http://localhost:4323';
+        if (url.startsWith('https://studio.newmaybe.com')) return 'http://localhost:4326';
         if (url.startsWith('https://ai.newmaybe.com')) return 'http://localhost:4324';
         if (url.startsWith('https://lab.newmaybe.com')) return 'http://localhost:4325';
         if (url.startsWith('https://studio.newmaybe.com')) return 'http://localhost:4326';
@@ -498,7 +498,7 @@ const isDev = import.meta.env.DEV;
         const text = editor.value.trim();
         if (!text) return alert('请先写点什么再进行卡片转换吧...');
         window.open(
-          `${resolveSubdomain('https://tools.newmaybe.com')}?content=${encodeURIComponent(text)}`,
+          `${resolveSubdomain('https://studio.newmaybe.com')}?content=${encodeURIComponent(text)}`,
           '_blank',
         );
       });

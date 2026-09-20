@@ -13,6 +13,8 @@ export default defineConfig({
       'apps/main/src/**/*.test.ts',
       'apps/ai/src/**/*.test.ts',
       'apps/study/src/**/*.test.ts',
+      'apps/graph/src/**/*.test.ts',
+      'scripts/**/*.test.ts',
     ],
   },
 });

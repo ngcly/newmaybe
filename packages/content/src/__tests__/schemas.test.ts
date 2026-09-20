@@ -44,12 +44,32 @@ describe('postSchema', () => {
 
   it('rejects empty title', () => {
     const result = postSchema.safeParse({ ...validPost, title: '' });
-    expect(result.success).toBe(true); // zod string accepts empty by default
+    expect(result.success).toBe(false);
   });
 
   it('rejects description shorter than 10 chars', () => {
     const result = postSchema.safeParse({ ...validPost, description: '短' });
     expect(result.success).toBe(false);
+  });
+
+  it.each([
+    { title: '   ' },
+    { category: '错误分类' },
+    { readingTime: 0 },
+    { readingTime: 1.5 },
+    { weight: 0.5 },
+    { watermark: '雨雪' },
+    { watermark: ' ' },
+    { connections: ['unknown/slug'] },
+    { connections: ['notes/../secret'] },
+    { connections: ['notes/'] },
+    { updatedDate: '2025-12-31' },
+  ])('rejects invalid content metadata %j', (fields) => {
+    expect(postSchema.safeParse({ ...validPost, ...fields }).success).toBe(false);
+  });
+
+  it('accepts a single supplementary Unicode character', () => {
+    expect(postSchema.safeParse({ ...validPost, watermark: '𠮷' }).success).toBe(true);
   });
 
   it('rejects description longer than 80 chars', () => {
@@ -178,6 +198,12 @@ describe('noteSchema', () => {
 });
 
 describe('memorySchema', () => {
+  it('validates versions and update dates', () => {
+    const data = { title: '记忆', pubDate: '2026-01-01' };
+    expect(memorySchema.safeParse({ ...data, version: 'latest' }).success).toBe(false);
+    expect(memorySchema.safeParse({ ...data, updatedDate: '2025-01-01' }).success).toBe(false);
+    expect(noteSchema.safeParse({ ...data, updatedDate: '2025-01-01' }).success).toBe(false);
+  });
   it('parses a valid memory', () => {
     const result = memorySchema.safeParse({
       title: '隐私优先',

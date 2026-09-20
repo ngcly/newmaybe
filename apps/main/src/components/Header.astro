@@ -51,7 +51,7 @@ const isActive = (href: string) => {
             <path d="m6 9 6 6 6-6"></path>
           </svg>
         </button>
-        <div class="eco-dropdown" id="ecoDropdown" aria-hidden="true">
+        <div class="eco-dropdown" id="ecoDropdown" aria-hidden="true" inert>
           <div class="eco-dropdown-header">
             <span class="eco-dropdown-title">数字生态 · 漫游子空间</span>
             <span class="eco-dropdown-sub">6 Spaces</span>
@@ -150,35 +150,6 @@ const isActive = (href: string) => {
               </div>
             </a>
             <a
-              href={resolveSubdomain('https://tools.newmaybe.com')}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="eco-item"
-            >
-              <div class="eco-item-icon">
-                <svg
-                  width="15"
-                  height="15"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="m18 2 4 4-14 14H4v-4L18 2z"></path>
-                  <path d="m14.5 5.5 4 4"></path>
-                </svg>
-              </div>
-              <div class="eco-item-text">
-                <div class="eco-item-name">
-                  <span>排版工具</span>
-                  <span class="eco-arrow-icon">↗</span>
-                </div>
-                <div class="eco-item-desc">诗文与金句卡片</div>
-              </div>
-            </a>
-            <a
               href={resolveSubdomain('https://studio.newmaybe.com')}
               target="_blank"
               rel="noopener noreferrer"
@@ -206,10 +177,39 @@ const isActive = (href: string) => {
               </div>
               <div class="eco-item-text">
                 <div class="eco-item-name">
-                  <span>创意工坊</span>
+                  <span>创作工坊</span>
                   <span class="eco-arrow-icon">↗</span>
                 </div>
-                <div class="eco-item-desc">灵感记录与画布</div>
+                <div class="eco-item-desc">排版卡片与海报</div>
+              </div>
+            </a>
+            <a
+              href={resolveSubdomain('https://club.newmaybe.com')}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="eco-item"
+            >
+              <div class="eco-item-icon">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+              </div>
+              <div class="eco-item-text">
+                <div class="eco-item-name">
+                  <span>文友雅集</span>
+                  <span class="eco-arrow-icon">↗</span>
+                </div>
+                <div class="eco-item-desc">文友共写与专题</div>
               </div>
             </a>
             <a

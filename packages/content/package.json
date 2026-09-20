@@ -7,5 +7,8 @@
     "./authoring": "./src/authoring.ts",
     "./schemas": "./src/schemas.ts",
     "./utils": "./src/utils.ts"
+  },
+  "dependencies": {
+    "zod": "^4.0.0"
   }
 }

@@ -1,3 +1,4 @@
+import { fetchFreeAI } from '@newmaybe/ai-client/free-ai';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { type Message, type ProviderType } from '../types';
 import { retrieveRelevantDocs, type ContentItem } from '../utils/rag';
@@ -160,7 +161,11 @@ ${m.doc.content}
                 stream: false,
               });
 
-        const res = await fetch(endpoint, { method: 'POST', headers, body });
+        const res = await (provider === 'free' ? fetchFreeAI : fetch)(endpoint, {
+          method: 'POST',
+          headers,
+          body,
+        });
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
           throw new Error(errData.error?.message || errData.error || '连接接口失败');

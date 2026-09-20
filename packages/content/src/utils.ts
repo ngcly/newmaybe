@@ -1,10 +1,10 @@
 const SUBDOMAINS: [string, string][] = [
   ['graph.newmaybe.com', 'http://localhost:4322'],
-  ['tools.newmaybe.com', 'http://localhost:4323'],
   ['ai.newmaybe.com', 'http://localhost:4324'],
   ['lab.newmaybe.com', 'http://localhost:4325'],
   ['studio.newmaybe.com', 'http://localhost:4326'],
   ['study.newmaybe.com', 'http://localhost:4327'],
+  ['club.newmaybe.com', 'http://localhost:4328'],
   ['newmaybe.com', 'http://localhost:4321'],
 ];
 

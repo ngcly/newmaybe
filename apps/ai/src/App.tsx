@@ -20,32 +20,19 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'chat' | 'gardener' | 'capture' | 'ego'>('chat');
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Handle initial ?q= parameter from cross-app linking
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const query = params.get('q');
-      if (query) {
-        chat.setInputText(query);
-        // Clear URL param so refresh doesn't re-send
-        const url = new URL(window.location.href);
-        url.searchParams.delete('q');
-        window.history.replaceState({}, '', url.toString());
-      }
-    }
-    // Only run on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Auto-send initial query once content loads
+  // Only cross-app ?q= links auto-send. Normal typing must wait for submission.
+  const [initialQuery] = useState(() => new URLSearchParams(window.location.search).get('q'));
   const initialQuerySent = useRef(false);
-  const { contentLoading, inputText, handleSend } = chat;
+  const { contentLoading, contentError, handleSend } = chat;
   useEffect(() => {
-    if (!contentLoading && inputText && !initialQuerySent.current) {
+    if (!contentLoading && !contentError && initialQuery && !initialQuerySent.current) {
       initialQuerySent.current = true;
-      handleSend(inputText);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('q');
+      window.history.replaceState({}, '', url.toString());
+      void handleSend(initialQuery);
     }
-  }, [contentLoading, inputText, handleSend]);
+  }, [contentLoading, contentError, initialQuery, handleSend]);
 
   // Scroll to bottom on new messages
   useEffect(() => {

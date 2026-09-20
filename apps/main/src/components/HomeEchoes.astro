@@ -1,0 +1,442 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
+import SealStamp from './SealStamp.astro';
+
+interface Props {
+  fragment?: CollectionEntry<'fragments'>;
+  excerpt?: CollectionEntry<'excerpts'>;
+}
+
+const { fragment, excerpt } = Astro.props;
+
+const FragmentContent = fragment ? (await render(fragment)).Content : null;
+const ExcerptContent = excerpt ? (await render(excerpt)).Content : null;
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<section class="section-echoes" id="echoes">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow">Echoes & Fragments</span>
+        <h2>
+          念头与拾遗<span class="cn">瞬息与摘录</span>
+        </h2>
+      </div>
+      <p class="section-intro">一侧是即时生发的瞬息手记，一侧是偶遇驻留的他山字句。</p>
+    </div>
+
+    <div class={`echoes-grid ${!(fragment && excerpt) ? 'is-single' : ''}`}>
+      {
+        fragment && FragmentContent && (
+          <article class="echo-card frag-card reveal">
+            <div class="card-top">
+              <div class="card-title-badge">
+                <span class="badge-dot" />
+                <span class="badge-text">Fragment · 最新念头</span>
+              </div>
+              {(fragment.data.mood || fragment.data.location) && (
+                <div class="frag-meta">
+                  {fragment.data.location && (
+                    <span class="meta-item">📍 {fragment.data.location}</span>
+                  )}
+                  {fragment.data.mood && <span class="meta-item mood">{fragment.data.mood}</span>}
+                </div>
+              )}
+            </div>
+
+            <div class="card-body frag-body">
+              <FragmentContent />
+            </div>
+
+            <div class="card-foot">
+              <time class="card-date">{fmtDate(fragment.data.pubDate)}</time>
+              <a href="/fragments" class="card-link">
+                全部念头 <span class="arrow">→</span>
+              </a>
+            </div>
+          </article>
+        )
+      }
+
+      {
+        excerpt && ExcerptContent && (
+          <figure class="echo-card excerpt-card reveal">
+            <div class="quote-mark" aria-hidden="true">
+              “
+            </div>
+            <div class="card-top">
+              <div class="card-title-badge">
+                <span class="badge-dot ochre" />
+                <span class="badge-text">Excerpt · 今日拾遗</span>
+              </div>
+              <span class="excerpt-badge-leaf">典籍签条</span>
+            </div>
+
+            <div class="card-body excerpt-body">
+              <blockquote class="excerpt-text">
+                <ExcerptContent />
+              </blockquote>
+              {excerpt.data.comment && <p class="excerpt-comment">{excerpt.data.comment}</p>}
+            </div>
+
+            <div class="card-foot excerpt-foot">
+              <figcaption class="excerpt-source">
+                <span class="dash">—</span>
+                <span class="author">{excerpt.data.author}</span>
+                {excerpt.data.source && <cite class="source">《{excerpt.data.source}》</cite>}
+              </figcaption>
+              <div class="foot-actions">
+                <a href="/excerpts" class="card-link">
+                  全部拾遗 <span class="arrow">→</span>
+                </a>
+                <SealStamp text="拾遗" type="yang" size="sm" title="拾遗印记" />
+              </div>
+            </div>
+          </figure>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .section-echoes {
+    padding: 4.5rem 0;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .section-head h2 {
+    font-family: var(--serif-en);
+    font-weight: 600;
+    font-size: 2.2rem;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+  }
+
+  .section-head h2 .cn {
+    font-family: var(--serif-cn);
+    font-size: 1.4rem;
+    color: var(--ink-faint);
+    font-weight: 400;
+    margin-left: 0.8rem;
+  }
+
+  .section-intro {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    max-width: 32ch;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* 双联对偶网格 */
+  .echoes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.2rem;
+    align-items: stretch;
+  }
+
+  .echoes-grid.is-single {
+    grid-template-columns: minmax(0, 720px);
+    justify-content: center;
+  }
+
+  /* 基础纸页卡片容器 */
+  .echo-card {
+    background: color-mix(in srgb, var(--paper-deep) 70%, var(--paper));
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 2.2rem 2.2rem 1.8rem;
+    margin: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: var(--shadow-paper);
+    transition:
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.3s ease,
+      background-color 0.3s ease;
+  }
+
+  .echo-card:hover {
+    background: var(--paper-deep);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-paper-hover);
+    border-color: color-mix(in srgb, var(--ochre) 35%, var(--line));
+  }
+
+  :root.dark .echo-card:hover {
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  }
+
+  /* 卡片顶部顶栏 */
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .card-title-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ink-faint);
+    transition: background-color 0.3s ease;
+  }
+
+  .badge-dot.ochre {
+    background: var(--ochre);
+  }
+
+  .echo-card:hover .badge-dot {
+    background: var(--ochre);
+  }
+
+  .badge-text {
+    font-family: var(--serif-cn);
+    font-size: 0.88rem;
+    letter-spacing: 0.05em;
+    color: var(--ink-faint);
+  }
+
+  .frag-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: var(--serif-cn);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+  }
+
+  .meta-item.mood {
+    padding: 0.1rem 0.45rem;
+    background: color-mix(in srgb, var(--ink) 4%, transparent);
+    border-radius: 2px;
+    border: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+  }
+
+  .excerpt-badge-leaf {
+    font-family: var(--serif-cn);
+    font-size: 0.82rem;
+    color: var(--ochre);
+    background: color-mix(in srgb, var(--ochre) 10%, transparent);
+    padding: 0.15rem 0.55rem;
+    border-radius: 2px;
+    border: 1px solid color-mix(in srgb, var(--ochre) 22%, transparent);
+    letter-spacing: 0.04em;
+  }
+
+  /* 卡片正文 */
+  .card-body {
+    flex-grow: 1;
+    margin-bottom: 1.8rem;
+  }
+
+  /* 念头正文样式 */
+  .frag-body :global(p) {
+    font-size: 1.14rem;
+    line-height: 2;
+    color: var(--ink-soft);
+    font-weight: 300;
+    margin: 0;
+    letter-spacing: 0.03em;
+  }
+
+  .frag-body :global(p + p) {
+    margin-top: 1rem;
+  }
+
+  /* 拾遗正文样式（古典楷体 + 典雅字距） */
+  .quote-mark {
+    position: absolute;
+    top: 3.5rem;
+    left: 1.4rem;
+    font-family: var(--serif-en);
+    font-size: 4rem;
+    color: var(--ochre);
+    opacity: 0.09;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .excerpt-text {
+    font-family: var(--serif-kai), 'Kaiti SC', 'STKaiti', 'KaiTi', var(--serif-cn), serif;
+    font-size: 1.25rem;
+    line-height: 2.05;
+    letter-spacing: 0.045em;
+    color: var(--ink);
+    margin: 0;
+    padding: 0;
+    border: none;
+    font-style: normal;
+    position: relative;
+    z-index: 1;
+  }
+
+  .excerpt-text :global(p) {
+    margin: 0;
+    text-align: justify;
+    text-justify: inter-character;
+    font-weight: 400;
+  }
+
+  .excerpt-text :global(p + p) {
+    margin-top: 0.8rem;
+  }
+
+  .excerpt-comment {
+    margin-top: 1.2rem;
+    padding-top: 0.9rem;
+    border-top: 1px dashed var(--line);
+    font-size: 0.88rem;
+    color: var(--ink-faint);
+    line-height: 1.6;
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  /* 卡片底部栏 */
+  .card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1.1rem;
+    border-top: 1px dashed var(--line);
+  }
+
+  .card-date {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 0.92rem;
+    color: var(--ink-faint);
+  }
+
+  .card-link {
+    font-family: var(--serif-cn);
+    font-size: 0.88rem;
+    color: var(--ochre);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid transparent;
+    transition:
+      border-color 0.3s,
+      color 0.3s,
+      transform 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .card-link .arrow {
+    transition: transform 0.25s ease;
+  }
+
+  .card-link:hover {
+    border-bottom-color: var(--ochre);
+  }
+
+  .card-link:hover .arrow {
+    transform: translateX(3px);
+  }
+
+  /* 拾遗底部 */
+  .excerpt-source {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-family: var(--serif-cn);
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+
+  .dash {
+    color: var(--ochre);
+  }
+
+  .author {
+    font-weight: 500;
+  }
+
+  .source {
+    font-style: normal;
+    color: var(--ink-faint);
+  }
+
+  .foot-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  /* 响应式适配 */
+  @media (max-width: 860px) {
+    .echoes-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .echo-card {
+      padding: 1.8rem 1.6rem 1.5rem;
+    }
+  }
+
+  @media (max-width: 680px) {
+    .section-echoes {
+      padding: 3.5rem 0;
+    }
+
+    .section-head {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+      gap: 0.8rem;
+    }
+
+    .card-top {
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .card-foot {
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .excerpt-text {
+      font-size: 1.15rem;
+      line-height: 1.95;
+    }
+
+    .frag-body :global(p) {
+      font-size: 1.05rem;
+      line-height: 1.9;
+    }
+  }
+</style>
