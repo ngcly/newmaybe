@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { resolveSubdomain as _resolveSubdomain } from '@newmaybe/content/utils';
-import { Sparkles, Clock, BookOpen, Flame, Search, RefreshCw, Globe } from 'lucide-react';
+import { Sparkles, Clock, BookOpen, Flame, Search } from 'lucide-react';
 import type { Article, Comment, ReaderPreferences, FeedFilter } from './types';
 import { TOPICS } from './data/topics';
 import { INITIAL_ARTICLES, INITIAL_COMMENTS } from './data/initialArticles';
@@ -34,7 +34,6 @@ export default function App() {
   const [isWriterOpen, setIsWriterOpen] = useState(false);
   const [feedFilter, setFeedFilter] = useState<FeedFilter>('featured');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSyncing, setIsSyncing] = useState(false);
 
   // Reader Preferences
   const [preferences, setPreferences] = useState<ReaderPreferences>(() => {
@@ -151,23 +150,6 @@ export default function App() {
       /* ignore */
     }
   }, [commentsMap]);
-
-  // Manual refresh from Cloudflare D1
-  const handleManualRefresh = async () => {
-    setIsSyncing(true);
-    try {
-      const fresh = await ClubAPI.fetchArticles({
-        topicId: selectedTopicId,
-        filter: feedFilter,
-        q: searchQuery,
-      });
-      if (fresh && fresh.length > 0) {
-        setArticles(fresh);
-      }
-    } finally {
-      setTimeout(() => setIsSyncing(false), 400);
-    }
-  };
 
   // Group all series for sidebar showcase
   const seriesMap = articles.reduce<
@@ -337,15 +319,9 @@ export default function App() {
             <div className="mb-10 pb-8 border-b border-[var(--line)]">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-serif text-[var(--ochre)] italic tracking-wider">
-                      Echoes & Writers Club · 文友雅集
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-serif px-2 py-0.2 rounded-full border border-emerald-700/30 dark:border-emerald-400/30 text-emerald-900 dark:text-emerald-200 bg-emerald-600/10 font-medium">
-                      <Globe className="w-2.5 h-2.5" />
-                      <span>云端同步社区</span>
-                    </span>
-                  </div>
+                  <span className="text-xs font-serif text-[var(--ochre)] italic tracking-wider block mb-1">
+                    Echoes & Writers Club · 文友雅集
+                  </span>
                   <h1 className="font-serif font-semibold text-2xl md:text-3xl text-[var(--ink)] tracking-wide">
                     文友雅集
                     <span className="text-sm font-normal text-[var(--ink-faint)] ml-3 font-serif">
@@ -353,22 +329,9 @@ export default function App() {
                     </span>
                   </h1>
                 </div>
-                <div className="flex flex-col items-start md:items-end gap-2">
-                  <p className="text-xs md:text-sm text-[var(--ink-soft)] max-w-md font-light leading-relaxed font-serif">
-                    慢节奏人文随笔与专栏文集社区。以纸墨安放此刻的呼吸，记录那些在时光里未曾褪色的微光。
-                  </p>
-                  <button
-                    onClick={handleManualRefresh}
-                    disabled={isSyncing}
-                    className="inline-flex items-center gap-1.5 text-xs font-serif text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors cursor-pointer"
-                    title="从云端数据库拉取最新文稿"
-                  >
-                    <RefreshCw
-                      className={`w-3 h-3 ${isSyncing ? 'animate-spin text-[var(--ochre)]' : ''}`}
-                    />
-                    <span>{isSyncing ? '正在拉取云端文稿...' : '同步云端文稿'}</span>
-                  </button>
-                </div>
+                <p className="text-xs md:text-sm text-[var(--ink-soft)] max-w-md font-light leading-relaxed font-serif">
+                  慢节奏人文随笔与专栏文集社区。以纸墨安放此刻的呼吸，记录那些在时光里未曾褪色的微光。
+                </p>
               </div>
 
               {/* Feed Mode Tabs & Topic Filters */}
