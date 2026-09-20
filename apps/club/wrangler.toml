@@ -9,4 +9,4 @@ not_found_handling = "single-page-application"
 [[d1_databases]]
 binding = "DB"
 database_name = "newmaybe-club-db"
-database_id = "local-club-db"
+database_id = "cca3f403-d205-4f20-9192-c7051a99c4f5"
