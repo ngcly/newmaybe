@@ -30,6 +30,23 @@ export interface Article {
   likes: number;
   commentsCount: number;
   isUserCreated?: boolean;
+  seriesTitle?: string;
+  seriesOrder?: number;
+  goldenQuote?: string;
+  featured?: boolean;
 }
 
+export type PaperTheme = 'paper' | 'parchment' | 'bamboo' | 'ink';
+export type ReaderFont = 'song' | 'kai' | 'sans';
+export type ReaderFontSize = 'sm' | 'md' | 'lg' | 'xl';
+export type ReaderLineHeight = 'compact' | 'normal' | 'relaxed';
+
+export interface ReaderPreferences {
+  theme: PaperTheme;
+  font: ReaderFont;
+  fontSize: ReaderFontSize;
+  lineHeight: ReaderLineHeight;
+}
+
+export type FeedFilter = 'featured' | 'latest' | 'series';
 export type ViewMode = 'plaza' | 'topics' | 'article';

@@ -1,3 +1,4 @@
+import { BookOpen, Heart, MessageSquare, Sparkles } from 'lucide-react';
 import type { Article } from '../types';
 
 interface ArticleCardProps {
@@ -8,7 +9,7 @@ interface ArticleCardProps {
 
 export default function ArticleCard({ article, onSelect, onSelectTopic }: ArticleCardProps) {
   return (
-    <article className="group bg-[color-mix(in_srgb,var(--paper-deep)_65%,var(--paper))] border border-[var(--line)] rounded-sm p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--ochre)_35%,var(--line))] hover:shadow-md flex flex-col justify-between cursor-pointer">
+    <article className="group bg-[color-mix(in_srgb,var(--paper-deep)_65%,var(--paper))] border border-[var(--line)] rounded-sm p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--ochre)_40%,var(--line))] hover:shadow-md flex flex-col justify-between cursor-pointer">
       <div onClick={() => onSelect(article)}>
         {/* Card Header: Topic & Author Meta */}
         <div className="flex items-center justify-between gap-2 mb-3">
@@ -22,10 +23,29 @@ export default function ArticleCard({ article, onSelect, onSelectTopic }: Articl
             >
               {article.topicName}
             </button>
+
+            {article.seriesTitle && (
+              <span className="text-[11px] font-serif px-1.5 py-0.2 rounded bg-[color-mix(in_srgb,var(--bamboo)_12%,transparent)] border border-[color-mix(in_srgb,var(--bamboo)_25%,transparent)] text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
+                <BookOpen className="w-2.5 h-2.5" />
+                <span>
+                  {article.seriesTitle}
+                  {article.seriesOrder ? `·卷${article.seriesOrder}` : ''}
+                </span>
+              </span>
+            )}
+
+            {article.featured && (
+              <span className="text-[10px] font-serif px-1.5 py-0.2 rounded bg-[color-mix(in_srgb,var(--cinnabar)_10%,transparent)] border border-[color-mix(in_srgb,var(--cinnabar)_25%,transparent)] text-[var(--cinnabar)]">
+                精选
+              </span>
+            )}
+
             <span className="text-xs text-[var(--ink-faint)]">·</span>
-            <span className="text-xs text-[var(--ink-soft)] font-medium">{article.author}</span>
+            <span className="text-xs text-[var(--ink-soft)] font-medium font-serif">
+              {article.author}
+            </span>
             {article.authorSeal && (
-              <span className="text-[10px] px-1 py-0.2 rounded border border-[var(--cinnabar)] text-[var(--cinnabar-text)] font-serif scale-90">
+              <span className="text-[10px] px-1 py-0.2 rounded border border-[var(--cinnabar)] text-[var(--cinnabar)] font-serif scale-90">
                 {article.authorSeal}
               </span>
             )}
@@ -40,6 +60,14 @@ export default function ArticleCard({ article, onSelect, onSelectTopic }: Articl
           {article.title}
         </h3>
 
+        {/* Golden quote preview snippet if available */}
+        {article.goldenQuote && (
+          <div className="mb-3 px-3 py-1.5 rounded-xs border-l-2 border-[var(--ochre)] bg-[color-mix(in_srgb,var(--ochre)_6%,transparent)] text-xs font-serif italic text-[var(--ink-soft)] flex items-start gap-1.5">
+            <Sparkles className="w-3 h-3 text-[var(--ochre)] shrink-0 mt-0.5" />
+            <span className="line-clamp-1">“{article.goldenQuote}”</span>
+          </div>
+        )}
+
         {/* Summary */}
         <p className="text-sm text-[var(--ink-soft)] line-clamp-2 leading-relaxed font-light mb-4 text-justify">
           {article.summary}
@@ -53,13 +81,13 @@ export default function ArticleCard({ article, onSelect, onSelectTopic }: Articl
           <span>·</span>
           <span>约 {article.readingTime} 分钟阅读</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 font-serif">
           <span className="flex items-center gap-1 hover:text-[var(--cinnabar)] transition-colors">
-            <span>❤️</span>
+            <Heart className="w-3.5 h-3.5 text-[var(--cinnabar)]/80" />
             <span>{article.likes}</span>
           </span>
           <span className="flex items-center gap-1 hover:text-[var(--ochre)] transition-colors">
-            <span>💬</span>
+            <MessageSquare className="w-3.5 h-3.5 text-[var(--ochre)]/80" />
             <span>{article.commentsCount}</span>
           </span>
         </div>

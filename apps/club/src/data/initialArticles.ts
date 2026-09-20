@@ -26,6 +26,10 @@ export const INITIAL_ARTICLES: Article[] = [
     wordCount: 386,
     likes: 28,
     commentsCount: 3,
+    featured: true,
+    seriesTitle: '林下夜语',
+    seriesOrder: 1,
+    goldenQuote: '在这个追求即时反馈与无限滚动的时代，我们已经太久没有完整地听完一场雨了。',
   },
   {
     id: 'club-2',
@@ -52,6 +56,10 @@ export const INITIAL_ARTICLES: Article[] = [
     wordCount: 420,
     likes: 45,
     commentsCount: 5,
+    featured: true,
+    seriesTitle: '旧书肆拾遗',
+    seriesOrder: 1,
+    goldenQuote: '两个素昧平生的灵魂，通过一张薄纸、几道铅痕，在同一段文字前悄然完成了目光的交错。',
   },
   {
     id: 'club-3',
@@ -76,6 +84,8 @@ export const INITIAL_ARTICLES: Article[] = [
     wordCount: 412,
     likes: 39,
     commentsCount: 4,
+    featured: true,
+    goldenQuote: '青涩不是过错，而是青春留给我们最真挚的注脚。有些信虽未寄出，但真心已长成骨血。',
   },
   {
     id: 'club-4',
@@ -100,6 +110,65 @@ export const INITIAL_ARTICLES: Article[] = [
     wordCount: 350,
     likes: 32,
     commentsCount: 2,
+    seriesTitle: '山川行记',
+    seriesOrder: 1,
+    goldenQuote: '行者不必匆匆，且待暮色将歇。置身自然，方知心境辽阔。',
+  },
+  {
+    id: 'club-5',
+    title: '旧书肆拾遗（二）：那些被时光遗忘的毛边书',
+    summary:
+      '毛边本在现代工业印刷里几乎绝迹，但那种需要读者持裁纸刀一页页裁开阅读的缓慢与郑重，正是阅读最迷人的手感。',
+    content: `在旧书肆后架的最底层，我找到了一本民国时期的开明书店毛边本。
+
+所谓毛边书，是指书页三面不切光，装订后天头、地脚与翻口皆呈不规则毛边。阅读时须手执一把牛骨或竹制裁纸刀，看一页、裁一页。
+
+这种甚至显得繁琐的仪式，在讲求极速和效率的当下似乎不合时宜。但只要你真正手握裁纸刀切开过一张宣纸，就会懂得那一声清脆的“刺啦”里，蕴藏着读者对作者最深沉的敬意。
+
+每一刀切下，都像是在白纸黑字之间开启了一道私密的缝隙。你不是在被动地接收文字，而是以手与刀锋的触觉，共同参与了这本书的诞生。
+
+纸张的毛边如雪，抚过指尖微涩。在快节奏的洪流中，慢一点，字才走得进心里。`,
+    author: '素子',
+    authorSeal: '素心',
+    topicId: 'slow-living',
+    topicName: '慢读时光',
+    pubDate: '2026-09-18',
+    readingTime: 4,
+    wordCount: 460,
+    likes: 56,
+    commentsCount: 7,
+    featured: true,
+    seriesTitle: '旧书肆拾遗',
+    seriesOrder: 2,
+    goldenQuote: '每一刀切下，都像开启了一道私密的缝隙。慢一点，字才走得进心里。',
+  },
+  {
+    id: 'club-6',
+    title: '林下夜语（二）：在灯下重读《瓦尔登湖》',
+    summary:
+      '梭罗说：“大多数人都在平静地过着绝望的生活。”当城市的声音渐渐退潮，灯火映照的不仅是一册书，也是我们审视内心的明镜。',
+    content: `子夜时分，街上车声俱歇，四周只剩下冰箱微弱的嗡鸣与窗外风过树叶的娑娑声。
+
+重读《瓦尔登湖》，读到梭罗在湖畔用斧头砍伐白松建屋的那段。每一根木料的长宽、每一块泥灰的厚薄，他都事必躬亲、如实记录。
+
+我们这一代人太容易被各种宏大叙事与虚拟数据所裹挟。每天追逐着点击率、点赞数和行业风向，却常常忘记了自己今天究竟吃了什么味道的饭菜、呼吸了多少次新鲜空气。
+
+简朴不是苦行，而是主动剔除那些消耗生命力的芜杂枝节，让最本质的感知浮出水面。
+
+合上书，夜色如墨。心里原本杂乱的毛刺，仿佛也被湖水轻轻抚平了。`,
+    author: '林下客',
+    authorSeal: '林下',
+    topicId: 'deep-night',
+    topicName: '深夜念头',
+    pubDate: '2026-09-19',
+    readingTime: 4,
+    wordCount: 430,
+    likes: 41,
+    commentsCount: 6,
+    featured: false,
+    seriesTitle: '林下夜语',
+    seriesOrder: 2,
+    goldenQuote: '简朴不是苦行，而是主动剔除那些消耗生命力的芜杂枝节，让最本质的感知浮出水面。',
   },
 ];
 
@@ -146,6 +215,16 @@ export const INITIAL_COMMENTS: Record<string, Comment[]> = {
       content: '铅笔字终究会淡去，但那份心意却被书页永久地记住了。',
       createdAt: '2026-09-15 11:25',
       likes: 5,
+    },
+  ],
+  'club-5': [
+    {
+      id: 'comm-6',
+      articleId: 'club-5',
+      author: '林下客',
+      content: '素子这篇写得极雅！“看一页、裁一页”的手感，只有真正翻过毛边书的人才懂。',
+      createdAt: '2026-09-18 21:05',
+      likes: 9,
     },
   ],
 };

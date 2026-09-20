@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { resolveSubdomain as _resolveSubdomain } from '@newmaybe/content/utils';
-import type { Article, Comment } from './types';
+import { Sparkles, Clock, BookOpen, Flame, Search } from 'lucide-react';
+import type { Article, Comment, ReaderPreferences, FeedFilter } from './types';
 import { TOPICS } from './data/topics';
 import { INITIAL_ARTICLES, INITIAL_COMMENTS } from './data/initialArticles';
 import Navbar from './components/Navbar';
@@ -16,20 +17,52 @@ const resolveSubdomain = (url: string) => _resolveSubdomain(url, _isDev);
 
 const STORAGE_ARTICLES_KEY = 'newmaybe_club_articles';
 const STORAGE_COMMENTS_KEY = 'newmaybe_club_comments';
+const STORAGE_PREFS_KEY = 'newmaybe_club_reader_prefs';
+
+const DEFAULT_PREFERENCES: ReaderPreferences = {
+  theme: 'paper',
+  font: 'song',
+  fontSize: 'md',
+  lineHeight: 'normal',
+};
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<'plaza' | 'topics'>('plaza');
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [isWriterOpen, setIsWriterOpen] = useState(false);
+  const [feedFilter, setFeedFilter] = useState<FeedFilter>('featured');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Articles state
+  // Reader Preferences
+  const [preferences, setPreferences] = useState<ReaderPreferences>(() => {
+    if (typeof window === 'undefined') return DEFAULT_PREFERENCES;
+    try {
+      const saved = localStorage.getItem(STORAGE_PREFS_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      /* ignore */
+    }
+    return DEFAULT_PREFERENCES;
+  });
+
+  // Articles state with seamless upgrade migration
   const [articles, setArticles] = useState<Article[]>(() => {
     if (typeof window === 'undefined') return INITIAL_ARTICLES;
     try {
       const saved = localStorage.getItem(STORAGE_ARTICLES_KEY);
       if (saved) {
-        return JSON.parse(saved);
+        const parsed: Article[] = JSON.parse(saved);
+        const merged = parsed.map((item) => {
+          const init = INITIAL_ARTICLES.find((a) => a.id === item.id);
+          return init ? { ...init, ...item } : item;
+        });
+        INITIAL_ARTICLES.forEach((init) => {
+          if (!merged.some((m) => m.id === init.id)) {
+            merged.push(init);
+          }
+        });
+        return merged;
       }
     } catch {
       /* ignore */
@@ -51,6 +84,15 @@ export default function App() {
     return INITIAL_COMMENTS;
   });
 
+  // Persist preferences
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_PREFS_KEY, JSON.stringify(preferences));
+    } catch {
+      /* ignore */
+    }
+  }, [preferences]);
+
   // Persist articles
   useEffect(() => {
     try {
@@ -69,10 +111,58 @@ export default function App() {
     }
   }, [commentsMap]);
 
+  // Group all series for sidebar showcase
+  const seriesMap = articles.reduce<
+    Record<string, { title: string; count: number; author: string }>
+  >((acc, cur) => {
+    if (cur.seriesTitle) {
+      if (!acc[cur.seriesTitle]) {
+        acc[cur.seriesTitle] = { title: cur.seriesTitle, count: 0, author: cur.author };
+      }
+      acc[cur.seriesTitle].count += 1;
+    }
+    return acc;
+  }, {});
+  const seriesList = Object.values(seriesMap);
+
   // Filtered articles
-  const filteredArticles = selectedTopicId
-    ? articles.filter((a) => a.topicId === selectedTopicId)
-    : articles;
+  const searchedArticles = articles.filter((a) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      a.title.toLowerCase().includes(q) ||
+      a.author.toLowerCase().includes(q) ||
+      a.summary.toLowerCase().includes(q) ||
+      (a.goldenQuote && a.goldenQuote.toLowerCase().includes(q)) ||
+      (a.seriesTitle && a.seriesTitle.toLowerCase().includes(q))
+    );
+  });
+
+  const topicFiltered = selectedTopicId
+    ? searchedArticles.filter((a) => a.topicId === selectedTopicId)
+    : searchedArticles;
+
+  const displayedArticles = topicFiltered
+    .filter((a) => {
+      if (feedFilter === 'series') return Boolean(a.seriesTitle);
+      return true;
+    })
+    .sort((a, b) => {
+      if (feedFilter === 'featured') {
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        return b.likes - a.likes;
+      }
+      if (feedFilter === 'latest') {
+        return new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime();
+      }
+      if (feedFilter === 'series') {
+        const sDiff = (a.seriesTitle || '').localeCompare(b.seriesTitle || '');
+        if (sDiff !== 0) return sDiff;
+        return (a.seriesOrder || 0) - (b.seriesOrder || 0);
+      }
+      return 0;
+    });
 
   // Handlers
   const handleLikeArticle = (articleId: string) => {
@@ -142,6 +232,8 @@ export default function App() {
         }}
         onOpenWriter={() => setIsWriterOpen(true)}
         resolveSubdomain={resolveSubdomain}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
       {/* Main Content Area */}
@@ -149,8 +241,13 @@ export default function App() {
         {selectedArticle ? (
           <ArticleReader
             article={selectedArticle}
+            allArticles={articles}
             comments={commentsMap[selectedArticle.id] || []}
+            preferences={preferences}
+            onPreferencesChange={setPreferences}
+            onResetPreferences={() => setPreferences(DEFAULT_PREFERENCES)}
             onBack={() => setSelectedArticle(null)}
+            onSelectArticle={(art) => setSelectedArticle(art)}
             onLikeArticle={handleLikeArticle}
             onAddComment={handleAddComment}
             onLikeComment={handleLikeComment}
@@ -162,7 +259,7 @@ export default function App() {
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                   <span className="text-xs font-serif text-[var(--ochre)] italic tracking-wider block mb-1">
-                    Echoes & Writers Club
+                    Echoes & Writers Club · 文友雅集
                   </span>
                   <h1 className="font-serif font-semibold text-2xl md:text-3xl text-[var(--ink)] tracking-wide">
                     文友雅集
@@ -171,22 +268,89 @@ export default function App() {
                     </span>
                   </h1>
                 </div>
-                <p className="text-xs md:text-sm text-[var(--ink-soft)] max-w-md font-light leading-relaxed">
-                  慢节奏的人文写作与专题文集社区。记录那些还没成形的心绪，以字会友，安放共鸣。
+                <p className="text-xs md:text-sm text-[var(--ink-soft)] max-w-md font-light leading-relaxed font-serif">
+                  慢节奏人文随笔与专栏文集社区。以纸墨安放此刻的呼吸，记录那些在时光里未曾褪色的微光。
                 </p>
               </div>
 
+              {/* Feed Mode Tabs & Topic Filters */}
+              <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--line)] pb-3">
+                {/* 3 Main Feeds */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setFeedFilter('featured');
+                      setSelectedTopicId(null);
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-serif transition-all cursor-pointer ${
+                      feedFilter === 'featured'
+                        ? 'bg-[var(--ochre)] text-[var(--paper)] font-semibold shadow-xs'
+                        : 'text-[var(--ink-soft)] hover:bg-[var(--paper-deep)]'
+                    }`}
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>卷首精选</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setFeedFilter('latest');
+                      setSelectedTopicId(null);
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-serif transition-all cursor-pointer ${
+                      feedFilter === 'latest'
+                        ? 'bg-[var(--ochre)] text-[var(--paper)] font-semibold shadow-xs'
+                        : 'text-[var(--ink-soft)] hover:bg-[var(--paper-deep)]'
+                    }`}
+                  >
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>最新录入</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setFeedFilter('series');
+                      setSelectedTopicId(null);
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-serif transition-all cursor-pointer ${
+                      feedFilter === 'series'
+                        ? 'bg-[var(--ochre)] text-[var(--paper)] font-semibold shadow-xs'
+                        : 'text-[var(--ink-soft)] hover:bg-[var(--paper-deep)]'
+                    }`}
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>专栏连载 ({seriesList.length})</span>
+                  </button>
+                </div>
+
+                {/* Search status indicator */}
+                {searchQuery && (
+                  <div className="flex items-center gap-2 text-xs font-serif text-[var(--ochre)]">
+                    <Search className="w-3.5 h-3.5" />
+                    <span>
+                      包含 “{searchQuery}” 的篇章 ({displayedArticles.length})
+                    </span>
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="underline text-[var(--ink-faint)] hover:text-[var(--ink)] cursor-pointer ml-1"
+                    >
+                      清空搜索
+                    </button>
+                  </div>
+                )}
+              </div>
+
               {/* Topic Filters Chip Bar */}
-              <div className="flex items-center gap-2 mt-6 overflow-x-auto pb-1 text-xs font-serif">
+              <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-1 text-xs font-serif">
                 <button
                   onClick={() => setSelectedTopicId(null)}
-                  className={`px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap ${
+                  className={`px-3 py-1 rounded-full transition-all cursor-pointer whitespace-nowrap ${
                     selectedTopicId === null
-                      ? 'bg-[var(--ochre)] text-[var(--paper)] font-medium shadow-xs'
+                      ? 'bg-[var(--paper-deep)] text-[var(--ochre)] border border-[var(--ochre)] font-medium shadow-2xs'
                       : 'bg-[color-mix(in_srgb,var(--paper-deep)_70%,var(--paper))] text-[var(--ink-soft)] border border-[var(--line)] hover:border-[var(--ochre)]'
                   }`}
                 >
-                  全部文章 ({articles.length})
+                  全部专题 ({articles.length})
                 </button>
                 {TOPICS.map((t) => {
                   const count = articles.filter((a) => a.topicId === t.id).length;
@@ -194,15 +358,15 @@ export default function App() {
                     <button
                       key={t.id}
                       onClick={() => setSelectedTopicId(t.id)}
-                      className={`px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                      className={`px-3 py-1 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                         selectedTopicId === t.id
-                          ? 'bg-[var(--ochre)] text-[var(--paper)] font-medium shadow-xs'
+                          ? 'bg-[var(--paper-deep)] text-[var(--ochre)] border border-[var(--ochre)] font-medium shadow-2xs'
                           : 'bg-[color-mix(in_srgb,var(--paper-deep)_70%,var(--paper))] text-[var(--ink-soft)] border border-[var(--line)] hover:border-[var(--ochre)]'
                       }`}
                     >
                       <span>{t.icon}</span>
                       <span>{t.name}</span>
-                      <span className="text-[10px]">({count})</span>
+                      <span className="text-[10px] opacity-75">({count})</span>
                     </button>
                   );
                 })}
@@ -213,18 +377,29 @@ export default function App() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               {/* Left Column: Articles */}
               <div className="lg:col-span-8 flex flex-col gap-5">
-                {filteredArticles.length === 0 ? (
+                {displayedArticles.length === 0 ? (
                   <div className="text-center py-16 border border-dashed border-[var(--line)] rounded text-sm text-[var(--ink-faint)] font-serif">
-                    该专题下暂无文稿，
+                    未找到相关文稿，
                     <button
-                      onClick={() => setIsWriterOpen(true)}
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSelectedTopicId(null);
+                        setFeedFilter('featured');
+                      }}
                       className="text-[var(--ochre)] underline hover:text-[var(--ochre-deep)] ml-1 cursor-pointer"
                     >
-                      点击即刻投稿
+                      重置筛选
+                    </button>
+                    <span className="mx-1">或</span>
+                    <button
+                      onClick={() => setIsWriterOpen(true)}
+                      className="text-[var(--ochre)] underline hover:text-[var(--ochre-deep)] cursor-pointer"
+                    >
+                      即刻落笔投稿
                     </button>
                   </div>
                 ) : (
-                  filteredArticles.map((article) => (
+                  displayedArticles.map((article) => (
                     <ArticleCard
                       key={article.id}
                       article={article}
@@ -235,13 +410,57 @@ export default function App() {
                 )}
               </div>
 
-              {/* Right Column: Topics & Community Rules */}
+              {/* Right Column: Topics & Series & Rules */}
               <aside className="lg:col-span-4 flex flex-col gap-6">
+                {/* Series Showcase Box */}
+                {seriesList.length > 0 && (
+                  <div className="p-5 rounded border border-[var(--line)] bg-[color-mix(in_srgb,var(--paper-deep)_50%,var(--paper))]">
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-[var(--line)]">
+                      <div className="flex items-center gap-1.5">
+                        <BookOpen className="w-3.5 h-3.5 text-[var(--ochre)]" />
+                        <h3 className="font-serif font-medium text-sm text-[var(--ink)]">
+                          专栏文集 · 连载推荐
+                        </h3>
+                      </div>
+                      <button
+                        onClick={() => setFeedFilter('series')}
+                        className="text-xs text-[var(--ochre)] hover:underline font-serif cursor-pointer"
+                      >
+                        全部连载 →
+                      </button>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {seriesList.map((s) => (
+                        <div
+                          key={s.title}
+                          onClick={() => {
+                            setSearchQuery(s.title);
+                            setFeedFilter('series');
+                          }}
+                          className="p-2.5 rounded hover:bg-[var(--paper-deep)] transition-colors cursor-pointer flex items-center justify-between"
+                        >
+                          <div className="flex flex-col">
+                            <span className="text-xs font-serif font-semibold text-[var(--ink)]">
+                              《{s.title}》
+                            </span>
+                            <span className="text-[10px] font-serif text-[var(--ink-faint)]">
+                              主笔 · {s.author}
+                            </span>
+                          </div>
+                          <span className="text-[11px] font-serif text-[var(--ink-soft)] px-2 py-0.5 rounded bg-[var(--paper)] border border-[var(--line)]">
+                            {s.count} 卷连载
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Topic Showcase Box */}
                 <div className="p-5 rounded border border-[var(--line)] bg-[color-mix(in_srgb,var(--paper-deep)_50%,var(--paper))]">
                   <div className="flex items-center justify-between mb-3 pb-2 border-b border-[var(--line)]">
                     <h3 className="font-serif font-medium text-sm text-[var(--ink)]">
-                      推荐专题文集
+                      推荐专题分类
                     </h3>
                     <button
                       onClick={() => setCurrentTab('topics')}
@@ -273,12 +492,13 @@ export default function App() {
 
                 {/* Community Vision Box */}
                 <div className="p-5 rounded border border-[var(--line)] bg-[color-mix(in_srgb,var(--paper-deep)_50%,var(--paper))]">
-                  <h3 className="font-serif font-medium text-sm text-[var(--ink)] mb-2">
-                    雅集守则 · 留白之约
+                  <h3 className="font-serif font-medium text-sm text-[var(--ink)] mb-2 flex items-center gap-1.5">
+                    <Flame className="w-3.5 h-3.5 text-[var(--cinnabar)]" />
+                    <span>雅集守则 · 留白之约</span>
                   </h3>
                   <ul className="text-xs text-[var(--ink-soft)] space-y-2 leading-relaxed font-light font-serif">
-                    <li>· 慢笔深思，不追求流量与算法的迎合。</li>
-                    <li>· 诚实落笔，安放最真实的体验与微光。</li>
+                    <li>· 慢笔深思，不迎合算法流量，安放最真实的体验。</li>
+                    <li>· 支持创建个人专栏文集，享受连载成卷的写作乐趣。</li>
                     <li>· 读者评语如题跋，温和互通，共护文雅。</li>
                   </ul>
                   <div className="mt-4 pt-3 border-t border-dashed border-[var(--line)]">
@@ -303,7 +523,7 @@ export default function App() {
               <h1 className="font-serif font-semibold text-2xl md:text-3xl text-[var(--ink)] tracking-wide">
                 专题文集 · 卷册分类
               </h1>
-              <p className="text-xs md:text-sm text-[var(--ink-soft)] font-light mt-2">
+              <p className="text-xs md:text-sm text-[var(--ink-soft)] font-light mt-2 font-serif">
                 按不同情境与意象收录的文友篇章，点击任意专题即可进入文集精选。
               </p>
             </div>
@@ -327,7 +547,7 @@ export default function App() {
       {/* Footer */}
       <footer className="mt-16 border-t border-[var(--line)] py-8 text-center text-xs text-[var(--ink-faint)] font-serif bg-[color-mix(in_srgb,var(--paper-deep)_40%,var(--paper))]">
         <div className="max-w-[1080px] mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span>newmaybe 文友雅集 · 慢节奏创作与读者互动空间</span>
+          <span>newmaybe 文友雅集 · 慢节奏社区阅读与写作空间</span>
           <div className="flex items-center gap-4">
             <a
               href={resolveSubdomain('https://newmaybe.com')}
@@ -347,12 +567,14 @@ export default function App() {
       </footer>
 
       {/* Writer Modal */}
-      <WriterModal
-        topics={TOPICS}
-        isOpen={isWriterOpen}
-        onClose={() => setIsWriterOpen(false)}
-        onSubmitArticle={handleSubmitArticle}
-      />
+      {isWriterOpen && (
+        <WriterModal
+          topics={TOPICS}
+          isOpen={isWriterOpen}
+          onClose={() => setIsWriterOpen(false)}
+          onSubmitArticle={handleSubmitArticle}
+        />
+      )}
     </div>
   );
 }
