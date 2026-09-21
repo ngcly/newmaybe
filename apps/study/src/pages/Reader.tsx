@@ -391,7 +391,7 @@ export default function Reader() {
                         {stanza.map((line, idx) => (
                           <p
                             key={idx}
-                            className="m-0 text-base sm:text-lg md:text-xl font-medium tracking-widest text-foreground/90 leading-relaxed"
+                            className="m-0 font-medium tracking-widest text-foreground/90 leading-relaxed"
                           >
                             {renderAnnotatedText(line)}
                           </p>
@@ -408,7 +408,7 @@ export default function Reader() {
                           return (
                             <p
                               key={idx}
-                              className={`m-0 text-base sm:text-lg md:text-xl font-medium tracking-widest text-center text-foreground/90 leading-relaxed max-w-xl ${lineCls}`}
+                              className={`m-0 font-medium tracking-widest text-center text-foreground/90 leading-relaxed max-w-xl ${lineCls}`}
                             >
                               {renderAnnotatedText(line)}
                             </p>

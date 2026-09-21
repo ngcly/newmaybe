@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { validateMessages } from '../../../apps/ai/src/worker';
 import {
   AI_MAX_TOTAL_CHARS,
   createGeminiRequest,
@@ -51,6 +52,32 @@ describe('readAIResponse', () => {
 });
 
 describe('fitMessagesToCharBudget', () => {
+  it('keeps the sixteenth short turn acceptable to the Worker', () => {
+    const messages = [
+      { role: 'system', content: '写作助手' },
+      ...Array.from({ length: 30 }, (_, i) => ({
+        role: i % 2 ? 'assistant' : 'user',
+        content: '简短对话',
+      })),
+      { role: 'user', content: '继续' },
+    ];
+    const fitted = fitMessagesToCharBudget(messages);
+    expect(validateMessages(fitted)).not.toBeNull();
+    expect(fitted.at(-1)?.content).toBe('继续');
+  });
+
+  it('bounds serialized JSON even when characters require escaping', () => {
+    const fitted = fitMessagesToCharBudget([
+      { role: 'system', content: '\u0000'.repeat(20_000) },
+      { role: 'user', content: '最后的问题' },
+    ]);
+    expect(
+      new TextEncoder().encode(JSON.stringify({ messages: fitted })).byteLength,
+    ).toBeLessThanOrEqual(32 * 1024);
+    expect(validateMessages(fitted)).not.toBeNull();
+    expect(fitted.at(-1)?.content).toBe('最后的问题');
+  });
+
   it('keeps the system prompt and newest turn within the Worker budget', () => {
     const messages = [
       { role: 'system', content: '系'.repeat(7_000) },

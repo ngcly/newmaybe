@@ -417,8 +417,8 @@ export default function WriterModal({
             </p>
           )}
           <div className="flex items-center justify-between pt-4 border-t border-[var(--line)]">
-            <span className="text-xs font-serif text-[var(--ink-faint)] italic hidden sm:inline">
-              字里相逢，行间留白。
+            <span className="text-xs font-serif text-[var(--ink-faint)] italic">
+              草稿仅存本机；发布后文章公开保存于云端。
             </span>
             <div className="flex items-center gap-2 ml-auto">
               <button

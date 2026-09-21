@@ -36,11 +36,17 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const articleMutationVersions = useRef<Record<string, number>>({});
   const feedMutationVersion = useRef(0);
+  const [syncVersion, setSyncVersion] = useState(0);
 
   const markMutation = (articleId: string) => {
     articleMutationVersions.current[articleId] =
       (articleMutationVersions.current[articleId] || 0) + 1;
     feedMutationVersion.current += 1;
+  };
+
+  const finishMutation = (articleId: string) => {
+    markMutation(articleId);
+    setSyncVersion((version) => version + 1);
   };
 
   // Reader Preferences
@@ -105,15 +111,18 @@ export default function App() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [syncVersion]);
 
   // Fetch comments from Cloudflare D1 when an article is opened
   const activeArticleId = selectedArticle?.id;
   useEffect(() => {
+    if (activeArticleId) window.scrollTo(0, 0);
+  }, [activeArticleId]);
+
+  useEffect(() => {
     if (!activeArticleId) return;
     let active = true;
     const version = articleMutationVersions.current[activeArticleId] || 0;
-    window.scrollTo(0, 0);
     ClubAPI.fetchArticle(activeArticleId).then(({ article: refreshed, comments }) => {
       if (!active || (articleMutationVersions.current[activeArticleId] || 0) !== version) return;
       if (refreshed) {
@@ -127,7 +136,7 @@ export default function App() {
     return () => {
       active = false;
     };
-  }, [activeArticleId]);
+  }, [activeArticleId, syncVersion]);
 
   // Persist preferences
   useEffect(() => {
@@ -212,30 +221,42 @@ export default function App() {
   // Handlers
   const handleLikeArticle = async (articleId: string) => {
     markMutation(articleId);
-    const likes = await ClubAPI.likeArticle(articleId);
-    if (likes === null) return;
-    setArticles((prev) => prev.map((a) => (a.id === articleId ? { ...a, likes } : a)));
-    setSelectedArticle((prev) => (prev?.id === articleId ? { ...prev, likes } : prev));
+    try {
+      const likes = await ClubAPI.likeArticle(articleId);
+      if (likes === null) return;
+      setArticles((prev) => prev.map((a) => (a.id === articleId ? { ...a, likes } : a)));
+      setSelectedArticle((prev) => (prev?.id === articleId ? { ...prev, likes } : prev));
+    } finally {
+      finishMutation(articleId);
+    }
   };
 
   const handleAddComment = async (articleId: string, author: string, content: string) => {
     markMutation(articleId);
-    const saved = await ClubAPI.addComment(articleId, author, content);
-    setCommentsMap((prev) => ({
-      ...prev,
-      [articleId]: [saved, ...(prev[articleId] || []).filter((comment) => comment.id !== saved.id)],
-    }));
+    try {
+      const saved = await ClubAPI.addComment(articleId, author, content);
+      setCommentsMap((prev) => ({
+        ...prev,
+        [articleId]: [
+          saved,
+          ...(prev[articleId] || []).filter((comment) => comment.id !== saved.id),
+        ],
+      }));
 
-    setArticles((prev) =>
-      prev.map((a) => (a.id === articleId ? { ...a, commentsCount: a.commentsCount + 1 } : a)),
-    );
-    setSelectedArticle((prev) =>
-      prev?.id === articleId ? { ...prev, commentsCount: prev.commentsCount + 1 } : prev,
-    );
+      setArticles((prev) =>
+        prev.map((a) => (a.id === articleId ? { ...a, commentsCount: a.commentsCount + 1 } : a)),
+      );
+      setSelectedArticle((prev) =>
+        prev?.id === articleId ? { ...prev, commentsCount: prev.commentsCount + 1 } : prev,
+      );
+    } finally {
+      finishMutation(articleId);
+    }
   };
 
   const handleLikeComment = (commentId: string) => {
-    if (activeArticleId) markMutation(activeArticleId);
+    const articleId = activeArticleId;
+    if (articleId) markMutation(articleId);
     ClubAPI.likeComment(commentId)
       .then(() => {
         setCommentsMap((prev) => {
@@ -248,18 +269,26 @@ export default function App() {
           return next;
         });
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (articleId) finishMutation(articleId);
+      });
   };
 
   const handleSubmitArticle = async (
     newArticleData: Omit<Article, 'id' | 'likes' | 'commentsCount' | 'summary'>,
   ) => {
     feedMutationVersion.current += 1;
-    const saved = await ClubAPI.createArticle(newArticleData);
-    setArticles((prev) => [saved, ...prev.filter((a) => a.id !== saved.id)]);
-    setSelectedTopicId(null);
-    setCurrentTab('plaza');
-    setSelectedArticle(saved);
+    try {
+      const saved = await ClubAPI.createArticle(newArticleData);
+      setArticles((prev) => [saved, ...prev.filter((a) => a.id !== saved.id)]);
+      setSelectedTopicId(null);
+      setCurrentTab('plaza');
+      setSelectedArticle(saved);
+    } finally {
+      feedMutationVersion.current += 1;
+      setSyncVersion((version) => version + 1);
+    }
   };
 
   return (

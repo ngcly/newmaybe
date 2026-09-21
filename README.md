@@ -8,8 +8,8 @@
 
 ## 核心理念
 
-- **留白与专注**：无算法推荐、无信息流、无评论区，让阅读回归文字本身。
-- **隐私优先**：无 Google Analytics 等行为追踪；文章、草稿与进度保存在本地。免费 AI 会将输入发送至 Workers AI，并使用 Cloudflare Turnstile 防滥用；自带密钥模式直连所选提供商。
+- **留白与专注**：主站无算法推荐和评论区，让阅读回归文字本身；文友雅集提供公开投稿与评论。
+- **隐私优先**：无 Google Analytics 等行为追踪；草稿与阅读进度保存在本地；文友雅集发布的文章和评论存入 Cloudflare D1，并向所有访客公开。免费 AI 会将输入发送至 Workers AI，并使用 Cloudflare Turnstile 防滥用；自带密钥模式直连所选提供商。
 - **极简高性能**：主站零客户端 JS 框架，所有字体自托管（无外部字体请求），Astro SSG + Cloudflare CDN。
 - **纸墨美学**：东方「纸底墨色」视觉调性，赭石点缀，自适应暗黑模式，无主题切换闪烁。
 
@@ -27,7 +27,7 @@ newmaybe/
 │   ├── ai/          # ai.newmaybe.com     — RAG 智能园丁对话
 │   ├── lab/         # lab.newmaybe.com    — 感官艺术与交互实验
 │   ├── studio/      # studio.newmaybe.com — 海报生成与创意工坊
-│   ├── club/        # club.newmaybe.com   — 文友雅集（本地文章、点赞与评论）
+│   ├── club/        # club.newmaybe.com   — 文友雅集（公开文章、点赞与评论）
 │   └── study/       # study.newmaybe.com  — 林下书房、阅读路径与写作练习
 ├── packages/
 │   ├── content/        # 统一内容数据库（Markdown + Zod schemas）
@@ -49,7 +49,7 @@ newmaybe/
 | `lab.newmaybe.com`    | 感官艺术与 Canvas 物理交互实验       | Astro 7 + Canvas       | `4325`   |
 | `studio.newmaybe.com` | Canvas 海报生成与品牌资产工坊        | React 19 + Tailwind v4 | `4326`   |
 | `study.newmaybe.com`  | 林下书房、古籍阅读、学习路径与练习   | React 19 + Tailwind v4 | `4327`   |
-| `club.newmaybe.com`   | 文友雅集、本地文章与评论             | React 19 + Tailwind v4 | `4328`   |
+| `club.newmaybe.com`   | 文友雅集、公开文章与评论             | React 19 + Tailwind v4 | `4328`   |
 
 ### 共享内容库 (`packages/content`)
 

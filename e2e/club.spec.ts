@@ -58,7 +58,21 @@ test('Club accepts an empty server comment list and preserves a new comment agai
     detailRequests += 1;
     if (detailRequests > 1) {
       return route.fulfill({
-        json: { article: INITIAL_ARTICLES[1], comments: [] },
+        json: {
+          article: INITIAL_ARTICLES.find((article) => article.id === path.split('/')[3]),
+          comments: path.includes('/club-1')
+            ? [
+                {
+                  id: 'new-comment',
+                  articleId: 'club-1',
+                  author: '测试文友',
+                  content: '新的评注',
+                  likes: 0,
+                  createdAt: '2026-09-20',
+                },
+              ]
+            : [],
+        },
       });
     }
     heldDetail = route;
@@ -66,8 +80,8 @@ test('Club accepts an empty server comment list and preserves a new comment agai
   await page.goto(clubUrl);
   await page.getByText(INITIAL_ARTICLES[0].title, { exact: true }).click();
   await expect.poll(() => Boolean(heldDetail)).toBe(true);
-  await page.getByPlaceholder('以此字句，安放此刻的心绪与回响...').fill('新的评注');
-  await page.getByRole('button', { name: '发表纸签评注' }).click();
+  await page.getByPlaceholder('写下此刻的心绪、题跋或共鸣...').fill('新的评注');
+  await page.getByRole('button', { name: '发表题跋' }).click();
   await expect(page.getByText('新的评注', { exact: true })).toBeVisible();
   await heldDetail!.fulfill({
     json: {
@@ -89,7 +103,7 @@ test('Club accepts an empty server comment list and preserves a new comment agai
 
   await page.getByRole('button', { name: '返回雅集列表' }).click();
   await page.getByText(INITIAL_ARTICLES[1].title, { exact: true }).click();
-  await expect(page.locator('#comments-section')).toContainText('暂无文友留言');
+  await expect(page.locator('#comments-section')).toContainText('暂无文友评注');
   await expect(page.locator('#comments-section')).not.toContainText('铅笔字终究会淡去');
 });
 
@@ -125,7 +139,8 @@ test('Club reader resets position, shows complete quote preview, and keeps ink t
   expect(colors.actual).toBe(colors.expected);
 
   await page.getByRole('button', { name: /下一篇篇章/ }).scrollIntoViewIfNeeded();
-  await page.getByRole('button', { name: /下一篇篇章/ }).click();
+  await page.getByRole('button', { name: /下一篇篇章/ }).focus();
+  await page.keyboard.press('Enter');
   await expect(page.getByRole('heading', { name: INITIAL_ARTICLES[1].title })).toBeVisible();
   expect(await page.evaluate(() => scrollY)).toBe(0);
 });

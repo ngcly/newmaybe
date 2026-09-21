@@ -7,6 +7,10 @@ export function setupGraphExport() {
     const graphEl = document.getElementById('graph');
     if (!graphEl) return '';
     const clonedSvg = graphEl.cloneNode(true) as SVGElement;
+    const { width, height } = graphEl.getBoundingClientRect();
+    clonedSvg.setAttribute('width', String(width));
+    clonedSvg.setAttribute('height', String(height));
+    clonedSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
 
     const styleEl = document.createElementNS('http://www.w3.org/2000/svg', 'style');
     styleEl.textContent = `
@@ -55,15 +59,18 @@ export function setupGraphExport() {
     const image = new Image();
     image.onload = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = window.innerWidth * 2;
-      canvas.height = window.innerHeight * 2;
+      canvas.width = image.naturalWidth * 2;
+      canvas.height = image.naturalHeight * 2;
       const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      if (!ctx) {
+        URL.revokeObjectURL(url);
+        return;
+      }
 
       ctx.fillStyle = getThemeColor('--paper');
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.scale(2, 2);
-      ctx.drawImage(image, 0, 0, window.innerWidth, window.innerHeight);
+      ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
 
       const pngUrl = canvas.toDataURL('image/png');
       const a = document.createElement('a');
@@ -72,6 +79,7 @@ export function setupGraphExport() {
       a.click();
       URL.revokeObjectURL(url);
     };
+    image.onerror = () => URL.revokeObjectURL(url);
     image.src = url;
   });
 }

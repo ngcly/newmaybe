@@ -1,4 +1,4 @@
-/* global self, caches, URL, fetch */
+/* global self, caches, URL, fetch, AbortSignal, Response */
 // 林下书房 · 离线阅读 Service Worker
 const CACHE_NAME = 'linxia-study-v1';
 
@@ -41,9 +41,32 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 古籍 JSON 文本（/texts/*）与 Vite 构建带哈希静态资源：Cache First, Fallback to Network
-  const isStaticOrText =
-    url.pathname.startsWith('/assets/') || url.pathname.startsWith('/texts/') || isGoogleFont;
+  // Text URLs are stable across releases: revalidate online, retain the last copy offline.
+  if (url.pathname.startsWith('/texts/')) {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(CACHE_NAME);
+        try {
+          const response = await fetch(request, {
+            cache: 'no-cache',
+            signal: AbortSignal.timeout(5000),
+          });
+          if (response.ok) {
+            await cache.put(request, response.clone());
+            return response;
+          }
+          if (response.status >= 500) return (await cache.match(request)) || response;
+          return response;
+        } catch {
+          return (await cache.match(request)) || Response.error();
+        }
+      })(),
+    );
+    return;
+  }
+
+  // Only content-hashed static assets use cache-first.
+  const isStaticOrText = url.pathname.startsWith('/assets/') || isGoogleFont;
 
   if (isStaticOrText) {
     event.respondWith(

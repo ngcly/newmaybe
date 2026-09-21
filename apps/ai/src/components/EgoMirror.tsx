@@ -1,10 +1,15 @@
 import { fetchFreeAI } from '@newmaybe/ai-client/free-ai';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { type Message, type ProviderType } from '../types';
-import { retrieveRelevantDocs, type ContentItem } from '../utils/rag';
+import {
+  retrieveRelevantDocs,
+  buildReferenceContext,
+  MAX_SYSTEM_PROMPT_CHARS,
+  type ContentItem,
+} from '../utils/rag';
 import TypingIndicator from './TypingIndicator';
 import MarkdownText from './MarkdownText';
-import { createGeminiRequest, readAIResponse } from '@newmaybe/ai-client';
+import { createGeminiRequest, readAIResponse, fitMessagesToCharBudget } from '@newmaybe/ai-client';
 
 interface EgoMirrorProps {
   allContent: ContentItem[];
@@ -117,14 +122,10 @@ export default function EgoMirror({
 
       if (matchedDocs.length > 0) {
         systemPrompt += `\n以下是为你检索到的林的历史写作文献，请把它们作为你论辩和质询的内容依据，在提到文献时以 [文献标题](URL) 的 markdown 格式进行引用：\n\n`;
-        matchedDocs.forEach((m, idx) => {
-          systemPrompt += `---
-[历史文献 #${idx + 1}] 标题: ${m.doc.title}
-发布时间: ${m.doc.pubDate}
-正文:
-${m.doc.content}
----\n\n`;
-        });
+        systemPrompt += buildReferenceContext(
+          matchedDocs.map(({ doc }) => doc),
+          MAX_SYSTEM_PROMPT_CHARS - systemPrompt.length,
+        );
       } else {
         systemPrompt += `\n林的历史花园中未发现直接语义重合的文献，请基于你对林“干净、留白、内省”美学的了解，对用户输入的想法展开纯哲学层面的发散质询，并指出林在哪些地方可能会表示存疑。`;
       }
@@ -132,7 +133,7 @@ ${m.doc.content}
       const promptHistory = [
         { role: 'system', content: systemPrompt },
         ...messages
-          .filter((m) => m.id !== 'ego-welcome')
+          .filter((m) => m.id !== 'ego-welcome' && !m.id.includes('error') && m.text.trim())
           .map((m) => ({ role: m.role, content: m.text })),
         { role: 'user', content: userText },
       ];
@@ -154,7 +155,7 @@ ${m.doc.content}
 
         const body =
           provider === 'free'
-            ? JSON.stringify({ messages: promptHistory })
+            ? JSON.stringify({ messages: fitMessagesToCharBudget(promptHistory) })
             : JSON.stringify({
                 model,
                 messages: promptHistory.map((m) => ({ role: m.role, content: m.content })),

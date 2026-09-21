@@ -10,6 +10,8 @@ export const AI_STORAGE_KEYS = {
  * the Worker's byte limit leaves enough room for UTF-8 encoding and JSON.
  */
 export const AI_MAX_TOTAL_CHARS = 7_000;
+export const AI_MAX_MESSAGES = 30;
+export const AI_MAX_BODY_BYTES = 32 * 1024;
 
 export function createGeminiRequest(
   baseUrl: string,
@@ -36,11 +38,32 @@ export function fitMessagesToCharBudget<T extends ChatMessageLike>(
   messages: T[],
   maxChars = AI_MAX_TOTAL_CHARS,
 ): T[] {
+  let low = 0;
+  let high = Math.min(maxChars, AI_MAX_TOTAL_CHARS);
+  let fitted = fitMessages(messages, high);
+  const encoder = new TextEncoder();
+  const fits = (value: T[]) =>
+    encoder.encode(JSON.stringify({ messages: value })).byteLength <= AI_MAX_BODY_BYTES;
+  if (fits(fitted)) return fitted;
+
+  // Escaped control characters can take six JSON bytes per character.
+  while (low < high) {
+    const middle = Math.ceil((low + high) / 2);
+    if (fits(fitMessages(messages, middle))) low = middle;
+    else high = middle - 1;
+  }
+  fitted = fitMessages(messages, low);
+  return fitted;
+}
+
+function fitMessages<T extends ChatMessageLike>(messages: T[], maxChars: number): T[] {
   if (maxChars <= 0 || messages.length === 0) return [];
 
   const systemIndex = messages.findIndex((message) => message.role === 'system');
   const systemMessage = systemIndex >= 0 ? messages[systemIndex] : undefined;
-  const conversation = messages.filter((_, index) => index !== systemIndex);
+  const conversation = messages
+    .filter((message, index) => index !== systemIndex && message.content.length > 0)
+    .slice(-(AI_MAX_MESSAGES - (systemMessage ? 1 : 0)));
   const latestLength = conversation.at(-1)?.content.length ?? 0;
   const latestReserve = Math.min(latestLength, Math.floor(maxChars / 3));
 
@@ -67,7 +90,7 @@ export function fitMessagesToCharBudget<T extends ChatMessageLike>(
     if (truncated) break;
   }
 
-  return fittedSystem ? [fittedSystem, ...fittedConversation] : fittedConversation;
+  return fittedSystem?.content ? [fittedSystem, ...fittedConversation] : fittedConversation;
 }
 
 interface AIResponsePayload {

@@ -200,7 +200,7 @@ export function useChat(): UseChatReturn {
         const promptHistory = [
           { role: 'system', content: systemPromptContent },
           ...messages
-            .filter((m) => m.id !== 'welcome')
+            .filter((m) => m.id !== 'welcome' && !m.id.includes('error') && m.text.trim())
             .map((m) => ({ role: m.role, content: m.text })),
           { role: 'user', content: userMessage.text },
         ];

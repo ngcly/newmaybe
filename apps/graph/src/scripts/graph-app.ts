@@ -120,6 +120,11 @@ function populateNodeList() {
 }
 
 function updateGraph() {
+  if (
+    (linkSourceNode && !nodes.includes(linkSourceNode)) ||
+    (linkTargetNode && !nodes.includes(linkTargetNode))
+  )
+    resetLinkEndpoints();
   // 连线
   const linkSel = linkGroup.selectAll('line').data(links, (d: any) => {
     const s = d.source.id || d.source;
@@ -180,6 +185,18 @@ function updateGraph() {
     .text((d: any) => d.title);
 
   const node = nodeEnter.merge(nodeSel);
+  // select propagates the new parent datum to reused children after a keyed import.
+  node
+    .select('circle')
+    .attr('r', (d: GraphNode) => nodeRadii[d.group] || 10)
+    .attr('fill', (d: GraphNode) =>
+      colors[d.group] ? colors[d.group]() : getThemeColor('--ochre'),
+    )
+    .attr('aria-label', (d: GraphNode) => `${d.title} (${typeLabels[d.group] || '想法'})`);
+  node
+    .select('text')
+    .attr('dx', (d: GraphNode) => (nodeRadii[d.group] || 10) + 6)
+    .text((d: GraphNode) => d.title);
 
   svg.on('click', () => {
     clearSelection();
@@ -338,6 +355,15 @@ function clearSelection() {
   announceToScreenReader('已取消选择');
 }
 
+function resetLinkEndpoints() {
+  linkSourceNode = null;
+  linkTargetNode = null;
+  const sourceLabel = document.getElementById('link-source-label');
+  const targetLabel = document.getElementById('link-target-label');
+  if (sourceLabel) sourceLabel.textContent = '起点: 未选择';
+  if (targetLabel) targetLabel.textContent = '终点: 未选择';
+}
+
 function focusOnNode(d: any) {
   const scale = 1.3;
   const x = width / 2 - d.x * scale;
@@ -489,6 +515,11 @@ function setupInteractionListeners() {
   });
 
   document.getElementById('btn-create-link')?.addEventListener('click', () => {
+    if (
+      (linkSourceNode && !nodes.includes(linkSourceNode)) ||
+      (linkTargetNode && !nodes.includes(linkTargetNode))
+    )
+      resetLinkEndpoints();
     if (!linkSourceNode || !linkTargetNode) return alert('需要同时设置连线的起点和终点端点');
     if (linkSourceNode.id === linkTargetNode.id) return alert('同一个节点不能自我循环连接');
 
@@ -505,12 +536,7 @@ function setupInteractionListeners() {
 
     links.push({ source: sId, target: tId });
 
-    linkSourceNode = null;
-    linkTargetNode = null;
-    const srcLbl = document.getElementById('link-source-label');
-    const tgtLbl = document.getElementById('link-target-label');
-    if (srcLbl) srcLbl.innerText = '起点: 未选择';
-    if (tgtLbl) tgtLbl.innerText = '终点: 未选择';
+    resetLinkEndpoints();
 
     updateGraph();
   });

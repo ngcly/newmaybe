@@ -241,7 +241,7 @@ React 19 + Tailwind v4 + Vite. Unified creative workshop with 5 capabilities: po
 React 19 + Tailwind v4 + Vite. A writing studio book library & reader. Features reading progress tracking, interactive practice exercises, and classical poetry reading mode. Runs on port 4327.
 
 ### `apps/club` — Writers Club (文友雅集)
-React 19 + Tailwind v4 + Vite. A Jianshu-style minimalist writing and reading community. Features topic collections (专题文集), reader feeds, immersive reading, author seal colophon, article liking, and reader commenting. Runs on port 4328.
+React 19 + Tailwind v4 + Vite. A Jianshu-style minimalist writing and reading community. Features topic collections (专题文集), reader feeds, immersive reading, author seal colophon, article liking, and reader commenting. Drafts and reading preferences stay in the browser; published articles and comments are stored in Cloudflare D1 and publicly readable. Write completion invalidates and refetches the feed and active article, so overlapping reads cannot hide unrelated cloud data. Runs on port 4328.
 
 ---
 

@@ -1,7 +1,7 @@
 import { fetchFreeAI } from '@newmaybe/ai-client/free-ai';
 import { useState } from 'react';
 import { type ProviderType } from '../types';
-import { createGeminiRequest, readAIResponse } from '@newmaybe/ai-client';
+import { createGeminiRequest, readAIResponse, fitMessagesToCharBudget } from '@newmaybe/ai-client';
 import { localIsoDate } from '@newmaybe/content/authoring';
 
 interface CapturePadProps {
@@ -72,7 +72,7 @@ connections: []
 
         const body =
           provider === 'free'
-            ? JSON.stringify({ messages: promptHistory })
+            ? JSON.stringify({ messages: fitMessagesToCharBudget(promptHistory) })
             : JSON.stringify({
                 model,
                 messages: promptHistory,

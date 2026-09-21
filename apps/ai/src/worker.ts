@@ -1,4 +1,4 @@
-import { AI_MAX_TOTAL_CHARS } from '@newmaybe/ai-client';
+import { AI_MAX_TOTAL_CHARS, AI_MAX_MESSAGES, AI_MAX_BODY_BYTES } from '@newmaybe/ai-client';
 import {
   ALLOWED_ORIGINS,
   securityReady,
@@ -31,8 +31,6 @@ export interface Env extends SecurityEnv {
 }
 
 const MAX_TOKENS = 2048;
-const MAX_BODY_BYTES = 32 * 1024;
-const MAX_MESSAGES = 30;
 
 function corsHeaders(request: Request): Record<string, string> {
   const origin = request.headers.get('Origin');
@@ -47,7 +45,7 @@ function corsHeaders(request: Request): Record<string, string> {
 }
 
 export function validateMessages(value: unknown): ChatMessage[] | null {
-  if (!Array.isArray(value) || value.length === 0 || value.length > MAX_MESSAGES) return null;
+  if (!Array.isArray(value) || value.length === 0 || value.length > AI_MAX_MESSAGES) return null;
   let totalChars = 0;
   const messages: ChatMessage[] = [];
   for (const item of value) {
@@ -102,7 +100,7 @@ export default {
           return Response.json({ error: 'Service not configured' }, { status: 503, headers: cors });
         }
         const contentLength = Number(request.headers.get('Content-Length') || 0);
-        if (contentLength > MAX_BODY_BYTES) {
+        if (contentLength > AI_MAX_BODY_BYTES) {
           return new Response(JSON.stringify({ error: 'Request body too large' }), {
             status: 413,
             headers: { 'Content-Type': 'application/json', ...cors },
@@ -123,8 +121,8 @@ export default {
           }
         }
 
-        const rawBody = await readBoundedBody(request, MAX_BODY_BYTES);
-        if (new TextEncoder().encode(rawBody).byteLength > MAX_BODY_BYTES) {
+        const rawBody = await readBoundedBody(request, AI_MAX_BODY_BYTES);
+        if (new TextEncoder().encode(rawBody).byteLength > AI_MAX_BODY_BYTES) {
           return new Response(JSON.stringify({ error: 'Request body too large' }), {
             status: 413,
             headers: { 'Content-Type': 'application/json', ...cors },

@@ -1,6 +1,6 @@
 import { fetchFreeAI } from '@newmaybe/ai-client/free-ai';
 import { readSSE } from './sse';
-import { AI_STORAGE_KEYS, createGeminiRequest } from '@newmaybe/ai-client';
+import { AI_STORAGE_KEYS, createGeminiRequest, fitMessagesToCharBudget } from '@newmaybe/ai-client';
 // AI 评阅 API 调用函数
 export async function fetchAICritique(
   drillTitle: string,
@@ -68,7 +68,7 @@ export async function fetchAICritique(
       const res = await fetchFreeAI(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages }),
+        body: JSON.stringify({ messages: fitMessagesToCharBudget(messages) }),
       });
       if (!res.ok) throw new Error();
 

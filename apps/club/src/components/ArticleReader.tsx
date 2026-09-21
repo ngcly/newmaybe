@@ -109,22 +109,22 @@ export default function ArticleReader({
       {/* Top Reading Progress Bar */}
       <ReadingProgressBar />
 
-      <div className="max-w-[780px] mx-auto px-6 py-8 md:py-12 animate-fade-in">
-        {/* Top Control Bar */}
-        <div className="flex items-center justify-between gap-4 mb-8 pb-4 border-b border-[var(--line)]">
+      <div className="max-w-[740px] mx-auto px-6 py-8 md:py-12 animate-fade-in">
+        {/* Top Control Bar - Minimalist Ghost Actions */}
+        <div className="flex items-center justify-between gap-4 mb-8 pb-3 border-b border-[var(--line)]/40">
           <button
             onClick={onBack}
-            className="inline-flex items-center gap-1.5 text-xs font-serif text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1 text-xs font-serif text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors cursor-pointer"
           >
-            <span>←</span>
+            <ChevronLeft className="w-3.5 h-3.5" />
             <span>返回雅集列表</span>
           </button>
 
-          {/* Reader action icons */}
-          <div className="flex items-center gap-2">
+          {/* Reader action icons - Refined Ghost Buttons */}
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={() => handleOpenQuoteWithText(article.goldenQuote || article.summary)}
-              className="inline-flex items-center gap-1 px-3 py-1 text-xs font-serif rounded border border-[var(--line)] hover:border-[var(--ochre)] text-[var(--ink-soft)] hover:text-[var(--ochre)] transition-all cursor-pointer bg-[color-mix(in_srgb,var(--paper-deep)_50%,transparent)] shadow-xs"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-serif rounded text-[var(--ink-soft)] hover:text-[var(--ochre)] hover:bg-[var(--paper-deep)]/50 transition-colors cursor-pointer"
               title="生成精美金句书签便签"
             >
               <Sparkles className="w-3.5 h-3.5 text-[var(--ochre)]" />
@@ -133,7 +133,7 @@ export default function ArticleReader({
 
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="inline-flex items-center gap-1 px-3 py-1 text-xs font-serif rounded border border-[var(--line)] hover:border-[var(--ochre)] text-[var(--ink-soft)] hover:text-[var(--ochre)] transition-all cursor-pointer bg-[color-mix(in_srgb,var(--paper-deep)_50%,transparent)] shadow-xs"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-serif rounded text-[var(--ink-soft)] hover:text-[var(--ochre)] hover:bg-[var(--paper-deep)]/50 transition-colors cursor-pointer"
               title="排版与阅读偏好设置"
             >
               <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--ochre)]" />
@@ -142,85 +142,90 @@ export default function ArticleReader({
 
             <a
               href="#comments-section"
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-serif rounded border border-[var(--line)] text-[var(--ink-faint)] hover:text-[var(--ink)] no-underline transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-serif rounded text-[var(--ink-faint)] hover:text-[var(--ochre)] hover:bg-[var(--paper-deep)]/50 no-underline transition-colors"
               title="跳转至文友评注"
             >
               <MessageSquare className="w-3.5 h-3.5" />
-              <span>{comments.length}</span>
+              <span className="text-[11px] font-sans">{comments.length}</span>
             </a>
           </div>
         </div>
 
-        {/* Article Header */}
-        <header className="mb-10 pb-8 border-b border-[var(--line)]">
-          <div className="flex items-center gap-2 mb-4 flex-wrap">
-            <span className="text-xs font-serif px-2.5 py-0.5 rounded bg-[color-mix(in_srgb,var(--ochre)_10%,transparent)] border border-[color-mix(in_srgb,var(--ochre)_25%,transparent)] text-[var(--ochre)]">
-              {article.topicName}
+        {/* Article Header - Harmonious Breadcrumb Line & Breathing Title */}
+        <header className="mb-8">
+          {/* Metadata line without bulky candy-bar badges */}
+          <div className="flex items-center gap-2 mb-3.5 flex-wrap text-xs font-serif">
+            <span className="text-[var(--ochre)] font-medium tracking-wide">
+              「{article.topicName}」
             </span>
+
             {article.seriesTitle && (
-              <span className="text-xs font-serif px-2 py-0.5 rounded bg-[color-mix(in_srgb,var(--bamboo)_15%,transparent)] border border-[color-mix(in_srgb,var(--bamboo)_30%,transparent)] text-[var(--ink)] flex items-center gap-1">
-                <BookOpen className="w-3 h-3" />
-                <span>
-                  连载 · 《{article.seriesTitle}》
-                  {article.seriesOrder ? ` 第 ${article.seriesOrder} 卷` : ''}
+              <>
+                <span className="opacity-30 text-[var(--ink-faint)]">/</span>
+                <span className="text-[var(--ink-soft)] flex items-center gap-1 font-normal">
+                  <BookOpen className="w-3 h-3 text-[var(--bamboo)]" />
+                  <span>
+                    《{article.seriesTitle}》
+                    {article.seriesOrder ? ` · 卷${article.seriesOrder}` : ''}
+                  </span>
                 </span>
-              </span>
+              </>
             )}
+
             {article.featured && (
-              <span className="text-xs font-serif px-2 py-0.5 rounded bg-[color-mix(in_srgb,var(--cinnabar)_10%,transparent)] border border-[color-mix(in_srgb,var(--cinnabar)_25%,transparent)] text-[var(--cinnabar)]">
+              <span className="text-[10px] font-serif px-1.5 py-0.2 rounded border border-[var(--cinnabar)]/40 text-[var(--cinnabar)] font-medium">
                 卷首精选
               </span>
             )}
           </div>
 
-          <h1 className="font-serif font-bold text-2xl md:text-3xl lg:text-4xl text-inherit leading-tight mb-6 tracking-wide">
+          <h1 className="font-serif font-medium text-2xl sm:text-3xl md:text-4xl text-inherit leading-[1.3] mb-5 tracking-wide">
             {article.title}
           </h1>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-serif opacity-80">
-            <div className="flex items-center gap-3">
-              <span className="font-medium text-inherit">{article.author}</span>
+          <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-serif text-[var(--ink-faint)] pb-5 border-b border-[var(--line)]/40">
+            <div className="flex items-center gap-2.5">
+              <span className="font-medium text-[var(--ink-soft)]">{article.author}</span>
               {article.authorSeal && (
-                <span className="px-1.5 py-0.2 rounded border border-[var(--cinnabar)] text-[var(--cinnabar)] text-[11px] font-serif">
+                <span className="text-[9px] px-1 py-0.2 rounded border border-[var(--cinnabar)]/60 text-[var(--cinnabar)] font-serif leading-none">
                   {article.authorSeal}
                 </span>
               )}
-              <span className="opacity-40">·</span>
+              <span className="opacity-30">·</span>
               <time className="italic opacity-80">{article.pubDate}</time>
             </div>
 
-            <div className="flex items-center gap-3 opacity-75">
+            <div className="flex items-center gap-2.5 opacity-80">
               <span>{article.wordCount} 字</span>
-              <span>·</span>
-              <span>约 {article.readingTime} 分钟慢读</span>
+              <span className="opacity-30">·</span>
+              <span>慢读约 {article.readingTime} 分钟</span>
             </div>
           </div>
         </header>
 
-        {/* Golden Quote Epigraph if present */}
+        {/* Golden Quote Epigraph if present - Literary Book Epigraph Style */}
         {article.goldenQuote && (
-          <div className="mb-12 py-3.5 pl-4 pr-5 border-l-2 border-[var(--ochre)]/50 bg-[color-mix(in_srgb,var(--ochre)_3%,transparent)] rounded-r flex items-start justify-between gap-4">
-            <div className="flex items-start gap-2">
-              <span className="text-xl text-[var(--ochre)] font-serif leading-none select-none">
-                “
-              </span>
-              <p className="text-sm font-serif italic text-inherit leading-relaxed opacity-90">
+          <div className="my-8 px-5 py-4 rounded bg-[color-mix(in_srgb,var(--paper-deep)_35%,var(--paper))] border-l-2 border-[var(--ochre)]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-serif">
+            <div className="flex items-start gap-1.5">
+              <span className="text-lg text-[var(--ochre)] leading-none select-none mt-0.5">“</span>
+              <p className="text-xs sm:text-sm font-serif italic text-[var(--ink-soft)] leading-relaxed">
                 {article.goldenQuote}
               </p>
+              <span className="text-lg text-[var(--ochre)] leading-none select-none mt-0.5">”</span>
             </div>
             <button
               onClick={() => handleOpenQuoteWithText(article.goldenQuote || '')}
-              className="text-xs font-serif text-[var(--ochre)] hover:underline whitespace-nowrap cursor-pointer flex items-center gap-1 shrink-0 mt-0.5"
+              className="text-xs font-serif text-[var(--ochre)] hover:underline whitespace-nowrap cursor-pointer flex items-center gap-1 shrink-0 self-end sm:self-center opacity-85 hover:opacity-100"
             >
               <Sparkles className="w-3 h-3" />
-              <span>做成书签</span>
+              <span>做成便签</span>
             </button>
           </div>
         )}
 
         {/* Article Body Content */}
         <article
-          className={`prose max-w-none text-inherit ${fontClass} ${fontSizeClass} ${lineHeightClass} tracking-wide mb-16 transition-all duration-200`}
+          className={`prose max-w-none text-inherit ${fontClass} ${fontSizeClass} ${lineHeightClass} tracking-wide mb-14 transition-all duration-200`}
         >
           {paragraphs.map((para, idx) => (
             <p
@@ -234,24 +239,25 @@ export default function ArticleReader({
           ))}
         </article>
 
-        {/* Colophon & Like Section - Pure Book Colophon without heavy grey fill */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 py-7 border-y border-[var(--line)]/60 my-12">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded border border-[var(--cinnabar)]/70 flex items-center justify-center text-xs font-serif text-[var(--cinnabar)] shadow-2xs bg-[color-mix(in_srgb,var(--cinnabar)_4%,transparent)]">
+        {/* Colophon & Like Section - Centered Classical Seal Colophon */}
+        <div className="my-14 flex flex-col items-center justify-center text-center">
+          <div className="flex items-center justify-center gap-3 w-full max-w-xs mb-3">
+            <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent to-[var(--line)] opacity-60"></div>
+            <div className="w-10 h-10 rounded border border-[var(--cinnabar)]/70 flex items-center justify-center text-xs font-serif text-[var(--cinnabar)] shadow-2xs bg-[color-mix(in_srgb,var(--cinnabar)_4%,transparent)] select-none">
               {article.authorSeal || '文友'}
             </div>
-            <div className="text-xs font-serif">
-              <div className="font-medium text-inherit text-sm mb-0.5">
-                {article.author} · 题跋落款
-              </div>
-              <div className="opacity-60 italic text-[11px]">字里相逢，行间留白，共护文雅。</div>
-            </div>
+            <div className="flex-1 h-[1px] bg-gradient-to-l from-transparent to-[var(--line)] opacity-60"></div>
+          </div>
+
+          <div className="text-xs font-serif text-[var(--ink-faint)] mb-5">
+            <span className="text-[var(--ink-soft)] font-medium mr-1.5">{article.author}</span>
+            <span className="italic">· 题跋落款 · 字里相逢，行间留白</span>
           </div>
 
           <div className="flex items-center gap-3">
             <button
               onClick={() => handleOpenQuoteWithText(article.goldenQuote || article.summary)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[var(--line)]/70 hover:border-[var(--ochre)] text-xs font-serif transition-all cursor-pointer bg-transparent text-inherit"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[var(--line)]/70 hover:border-[var(--ochre)] text-xs font-serif transition-all cursor-pointer bg-transparent text-[var(--ink-soft)] hover:text-[var(--ochre)]"
             >
               <Sparkles className="w-3.5 h-3.5 text-[var(--ochre)]" />
               <span>雅集便签</span>
@@ -281,74 +287,76 @@ export default function ArticleReader({
 
         {/* Series Notebook Navigation if article belongs to a series */}
         {article.seriesTitle && seriesArticles.length > 1 && (
-          <div className="mb-12 p-5 rounded border border-[var(--line)]/60 bg-[var(--paper)]">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[var(--line)]/50">
+          <div className="my-10 pt-6 border-t border-[var(--line)]/40 font-serif">
+            <div className="flex items-center justify-between pb-3 mb-2">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-[var(--ochre)]" />
-                <h4 className="font-serif font-medium text-sm text-inherit">
+                <h4 className="font-medium text-sm text-inherit">
                   专栏文集 · 《{article.seriesTitle}》
                 </h4>
               </div>
-              <span className="text-xs font-serif opacity-50">
+              <span className="text-xs text-[var(--ink-faint)]">
                 共收录 {seriesArticles.length} 卷
               </span>
             </div>
-            <div className="space-y-1.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {seriesArticles.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => onSelectArticle(item)}
-                  className={`p-2.5 rounded transition-all cursor-pointer flex items-center justify-between text-xs font-serif ${
+                  className={`p-2 rounded transition-all cursor-pointer flex items-center justify-between text-xs ${
                     item.id === article.id
                       ? 'bg-[color-mix(in_srgb,var(--ochre)_10%,transparent)] text-[var(--ochre)] font-medium border-l-2 border-[var(--ochre)]'
-                      : 'hover:bg-[var(--paper-deep)]/50 opacity-75 hover:opacity-100'
+                      : 'hover:bg-[var(--paper-deep)]/40 opacity-75 hover:opacity-100 text-[var(--ink-soft)]'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="opacity-50">第 {item.seriesOrder || 1} 卷</span>
-                    <span>{item.title}</span>
+                  <div className="flex items-center gap-2 line-clamp-1">
+                    <span className="opacity-50 shrink-0">第 {item.seriesOrder || 1} 卷</span>
+                    <span className="truncate">{item.title}</span>
                   </div>
-                  <span className="opacity-40">{item.wordCount} 字</span>
+                  <span className="opacity-40 shrink-0 ml-2">{item.wordCount} 字</span>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Prev / Next Article Navigation Bar */}
-        <nav className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-14">
+        {/* Prev / Next Article Navigation - Clean Editorial 2-Column Links */}
+        <nav className="grid grid-cols-2 gap-6 my-10 pt-6 border-t border-[var(--line)]/40 font-serif">
           {prevArticle ? (
             <button
+              type="button"
               onClick={() => onSelectArticle(prevArticle)}
-              className="p-4 rounded border border-[var(--line)] hover:border-[var(--ochre)] bg-[color-mix(in_srgb,var(--paper-deep)_40%,transparent)] text-left transition-all cursor-pointer group flex flex-col justify-between gap-1 shadow-xs"
+              className="cursor-pointer group flex flex-col items-start gap-1"
             >
-              <span className="text-[11px] font-serif opacity-60 flex items-center gap-1 group-hover:text-[var(--ochre)]">
+              <span className="text-xs text-[var(--ochre)] italic flex items-center gap-1 group-hover:-translate-x-0.5 transition-transform">
                 <ChevronLeft className="w-3 h-3" /> 上一篇篇章
               </span>
-              <span className="text-sm font-serif font-medium text-inherit line-clamp-1 group-hover:text-[var(--ochre)]">
+              <span className="text-xs sm:text-sm font-medium text-inherit line-clamp-1 group-hover:text-[var(--ochre)] transition-colors">
                 {prevArticle.title}
               </span>
             </button>
           ) : (
-            <div className="p-4 rounded border border-dashed border-[var(--line)] text-left opacity-40 text-xs font-serif flex items-center">
+            <div className="opacity-30 text-xs italic text-[var(--ink-faint)] flex items-center">
               已是第一篇
             </div>
           )}
 
           {nextArticle ? (
             <button
+              type="button"
               onClick={() => onSelectArticle(nextArticle)}
-              className="p-4 rounded border border-[var(--line)] hover:border-[var(--ochre)] bg-[color-mix(in_srgb,var(--paper-deep)_40%,transparent)] text-right transition-all cursor-pointer group flex flex-col justify-between gap-1 shadow-xs"
+              className="cursor-pointer group flex flex-col items-end text-right gap-1"
             >
-              <span className="text-[11px] font-serif opacity-60 flex items-center justify-end gap-1 group-hover:text-[var(--ochre)]">
+              <span className="text-xs text-[var(--ochre)] italic flex items-center justify-end gap-1 group-hover:translate-x-0.5 transition-transform">
                 下一篇篇章 <ChevronRight className="w-3 h-3" />
               </span>
-              <span className="text-sm font-serif font-medium text-inherit line-clamp-1 group-hover:text-[var(--ochre)]">
+              <span className="text-xs sm:text-sm font-medium text-inherit line-clamp-1 group-hover:text-[var(--ochre)] transition-colors">
                 {nextArticle.title}
               </span>
             </button>
           ) : (
-            <div className="p-4 rounded border border-dashed border-[var(--line)] text-right opacity-40 text-xs font-serif flex items-center justify-end">
+            <div className="opacity-30 text-xs italic text-[var(--ink-faint)] flex items-center justify-end text-right">
               已是最新篇
             </div>
           )}

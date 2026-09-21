@@ -19,6 +19,26 @@ const MIN_SCORE_THRESHOLD = 3;
 const DEFAULT_RESULT_LIMIT = 3;
 export const MAX_SYSTEM_PROMPT_CHARS = 5_000;
 
+/** Share the available context across sources so long first articles do not hide later citations. */
+export function buildReferenceContext(docs: ContentItem[], budget: number): string {
+  let context = '';
+  docs.forEach((doc, index) => {
+    const allowance = Math.floor((budget - context.length) / (docs.length - index));
+    const header = `---\n标题: ${doc.title}\n发布日期: ${doc.pubDate}\n链接: ${doc.url}\n正文:\n`;
+    const footer = '\n---\n';
+    const contentBudget = allowance - header.length - footer.length;
+    if (contentBudget <= 0) return;
+    const marker = '\n[正文已按请求预算截断]';
+    const content =
+      doc.content.length <= contentBudget
+        ? doc.content
+        : doc.content.slice(0, Math.max(0, contentBudget - marker.length)) +
+          marker.slice(0, contentBudget);
+    context += header + content + footer;
+  });
+  return context;
+}
+
 export const getContentUrl = (): string => {
   if (typeof window !== 'undefined') {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {

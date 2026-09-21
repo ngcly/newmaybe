@@ -28,6 +28,16 @@ let aiUrl = 'https://ai.newmaybe.com';
 let overlay: HTMLElement;
 let input: HTMLInputElement;
 let resultsContainer: HTMLElement;
+let queryVersion = 0;
+let focusTimeout: ReturnType<typeof setTimeout> | undefined;
+let indexError = '';
+
+function invalidateSearch() {
+  queryVersion += 1;
+  clearTimeout(debounceTimeout);
+  clearTimeout(focusTimeout);
+  if (input) input.onkeydown = null;
+}
 
 function escapeHtml(value: string): string {
   return value.replace(
@@ -149,9 +159,7 @@ async function initPagefind() {
       return true;
     } catch (e) {
       console.warn('Failed to load local content index.', e);
-      if (resultsContainer) {
-        resultsContainer.innerHTML = '<div class="search-error">本地搜索索引加载失败。</div>';
-      }
+      indexError = '本地搜索索引加载失败。';
       return false;
     }
   }
@@ -165,10 +173,7 @@ async function initPagefind() {
     return true;
   } catch (e) {
     console.warn('Pagefind is not initialized yet (runs after production build).', e);
-    if (resultsContainer) {
-      resultsContainer.innerHTML =
-        '<div class="search-error">搜索索引未就绪。请确保执行了生产构建 (npm run build)。</div>';
-    }
+    indexError = '搜索索引未就绪，请稍后重试。';
     return false;
   }
 }
@@ -176,17 +181,22 @@ async function initPagefind() {
 // 2. 打开弹窗
 async function openSearch() {
   if (!overlay || !input) return;
+  const version = queryVersion;
   overlay.style.display = 'flex';
   overlay.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
-  setTimeout(() => input.focus(), 50);
+  focusTimeout = setTimeout(() => input.focus(), 50);
 
   // 打开时开始初始化 pagefind
-  await initPagefind();
+  const ready = await initPagefind();
+  if (!ready && version === queryVersion && resultsContainer) {
+    resultsContainer.innerHTML = `<div class="search-error">${escapeHtml(indexError)}</div>`;
+  }
 }
 
 // 3. 关闭弹窗
 function closeSearch() {
+  invalidateSearch();
   if (!overlay || !input || !resultsContainer) return;
   overlay.style.display = 'none';
   overlay.setAttribute('aria-hidden', 'true');
@@ -198,6 +208,9 @@ function closeSearch() {
 // 4. 执行搜索
 let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
 async function handleSearch() {
+  invalidateSearch();
+  const version = queryVersion;
+  const isCurrent = () => version === queryVersion && resultsContainer?.isConnected;
   if (!input || !resultsContainer) return;
   const query = input.value.trim();
   if (!query) {
@@ -211,6 +224,7 @@ async function handleSearch() {
 
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(() => {
+      if (!isCurrent()) return;
       const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
       if (terms.length === 0) return;
 
@@ -257,7 +271,11 @@ async function handleSearch() {
 
   if (!pagefind) {
     const ready = await initPagefind();
-    if (!ready) return;
+    if (!isCurrent()) return;
+    if (!ready) {
+      resultsContainer.innerHTML = `<div class="search-error">${escapeHtml(indexError)}</div>`;
+      return;
+    }
   }
 
   resultsContainer.innerHTML = '<div class="search-loading">搜索中...</div>';
@@ -268,6 +286,7 @@ async function handleSearch() {
     try {
       if (!pagefind) return;
       const searchResult = await pagefind.search(query);
+      if (!isCurrent()) return;
       if (searchResult.results.length === 0) {
         resultsContainer.innerHTML = getEmptyStateHtml('未找到匹配的结果。', query);
         return;
@@ -278,6 +297,7 @@ async function handleSearch() {
       const resolvedData = await Promise.all(
         limitedResults.map((r: PagefindResultItem) => r.data()),
       );
+      if (!isCurrent()) return;
 
       resultsContainer.innerHTML = '';
       resolvedData.forEach((data: { url: string; meta: { title?: string }; excerpt: string }) => {
@@ -295,6 +315,7 @@ async function handleSearch() {
       // 绑定键盘上下选择
       setupKeyboardNavigation();
     } catch (e) {
+      if (!isCurrent()) return;
       console.error('Error during search:', e);
       resultsContainer.innerHTML = '<div class="search-error">搜索过程中出错。</div>';
     }
@@ -403,6 +424,15 @@ function setupListeners() {
 
 // 支持 View Transitions 的生命周期绑定
 document.addEventListener('astro:page-load', () => {
+  invalidateSearch();
   initElements();
   setupListeners();
+});
+
+document.addEventListener('astro:before-swap', () => {
+  closeSearch();
+  if (window._searchKeydownHandler) {
+    window.removeEventListener('keydown', window._searchKeydownHandler);
+    delete window._searchKeydownHandler;
+  }
 });
