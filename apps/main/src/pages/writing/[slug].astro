@@ -5,7 +5,7 @@ import Base from '../../layouts/Base.astro';
 import { sortPostsForDisplay } from '../../lib/posts';
 import { resolveConnections } from '../../lib/connections';
 import TableOfContents from '../../components/TableOfContents.astro';
-import FontScaler from '../../components/FontScaler.astro';
+import ReadingDock from '../../components/ReadingDock.astro';
 import ResumeToast from '../../components/ResumeToast.astro';
 import PostNav from '../../components/PostNav.astro';
 import RelatedConnections from '../../components/RelatedConnections.astro';
@@ -66,6 +66,7 @@ const hasToc = !isPoetry && toc.length >= 2;
 >
   <div id="reading-bar" aria-hidden="true"></div>
   <ResumeToast postId={post.id} />
+  <ReadingDock isPoetry={isPoetry} />
   <article class="article">
     <div class="wrap">
       {
@@ -76,18 +77,6 @@ const hasToc = !isPoetry && toc.length >= 2;
                 ← 返回文字
               </a>
               <span class="cat">{post.data.category}</span>
-              <button
-                type="button"
-                class="layout-toggle-minimal"
-                id="layoutToggle"
-                title="切换版式"
-                aria-label="切换诗歌版式"
-              >
-                <span class="label">版式：</span>
-                <span class="opt opt-horiz">横</span>
-                <span class="divider">/</span>
-                <span class="opt opt-vert">竖</span>
-              </button>
               <h1 transition:name={`post-title-${post.id}`}>{post.data.title}</h1>
               <div class="meta">
                 <time
@@ -97,7 +86,6 @@ const hasToc = !isPoetry && toc.length >= 2;
                   {longDate}
                 </time>
                 {post.data.readingTime && <span> · 约 {post.data.readingTime} 分钟</span>}
-                <FontScaler />
               </div>
             </header>
 
@@ -131,7 +119,6 @@ const hasToc = !isPoetry && toc.length >= 2;
                   {longDate}
                 </time>
                 {post.data.readingTime && <span> · 约 {post.data.readingTime} 分钟</span>}
-                <FontScaler />
               </div>
 
               {hasToc && <TableOfContents toc={toc} variant="desktop" />}
@@ -150,9 +137,12 @@ const hasToc = !isPoetry && toc.length >= 2;
 
       <div class="post-colophon reveal" aria-hidden="true">
         <div class="colophon-line"></div>
-        <SealStamp text="留白" type="yin" size="sm" title="留白印款" />
+        <div class="colophon-seal-wrap">
+          <SealStamp text="留白" type="yin" size="sm" title="留白印款" />
+        </div>
         <div class="colophon-line"></div>
       </div>
+      <p class="colophon-epilogue">文末留白 · 见天地之意</p>
 
       <PostNav prev={prev ?? undefined} next={next ?? undefined} />
       <RelatedConnections connections={connections} />

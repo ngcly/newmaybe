@@ -18,6 +18,17 @@ export function setupFontScaler() {
       if (level === 'sm') el.classList.add('font-size-sm');
       if (level === 'lg') el.classList.add('font-size-lg');
     });
+
+    document.querySelectorAll<HTMLElement>('.reading-dock [data-font-scale]').forEach((btn) => {
+      const scale = btn.getAttribute('data-font-scale');
+      if (scale === level) {
+        btn.classList.add('is-active');
+        btn.setAttribute('aria-pressed', 'true');
+      } else {
+        btn.classList.remove('is-active');
+        btn.setAttribute('aria-pressed', 'false');
+      }
+    });
   };
 
   const setScale = (level: Level) => {
@@ -38,6 +49,16 @@ export function setupFontScaler() {
   const handleFontScaleClick = (e: MouseEvent) => {
     const target = e.target as HTMLElement | null;
     if (!target) return;
+
+    const directBtn = target.closest<HTMLElement>('[data-font-scale]');
+    if (directBtn) {
+      const scale = directBtn.getAttribute('data-font-scale') as Level;
+      if (scale && (scale === 'sm' || scale === 'base' || scale === 'lg')) {
+        setScale(scale);
+        return;
+      }
+    }
+
     const downBtn = target.closest('.font-scale-down');
     const upBtn = target.closest('.font-scale-up');
     if (downBtn) {

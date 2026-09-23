@@ -27,9 +27,9 @@ const updatedDate = note.data.updatedDate?.toLocaleDateString('zh-CN', {
 });
 
 const stageInfo = {
-  sprout: { icon: '🌱', label: '萌芽 Sprout', class: 'stage-sprout' },
-  bud: { icon: '🌿', label: '成长 Bud', class: 'stage-bud' },
-  evergreen: { icon: '🌳', label: '常青 Evergreen', class: 'stage-evergreen' },
+  sprout: { icon: '🌱', label: '萌芽', class: 'stage-sprout' },
+  bud: { icon: '🌿', label: '成长', class: 'stage-bud' },
+  evergreen: { icon: '🌳', label: '常青', class: 'stage-evergreen' },
 }[note.data.stage] || { icon: '🌱', label: '萌芽', class: 'stage-sprout' };
 
 const resolvedConnections = await resolveConnections(note.data.connections);
@@ -64,7 +64,7 @@ const resolvedConnections = await resolveConnections(note.data.connections);
         <!-- 侧栏/Garden Meta -->
         <aside class="note-sidebar reveal">
           <div class="sidebar-box">
-            <h4 class="sidebar-title">花园状态 Garden Meta</h4>
+            <h4 class="sidebar-title">花园状态</h4>
             <div class="meta-item">
               <span class="meta-label">成长阶段</span>
               <span class={`stage-badge ${stageInfo.class}`}>
@@ -89,7 +89,7 @@ const resolvedConnections = await resolveConnections(note.data.connections);
 
           <!-- 双向链接/关联网络 -->
           <div class="sidebar-box">
-            <h4 class="sidebar-title">知识网络 Connections</h4>
+            <h4 class="sidebar-title">知识网络</h4>
             {
               resolvedConnections.length > 0 ? (
                 <ul class="conn-list">

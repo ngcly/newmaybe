@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   SlidersHorizontal,
   Sparkles,
@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Heart,
   MessageSquare,
+  X,
 } from 'lucide-react';
 import type { Article, Comment, ReaderPreferences } from '../types';
 import CommentSection from './CommentSection';
@@ -48,6 +49,111 @@ export default function ArticleReader({
   const [selectedQuoteText, setSelectedQuoteText] = useState(
     article.goldenQuote || article.summary || '',
   );
+  const [selectionBubble, setSelectionBubble] = useState<{
+    x: number;
+    y: number;
+    text: string;
+  } | null>(null);
+  const [prevArticleId, setPrevArticleId] = useState(article.id);
+  const [resumeData, setResumeData] = useState<{ pct: number; y: number } | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const STORAGE_KEY = `newmaybe:club:read-pos:${article.id}`;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (saved && saved.pct >= 15 && saved.pct <= 90 && window.scrollY < 120) {
+          return saved;
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    return null;
+  });
+  const [showResume, setShowResume] = useState(() => Boolean(resumeData));
+  const articleRef = useRef<HTMLElement | null>(null);
+
+  if (prevArticleId !== article.id) {
+    setPrevArticleId(article.id);
+    let newResume: { pct: number; y: number } | null = null;
+    if (typeof window !== 'undefined') {
+      const STORAGE_KEY = `newmaybe:club:read-pos:${article.id}`;
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const saved = JSON.parse(raw);
+          if (saved && saved.pct >= 15 && saved.pct <= 90 && window.scrollY < 120) {
+            newResume = saved;
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+    setResumeData(newResume);
+    setShowResume(Boolean(newResume));
+  }
+
+  // 1. 阅读位置持久化与断点续读
+  useEffect(() => {
+    const STORAGE_KEY = `newmaybe:club:read-pos:${article.id}`;
+
+    let ticking = false;
+    const onScroll = () => {
+      if (window.scrollY > 350) {
+        setShowResume(false);
+      }
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          const total = document.documentElement.scrollHeight - window.innerHeight;
+          if (total > 0) {
+            const pct = Math.round((window.scrollY / total) * 100);
+            if (pct > 92) {
+              localStorage.removeItem(STORAGE_KEY);
+            } else if (pct >= 15) {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ pct, y: window.scrollY }));
+            }
+          }
+          ticking = false;
+        });
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [article.id]);
+
+  // 2. 划选文字气泡摘录（避免移动端双击手势冲突）
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed) {
+        setSelectionBubble(null);
+        return;
+      }
+      const text = sel.toString().trim();
+      if (text.length < 2) {
+        setSelectionBubble(null);
+        return;
+      }
+      const range = sel.rangeCount > 0 ? sel.getRangeAt(0) : null;
+      if (!range || !articleRef.current?.contains(range.commonAncestorContainer)) {
+        setSelectionBubble(null);
+        return;
+      }
+      const rect = range.getBoundingClientRect();
+      setSelectionBubble({
+        x: Math.max(16, Math.min(window.innerWidth - 130, rect.left + rect.width / 2 - 55)),
+        y: Math.max(12, rect.top - 46),
+        text,
+      });
+    };
+
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => document.removeEventListener('selectionchange', handleSelectionChange);
+  }, []);
 
   const handleLike = async () => {
     if (!hasLiked) {
@@ -225,14 +331,18 @@ export default function ArticleReader({
 
         {/* Article Body Content */}
         <article
+          ref={articleRef}
           className={`prose max-w-none text-inherit ${fontClass} ${fontSizeClass} ${lineHeightClass} tracking-wide mb-14 transition-all duration-200`}
         >
           {paragraphs.map((para, idx) => (
             <p
               key={idx}
               className="mb-6 text-justify indent-8 font-light select-text"
-              onDoubleClick={() => handleOpenQuoteWithText(para)}
-              title="双击段落可直接生成雅集便签"
+              onDoubleClick={(e) => {
+                e.preventDefault();
+                handleOpenQuoteWithText(para);
+              }}
+              title="划选任意文字即可弹出「摘录便签」，亦可双击整段"
             >
               {para}
             </p>
@@ -393,6 +503,55 @@ export default function ArticleReader({
           initialQuote={selectedQuoteText}
           topicName={article.topicName}
         />
+      )}
+
+      {/* 划词摘录气泡 (Text Selection Popover) */}
+      {selectionBubble && (
+        <div
+          className="fixed z-50 animate-fade-in pointer-events-auto"
+          style={{ left: `${selectionBubble.x}px`, top: `${selectionBubble.y}px` }}
+        >
+          <button
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => {
+              handleOpenQuoteWithText(selectionBubble.text);
+              setSelectionBubble(null);
+            }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--ochre)] text-[var(--paper)] text-xs font-serif shadow-lg hover:bg-[var(--ochre-deep)] active:scale-95 transition-all cursor-pointer select-none"
+            title="将选中文字制作成雅集纸签"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>摘录便签</span>
+          </button>
+        </div>
+      )}
+
+      {/* 断点续读提示条 (Resume Toast) */}
+      {showResume && resumeData && (
+        <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-40 flex items-center justify-between sm:justify-start gap-3 bg-[var(--paper-deep)] border border-[var(--line)] shadow-xl px-4 py-2.5 rounded-lg text-xs font-serif text-[var(--ink)] animate-fade-in backdrop-blur-sm">
+          <span>
+            上次读到{' '}
+            <strong className="text-[var(--ochre)] italic font-semibold">{resumeData.pct}%</strong>
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                window.scrollTo({ top: resumeData.y, behavior: 'smooth' });
+                setShowResume(false);
+              }}
+              className="px-2.5 py-1 rounded bg-[var(--ochre)] text-[var(--paper)] text-xs font-serif font-medium hover:bg-[var(--ochre-deep)] transition-colors cursor-pointer"
+            >
+              继续阅读
+            </button>
+            <button
+              onClick={() => setShowResume(false)}
+              className="text-[var(--ink-faint)] hover:text-[var(--ink)] p-1 text-sm leading-none cursor-pointer"
+              aria-label="关闭提示"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

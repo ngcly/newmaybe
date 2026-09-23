@@ -41,7 +41,7 @@ const resolvedConnections = await resolveConnections(memory.data.connections);
         <a href="/garden" class="back">← 返回花园</a>
         <div class="title-row">
           <h1>{memory.data.title}</h1>
-          <span class="version-tag">Version {memory.data.version}</span>
+          <span class="version-tag">v{memory.data.version}</span>
         </div>
 
         <div class="memory-meta-row">
@@ -63,7 +63,7 @@ const resolvedConnections = await resolveConnections(memory.data.connections);
         <!-- 关联网络/反向链接 -->
         <aside class="memory-sidebar reveal">
           <div class="sidebar-box">
-            <h4 class="sidebar-title">知识网络 Connections</h4>
+            <h4 class="sidebar-title">知识网络</h4>
             {
               resolvedConnections.length > 0 ? (
                 <ul class="conn-list">

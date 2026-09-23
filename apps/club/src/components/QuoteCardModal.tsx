@@ -208,8 +208,10 @@ export default function QuoteCardModal({
 
   const handleCopyText = async () => {
     try {
+      const url = typeof window !== 'undefined' ? window.location.href : '';
+      const sourceUrl = url ? ` · 溯源：${url}` : '';
       await navigator.clipboard.writeText(
-        `“${quoteText.trim()}” —— 《${articleTitle}》· ${author}（引自 newmaybe.club 文友雅集）`,
+        `“${quoteText.trim()}” —— 《${articleTitle}》· ${author}（引自 newmaybe.club 文友雅集${sourceUrl}）`,
       );
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -297,7 +299,7 @@ export default function QuoteCardModal({
                 {copied ? (
                   <>
                     <Check className="w-4 h-4 text-[var(--bamboo)]" />
-                    <span className="text-[var(--bamboo)]">已复制金句到剪贴板</span>
+                    <span className="text-[var(--bamboo)]">已复制金句与出处链接</span>
                   </>
                 ) : (
                   <>
@@ -305,6 +307,14 @@ export default function QuoteCardModal({
                     <span>复制金句引文</span>
                   </>
                 )}
+              </button>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-serif text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors cursor-pointer mt-0.5"
+              >
+                <span>← 返回原文继续阅读</span>
               </button>
             </div>
           </div>

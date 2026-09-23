@@ -74,7 +74,7 @@ export default function ReaderSettingsDrawer({
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-xs">
       <div className="fixed inset-0" onClick={onClose} />
       <div
-        className="relative w-full max-w-lg bg-[var(--paper)] border border-[var(--line)] rounded-t-xl sm:rounded-lg shadow-2xl p-6 sm:p-7 z-10 animate-fade-in space-y-6 max-h-[90vh] overflow-y-auto"
+        className="relative w-full max-w-lg bg-[var(--paper)] border border-[var(--line)] rounded-t-xl sm:rounded-lg shadow-2xl p-6 sm:p-7 z-10 animate-fade-in space-y-6 max-h-[90vh] overflow-y-auto pb-[calc(2rem+env(safe-area-inset-bottom,0px))]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -116,7 +116,7 @@ export default function ReaderSettingsDrawer({
                 <button
                   key={theme.id}
                   onClick={() => onChange({ ...preferences, theme: theme.id })}
-                  className={`club-reader-theme-${theme.id} p-3 rounded border text-left transition-all cursor-pointer flex flex-col justify-between h-18 bg-[var(--paper)] text-[var(--ink)] ${
+                  className={`club-reader-theme-${theme.id} p-3 rounded border text-left transition-all cursor-pointer flex flex-col justify-between min-h-[56px] bg-[var(--paper)] text-[var(--ink)] ${
                     active
                       ? 'border-[var(--ochre)] ring-2 ring-[var(--ochre)]/20 shadow-xs'
                       : 'border-[var(--line)] opacity-85 hover:opacity-100'
@@ -142,7 +142,7 @@ export default function ReaderSettingsDrawer({
                 <button
                   key={f.id}
                   onClick={() => onChange({ ...preferences, font: f.id })}
-                  className={`py-2 px-3 text-xs rounded border transition-all cursor-pointer text-center ${f.family} ${
+                  className={`min-h-[44px] py-2 px-3 text-xs rounded border transition-all cursor-pointer flex items-center justify-center text-center ${f.family} ${
                     active
                       ? 'bg-[var(--ochre)] text-[var(--paper)] font-medium border-[var(--ochre)] shadow-xs'
                       : 'bg-[var(--paper-deep)] border-[var(--line)] text-[var(--ink-soft)] hover:border-[var(--ochre)]'
@@ -167,7 +167,7 @@ export default function ReaderSettingsDrawer({
                 <button
                   key={sz.id}
                   onClick={() => onChange({ ...preferences, fontSize: sz.id })}
-                  className={`py-1.5 px-2 text-xs font-serif rounded border transition-all cursor-pointer text-center ${
+                  className={`min-h-[44px] py-2 px-2 text-xs font-serif rounded border transition-all cursor-pointer flex items-center justify-center text-center ${
                     active
                       ? 'bg-[var(--ochre)] text-[var(--paper)] font-semibold border-[var(--ochre)] shadow-xs'
                       : 'bg-[var(--paper-deep)] border-[var(--line)] text-[var(--ink-soft)] hover:border-[var(--ochre)]'
@@ -192,7 +192,7 @@ export default function ReaderSettingsDrawer({
                 <button
                   key={lh.id}
                   onClick={() => onChange({ ...preferences, lineHeight: lh.id })}
-                  className={`py-1.5 px-3 text-xs font-serif rounded border transition-all cursor-pointer text-center ${
+                  className={`min-h-[44px] py-2 px-3 text-xs font-serif rounded border transition-all cursor-pointer flex items-center justify-center text-center ${
                     active
                       ? 'bg-[var(--ochre)] text-[var(--paper)] font-semibold border-[var(--ochre)] shadow-xs'
                       : 'bg-[var(--paper-deep)] border-[var(--line)] text-[var(--ink-soft)] hover:border-[var(--ochre)]'

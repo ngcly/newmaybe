@@ -1,0 +1,104 @@
+---
+interface Props {
+  isPoetry?: boolean;
+}
+
+const { isPoetry = false } = Astro.props;
+---
+
+<aside id="readingDock" class="reading-dock" aria-label="阅读偏好与设置">
+  <!-- 展开设置面板 -->
+  <div id="readingDockPanel" class="reading-dock-panel" role="region" aria-label="排版设置面板">
+    <div class="dock-section">
+      <span class="dock-label">字号</span>
+      <div class="dock-scale-group" role="group" aria-label="字号调节">
+        <button
+          type="button"
+          class="dock-btn dock-scale-btn"
+          data-font-scale="sm"
+          aria-label="偏小字号"
+          title="偏小字号"
+        >
+          小
+        </button>
+        <button
+          type="button"
+          class="dock-btn dock-scale-btn is-active"
+          data-font-scale="base"
+          aria-label="标准字号"
+          title="标准字号"
+        >
+          中
+        </button>
+        <button
+          type="button"
+          class="dock-btn dock-scale-btn"
+          data-font-scale="lg"
+          aria-label="偏大字号"
+          title="偏大字号"
+        >
+          大
+        </button>
+      </div>
+    </div>
+
+    {
+      isPoetry && (
+        <div class="dock-section">
+          <span class="dock-label">版式</span>
+          <button
+            type="button"
+            class="dock-btn dock-poetry-toggle"
+            id="layoutToggle"
+            title="切换诗歌版式"
+            aria-label="切换诗歌版式"
+          >
+            <span class="opt opt-horiz">横卷</span>
+            <span class="dock-divider">/</span>
+            <span class="opt opt-vert">竖排</span>
+          </button>
+        </div>
+      )
+    }
+
+    <div class="dock-section dock-section-actions">
+      <button
+        type="button"
+        class="dock-btn dock-top-btn"
+        id="readingDockTop"
+        title="平滑返回顶部"
+        aria-label="返回顶部"
+      >
+        <svg
+          class="dock-icon"
+          viewBox="0 0 24 24"
+          width="13"
+          height="13"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m18 15-6-6-6 6"></path>
+        </svg>
+        <span>回顶</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 唤起按钮（浮动胶囊） -->
+  <button
+    type="button"
+    id="readingDockTrigger"
+    class="reading-dock-trigger"
+    aria-label="展开排版与阅读设置"
+    aria-expanded="false"
+    aria-controls="readingDockPanel"
+    title="阅读偏好与排版设置"
+  >
+    <span class="trigger-badge" aria-hidden="true">Aa</span>
+    <span class="trigger-label">阅读设置</span>
+  </button>
+</aside>
