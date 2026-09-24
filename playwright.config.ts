@@ -8,7 +8,12 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 2 : 3,
   reporter: [['list'], ['html', { open: 'never' }]],
-  use: { ...devices['Desktop Chrome'], trace: 'retain-on-failure', screenshot: 'only-on-failure' },
+  use: {
+    ...devices['Desktop Chrome'],
+    channel: process.env.PLAYWRIGHT_CHANNEL,
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+  },
   webServer: ['main', 'graph', 'ai', 'studio', 'study', 'club', 'lab']
     .map((app, index) => ({
       // Keep Astro in the foreground even when invoked from an agent session,

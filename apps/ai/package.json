@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@newmaybe/design-tokens": "*",
     "@newmaybe/ai-client": "*",
     "@newmaybe/content": "*",
     "react": "^19.0.0",

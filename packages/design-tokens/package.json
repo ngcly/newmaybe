@@ -5,6 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./browser-theme": "./src/browser-theme.ts",
+    "./theme-chrome": "./src/ThemeChrome.astro",
     "./tokens.css": "./tokens.css",
     "./study.css": "./study.css"
   }

@@ -6,6 +6,7 @@ import Header from '../components/Header.astro';
 import MobileDrawer from '../components/MobileDrawer.astro';
 import Footer from '../components/Footer.astro';
 import Search from '../components/Search.astro';
+import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
 
 interface Props {
   title?: string;
@@ -40,26 +41,20 @@ const currentPath = Astro.url.pathname;
 <html lang={SITE.locale}>
   <head>
     <meta charset="UTF-8" />
+    <ThemeChrome />
     <script is:inline>
       document.documentElement.classList.add('js');
       const applyTheme = () => {
-        // Cookie is the canonical theme store (server-readable, shared across subdomains).
-        // localStorage is kept as a migration fallback for existing users.
-        const getCookie = (name) => {
-          const row = document.cookie.split(';').find((c) => c.trim().startsWith(name + '='));
-          return row ? row.trim().slice(name.length + 1) : null;
-        };
-        const theme =
-          getCookie('theme') ||
-          localStorage.getItem('theme') ||
-          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-          document.documentElement.classList.remove('light');
-        } else {
-          document.documentElement.classList.add('light');
-          document.documentElement.classList.remove('dark');
-        }
+        // ThemeChrome resolves the cookie, legacy storage and system preference before paint.
+        const theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        const themeColors = document.querySelectorAll('meta[name="theme-color"]');
+        themeColors[0]?.removeAttribute('media');
+        themeColors[0]?.setAttribute('content', themeColors[0].getAttribute(`data-${theme}`));
+        themeColors.forEach((meta, index) => {
+          if (index > 0) meta.remove();
+        });
+        document.documentElement.style.colorScheme = theme;
+        document.documentElement.style.backgroundColor = themeColors[0]?.content || '';
         // Write to Cookie (authoritative) so the server can read it pre-render.
         const domainAttr = window.location.hostname.includes('newmaybe.com')
           ? '; domain=.newmaybe.com'
@@ -72,6 +67,17 @@ const currentPath = Astro.url.pathname;
       // 在 View Transitions 交换 DOM 前同步主题类名，防止由于系统暗色偏好引发的瞬间闪烁
       document.addEventListener('astro:before-swap', (ev) => {
         const isDark = document.documentElement.classList.contains('dark');
+        const newThemeColors = ev.newDocument.querySelectorAll('meta[name="theme-color"]');
+        newThemeColors[0]?.setAttribute(
+          'content',
+          newThemeColors[0].getAttribute(isDark ? 'data-dark' : 'data-light'),
+        );
+        newThemeColors[0]?.removeAttribute('media');
+        newThemeColors.forEach((meta, index) => {
+          if (index > 0) meta.remove();
+        });
+        ev.newDocument.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        ev.newDocument.documentElement.style.backgroundColor = newThemeColors[0]?.content || '';
         if (isDark) {
           ev.newDocument.documentElement.classList.add('dark');
           ev.newDocument.documentElement.classList.remove('light');

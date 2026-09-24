@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme-palette="study">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,8 +10,9 @@
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="theme-color" content="#f7f3ec" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1e1b18" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f4ee" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#10171f" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
 
     <title>林下书房 · 为古风写作而读</title>
     <meta
@@ -49,19 +50,30 @@
     />
     <script>
       (function () {
+        const cookieTheme = document.cookie.match(/(?:^|;\s*)theme=(dark|light)(?:;|$)/)?.[1];
+        let savedTheme;
         try {
-          const match = document.cookie.match(/(?:^|;\s*)theme=(dark|light)/);
-          const cookieTheme = match ? match[1] : null;
-          const theme =
-            cookieTheme ||
-            localStorage.getItem('linxia:theme') ||
-            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-          if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-          } else {
-            document.documentElement.classList.remove('dark');
-          }
-        } catch (e) {}
+          savedTheme = localStorage.getItem('linxia:theme');
+        } catch {
+          // Continue with the cookie or system preference when storage is blocked.
+        }
+        const theme =
+          cookieTheme ||
+          (savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : null) ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+        document.documentElement.classList.toggle('light', theme === 'light');
+        const metas = document.querySelectorAll('meta[name="theme-color"]');
+        const color = metas[theme === 'dark' ? 1 : 0]?.content;
+        if (color && metas[0]) {
+          metas[0].content = color;
+          metas[0].removeAttribute('media');
+          metas.forEach((meta, index) => {
+            if (index > 0) meta.remove();
+          });
+          document.documentElement.style.backgroundColor = color;
+        }
+        document.documentElement.style.colorScheme = theme;
       })();
     </script>
   </head>

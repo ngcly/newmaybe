@@ -10,6 +10,7 @@
     "typecheck": "ASTRO_TELEMETRY_DISABLED=1 astro check"
   },
   "dependencies": {
+    "@newmaybe/design-tokens": "*",
     "@newmaybe/content": "*",
     "@newmaybe/shared-styles": "*",
     "astro": "^7.0.0",

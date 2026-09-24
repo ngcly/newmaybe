@@ -1,4 +1,6 @@
 // 夜读（玄青暗黑）模式：主题读写与切换
+import { syncBrowserTheme } from '@newmaybe/design-tokens/browser-theme';
+
 export type Theme = 'light' | 'dark';
 const KEY = 'linxia:theme';
 
@@ -37,6 +39,8 @@ export function getTheme(): Theme {
 
 export function applyTheme(t: Theme) {
   document.documentElement.classList.toggle('dark', t === 'dark');
+  document.documentElement.classList.toggle('light', t === 'light');
+  syncBrowserTheme(t);
   setCookieTheme(t);
 }
 

@@ -3,6 +3,7 @@ import '@newmaybe/shared-styles/base.css';
 import '../styles/graph.css';
 import GraphHeader from '../components/GraphHeader.astro';
 import GraphDetailCard from '../components/GraphDetailCard.astro';
+import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
 
 const isDev = import.meta.env.DEV;
 const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
@@ -12,6 +13,7 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
+    <ThemeChrome />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
@@ -47,17 +49,6 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
       content="思考的经纬 - newmaybe 知识网络。一个可视化展示概念笔记、文章连接和念头关联的数字化双向链接知识图谱。"
     />
     <meta name="twitter:image" content="https://newmaybe.com/og-default.png" />
-
-    <script is:inline>
-      (function () {
-        const match = document.cookie.match(/theme=(dark|light)/);
-        const theme =
-          (match && match[1]) ||
-          localStorage.getItem('theme') ||
-          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        document.documentElement.classList.add(theme);
-      })();
-    </script>
   </head>
   <body>
     <!-- 用于传递环境变量给客户端 D3 脚本 -->

@@ -1,0 +1,43 @@
+---
+import { dark, light } from './index';
+
+const lightPaper = light.paper;
+const darkPaper = dark.paper;
+---
+
+<meta
+  name="theme-color"
+  content={lightPaper}
+  data-light={lightPaper}
+  data-dark={darkPaper}
+  media="(prefers-color-scheme: light)"
+/>
+<meta name="theme-color" content={darkPaper} media="(prefers-color-scheme: dark)" />
+<meta name="color-scheme" content="light dark" />
+<script is:inline>
+  (() => {
+    const cookieTheme = document.cookie.match(/(?:^|;\s*)theme=(dark|light)(?:;|$)/)?.[1];
+    let savedTheme;
+    try {
+      savedTheme = localStorage.getItem('theme');
+    } catch {
+      // Cookie and system preferences still work when storage is blocked.
+    }
+    const theme =
+      cookieTheme ||
+      (savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : null) ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.documentElement.classList.toggle('light', theme === 'light');
+    const themeColors = document.querySelectorAll('meta[name="theme-color"]');
+    const themeColor = themeColors[0];
+    if (!themeColor) return;
+    themeColor.removeAttribute('media');
+    themeColor.setAttribute('content', themeColor.getAttribute(`data-${theme}`));
+    themeColors.forEach((meta, index) => {
+      if (index > 0) meta.remove();
+    });
+    document.documentElement.style.colorScheme = theme;
+    document.documentElement.style.backgroundColor = themeColor.content;
+  })();
+</script>

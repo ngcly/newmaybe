@@ -1,3 +1,5 @@
+import { syncBrowserTheme } from '@newmaybe/design-tokens/browser-theme';
+
 let pageController: AbortController | undefined;
 let revealObserver: IntersectionObserver | undefined;
 
@@ -134,6 +136,7 @@ export function setupPage() {
           document.documentElement.classList.remove('light');
           document.documentElement.classList.add('dark');
         }
+        syncBrowserTheme(newTheme);
         // Cookie is the authoritative store — no localStorage write needed.
         const domainAttr = window.location.hostname.includes('newmaybe.com')
           ? '; domain=.newmaybe.com'
