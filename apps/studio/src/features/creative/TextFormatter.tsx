@@ -1,3 +1,4 @@
+import { loadDraft, saveDraft, INITIAL_SAVE_STATUS } from '../../lib/draft-storage';
 import { useState } from 'react';
 import type { ExportFormat } from './types';
 
@@ -5,26 +6,6 @@ const STORAGE_KEY_FORMATTER = 'newmaybe:studio:draft:formatter:v2';
 
 const SAMPLE_TEXT =
   '今天在读Roland Barthes的《恋人絮语》,觉得里面的句子很有触感,比如"语言是一次皮肤的接触",于是记录在Newmaybe数字花园上。项目使用React19与TailwindCSS构建,拥有100%的极简东方质感。';
-
-function loadDraft(key: string, fallback: string): string {
-  if (typeof window === 'undefined') return fallback;
-  try {
-    const saved = localStorage.getItem(key);
-    if (saved) return saved;
-  } catch {
-    // Ignore localStorage errors
-  }
-  return fallback;
-}
-
-function saveDraft(key: string, data: string) {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(key, data);
-  } catch {
-    // Ignore localStorage errors
-  }
-}
 
 function convertToNotionJSON(text: string) {
   const paragraphs = text.split(/\n+/).filter((p) => p.trim());
@@ -39,9 +20,11 @@ function convertToNotionJSON(text: string) {
 }
 
 export default function TextFormatter() {
-  const [inputText, setInputText] = useState(() => loadDraft(STORAGE_KEY_FORMATTER, ''));
+  const [inputText, setInputText] = useState(() =>
+    loadDraft(STORAGE_KEY_FORMATTER, '', (value) => value),
+  );
   const [outputText, setOutputText] = useState('');
-  const [savedAt, setSavedAt] = useState<string>('');
+  const [saveStatus, setSaveStatus] = useState(INITIAL_SAVE_STATUS);
   const [formatStats, setFormatStats] = useState<{
     originalChars: number;
     formattedChars: number;
@@ -53,9 +36,7 @@ export default function TextFormatter() {
 
   const handleInputChange = (text: string) => {
     setInputText(text);
-    saveDraft(STORAGE_KEY_FORMATTER, text);
-    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    setSavedAt(timeStr);
+    setSaveStatus(saveDraft(STORAGE_KEY_FORMATTER, text, (value) => value));
   };
 
   const handleFillSample = () => {
@@ -218,9 +199,11 @@ export default function TextFormatter() {
               <span className="text-sm font-medium text-[var(--ink)]">输入待清洗文本</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-[var(--ink-faint)] flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--bamboo)] animate-pulse"></span>
-                {savedAt ? `已暂存 ${savedAt}` : '草稿已暂存'}
+              <span
+                role={saveStatus.saved || saveStatus === INITIAL_SAVE_STATUS ? 'status' : 'alert'}
+                className="text-[11px] text-[var(--ink-faint)] flex items-center gap-1"
+              >
+                {saveStatus.message}
               </span>
               <button
                 type="button"

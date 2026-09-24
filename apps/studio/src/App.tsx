@@ -30,6 +30,14 @@ export default function App() {
     return new URLSearchParams(window.location.search).get('quote') || undefined;
   });
 
+  // Keep visited editors mounted: both imported text and unsaved in-memory drafts
+  // belong to the editing session, not to the currently visible tab.
+  const [visitedTabs, setVisitedTabs] = useState(() => new Set<Tab>([activeTab]));
+  const selectTab = (tab: Tab) => {
+    setVisitedTabs((previous) => new Set([...previous, tab]));
+    setActiveTab(tab);
+  };
+
   const [initialCardContent] = useState<string | undefined>(() => {
     if (typeof window === 'undefined') return undefined;
     return new URLSearchParams(window.location.search).get('content') || undefined;
@@ -46,18 +54,26 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[var(--paper)]">
-      <Sidebar
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        resolveSubdomain={resolveSubdomain}
-      />
+      <Sidebar activeTab={activeTab} onTabChange={selectTab} resolveSubdomain={resolveSubdomain} />
 
       <main className="flex-grow p-6 md:p-12 overflow-y-auto">
-        {activeTab === 'poster' && <PosterGenerator initialQuote={initialQuote} />}
-        {activeTab === 'card' && <CardExporter initialContent={initialCardContent} />}
-        {activeTab === 'formatter' && <TextFormatter />}
+        {visitedTabs.has('poster') && (
+          <div hidden={activeTab !== 'poster'}>
+            <PosterGenerator initialQuote={initialQuote} />
+          </div>
+        )}
+        {visitedTabs.has('card') && (
+          <div hidden={activeTab !== 'card'}>
+            <CardExporter initialContent={initialCardContent} />
+          </div>
+        )}
+        {visitedTabs.has('formatter') && (
+          <div hidden={activeTab !== 'formatter'}>
+            <TextFormatter />
+          </div>
+        )}
         {activeTab === 'inspiration' && <InspirationEngine resolveSubdomain={resolveSubdomain} />}
-        {activeTab === 'assets' && <AssetGallery />}
+        {activeTab === 'assets' && <AssetGallery resolveSubdomain={resolveSubdomain} />}
       </main>
     </div>
   );

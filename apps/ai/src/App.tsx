@@ -230,16 +230,14 @@ export default function App() {
             </div>
           )}
 
-          {activeTab === 'capture' && (
-            <div className="h-full overflow-y-auto p-6 md:p-8">
-              <CapturePad
-                provider={chat.provider}
-                model={chat.model}
-                apiKey={chat.apiKey}
-                customBaseUrl={chat.customBaseUrl}
-              />
-            </div>
-          )}
+          <div hidden={activeTab !== 'capture'} className="h-full overflow-y-auto p-6 md:p-8">
+            <CapturePad
+              provider={chat.provider}
+              model={chat.model}
+              apiKey={chat.apiKey}
+              customBaseUrl={chat.customBaseUrl}
+            />
+          </div>
 
           {activeTab === 'ego' && (
             <div className="h-full p-6">

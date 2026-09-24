@@ -16,6 +16,7 @@ const resolveSubdomain = (url: string) => resolveSubdomainUrl(url, isDev);
 
 // 状态数据
 let originalGardenData: GardenData = { nodes: [], links: [] };
+let sandboxData: GardenData | null = null;
 let nodes: GraphNode[] = [];
 let links: GraphLink[] = [];
 let currentMode: GraphMode = 'view'; // 'view' / 'sandbox'
@@ -726,11 +727,22 @@ function setupInteractionListeners() {
 }
 
 function switchToSandbox() {
+  if (currentMode === 'sandbox') return;
+  if (sandboxData) {
+    nodes = sandboxData.nodes;
+    links = sandboxData.links;
+  } else {
+    nodes = structuredClone(originalGardenData.nodes);
+    links = structuredClone(originalGardenData.links);
+  }
+  clearSelection();
   switchToSandboxStateUI();
   updateGraph();
 }
 
 function switchToView() {
+  if (currentMode === 'view') return;
+  sandboxData = { nodes, links };
   switchToViewStateUI();
   nodes = JSON.parse(JSON.stringify(originalGardenData.nodes));
   links = JSON.parse(JSON.stringify(originalGardenData.links));

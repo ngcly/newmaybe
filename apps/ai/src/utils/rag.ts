@@ -20,7 +20,11 @@ const DEFAULT_RESULT_LIMIT = 3;
 export const MAX_SYSTEM_PROMPT_CHARS = 5_000;
 
 /** Share the available context across sources so long first articles do not hide later citations. */
-export function buildReferenceContext(docs: ContentItem[], budget: number): string {
+export function buildReferenceContext(
+  docs: ContentItem[],
+  budget: number,
+): { context: string; sources: ContentItem[] } {
+  const sources: ContentItem[] = [];
   let context = '';
   docs.forEach((doc, index) => {
     const allowance = Math.floor((budget - context.length) / (docs.length - index));
@@ -35,8 +39,9 @@ export function buildReferenceContext(docs: ContentItem[], budget: number): stri
         : doc.content.slice(0, Math.max(0, contentBudget - marker.length)) +
           marker.slice(0, contentBudget);
     context += header + content + footer;
+    sources.push(doc);
   });
-  return context;
+  return { context, sources };
 }
 
 export const getContentUrl = (): string => {
@@ -231,7 +236,10 @@ export const retrieveRelevantDocs = (
 };
 
 // 构造大语言模型的 System Prompt
-export const buildSystemPrompt = (relevantDocs: ContentItem[]): string => {
+export const buildRagPrompt = (
+  relevantDocs: ContentItem[],
+): { prompt: string; sources: ContentItem[] } => {
+  let sources: ContentItem[] = [];
   let prompt = `你叫“newmaybe 智能园丁”，是 newmaybe.com（作者林的数字花园）的 AI 写作伴侣与风格化共创引擎。
 你的任务是友好、文艺且具有深度启发性地解答读者的疑惑，并帮助读者打磨思想与文字。
 
@@ -251,27 +259,12 @@ export const buildSystemPrompt = (relevantDocs: ContentItem[]): string => {
 2. 如果参考资料确实与读者的问题/内容无关，你可以基于大模型自身的知识发散回答，但请明确说明：“以下内容为我的发散推理，在林的数字花园中尚未找到直接对应记录”。
 `;
 
-    relevantDocs.forEach((doc, idx) => {
-      const header = `---
-[参考资料 #${idx + 1}] 标题: ${doc.title}
-分类: ${doc.category}
-发布日期: ${doc.pubDate}
-链接: ${doc.url}
-正文内容:
-`;
-      const footer = `\n---\n\n`;
-      const remaining = MAX_SYSTEM_PROMPT_CHARS - prompt.length - requirements.length;
-      const contentBudget = remaining - header.length - footer.length;
-      if (contentBudget <= 0) return;
-
-      const truncationMarker = '\n[正文已按请求预算截断]';
-      const content =
-        doc.content.length > contentBudget
-          ? doc.content.slice(0, Math.max(0, contentBudget - truncationMarker.length)) +
-            truncationMarker
-          : doc.content;
-      prompt += header + content + footer;
-    });
+    const referenceContext = buildReferenceContext(
+      relevantDocs,
+      MAX_SYSTEM_PROMPT_CHARS - prompt.length - requirements.length,
+    );
+    prompt += referenceContext.context;
+    sources = referenceContext.sources;
 
     prompt += requirements;
   } else {
@@ -281,8 +274,11 @@ export const buildSystemPrompt = (relevantDocs: ContentItem[]): string => {
 然后给出你的发散润色或意象发散，务必在回答末尾带上启发性追问。`;
   }
 
-  return prompt.slice(0, MAX_SYSTEM_PROMPT_CHARS);
+  return { prompt, sources };
 };
+
+export const buildSystemPrompt = (relevantDocs: ContentItem[]): string =>
+  buildRagPrompt(relevantDocs).prompt;
 
 // 探测孤立节点（没有任何双向连接的节点）
 export const detectOrphanNodes = (corpus: ContentItem[]): ContentItem[] => {

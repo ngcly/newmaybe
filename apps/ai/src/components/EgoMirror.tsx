@@ -1,3 +1,4 @@
+import { useRequestSession } from '../hooks/useRequestSession';
 import { fetchFreeAI } from '@newmaybe/ai-client/free-ai';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { type Message, type ProviderType } from '../types';
@@ -53,6 +54,7 @@ export default function EgoMirror({
     ];
   });
 
+  const { begin, cancel } = useRequestSession();
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [focusedRefs, setFocusedRefs] = useState<ContentItem[]>([]);
@@ -85,6 +87,8 @@ export default function EgoMirror({
     e.preventDefault();
     if (!input.trim() || isTyping) return;
 
+    const requestSession = begin();
+    if (!requestSession) return;
     const userText = input.trim();
     setInput('');
 
@@ -101,14 +105,7 @@ export default function EgoMirror({
     try {
       // 1. RAG retrieval (more liberal limit to get contradictory ideas)
       const matchedDocs = retrieveRelevantDocs(userText, allContent, 4);
-      const references = matchedDocs.map((m) => ({
-        type: m.doc.type === 'notes' ? '笔记' : '文章',
-        title: m.doc.title,
-        url: m.doc.url,
-      }));
-
-      // Focus on these right away
-      setFocusedRefs(matchedDocs.map((m) => m.doc));
+      let sources: ContentItem[] = [];
 
       // 2. Build special Ego prompt
       let systemPrompt = `你叫“林的思维镜像”，是作者林数字花园中历史心智的化身。
@@ -122,13 +119,22 @@ export default function EgoMirror({
 
       if (matchedDocs.length > 0) {
         systemPrompt += `\n以下是为你检索到的林的历史写作文献，请把它们作为你论辩和质询的内容依据，在提到文献时以 [文献标题](URL) 的 markdown 格式进行引用：\n\n`;
-        systemPrompt += buildReferenceContext(
+        const referenceContext = buildReferenceContext(
           matchedDocs.map(({ doc }) => doc),
           MAX_SYSTEM_PROMPT_CHARS - systemPrompt.length,
         );
+        systemPrompt += referenceContext.context;
+        sources = referenceContext.sources;
       } else {
         systemPrompt += `\n林的历史花园中未发现直接语义重合的文献，请基于你对林“干净、留白、内省”美学的了解，对用户输入的想法展开纯哲学层面的发散质询，并指出林在哪些地方可能会表示存疑。`;
       }
+
+      const references = sources.map((doc) => ({
+        type: doc.type === 'notes' ? '笔记' : '文章',
+        title: doc.title,
+        url: doc.url,
+      }));
+      setFocusedRefs(sources);
 
       const promptHistory = [
         { role: 'system', content: systemPrompt },
@@ -164,6 +170,7 @@ export default function EgoMirror({
 
         const res = await (provider === 'free' ? fetchFreeAI : fetch)(endpoint, {
           method: 'POST',
+          signal: requestSession.signal,
           headers,
           body,
         });
@@ -184,6 +191,7 @@ export default function EgoMirror({
         const request = createGeminiRequest(customBaseUrl, model, apiKey);
         const res = await fetch(request.url, {
           method: 'POST',
+          signal: requestSession.signal,
           headers: request.headers,
           body: JSON.stringify({
             contents: geminiMessages,
@@ -197,6 +205,7 @@ export default function EgoMirror({
         replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
       }
 
+      if (!requestSession.isCurrent()) return;
       setMessages((prev) => [
         ...prev,
         {
@@ -208,6 +217,7 @@ export default function EgoMirror({
         },
       ]);
     } catch (err: unknown) {
+      if (!requestSession.isCurrent()) return;
       const msg = err instanceof Error ? err.message : String(err);
       setMessages((prev) => [
         ...prev,
@@ -219,11 +229,13 @@ export default function EgoMirror({
         },
       ]);
     } finally {
-      setIsTyping(false);
+      if (requestSession.finish()) setIsTyping(false);
     }
   };
 
   const handleClear = () => {
+    cancel();
+    setIsTyping(false);
     setMessages([
       {
         id: 'ego-welcome',

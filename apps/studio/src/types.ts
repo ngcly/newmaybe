@@ -24,4 +24,6 @@ export interface Asset {
   title: string;
   path: string;
   type: string;
+  kind: 'url' | 'code';
+  description: string;
 }

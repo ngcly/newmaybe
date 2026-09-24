@@ -1,9 +1,10 @@
+import { useRequestSession } from './useRequestSession';
 import { fetchFreeAI } from '@newmaybe/ai-client/free-ai';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   fetchAllContent,
   retrieveRelevantDocs,
-  buildSystemPrompt,
+  buildRagPrompt,
   type ContentItem,
 } from '../utils/rag';
 import { useFreeTurns } from './useFreeTurns';
@@ -84,7 +85,7 @@ export function useChat(): UseChatReturn {
   const [allContent, setAllContent] = useState<ContentItem[]>([]);
   const [contentLoading, setContentLoading] = useState(true);
   const [contentError, setContentError] = useState<string | null>(null);
-  const requestInFlight = useRef(false);
+  const { begin, cancel } = useRequestSession();
 
   const { freeTurnsLeft, checkFreeTurns, decrementFreeTurns } = useFreeTurns();
 
@@ -142,7 +143,7 @@ export function useChat(): UseChatReturn {
   const handleSend = useCallback(
     async (overrideText?: string) => {
       const textToSend = (overrideText !== undefined ? overrideText : inputText).trim();
-      if (!textToSend || requestInFlight.current) return;
+      if (!textToSend) return;
 
       if (contentError) {
         setMessages((prev) => [
@@ -174,7 +175,8 @@ export function useChat(): UseChatReturn {
         }
       }
 
-      requestInFlight.current = true;
+      const requestSession = begin();
+      if (!requestSession) return;
 
       const userMessage: Message = {
         id: `msg-${Date.now()}`,
@@ -186,17 +188,20 @@ export function useChat(): UseChatReturn {
       setMessages((prev) => [...prev, userMessage]);
       setInputText('');
       setIsTyping(true);
+      const assistantMsgId = `msg-assistant-${Date.now()}`;
 
       try {
         // RAG retrieval
         const matchedDocs = retrieveRelevantDocs(userMessage.text, allContent);
-        const references = matchedDocs.map((item) => ({
-          type: getTypeLabel(item.doc.type),
-          title: item.doc.title,
-          url: item.doc.url,
+        const { prompt: systemPromptContent, sources } = buildRagPrompt(
+          matchedDocs.map((m) => m.doc),
+        );
+        const references = sources.map((doc) => ({
+          type: getTypeLabel(doc.type),
+          title: doc.title,
+          url: doc.url,
         }));
 
-        const systemPromptContent = buildSystemPrompt(matchedDocs.map((m) => m.doc));
         const promptHistory = [
           { role: 'system', content: systemPromptContent },
           ...messages
@@ -206,7 +211,6 @@ export function useChat(): UseChatReturn {
         ];
 
         let replyText = '';
-        const assistantMsgId = `msg-assistant-${Date.now()}`;
 
         if (provider === 'free' || provider === 'openai') {
           // OpenAI-compatible streaming
@@ -232,6 +236,7 @@ export function useChat(): UseChatReturn {
 
           const res = await (provider === 'free' ? fetchFreeAI : fetch)(endpoint, {
             method: 'POST',
+            signal: requestSession.signal,
             headers,
             body,
           });
@@ -244,7 +249,7 @@ export function useChat(): UseChatReturn {
             throw new Error(errMsg || '接口响应错误');
           }
 
-          setIsTyping(false);
+          if (!requestSession.isCurrent()) return;
           setMessages((prev) => [
             ...prev,
             {
@@ -257,11 +262,13 @@ export function useChat(): UseChatReturn {
           ]);
 
           replyText = await readAIResponse(res, (_token, accumulated) => {
+            if (!requestSession.isCurrent()) return;
             setMessages((prev) =>
               prev.map((m) => (m.id === assistantMsgId ? { ...m, text: accumulated } : m)),
             );
           });
 
+          if (!requestSession.isCurrent()) return;
           setMessages((prev) =>
             prev.map((m) => (m.id === assistantMsgId ? { ...m, text: replyText, references } : m)),
           );
@@ -281,6 +288,7 @@ export function useChat(): UseChatReturn {
           const request = createGeminiRequest(customBaseUrl, model, apiKey);
           const res = await fetch(request.url, {
             method: 'POST',
+            signal: requestSession.signal,
             headers: request.headers,
             body: JSON.stringify({
               contents: geminiMessages,
@@ -296,7 +304,7 @@ export function useChat(): UseChatReturn {
           }
           replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || '未能获取回复，请重试。';
 
-          setIsTyping(false);
+          if (!requestSession.isCurrent()) return;
           setMessages((prev) => [
             ...prev,
             {
@@ -309,10 +317,11 @@ export function useChat(): UseChatReturn {
           ]);
         }
       } catch (err: unknown) {
+        if (!requestSession.isCurrent()) return;
         const message = err instanceof Error ? err.message : String(err);
         console.error(err);
         setMessages((prev) => [
-          ...prev,
+          ...prev.filter((message) => message.id !== assistantMsgId),
           {
             id: `msg-error-${Date.now()}`,
             role: 'assistant',
@@ -321,8 +330,7 @@ export function useChat(): UseChatReturn {
           },
         ]);
       } finally {
-        requestInFlight.current = false;
-        setIsTyping(false);
+        if (requestSession.finish()) setIsTyping(false);
       }
     },
     [
@@ -336,6 +344,7 @@ export function useChat(): UseChatReturn {
       checkFreeTurns,
       decrementFreeTurns,
       contentError,
+      begin,
     ],
   );
 
@@ -360,8 +369,10 @@ export function useChat(): UseChatReturn {
   }, []);
 
   const clearMessages = useCallback(() => {
+    cancel();
+    setIsTyping(false);
     setMessages([{ ...WELCOME_MESSAGE, timestamp: timestamp() }]);
-  }, []);
+  }, [cancel]);
 
   return {
     messages,

@@ -1,3 +1,4 @@
+import { loadDraft, saveDraft, INITIAL_SAVE_STATUS } from '../../lib/draft-storage';
 import { useState } from 'react';
 import { CARD_THEMES } from '@newmaybe/design-tokens';
 import { downloadCard } from './card-canvas';
@@ -27,33 +28,13 @@ const DEFAULT_EXC: ExcerptForm = {
   tags: '语言, 情感',
 };
 
-function loadDraft<T>(key: string, fallback: T): T {
-  if (typeof window === 'undefined') return fallback;
-  try {
-    const saved = localStorage.getItem(key);
-    if (saved) return JSON.parse(saved) as T;
-  } catch {
-    // Ignore localStorage errors
-  }
-  return fallback;
-}
-
-function saveDraft<T>(key: string, data: T) {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(key, JSON.stringify(data));
-  } catch {
-    // Ignore localStorage errors
-  }
-}
-
 export default function CardExporter({ initialContent }: CardExporterProps) {
   const [cardType, setCardType] = useState<CardType>('fragment');
   const [cardTheme, setCardTheme] = useState<CardTheme>('paper');
   const [exportScale, setExportScale] = useState<1 | 2 | 3>(2);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [imageExportSuccess, setImageExportSuccess] = useState(false);
-  const [savedAt, setSavedAt] = useState<string>('');
+  const [saveStatus, setSaveStatus] = useState(INITIAL_SAVE_STATUS);
 
   const [fragForm, setFragForm] = useState<FragmentForm>(() => {
     const draft = loadDraft<FragmentForm>(STORAGE_KEY_FRAG, DEFAULT_FRAG);
@@ -72,37 +53,27 @@ export default function CardExporter({ initialContent }: CardExporterProps) {
   });
 
   const updateFragForm = (updater: (prev: FragmentForm) => FragmentForm) => {
-    setFragForm((prev) => {
-      const next = updater(prev);
-      saveDraft(STORAGE_KEY_FRAG, next);
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      setSavedAt(timeStr);
-      return next;
-    });
+    const next = updater(fragForm);
+    setFragForm(next);
+    setSaveStatus(saveDraft(STORAGE_KEY_FRAG, next));
   };
 
   const updateExcForm = (updater: (prev: ExcerptForm) => ExcerptForm) => {
-    setExcForm((prev) => {
-      const next = updater(prev);
-      saveDraft(STORAGE_KEY_EXC, next);
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      setSavedAt(timeStr);
-      return next;
-    });
+    const next = updater(excForm);
+    setExcForm(next);
+    setSaveStatus(saveDraft(STORAGE_KEY_EXC, next));
   };
 
   const handleResetDraft = () => {
     if (cardType === 'fragment') {
       const resetData = { ...DEFAULT_FRAG, pubDate: localIsoDate() };
       setFragForm(resetData);
-      saveDraft(STORAGE_KEY_FRAG, resetData);
+      setSaveStatus(saveDraft(STORAGE_KEY_FRAG, resetData));
     } else {
       const resetData = { ...DEFAULT_EXC, pubDate: localIsoDate() };
       setExcForm(resetData);
-      saveDraft(STORAGE_KEY_EXC, resetData);
+      setSaveStatus(saveDraft(STORAGE_KEY_EXC, resetData));
     }
-    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    setSavedAt(timeStr);
   };
 
   const handleExportMarkdown = () => {
@@ -188,9 +159,11 @@ ${excForm.content}
               <span className="text-sm font-medium text-[var(--ink)]">输入内容与实用元数据</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-[var(--ink-faint)] flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--bamboo)] animate-pulse"></span>
-                {savedAt ? `已暂存 ${savedAt}` : '草稿已暂存'}
+              <span
+                role={saveStatus.saved || saveStatus === INITIAL_SAVE_STATUS ? 'status' : 'alert'}
+                className="text-[11px] text-[var(--ink-faint)] flex items-center gap-1"
+              >
+                {saveStatus.message}
               </span>
               <button
                 type="button"

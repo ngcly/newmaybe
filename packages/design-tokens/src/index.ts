@@ -264,12 +264,12 @@ export const CARD_THEMES = {
     textFaint: dark['ink-faint'],
   },
   ochre: {
-    bg: '#A8643C',
-    text: '#F7F3EC',
-    accent: '#2B2722',
-    line: '#8A4F2E',
-    textSoft: '#E6DCCF',
-    textFaint: '#C4814E',
+    bg: light.ochre,
+    text: light.paper,
+    accent: light.paper,
+    line: light['ochre-deep'],
+    textSoft: light.paper,
+    textFaint: light.paper,
   },
   bamboo: {
     bg: '#EAF2EC',

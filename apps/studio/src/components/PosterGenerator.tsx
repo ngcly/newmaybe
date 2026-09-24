@@ -1,3 +1,4 @@
+import { loadDraft, saveDraft, INITIAL_SAVE_STATUS } from '../lib/draft-storage';
 import { light } from '@newmaybe/design-tokens';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { POSTER_THEMES } from '../constants/themes';
@@ -33,26 +34,6 @@ const DEFAULT_POSTER: PosterDraft = {
   ratio: '1.91:1',
   align: 'left',
 };
-
-function loadDraft<T>(key: string, fallback: T): T {
-  if (typeof window === 'undefined') return fallback;
-  try {
-    const saved = localStorage.getItem(key);
-    if (saved) return JSON.parse(saved) as T;
-  } catch {
-    // Ignore localStorage errors
-  }
-  return fallback;
-}
-
-function saveDraft<T>(key: string, data: T) {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(key, JSON.stringify(data));
-  } catch {
-    // Ignore localStorage errors
-  }
-}
 
 interface PosterGeneratorProps {
   initialQuote?: string;
@@ -91,26 +72,20 @@ export default function PosterGenerator({ initialQuote }: PosterGeneratorProps) 
     return saved;
   });
 
-  const [savedAt, setSavedAt] = useState<string>('');
+  const [saveStatus, setSaveStatus] = useState(INITIAL_SAVE_STATUS);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const updateDraft = (patch: Partial<PosterDraft>) => {
-    setDraft((prev) => {
-      const next = { ...prev, ...patch };
-      saveDraft(STORAGE_KEY_POSTER, next);
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      setSavedAt(timeStr);
-      return next;
-    });
+    const next = { ...draft, ...patch };
+    setDraft(next);
+    setSaveStatus(saveDraft(STORAGE_KEY_POSTER, next));
   };
 
   const handleResetDraft = () => {
     setDraft(DEFAULT_POSTER);
-    saveDraft(STORAGE_KEY_POSTER, DEFAULT_POSTER);
-    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    setSavedAt(timeStr);
+    setSaveStatus(saveDraft(STORAGE_KEY_POSTER, DEFAULT_POSTER));
   };
 
   const { title, subtitle, quote, author, watermark, theme, ratio, align } = draft;
@@ -322,9 +297,11 @@ export default function PosterGenerator({ initialQuote }: PosterGeneratorProps) 
               <span className="text-sm font-medium text-[var(--ink)]">文案内容与落款印章</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-[var(--ink-faint)] flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--bamboo)] animate-pulse"></span>
-                {savedAt ? `已暂存 ${savedAt}` : '草稿已暂存'}
+              <span
+                role={saveStatus.saved || saveStatus === INITIAL_SAVE_STATUS ? 'status' : 'alert'}
+                className="text-[11px] text-[var(--ink-faint)] flex items-center gap-1"
+              >
+                {saveStatus.message}
               </span>
               <button
                 type="button"

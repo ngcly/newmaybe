@@ -94,12 +94,15 @@ function fitMessages<T extends ChatMessageLike>(messages: T[], maxChars: number)
 }
 
 interface AIResponsePayload {
+  error?: string | { message?: string };
+  message?: string;
   response?: string;
   text?: string;
   content?: string;
   choices?: Array<{
     message?: { content?: string };
     delta?: { content?: string };
+    finish_reason?: string | null;
   }>;
 }
 
@@ -129,6 +132,10 @@ export async function readAIResponse(
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/event-stream')) {
     const payload = (await response.json()) as AIResponsePayload;
+    if (payload.error)
+      throw new Error(
+        typeof payload.error === 'string' ? payload.error : payload.error.message || 'AI 回复失败',
+      );
     const text = extractText(payload);
     if (text) onToken?.(text, text);
     return text;
@@ -140,36 +147,64 @@ export async function readAIResponse(
   const decoder = new TextDecoder();
   let buffer = '';
   let result = '';
+  let eventName = '';
+  let eventData: string[] = [];
+  let completed = false;
 
-  const consume = (line: string): boolean => {
-    if (!line.startsWith('data:')) return false;
-    const data = line.slice(5).trim();
-    if (data === '[DONE]') return true;
-    if (!data) return false;
-    let token: string;
-    try {
-      token = extractText(JSON.parse(data) as AIResponsePayload);
-    } catch {
-      return false;
+  const dispatch = (): boolean => {
+    const data = eventData.join('\n').trim();
+    const isError = eventName === 'error';
+    eventName = '';
+    eventData = [];
+    if (data === '[DONE]') {
+      completed = true;
+      return true;
     }
+    if (!data) return false;
+    let payload: AIResponsePayload;
+    try {
+      payload = JSON.parse(data) as AIResponsePayload;
+    } catch {
+      throw new Error(isError ? data : 'AI 回复格式损坏，请重试。');
+    }
+    if (isError || payload.error) {
+      const error = typeof payload.error === 'string' ? payload.error : payload.error?.message;
+      throw new Error(error || payload.message || 'AI 回复失败，请重试。');
+    }
+    const token = extractText(payload);
     if (token) {
       result += token;
       onToken?.(token, result);
     }
+    if (payload.choices?.some((choice) => choice.finish_reason)) completed = true;
     return false;
   };
 
-  while (true) {
-    const chunk = await reader.read();
-    buffer += decoder.decode(chunk.value, { stream: !chunk.done });
-    const lines = buffer.split(/\r?\n/);
-    buffer = lines.pop() ?? '';
-    for (const line of lines) {
-      if (consume(line)) return result;
+  const consume = (line: string): boolean => {
+    if (!line) return dispatch();
+    if (line.startsWith('event:')) eventName = line.slice(6).trim();
+    if (line.startsWith('data:')) eventData.push(line.slice(5).replace(/^ /, ''));
+    return false;
+  };
+
+  try {
+    while (true) {
+      const chunk = await reader.read();
+      buffer += decoder.decode(chunk.value, { stream: !chunk.done });
+      const lines = buffer.split(/\r?\n/);
+      buffer = lines.pop() ?? '';
+      for (const line of lines) {
+        if (consume(line)) return result;
+      }
+      if (chunk.done) {
+        if (buffer) consume(buffer);
+        dispatch();
+        if (!completed) throw new Error('AI 回复意外中断，请重试。');
+        return result;
+      }
     }
-    if (chunk.done) {
-      if (buffer) consume(buffer);
-      return result;
-    }
+  } finally {
+    await reader.cancel().catch(() => {});
+    reader.releaseLock();
   }
 }

@@ -8,6 +8,59 @@ import {
 } from './index';
 
 describe('readAIResponse', () => {
+  it('accepts an explicit finish reason and releases the response reader', async () => {
+    const response = new Response(
+      'data: {"choices":[{"delta":{"content":"完成"},"finish_reason":"stop"}]}\n\n',
+      {
+        headers: { 'Content-Type': 'text/event-stream' },
+      },
+    );
+    await expect(readAIResponse(response)).resolves.toBe('完成');
+    expect(response.body?.locked).toBe(false);
+  });
+
+  it('cancels the underlying stream after a provider error', async () => {
+    const cancel = vi.fn();
+    const response = new Response(
+      new ReadableStream({
+        start(controller) {
+          controller.enqueue(
+            new TextEncoder().encode('event: error\ndata: {"message":"overloaded"}\n\n'),
+          );
+        },
+        cancel,
+      }),
+      { headers: { 'Content-Type': 'text/event-stream' } },
+    );
+    await expect(readAIResponse(response)).rejects.toThrow('overloaded');
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(response.body?.locked).toBe(false);
+  });
+
+  it.each([
+    'data: {"error":{"message":"provider overloaded"}}\n\n',
+    'event: error\ndata: {"message":"provider overloaded"}\n\n',
+  ])('rejects an error after partial streaming output: %s', async (errorEvent) => {
+    const response = new Response(
+      'data: {"choices":[{"delta":{"content":"partial"}}]}\n\n' + errorEvent,
+      { headers: { 'Content-Type': 'text/event-stream' } },
+    );
+    await expect(readAIResponse(response)).rejects.toThrow('provider overloaded');
+  });
+
+  it('rejects a stream disconnected before completion', async () => {
+    const response = new Response('data: {"response":"partial"}\n\n', {
+      headers: { 'Content-Type': 'text/event-stream' },
+    });
+    await expect(readAIResponse(response)).rejects.toThrow(/中断/);
+  });
+
+  it('surfaces an error payload even with HTTP 200', async () => {
+    await expect(
+      readAIResponse(Response.json({ error: { message: 'overloaded' } })),
+    ).rejects.toThrow('overloaded');
+  });
+
   it('reads a regular JSON response', async () => {
     const response = Response.json({ choices: [{ message: { content: '完成' } }] });
     await expect(readAIResponse(response)).resolves.toBe('完成');
@@ -34,7 +87,9 @@ describe('readAIResponse', () => {
   it('keeps a final SSE event without a trailing newline', async () => {
     const body = new ReadableStream({
       start(controller) {
-        controller.enqueue(new TextEncoder().encode('data: {"response":"last-token"}'));
+        controller.enqueue(
+          new TextEncoder().encode('data: {"response":"last-token"}\n\ndata: [DONE]'),
+        );
         controller.close();
       },
     });

@@ -1,5 +1,6 @@
 import { fetchFreeAI } from '@newmaybe/ai-client/free-ai';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useRequestSession } from '../hooks/useRequestSession';
 import { type ProviderType } from '../types';
 import { createGeminiRequest, readAIResponse, fitMessagesToCharBudget } from '@newmaybe/ai-client';
 import { localIsoDate } from '@newmaybe/content/authoring';
@@ -11,18 +12,50 @@ interface CapturePadProps {
   customBaseUrl: string;
 }
 
+const CAPTURE_DRAFT_KEY = 'newmaybe_ai_capture_draft';
+interface CaptureDraft {
+  input: string;
+  output: string;
+}
+
+function loadCaptureDraft(): CaptureDraft {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CAPTURE_DRAFT_KEY) || 'null');
+    if (saved && typeof saved.input === 'string' && typeof saved.output === 'string') return saved;
+  } catch {
+    /* Start a fresh draft when storage is unavailable. */
+  }
+  return { input: '', output: '' };
+}
+
 export default function CapturePad({ provider, model, apiKey, customBaseUrl }: CapturePadProps) {
-  const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
+  const [draft, setDraft] = useState(loadCaptureDraft);
+  const draftRef = useRef(draft);
+  const { input, output } = draft;
+  const [storageError, setStorageError] = useState('');
+  const { begin } = useRequestSession();
+  const updateDraft = (patch: Partial<CaptureDraft>) => {
+    const next = { ...draftRef.current, ...patch };
+    draftRef.current = next;
+    setDraft(next);
+    try {
+      localStorage.setItem(CAPTURE_DRAFT_KEY, JSON.stringify(next));
+      setStorageError('');
+    } catch {
+      setStorageError('暂存失败，请复制或下载内容后再关闭页面。');
+    }
+  };
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
 
   const handleGenerate = async () => {
     if (!input.trim()) return;
+    const requestSession = begin();
+    if (!requestSession) return;
     setIsLoading(true);
     setError(null);
-    setOutput('');
+    updateDraft({ output: '' });
 
     const todayStr = localIsoDate();
 
@@ -81,6 +114,7 @@ connections: []
 
         const res = await (provider === 'free' ? fetchFreeAI : fetch)(endpoint, {
           method: 'POST',
+          signal: requestSession.signal,
           headers,
           body,
         });
@@ -94,6 +128,7 @@ connections: []
         const request = createGeminiRequest(customBaseUrl, model, apiKey);
         const res = await fetch(request.url, {
           method: 'POST',
+          signal: requestSession.signal,
           headers: request.headers,
           body: JSON.stringify({
             contents: [
@@ -123,12 +158,14 @@ connections: []
         cleaned = cleaned.slice(0, -3).trim();
       }
 
-      setOutput(cleaned);
+      if (!requestSession.isCurrent()) return;
+      updateDraft({ output: cleaned });
     } catch (err: unknown) {
+      if (!requestSession.isCurrent()) return;
       const errMsg = err instanceof Error ? err.message : String(err);
       setError(`捕获失败：${errMsg}。请确认您的 API 密钥设置正确。`);
     } finally {
-      setIsLoading(false);
+      if (requestSession.finish()) setIsLoading(false);
     }
   };
 
@@ -159,6 +196,7 @@ connections: []
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -173,6 +211,11 @@ connections: []
         </p>
       </div>
 
+      {storageError && (
+        <p role="alert" className="text-xs text-[var(--cinnabar)]">
+          {storageError}
+        </p>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
         {/* Input box */}
         <div className="flex flex-col space-y-4">
@@ -181,7 +224,7 @@ connections: []
           </label>
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => updateDraft({ input: e.target.value })}
             placeholder="在这里输入、粘贴您的瞬间想法或非结构化草稿，例如：\n'今天散步发现雨后的桂花落了一地，有种寂静之美。突然想到，表达往往也是这样，在繁盛之后留下的空白反而是最有诗意的。'"
             className="flex-grow min-h-[300px] p-4 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] font-serif text-sm focus:border-[var(--ochre)] outline-none resize-none leading-relaxed"
           />

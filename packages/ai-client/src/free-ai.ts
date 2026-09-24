@@ -35,8 +35,9 @@ function loadTurnstile(): Promise<Turnstile> {
   return scriptPromise;
 }
 
-async function challenge(sitekey: string): Promise<string> {
+async function challenge(sitekey: string, signal?: AbortSignal | null): Promise<string> {
   const api = await loadTurnstile();
+  signal?.throwIfAborted();
   return new Promise((resolve, reject) => {
     const dialog = document.createElement('dialog');
     dialog.setAttribute('aria-label', '免费 AI 使用验证');
@@ -54,18 +55,21 @@ async function challenge(sitekey: string): Promise<string> {
     let settled = false;
     const cleanup = () => {
       clearTimeout(timer);
+      signal?.removeEventListener('abort', onAbort);
       if (widget) api.remove(widget);
       dialog.close();
       dialog.remove();
     };
-    const finish = (token?: string) => {
+    const finish = (token?: string, aborted = false) => {
       if (settled) return;
       settled = true;
       cleanup();
       if (token) resolve(token);
-      else reject(new Error('验证未完成，请重试。'));
+      else reject(aborted ? signal?.reason : new Error('验证未完成，请重试。'));
     };
+    const onAbort = () => finish(undefined, true);
     const timer = window.setTimeout(() => finish(), 120_000);
+    signal?.addEventListener('abort', onAbort, { once: true });
     cancel.onclick = () => finish();
     dialog.addEventListener('cancel', (event) => {
       event.preventDefault();
@@ -90,16 +94,18 @@ async function challenge(sitekey: string): Promise<string> {
 
 /** Shared free channel; provider-owned requests never use this challenge or endpoint. */
 export async function fetchFreeAI(endpoint: string, init: RequestInit): Promise<Response> {
+  init.signal?.throwIfAborted();
   const url = new URL(endpoint, window.location.href);
   const configResponse = await fetch(new URL('/api/security', url), {
-    signal: AbortSignal.timeout(15_000),
+    signal: AbortSignal.any([AbortSignal.timeout(15_000), ...(init.signal ? [init.signal] : [])]),
   });
   if (!configResponse.ok) throw new Error('免费 AI 服务尚未就绪，请稍后重试。');
   const config = (await configResponse.json()) as { required?: boolean; siteKey?: string };
   const headers = new Headers(init.headers);
   if (config.required !== false) {
     if (!config.siteKey) throw new Error('免费 AI 服务尚未就绪，请稍后重试。');
-    headers.set('X-Turnstile-Token', await challenge(config.siteKey));
+    headers.set('X-Turnstile-Token', await challenge(config.siteKey, init.signal));
   }
+  init.signal?.throwIfAborted();
   return fetch(url, { ...init, headers });
 }

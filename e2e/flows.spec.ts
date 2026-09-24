@@ -39,9 +39,9 @@ test('Studio accepts migrated content, exports PNG and formats text', async ({ p
   expect(download.suggestedFilename()).toBe('newmaybe-card-fragment-paper-2x.png');
   expect(await download.failure()).toBeNull();
   await page.getByRole('button', { name: '中英文混排优化' }).click();
-  await page.locator('textarea').first().fill('今天读Astro7,很好。');
+  await page.locator('textarea:visible').first().fill('今天读Astro7,很好。');
   await page.getByRole('button', { name: '一键洗练排版' }).click();
-  await expect(page.locator('textarea').nth(1)).toHaveValue('今天读 Astro7，很好。');
+  await expect(page.locator('textarea:visible').nth(1)).toHaveValue('今天读 Astro7，很好。');
 });
 
 test('Study preserves chapter completion on reload', async ({ page }) => {
