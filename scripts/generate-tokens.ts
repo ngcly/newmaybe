@@ -43,7 +43,8 @@ async function main() {
   for (const [path, css] of Object.entries(outputs)) {
     const output = await format(css, { ...(await resolveConfig(path)), parser: 'css' });
     if (process.argv.includes('--check')) {
-      if (readFileSync(path, 'utf8') !== output)
+      // Git may check text out as CRLF on Windows; that is not token drift.
+      if (readFileSync(path, 'utf8').replace(/\r\n/g, '\n') !== output.replace(/\r\n/g, '\n'))
         throw new Error(path + ' is stale; run npm run tokens:build');
     } else writeFileSync(path, output);
   }

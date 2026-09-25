@@ -9,12 +9,14 @@ test('article navigation, theme persistence, real Pagefind search and mobile men
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('http://127.0.0.1:4401/');
   await page.locator('#themeToggle').click();
-  const theme = await page.locator('html').getAttribute('class');
+  const theme = await page
+    .locator('html')
+    .evaluate((el) => (el.classList.contains('dark') ? 'dark' : 'light'));
   await page.locator('main a[href^="/writing/"]').first().click();
   await expect(page).toHaveURL(/\/writing\/[^/]+\/?$/);
   await expect(page.locator('article').first()).toBeVisible();
   await page.reload();
-  expect(await page.locator('html').getAttribute('class')).toBe(theme);
+  await expect(page.locator('html')).toHaveClass(new RegExp(`\\b${theme}\\b`));
   await page.locator('#search-nav-trigger').click();
   await page.locator('#search-input').fill('雨');
   await expect(page.locator('#search-results a[href*="/writing/"]').first()).toBeVisible();

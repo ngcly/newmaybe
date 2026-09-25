@@ -29,7 +29,7 @@ test('Graph export keeps the displayed viewport', async ({ page }) => {
   expect(source).toContain(`viewBox="0 0 ${bounds!.width} ${bounds!.height}"`);
 });
 
-test('Graph import updates existing node content and link data', async ({ page }) => {
+test('Graph import updates existing node content and link data', async ({ page, context }) => {
   test.skip(!enabled('graph'));
   await openGraph(page);
   page.on('dialog', (dialog) => dialog.accept());
@@ -49,6 +49,9 @@ test('Graph import updates existing node content and link data', async ({ page }
   });
   await expect(page.locator('#graph text').first()).toHaveText('新标题');
   await expect(page.locator('#graph circle').first()).toHaveAttribute('aria-label', /新标题/);
+  await context.route('https://newmaybe.com/new', (route) =>
+    route.fulfill({ body: 'Imported node target' }),
+  );
   const popup = page.waitForEvent('popup');
   await page.locator('#graph circle').first().dispatchEvent('dblclick');
   const opened = await popup;

@@ -81,7 +81,7 @@ test('Study switches both shared tokens and its own browser palette against syst
 });
 
 for (const width of [320, 375, 390, 640, 768, 1024, 1280]) {
-  test(`Club navigation and expanded search fit at ${width}px`, async ({ page }) => {
+  test(`Club navigation and expanded search fit at ${width}px`, async ({ page }, testInfo) => {
     test.skip(!enabled('club'));
     await page.setViewportSize({ width, height: 844 });
     await page.route('**/api/articles', (route) =>
@@ -92,6 +92,12 @@ for (const width of [320, 375, 390, 640, 768, 1024, 1280]) {
     const plaza = tabs.getByRole('button', { name: '文友广场' });
     const topics = tabs.getByRole('button', { name: '专题分类' });
     await expect(plaza).toBeVisible();
+    const brand = await page.locator('header a[href="/"]').boundingBox();
+    const themeToggle = page.getByRole('button', { name: '切换明暗主题' });
+    const themeButton = await themeToggle.boundingBox();
+    expect(
+      Math.abs(brand!.y + brand!.height / 2 - (themeButton!.y + themeButton!.height / 2)),
+    ).toBeLessThan(12);
     await topics.click();
     await expect(topics).toHaveAttribute('aria-pressed', 'true');
     await plaza.click();
@@ -112,10 +118,21 @@ for (const width of [320, 375, 390, 640, 768, 1024, 1280]) {
     }
     expect(Math.abs(boxes[0]!.y - boxes[1]!.y)).toBeLessThan(1);
     expect(await page.locator('header').evaluate((el) => el.scrollWidth <= innerWidth)).toBe(true);
+    if ([320, 390, 1280].includes(width)) {
+      await page.screenshot({
+        path: testInfo.outputPath('club-search.png'),
+        animations: 'disabled',
+      });
+    }
     await page.keyboard.press('Escape');
     await expect(input).toHaveCount(0);
     await expect(search).toBeFocused();
     await expect(page.getByText(INITIAL_ARTICLES[0].title, { exact: true })).toBeVisible();
+    await themeToggle.click();
+    await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', dark.paper);
+    if ([320, 390, 1280].includes(width)) {
+      await page.screenshot({ path: testInfo.outputPath('club-dark.png'), animations: 'disabled' });
+    }
     await page.getByRole('button', { name: '即刻落笔', exact: true }).click();
     await expect(page.getByPlaceholder('给此刻的心绪起一个名字...')).toBeVisible();
   });

@@ -347,7 +347,7 @@ export default function App() {
               {/* Feed Mode Tabs & Topic Filters - Harmonious and Airy */}
               <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--line)]/50 pb-0">
                 {/* 3 Main Feeds as Minimalist Editorial Underline Tabs */}
-                <div className="flex items-center gap-6">
+                <div className="flex min-w-0 items-center gap-3 sm:gap-6 overflow-x-auto [&>button]:shrink-0 [&>button]:whitespace-nowrap">
                   <button
                     onClick={() => {
                       setFeedFilter('featured');
@@ -403,7 +403,7 @@ export default function App() {
                     </span>
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="underline text-[var(--ink-faint)] hover:text-[var(--ink)] cursor-pointer ml-1"
+                      className="shrink-0 whitespace-nowrap underline text-[var(--ink-faint)] hover:text-[var(--ink)] cursor-pointer ml-1"
                     >
                       清空搜索
                     </button>

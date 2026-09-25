@@ -56,10 +56,10 @@ export default function Navbar({
           }}
           className="flex shrink-0 items-baseline gap-1.5 whitespace-nowrap no-underline group"
         >
-          <span className="font-serif font-semibold text-xl tracking-tight text-[var(--ink)]">
+          <span className="font-serif font-semibold text-lg sm:text-xl tracking-tight text-[var(--ink)]">
             newmaybe
           </span>
-          <span className="font-serif text-sm text-[var(--ochre)] italic">.club</span>
+          <span className="font-serif text-xs sm:text-sm text-[var(--ochre)] italic">.club</span>
           <span className="hidden xl:inline-block ml-2 text-xs text-[var(--ink-faint)] border-l border-[var(--line)] pl-2 font-serif">
             文友雅集
           </span>
@@ -142,7 +142,10 @@ export default function Navbar({
           </a>
         </div>
         {isSearchOpen && (
-          <div id="club-nav-search" className="order-4 basis-full flex items-center gap-2 pb-1">
+          <div
+            id="club-nav-search"
+            className="order-4 basis-full min-w-0 w-full flex items-center gap-2 pb-1"
+          >
             <input
               type="search"
               autoFocus
@@ -153,7 +156,7 @@ export default function Navbar({
               }}
               aria-label="搜索标题、文友或金句"
               placeholder="搜索标题、文友或金句..."
-              className="min-w-0 flex-1 min-h-11 px-3 text-base font-serif bg-[var(--paper-deep)] border border-[var(--ochre)] rounded text-[var(--ink)] shadow-xs"
+              className="w-0 min-w-0 flex-1 min-h-11 px-3 text-base font-serif bg-[var(--paper-deep)] border border-[var(--ochre)] rounded text-[var(--ink)] shadow-xs"
             />
             <button
               onClick={closeSearch}
