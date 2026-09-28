@@ -1,5 +1,6 @@
 import { BookOpen, Heart, MessageSquare } from 'lucide-react';
 import type { Article } from '../types';
+import SealStamp from './SealStamp';
 
 interface ArticleCardProps {
   article: Article;
@@ -49,11 +50,7 @@ export default function ArticleCard({ article, onSelect, onSelectTopic }: Articl
               <span className="text-xs text-[var(--ink-soft)] font-serif font-normal">
                 {article.author}
               </span>
-              {article.authorSeal && (
-                <span className="text-[9px] px-1 py-0.2 rounded border border-[var(--cinnabar)]/50 text-[var(--cinnabar)] font-serif leading-none scale-95 inline-block">
-                  {article.authorSeal}
-                </span>
-              )}
+              {article.authorSeal && <SealStamp text={article.authorSeal} size="xs" />}
             </div>
           </div>
 

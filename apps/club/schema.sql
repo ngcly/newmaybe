@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS comments (
   content TEXT NOT NULL,
   likes INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
+  reply_to_id TEXT,
+  reply_to_author TEXT,
   FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE
 );
 

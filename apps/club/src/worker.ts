@@ -56,6 +56,8 @@ interface RawCommentRow {
   content: string;
   likes: number;
   created_at: string;
+  reply_to_id?: string | null;
+  reply_to_author?: string | null;
 }
 
 function mapArticle(row: RawArticleRow): Article {
@@ -88,6 +90,8 @@ function mapComment(row: RawCommentRow): Comment {
     content: row.content,
     likes: row.likes,
     createdAt: row.created_at,
+    replyToId: row.reply_to_id ?? undefined,
+    replyToAuthor: row.reply_to_author ?? undefined,
   };
 }
 
@@ -150,57 +154,82 @@ async function enforceWriteLimit(
 // Auto seed initial data if DB is empty
 async function ensureSeedData(db: D1Database): Promise<void> {
   try {
-    const check = await db
+    const checkArticles = await db
       .prepare('SELECT count(*) as count FROM articles')
       .first<{ count: number }>();
-    if (check && check.count > 0) return;
+    const checkComments = await db
+      .prepare('SELECT count(*) as count FROM comments')
+      .first<{ count: number }>();
 
-    const articleStatements: D1PreparedStatement[] = INITIAL_ARTICLES.map((a) =>
-      db
-        .prepare(
-          `INSERT OR IGNORE INTO articles (
-            id, title, summary, content, author, author_seal,
-            topic_id, topic_name, pub_date, reading_time, word_count,
-            likes, comments_count, series_title, series_order, golden_quote, featured
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        )
-        .bind(
-          a.id,
-          a.title,
-          a.summary,
-          a.content,
-          a.author,
-          a.authorSeal || null,
-          a.topicId,
-          a.topicName,
-          a.pubDate,
-          a.readingTime,
-          a.wordCount,
-          a.likes,
-          a.commentsCount,
-          a.seriesTitle || null,
-          a.seriesOrder || null,
-          a.goldenQuote || null,
-          a.featured ? 1 : 0,
-        ),
-    );
-
-    const commentStatements: D1PreparedStatement[] = [];
-    for (const [articleId, comments] of Object.entries(INITIAL_COMMENTS)) {
-      for (const c of comments) {
-        commentStatements.push(
+    const articleStatements: D1PreparedStatement[] = [];
+    if (!checkArticles || checkArticles.count === 0) {
+      for (const a of INITIAL_ARTICLES) {
+        articleStatements.push(
           db
             .prepare(
-              `INSERT OR IGNORE INTO comments (id, article_id, author, content, likes, created_at)
-               VALUES (?, ?, ?, ?, ?, ?)`,
+              `INSERT OR IGNORE INTO articles (
+                id, title, summary, content, author, author_seal,
+                topic_id, topic_name, pub_date, reading_time, word_count,
+                likes, comments_count, series_title, series_order, golden_quote, featured
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             )
-            .bind(c.id, articleId, c.author, c.content, c.likes, c.createdAt),
+            .bind(
+              a.id,
+              a.title,
+              a.summary,
+              a.content,
+              a.author,
+              a.authorSeal || null,
+              a.topicId,
+              a.topicName,
+              a.pubDate,
+              a.readingTime,
+              a.wordCount,
+              a.likes,
+              a.commentsCount,
+              a.seriesTitle || null,
+              a.seriesOrder || null,
+              a.goldenQuote || null,
+              a.featured ? 1 : 0,
+            ),
         );
       }
     }
 
-    if (articleStatements.length > 0) {
-      await db.batch([...articleStatements, ...commentStatements]);
+    const commentStatements: D1PreparedStatement[] = [];
+    if (!checkComments || checkComments.count === 0) {
+      for (const [articleId, comments] of Object.entries(INITIAL_COMMENTS)) {
+        for (const c of comments) {
+          commentStatements.push(
+            db
+              .prepare(
+                `INSERT OR IGNORE INTO comments (id, article_id, author, content, likes, created_at, reply_to_id, reply_to_author)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+              )
+              .bind(
+                c.id,
+                articleId,
+                c.author,
+                c.content,
+                c.likes,
+                c.createdAt,
+                c.replyToId || null,
+                c.replyToAuthor || null,
+              ),
+          );
+        }
+      }
+      commentStatements.push(
+        db.prepare(
+          `UPDATE articles SET comments_count = (SELECT count(*) FROM comments WHERE comments.article_id = articles.id)
+           WHERE id IN ('club-1', 'club-2', 'club-3', 'club-4', 'club-5', 'club-6')`,
+        ),
+      );
+    }
+
+    const batch = [...articleStatements, ...commentStatements];
+    if (batch.length > 0) {
+      await db.batch(batch);
     }
   } catch (err) {
     console.error('ensureSeedData failed:', err);
@@ -410,7 +439,12 @@ export default {
       const addCommentMatch = url.pathname.match(/^\/api\/articles\/([^/]+)\/comments$/);
       if (request.method === 'POST' && addCommentMatch) {
         const articleId = addCommentMatch[1];
-        const body = (await request.json()) as { author?: string; content?: string };
+        const body = (await request.json()) as {
+          author?: string;
+          content?: string;
+          replyToId?: string;
+          replyToAuthor?: string;
+        };
         if (!body.content?.trim()) {
           return jsonResponse({ error: '评注内容不能为空' }, 400, request);
         }
@@ -428,11 +462,13 @@ export default {
           content,
           createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
           likes: 0,
+          replyToId: body.replyToId?.trim() || undefined,
+          replyToAuthor: body.replyToAuthor?.trim().slice(0, 30) || undefined,
         };
 
         await env.DB.batch([
           env.DB.prepare(
-            'INSERT INTO comments (id, article_id, author, content, likes, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+            'INSERT INTO comments (id, article_id, author, content, likes, created_at, reply_to_id, reply_to_author) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
           ).bind(
             newComment.id,
             newComment.articleId,
@@ -440,6 +476,8 @@ export default {
             newComment.content,
             newComment.likes,
             newComment.createdAt,
+            newComment.replyToId || null,
+            newComment.replyToAuthor || null,
           ),
           env.DB.prepare(
             'UPDATE articles SET comments_count = comments_count + 1 WHERE id = ?',

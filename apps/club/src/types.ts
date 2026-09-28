@@ -13,6 +13,8 @@ export interface Comment {
   content: string;
   createdAt: string;
   likes: number;
+  replyToId?: string;
+  replyToAuthor?: string;
 }
 
 export interface Article {

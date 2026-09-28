@@ -91,7 +91,17 @@ export default function App() {
     try {
       const saved = localStorage.getItem(STORAGE_COMMENTS_KEY);
       if (saved) {
-        return JSON.parse(saved);
+        const parsed: Record<string, Comment[]> = JSON.parse(saved);
+        const merged: Record<string, Comment[]> = { ...INITIAL_COMMENTS };
+        for (const [artId, comments] of Object.entries(parsed)) {
+          if (Array.isArray(comments) && comments.length > 0) {
+            const initial = INITIAL_COMMENTS[artId] || [];
+            const existingIds = new Set(comments.map((c) => c.id));
+            const missingInitial = initial.filter((c) => !existingIds.has(c.id));
+            merged[artId] = [...comments, ...missingInitial];
+          }
+        }
+        return merged;
       }
     } catch {
       /* ignore */
@@ -129,7 +139,16 @@ export default function App() {
         setSelectedArticle((prev) => (prev?.id === refreshed.id ? refreshed : prev));
       }
       if (Array.isArray(comments)) {
-        setCommentsMap((prev) => ({ ...prev, [activeArticleId]: comments }));
+        setCommentsMap((prev) => {
+          const initial = INITIAL_COMMENTS[activeArticleId] || [];
+          const effective =
+            comments.length > 0
+              ? comments
+              : prev[activeArticleId]?.length
+                ? prev[activeArticleId]
+                : initial;
+          return { ...prev, [activeArticleId]: effective };
+        });
       }
     });
 
@@ -231,10 +250,16 @@ export default function App() {
     }
   };
 
-  const handleAddComment = async (articleId: string, author: string, content: string) => {
+  const handleAddComment = async (
+    articleId: string,
+    author: string,
+    content: string,
+    replyToId?: string,
+    replyToAuthor?: string,
+  ) => {
     markMutation(articleId);
     try {
-      const saved = await ClubAPI.addComment(articleId, author, content);
+      const saved = await ClubAPI.addComment(articleId, author, content, replyToId, replyToAuthor);
       setCommentsMap((prev) => ({
         ...prev,
         [articleId]: [
@@ -478,7 +503,10 @@ export default function App() {
                   displayedArticles.map((article) => (
                     <ArticleCard
                       key={article.id}
-                      article={article}
+                      article={{
+                        ...article,
+                        commentsCount: commentsMap[article.id]?.length ?? article.commentsCount,
+                      }}
                       onSelect={(art) => setSelectedArticle(art)}
                       onSelectTopic={(topicId) => setSelectedTopicId(topicId)}
                     />

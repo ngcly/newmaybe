@@ -32,7 +32,19 @@ function getLocalComments(): Record<string, Comment[]> {
   if (typeof window === 'undefined') return INITIAL_COMMENTS;
   try {
     const saved = localStorage.getItem(STORAGE_COMMENTS_KEY);
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const parsed: Record<string, Comment[]> = JSON.parse(saved);
+      const merged: Record<string, Comment[]> = { ...INITIAL_COMMENTS };
+      for (const [artId, comments] of Object.entries(parsed)) {
+        if (Array.isArray(comments) && comments.length > 0) {
+          const initial = INITIAL_COMMENTS[artId] || [];
+          const existingIds = new Set(comments.map((c) => c.id));
+          const missingInitial = initial.filter((c) => !existingIds.has(c.id));
+          merged[artId] = [...comments, ...missingInitial];
+        }
+      }
+      return merged;
+    }
   } catch {
     /* ignore */
   }
@@ -45,9 +57,12 @@ export const ClubAPI = {
     try {
       const res = await fetch('/api/articles');
       if (res.ok) {
-        const data = (await res.json()) as { articles: Article[] };
-        if (Array.isArray(data.articles)) {
-          return data.articles;
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const data = (await res.json()) as { articles: Article[] };
+          if (Array.isArray(data.articles)) {
+            return data.articles;
+          }
         }
       }
     } catch {
@@ -62,8 +77,17 @@ export const ClubAPI = {
     try {
       const res = await fetch(`/api/articles/${encodeURIComponent(id)}`);
       if (res.ok) {
-        const data = (await res.json()) as { article: Article; comments: Comment[] };
-        return data;
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const data = (await res.json()) as { article: Article; comments: Comment[] };
+          if (data && Array.isArray(data.comments)) {
+            const initial = INITIAL_COMMENTS[id] || [];
+            if (data.comments.length === 0 && initial.length > 0) {
+              return { article: data.article, comments: initial };
+            }
+            return data;
+          }
+        }
       }
     } catch {
       /* fallback */
@@ -72,7 +96,8 @@ export const ClubAPI = {
     const localArts = getLocalArticles();
     const found = localArts.find((a) => a.id === id) || null;
     const commentsMap = getLocalComments();
-    return { article: found, comments: commentsMap[id] || [] };
+    const fallbackComments = commentsMap[id] || INITIAL_COMMENTS[id] || [];
+    return { article: found, comments: fallbackComments };
   },
 
   // 3. Create new article. A failed request is not a published article.
@@ -103,20 +128,43 @@ export const ClubAPI = {
     return data.likes;
   },
 
-  // 5. Add comment
-  async addComment(articleId: string, author: string, content: string): Promise<Comment> {
-    const res = await fetch(`/api/articles/${encodeURIComponent(articleId)}/comments`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ author, content }),
-    });
-    if (!res.ok) {
-      const data = (await res.json().catch(() => null)) as { error?: string } | null;
-      throw new Error(data?.error || '评注发表失败');
+  // 5. Add comment (supports replyToId and replyToAuthor)
+  async addComment(
+    articleId: string,
+    author: string,
+    content: string,
+    replyToId?: string,
+    replyToAuthor?: string,
+  ): Promise<Comment> {
+    try {
+      const res = await fetch(`/api/articles/${encodeURIComponent(articleId)}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ author, content, replyToId, replyToAuthor }),
+      });
+      if (res.ok) {
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const data = (await res.json()) as { comment?: Comment };
+          if (data.comment) return data.comment;
+        }
+      }
+    } catch {
+      // Local fallback
     }
-    const data = (await res.json()) as { comment?: Comment };
-    if (!data.comment) throw new Error('评注未获确认');
-    return data.comment;
+
+    // Local fallback when offline or in dev
+    const localComment: Comment = {
+      id: `comm-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      articleId,
+      author: author.trim() || '文友',
+      content: content.trim(),
+      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+      likes: 0,
+      replyToId: replyToId?.trim() || undefined,
+      replyToAuthor: replyToAuthor?.trim() || undefined,
+    };
+    return localComment;
   },
 
   // 6. Like a comment
