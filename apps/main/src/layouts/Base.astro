@@ -44,51 +44,6 @@ const currentPath = Astro.url.pathname;
     <ThemeChrome />
     <script is:inline>
       document.documentElement.classList.add('js');
-      const applyTheme = () => {
-        // ThemeChrome resolves the cookie, legacy storage and system preference before paint.
-        const theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        const themeColors = document.querySelectorAll('meta[name="theme-color"]');
-        themeColors[0]?.removeAttribute('media');
-        themeColors[0]?.setAttribute('content', themeColors[0].getAttribute(`data-${theme}`));
-        themeColors.forEach((meta, index) => {
-          if (index > 0) meta.remove();
-        });
-        document.documentElement.style.colorScheme = theme;
-        document.documentElement.style.backgroundColor = themeColors[0]?.content || '';
-        // Write to Cookie (authoritative) so the server can read it pre-render.
-        const domainAttr = window.location.hostname.includes('newmaybe.com')
-          ? '; domain=.newmaybe.com'
-          : '';
-        document.cookie = `theme=${theme}; path=/${domainAttr}; max-age=31536000; SameSite=Lax`;
-      };
-
-      applyTheme();
-
-      // 在 View Transitions 交换 DOM 前同步主题类名，防止由于系统暗色偏好引发的瞬间闪烁
-      document.addEventListener('astro:before-swap', (ev) => {
-        const isDark = document.documentElement.classList.contains('dark');
-        const newThemeColors = ev.newDocument.querySelectorAll('meta[name="theme-color"]');
-        newThemeColors[0]?.setAttribute(
-          'content',
-          newThemeColors[0].getAttribute(isDark ? 'data-dark' : 'data-light'),
-        );
-        newThemeColors[0]?.removeAttribute('media');
-        newThemeColors.forEach((meta, index) => {
-          if (index > 0) meta.remove();
-        });
-        ev.newDocument.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-        ev.newDocument.documentElement.style.backgroundColor = newThemeColors[0]?.content || '';
-        if (isDark) {
-          ev.newDocument.documentElement.classList.add('dark');
-          ev.newDocument.documentElement.classList.remove('light');
-        } else {
-          ev.newDocument.documentElement.classList.add('light');
-          ev.newDocument.documentElement.classList.remove('dark');
-        }
-      });
-
-      document.addEventListener('astro:after-swap', applyTheme);
-
       // 在 DOM 交换完成后立即应用诗歌版式偏好，防止横竖排闪烁
       document.addEventListener('astro:after-swap', () => {
         const poemWrap = document.querySelector('.poem-wrap');

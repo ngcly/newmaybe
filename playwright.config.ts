@@ -23,6 +23,9 @@ export default defineConfig({
       reuseExistingServer: false,
       timeout: 60_000,
       app,
+      env: {
+        ASTRO_TELEMETRY_DISABLED: '1',
+      },
     }))
     .filter((server) => enabled(server.app)),
 });

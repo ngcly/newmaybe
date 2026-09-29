@@ -170,6 +170,8 @@ apps/main/src/
 
 **Theme system**: `dark` / `light` class on `<html>`. Stored in a shared-domain cookie and read by an early inline script; the main site is static, with no per-request server render.
 
+**Theme bootstrap**: `packages/design-tokens/src/browser-theme-core.ts` owns preference resolution, browser colors, system changes and Astro navigation synchronization. `npm run tokens:build` generates the pre-paint scripts in React HTML entries and `theme-bootstrap.ts` for `ThemeChrome.astro`; never edit those generated blocks directly. `tokens:check` checks both scripts and colors for drift. React controls can subscribe through `subscribeTheme` and `getCurrentTheme` from `@newmaybe/design-tokens/browser-theme`.
+
 **Styling rules**:
 - Main site: pure Vanilla CSS, no framework. All tokens via CSS custom properties.
 - React sub-apps: Tailwind v4 + `@import '@newmaybe/shared-styles/tokens.css'` in `index.css`.

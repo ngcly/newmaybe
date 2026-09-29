@@ -1,14 +1,9 @@
 // 夜读（玄青暗黑）模式：主题读写与切换
-import { syncBrowserTheme } from '@newmaybe/design-tokens/browser-theme';
+import { getPreferredTheme, syncBrowserTheme } from '@newmaybe/design-tokens/browser-theme';
+export { getCurrentTheme, subscribeTheme } from '@newmaybe/design-tokens/browser-theme';
 
 export type Theme = 'light' | 'dark';
 const KEY = 'linxia:theme';
-
-function getCookieTheme(): Theme | null {
-  if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(/(?:^|;\s*)theme=(dark|light)/);
-  return match ? (match[1] as Theme) : null;
-}
 
 function setCookieTheme(t: Theme) {
   if (typeof document === 'undefined') return;
@@ -19,22 +14,7 @@ function setCookieTheme(t: Theme) {
 }
 
 export function getTheme(): Theme {
-  try {
-    // 优先读取根域 Cookie（跨子应用共享），其次读取本地缓存与系统偏好
-    const cookieTheme = getCookieTheme();
-    if (cookieTheme) return cookieTheme;
-    const local = localStorage.getItem(KEY);
-    if (local === 'dark' || local === 'light') return local;
-    if (
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches
-    ) {
-      return 'dark';
-    }
-    return 'light';
-  } catch {
-    return 'light';
-  }
+  return getPreferredTheme();
 }
 
 export function applyTheme(t: Theme) {

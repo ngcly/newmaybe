@@ -134,6 +134,6 @@ for (const width of [320, 375, 390, 640, 768, 1024, 1280]) {
       await page.screenshot({ path: testInfo.outputPath('club-dark.png'), animations: 'disabled' });
     }
     await page.getByRole('button', { name: '即刻落笔', exact: true }).click();
-    await expect(page.getByPlaceholder('给此刻的心绪起一个名字...')).toBeVisible();
+    await expect(page.getByPlaceholder('在此处题写文章标题...')).toBeVisible();
   });
 }

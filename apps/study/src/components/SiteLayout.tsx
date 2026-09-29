@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router';
 import { totalReadCount, streakDays } from '@/lib/store';
-import { getTheme, toggleTheme, type Theme } from '@/lib/theme';
-import { useEffect, useState } from 'react';
+import { getCurrentTheme, subscribeTheme, toggleTheme } from '@/lib/theme';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import {
   BookOpen,
   Map,
@@ -27,7 +27,7 @@ const NAV = [
 export default function SiteLayout() {
   const [read, setRead] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [theme, setTheme] = useState<Theme>(getTheme());
+  const theme = useSyncExternalStore(subscribeTheme, getCurrentTheme);
   const location = useLocation();
   const [menu, setMenu] = useState({ path: location.pathname, open: false });
   // Reset on navigation, including returning to a previously visited route.
@@ -99,7 +99,7 @@ export default function SiteLayout() {
           <div className="flex items-center gap-2">
             {/* 日/夜读模式切换 */}
             <button
-              onClick={() => setTheme(toggleTheme())}
+              onClick={() => toggleTheme()}
               className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs text-foreground/75 hover:text-cinnabar hover:bg-surface border border-transparent hover:border-border transition-colors"
               aria-label={theme === 'dark' ? '切换日读' : '切换夜读'}
               title={theme === 'dark' ? '切换日读（素白米纸）' : '切换夜读（玄青深墨）'}
