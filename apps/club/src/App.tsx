@@ -1,15 +1,15 @@
-import { useState, useEffect, useRef } from 'react';
+import { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { resolveSubdomain as _resolveSubdomain } from '@newmaybe/content/utils';
 import { Sparkles, Clock, BookOpen, Flame, Search } from 'lucide-react';
 import type { Article, Comment, ReaderPreferences, FeedFilter } from './types';
 import { TOPICS } from './data/topics';
-import { INITIAL_ARTICLES, INITIAL_COMMENTS } from './data/initialArticles';
-import { ClubAPI } from './lib/api';
+import { INITIAL_ARTICLES } from './data/initialArticles';
+import { ClubAPI, getCachedComments } from './lib/api';
 import Navbar from './components/Navbar';
 import ArticleCard from './components/ArticleCard';
 import TopicCard from './components/TopicCard';
 import ArticleReader from './components/ArticleReader';
-import WriterModal from './components/WriterModal';
+const WriterModal = lazy(() => import('./components/WriterModal'));
 
 const _isDev =
   typeof window !== 'undefined' &&
@@ -86,28 +86,7 @@ export default function App() {
   });
 
   // Comments state
-  const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>(() => {
-    if (typeof window === 'undefined') return INITIAL_COMMENTS;
-    try {
-      const saved = localStorage.getItem(STORAGE_COMMENTS_KEY);
-      if (saved) {
-        const parsed: Record<string, Comment[]> = JSON.parse(saved);
-        const merged: Record<string, Comment[]> = { ...INITIAL_COMMENTS };
-        for (const [artId, comments] of Object.entries(parsed)) {
-          if (Array.isArray(comments) && comments.length > 0) {
-            const initial = INITIAL_COMMENTS[artId] || [];
-            const existingIds = new Set(comments.map((c) => c.id));
-            const missingInitial = initial.filter((c) => !existingIds.has(c.id));
-            merged[artId] = [...comments, ...missingInitial];
-          }
-        }
-        return merged;
-      }
-    } catch {
-      /* ignore */
-    }
-    return INITIAL_COMMENTS;
-  });
+  const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>(getCachedComments);
 
   // Keep the complete article collection independent of the current view filters.
   useEffect(() => {
@@ -139,16 +118,7 @@ export default function App() {
         setSelectedArticle((prev) => (prev?.id === refreshed.id ? refreshed : prev));
       }
       if (Array.isArray(comments)) {
-        setCommentsMap((prev) => {
-          const initial = INITIAL_COMMENTS[activeArticleId] || [];
-          const effective =
-            comments.length > 0
-              ? comments
-              : prev[activeArticleId]?.length
-                ? prev[activeArticleId]
-                : initial;
-          return { ...prev, [activeArticleId]: effective };
-        });
+        setCommentsMap((prev) => ({ ...prev, [activeArticleId]: comments }));
       }
     });
 
@@ -672,12 +642,23 @@ export default function App() {
 
       {/* Writer Modal */}
       {isWriterOpen && (
-        <WriterModal
-          topics={TOPICS}
-          isOpen={isWriterOpen}
-          onClose={() => setIsWriterOpen(false)}
-          onSubmitArticle={handleSubmitArticle}
-        />
+        <Suspense
+          fallback={
+            <div
+              role="status"
+              className="fixed inset-0 z-50 grid place-items-center bg-[var(--paper)] text-[var(--ink)]"
+            >
+              正在打开写作室…
+            </div>
+          }
+        >
+          <WriterModal
+            topics={TOPICS}
+            isOpen={isWriterOpen}
+            onClose={() => setIsWriterOpen(false)}
+            onSubmitArticle={handleSubmitArticle}
+          />
+        </Suspense>
       )}
     </div>
   );

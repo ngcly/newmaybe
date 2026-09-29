@@ -1,4 +1,4 @@
-import { expect, test, type Page, type Route } from '@playwright/test';
+import { expect, test, type Page, type Route } from './test';
 import { enabled } from './apps';
 import { INITIAL_ARTICLES } from '../apps/club/src/data/initialArticles';
 
@@ -22,11 +22,11 @@ test('Club keeps a draft when the writer closes before the debounce fires', asyn
   await mockClubApi(page);
   await page.goto(clubUrl);
   await page.getByRole('button', { name: '即刻落笔', exact: true }).click();
-  await page.getByPlaceholder('给此刻的心绪起一个名字...').fill('未完的草稿');
-  await page.getByPlaceholder('在此安放您的长文叙事').fill('刚写完的正文');
-  await page.getByRole('button', { name: '取消', exact: true }).click();
+  await page.getByPlaceholder('在此处题写文章标题...').fill('未完的草稿');
+  await page.getByPlaceholder(/^在此落墨起笔/).fill('刚写完的正文');
+  await page.keyboard.press('Escape');
   await page.getByRole('button', { name: '即刻落笔', exact: true }).click();
-  await expect(page.getByPlaceholder('在此安放您的长文叙事')).toHaveValue('刚写完的正文');
+  await expect(page.getByPlaceholder(/^在此落墨起笔/)).toHaveValue('刚写完的正文');
 });
 
 test('Club accepts an empty server comment list and preserves a new comment against an old response', async ({
@@ -80,8 +80,10 @@ test('Club accepts an empty server comment list and preserves a new comment agai
   await page.goto(clubUrl);
   await page.getByText(INITIAL_ARTICLES[0].title, { exact: true }).click();
   await expect.poll(() => Boolean(heldDetail)).toBe(true);
-  await page.getByPlaceholder('写下此刻的心绪、题跋或共鸣...').fill('新的评注');
-  await page.getByRole('button', { name: '发表题跋' }).click();
+  await page
+    .getByPlaceholder('写下此刻的共鸣、眉批或感悟... 慢笔深思，见字如晤。')
+    .fill('新的评注');
+  await page.getByRole('button', { name: '盖印题跋' }).click();
   await expect(page.getByText('新的评注', { exact: true })).toBeVisible();
   await heldDetail!.fulfill({
     json: {
@@ -101,9 +103,9 @@ test('Club accepts an empty server comment list and preserves a new comment agai
   await expect(page.getByText('新的评注', { exact: true })).toBeVisible();
   await expect(page.getByText('旧快照', { exact: true })).toHaveCount(0);
 
-  await page.getByRole('button', { name: '返回雅集列表' }).click();
+  await page.getByRole('button', { name: '返回雅集广场' }).click();
   await page.getByText(INITIAL_ARTICLES[1].title, { exact: true }).click();
-  await expect(page.locator('#comments-section')).toContainText('暂无文友评注');
+  await expect(page.locator('#comments-section')).toContainText('案头尚留一泓清墨');
   await expect(page.locator('#comments-section')).not.toContainText('铅笔字终究会淡去');
 });
 
@@ -138,8 +140,8 @@ test('Club reader resets position, shows complete quote preview, and keeps ink t
   }));
   expect(colors.actual).toBe(colors.expected);
 
-  await page.getByRole('button', { name: /下一篇篇章/ }).scrollIntoViewIfNeeded();
-  await page.getByRole('button', { name: /下一篇篇章/ }).focus();
+  await page.getByRole('button', { name: /翻阅续篇/ }).scrollIntoViewIfNeeded();
+  await page.getByRole('button', { name: /翻阅续篇/ }).focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('heading', { name: INITIAL_ARTICLES[1].title })).toBeVisible();
   expect(await page.evaluate(() => scrollY)).toBe(0);

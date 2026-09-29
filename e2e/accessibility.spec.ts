@@ -1,5 +1,5 @@
 import { enabled } from './apps';
-import { test, expect } from '@playwright/test';
+import { test, expect } from './test';
 import AxeBuilder from '@axe-core/playwright';
 
 const pages = [

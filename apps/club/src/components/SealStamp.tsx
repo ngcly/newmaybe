@@ -36,7 +36,7 @@ export default function SealStamp({
 
   const typeClasses =
     type === 'yin'
-      ? 'bg-[var(--cinnabar)] text-[var(--paper)] border border-[var(--cinnabar)] shadow-[0_1px_3px_rgba(197,61,49,0.25)]'
+      ? 'bg-[var(--cinnabar)] text-[var(--paper)] border border-[var(--cinnabar)] shadow-[0_1px_3px_color-mix(in_srgb,var(--cinnabar)_25%,transparent)]'
       : 'bg-[color-mix(in_srgb,var(--cinnabar)_4%,transparent)] text-[var(--cinnabar)] border-[1.2px] border-[var(--cinnabar)] shadow-[inset_0_0_1px_color-mix(in_srgb,var(--cinnabar)_20%,transparent)]';
 
   const tiltClass = tilt ? '-rotate-1 hover:rotate-0 hover:scale-105' : '';

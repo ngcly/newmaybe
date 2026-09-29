@@ -305,16 +305,16 @@ export default function WriterModal({
     <div className="fixed inset-0 z-50 bg-[var(--paper)] text-[var(--ink)] flex flex-col overflow-hidden select-text animate-fade-in">
       {/* 顶部控制与沉浸导航栏 */}
       <header
-        className={`shrink-0 z-30 px-4 sm:px-8 py-3 border-b border-[var(--line)] bg-[var(--paper)]/90 backdrop-blur-md flex items-center justify-between gap-3 transition-opacity duration-700 ease-in-out ${
+        className={`shrink-0 z-30 px-4 sm:px-8 py-3 border-b border-[var(--line)] bg-[var(--paper)]/90 backdrop-blur-md flex flex-wrap lg:flex-nowrap items-center justify-between gap-x-3 gap-y-2 transition-opacity duration-700 ease-in-out ${
           shouldFadeChrome ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'
         }`}
       >
         {/* 左侧：返回与禅意书房标识 */}
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex flex-1 items-center gap-3 min-w-0">
           <button
             type="button"
             onClick={handleClose}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-serif text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[var(--paper-deep)] transition-colors cursor-pointer"
+            className="flex shrink-0 items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-serif text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[var(--paper-deep)] transition-colors cursor-pointer"
             title="存为草稿并返回"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -364,7 +364,7 @@ export default function WriterModal({
         </div>
 
         {/* 右侧：白噪音、字号、印跋抽屉与发布 */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex w-full lg:w-auto items-center justify-between lg:justify-start gap-2 sm:gap-3 shrink-0">
           {/* 字号滑块调节 (仅撰写模式) */}
           {activeTab === 'edit' && (
             <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded border border-[var(--line)]/60 bg-[var(--paper-deep)]/60 text-xs font-serif text-[var(--ink-soft)]">
@@ -638,7 +638,7 @@ export default function WriterModal({
 
       {/* 底部禅意状态栏 */}
       <footer
-        className={`shrink-0 px-6 sm:px-12 py-3 border-t border-[var(--line)] bg-[var(--paper)]/90 backdrop-blur-md flex items-center justify-between text-xs font-serif text-[var(--ink-faint)] transition-opacity duration-700 ease-in-out ${
+        className={`shrink-0 px-6 sm:px-12 py-3 border-t border-[var(--line)] bg-[var(--paper)]/90 backdrop-blur-md flex flex-wrap gap-x-4 gap-y-1 items-center justify-between text-xs font-serif text-[var(--ink-faint)] transition-opacity duration-700 ease-in-out ${
           shouldFadeChrome ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'
         }`}
       >

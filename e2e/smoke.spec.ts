@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import { enabled } from './apps';
 
 // Validate the deployment checker against real local build outputs.

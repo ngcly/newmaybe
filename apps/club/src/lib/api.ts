@@ -28,20 +28,16 @@ function getLocalArticles(): Article[] {
   return INITIAL_ARTICLES;
 }
 
-function getLocalComments(): Record<string, Comment[]> {
+export function getCachedComments(): Record<string, Comment[]> {
   if (typeof window === 'undefined') return INITIAL_COMMENTS;
   try {
     const saved = localStorage.getItem(STORAGE_COMMENTS_KEY);
     if (saved) {
       const parsed: Record<string, Comment[]> = JSON.parse(saved);
       const merged: Record<string, Comment[]> = { ...INITIAL_COMMENTS };
-      for (const [artId, comments] of Object.entries(parsed)) {
-        if (Array.isArray(comments) && comments.length > 0) {
-          const initial = INITIAL_COMMENTS[artId] || [];
-          const existingIds = new Set(comments.map((c) => c.id));
-          const missingInitial = initial.filter((c) => !existingIds.has(c.id));
-          merged[artId] = [...comments, ...missingInitial];
-        }
+      for (const [articleId, comments] of Object.entries(parsed)) {
+        // An empty cached array is a confirmed empty list, not a cache miss.
+        if (Array.isArray(comments)) merged[articleId] = comments;
       }
       return merged;
     }
@@ -81,10 +77,6 @@ export const ClubAPI = {
         if (contentType.includes('application/json')) {
           const data = (await res.json()) as { article: Article; comments: Comment[] };
           if (data && Array.isArray(data.comments)) {
-            const initial = INITIAL_COMMENTS[id] || [];
-            if (data.comments.length === 0 && initial.length > 0) {
-              return { article: data.article, comments: initial };
-            }
             return data;
           }
         }
@@ -95,7 +87,7 @@ export const ClubAPI = {
 
     const localArts = getLocalArticles();
     const found = localArts.find((a) => a.id === id) || null;
-    const commentsMap = getLocalComments();
+    const commentsMap = getCachedComments();
     const fallbackComments = commentsMap[id] || INITIAL_COMMENTS[id] || [];
     return { article: found, comments: fallbackComments };
   },
@@ -136,35 +128,23 @@ export const ClubAPI = {
     replyToId?: string,
     replyToAuthor?: string,
   ): Promise<Comment> {
+    let res: Response;
     try {
-      const res = await fetch(`/api/articles/${encodeURIComponent(articleId)}/comments`, {
+      res = await fetch(`/api/articles/${encodeURIComponent(articleId)}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ author, content, replyToId, replyToAuthor }),
       });
-      if (res.ok) {
-        const contentType = res.headers.get('content-type') || '';
-        if (contentType.includes('application/json')) {
-          const data = (await res.json()) as { comment?: Comment };
-          if (data.comment) return data.comment;
-        }
-      }
     } catch {
-      // Local fallback
+      throw new Error('网络连接失败，文字已保留，请重试');
     }
-
-    // Local fallback when offline or in dev
-    const localComment: Comment = {
-      id: `comm-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      articleId,
-      author: author.trim() || '文友',
-      content: content.trim(),
-      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      likes: 0,
-      replyToId: replyToId?.trim() || undefined,
-      replyToAuthor: replyToAuthor?.trim() || undefined,
-    };
-    return localComment;
+    const data = (await res.json().catch(() => null)) as {
+      error?: string;
+      comment?: Comment;
+    } | null;
+    if (!res.ok) throw new Error(data?.error || '评注发表失败，请稍后重试');
+    if (!data?.comment?.id) throw new Error('评注未获确认，文字已保留，请重试');
+    return data.comment;
   },
 
   // 6. Like a comment

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import worker, { type D1Database, type D1PreparedStatement, type D1Result } from './worker';
 
@@ -40,9 +40,20 @@ class PreparedStatement implements D1PreparedStatement {
 let sqlite: DatabaseSync;
 let db: D1Database;
 
+function applyMigrations() {
+  const directory = new URL('../migrations/', import.meta.url);
+  if (!existsSync(directory)) return;
+  for (const file of readdirSync(directory)
+    .filter((file) => file.endsWith('.sql'))
+    .sort()) {
+    sqlite.exec(readFileSync(new URL(file, directory), 'utf8'));
+  }
+}
+
 beforeEach(() => {
   sqlite = new DatabaseSync(':memory:');
   sqlite.exec(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8'));
+  applyMigrations();
   db = {
     prepare: (sql) => new PreparedStatement(sqlite, sql),
     batch: async <T = unknown>(statements: D1PreparedStatement[]) => {
@@ -126,4 +137,37 @@ test('accepts the exact limits and gives new series chapters the next number', a
   expect(commentResponse.status).toBe(201);
   const { comment } = (await commentResponse.json()) as { comment: { content: string } };
   expect(comment.content).toHaveLength(1_000);
+});
+
+test('upgrades an existing comments table without losing data and accepts replies', async () => {
+  await request('articles');
+  const original = sqlite.prepare('SELECT * FROM comments LIMIT 1').get()!;
+  sqlite.exec(
+    'ALTER TABLE comments DROP COLUMN reply_to_id; ALTER TABLE comments DROP COLUMN reply_to_author;',
+  );
+  applyMigrations();
+  const response = await request(`articles/${original.article_id}/comments`, {
+    author: '新文友',
+    content: '升级后的答跋',
+    replyToId: original.id,
+    replyToAuthor: original.author,
+  });
+  expect(response.status).toBe(201);
+  const detail = (await (await request(`articles/${original.article_id}`)).json()) as {
+    comments: { id: string; content: string; replyToId?: string }[];
+  };
+  expect(detail.comments).toContainEqual(
+    expect.objectContaining({ id: original.id, content: original.content }),
+  );
+  expect(detail.comments).toContainEqual(
+    expect.objectContaining({ content: '升级后的答跋', replyToId: original.id }),
+  );
+  expect(sqlite.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
+});
+
+test('does not recreate sample comments after the server comment list is cleared', async () => {
+  await request('articles');
+  sqlite.exec('DELETE FROM comments; UPDATE articles SET comments_count = 0;');
+  const detail = (await (await request('articles/club-1')).json()) as { comments: unknown[] };
+  expect(detail.comments).toEqual([]);
 });

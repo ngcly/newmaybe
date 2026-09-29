@@ -1,5 +1,5 @@
 import { enabled } from './apps';
-import { test, expect } from '@playwright/test';
+import { test, expect } from './test';
 
 test('article navigation, theme persistence, real Pagefind search and mobile menu', async ({
   page,

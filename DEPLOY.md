@@ -18,7 +18,18 @@
 
 > `ai` / `studio` / `study` / `club` 是 React + Vite 应用，框架预设选 **Vite**；`main` / `graph` / `lab` 选 **Astro**。
 
-`club` 的写入限额使用 D1 `write_limits` 表。首次部署或升级 Worker 前，先在仓库根目录执行 `npx wrangler d1 execute newmaybe-club-db --remote --file=apps/club/schema.sql`。SQL 使用 `IF NOT EXISTS`，不会删除已有文章或评论。当前限额按 Cloudflare 提供的访问来源计算，每小时最多投稿 3 篇、评论 20 条、点赞 60 次。
+`club` 的 D1 数据库需要先初始化基础表，再应用版本化迁移。**新库和现有旧库都执行下面两步，然后再部署 Worker**：
+
+```bash
+npx wrangler d1 execute newmaybe-club-db --remote --config apps/club/wrangler.toml --file=apps/club/schema.sql
+npx wrangler d1 migrations apply newmaybe-club-db --remote --config apps/club/wrangler.toml
+```
+
+`schema.sql` 是基础表结构；后续字段变更放在 `apps/club/migrations/`。`0001_comment_replies.sql` 为已有 `comments` 表增加回复字段，不删除文章或评论。Wrangler 记录已应用的迁移，后续部署可重复运行上述命令；不要单独重复执行迁移 SQL。迁移机制见 [Cloudflare D1 文档](https://developers.cloudflare.com/d1/reference/migrations/)。本地联调将 `--remote` 换成 `--local`。
+
+如果数据库此前已手工添加 `reply_to_id` / `reply_to_author`，需要先核对表结构和迁移记录，不能再次执行同名 `ALTER TABLE`；上述升级路径面向尚未添加回复字段的旧库。
+
+写入限额使用 `write_limits` 表，按 Cloudflare 提供的访问来源计算，每小时最多投稿 3 篇、评论 20 条、点赞 60 次。
 
 ---
 

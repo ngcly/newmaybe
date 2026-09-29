@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import { enabled } from './apps';
 import { dark, light, studyDark, studyLight } from '../packages/design-tokens/src/index';
 import { INITIAL_ARTICLES } from '../apps/club/src/data/initialArticles';

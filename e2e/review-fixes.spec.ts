@@ -1,4 +1,4 @@
-import { expect, test, type Page, type Route } from '@playwright/test';
+import { expect, test, type Page, type Route } from './test';
 import { enabled } from './apps';
 
 async function mockAI(page: Page) {

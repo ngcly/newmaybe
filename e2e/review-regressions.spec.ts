@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { expect, test, type Page, type Route } from '@playwright/test';
+import { expect, test, type Page, type Route } from './test';
 import { enabled } from './apps';
 import { INITIAL_ARTICLES } from '../apps/club/src/data/initialArticles';
 import { validateMessages } from '../apps/ai/src/worker';
@@ -134,7 +134,7 @@ test('Club keeps unrelated cloud articles when a like overlaps the initial fetch
     .first()
     .click();
   await held!.fulfill({ json: { articles: [...INITIAL_ARTICLES, cloudArticle] } });
-  await page.getByRole('button', { name: '返回雅集列表' }).click();
+  await page.getByRole('button', { name: '返回雅集广场' }).click();
   await expect(page.getByText('云端新增文章', { exact: true })).toBeVisible();
 });
 

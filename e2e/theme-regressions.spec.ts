@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import { enabled } from './apps';
 import { dark, studyDark } from '../packages/design-tokens/src/index';
 

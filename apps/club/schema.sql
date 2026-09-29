@@ -1,5 +1,6 @@
 -- apps/club/schema.sql
--- Cloudflare D1 Database Schema for newmaybe.club (文友雅集)
+-- Cloudflare D1 base schema for newmaybe.club (文友雅集).
+-- For both new and existing databases, apply migrations/ after this file.
 
 CREATE TABLE IF NOT EXISTS articles (
   id TEXT PRIMARY KEY,
@@ -34,8 +35,6 @@ CREATE TABLE IF NOT EXISTS comments (
   content TEXT NOT NULL,
   likes INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
-  reply_to_id TEXT,
-  reply_to_author TEXT,
   FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE
 );
 
