@@ -4,11 +4,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
-    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build && pagefind --site dist",
+    "dev": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro dev",
+    "build": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
-    "typecheck": "ASTRO_TELEMETRY_DISABLED=1 astro check"
+    "typecheck": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro check"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",

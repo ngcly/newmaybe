@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { affectedApps, type Workspace } from './workspaces';
+import { affectedApps, readWorkspaces, type Workspace } from './workspaces';
 const workspaces: Workspace[] = [
   { dir: 'packages/tokens', name: 'tokens', dependencies: [] },
   { dir: 'packages/styles', name: 'styles', dependencies: ['tokens'] },
@@ -23,5 +23,15 @@ describe('CI change selection', () => {
   it('skips root docs but includes content Markdown', () => {
     expect(affectedApps(['README.md'], workspaces)).toEqual([]);
     expect(affectedApps(['apps/main/readme.md'], workspaces)).toEqual(['main']);
+  });
+  it('reads real workspaces with POSIX separators', () => {
+    // path.join yields `apps\main` on Windows, which never matched the
+    // forward-slash paths git reports and silently selected zero apps.
+    const dirs = readWorkspaces().map((w) => w.dir);
+    expect(dirs).toContain('apps/main');
+    expect(dirs.some((dir) => dir.includes('\\'))).toBe(false);
+  });
+  it('selects real apps for a real change set', () => {
+    expect(affectedApps(['apps/club/src/App.tsx'], readWorkspaces())).toEqual(['club']);
   });
 });

@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, sep } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
 import { readWorkspaces } from './workspaces';
@@ -27,7 +27,11 @@ const apps = process.argv.slice(2).length
 for (const app of apps) {
   const budget = budgets[app];
   if (!budget) throw new Error(`Missing budget for ${app}`);
-  const files = walk(`apps/${app}/dist`).filter((p) => !p.includes('/pagefind/'));
+  // Normalize to POSIX so the pagefind exclusion matches on Windows too; on
+  // backslash paths it silently failed and counted ~106 KiB of search UI JS.
+  const files = walk(`apps/${app}/dist`)
+    .map((p) => p.split(sep).join('/'))
+    .filter((p) => !p.includes('/pagefind/'));
   // Astro can inline entire apps. Count unique executable inline scripts too,
   // without counting the same shared layout once per generated article.
   const scripts = new Map<string, Buffer>();

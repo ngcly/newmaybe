@@ -11,9 +11,11 @@ export function readWorkspaces(): Workspace[] {
     readdirSync(root, { withFileTypes: true })
       .filter((d) => d.isDirectory())
       .flatMap((d) => {
-        const dir = join(root, d.name);
+        // Always POSIX separators: `dir` is compared against git's forward-slash
+        // paths in affectedApps(), which would never match `apps\main` on Windows.
+        const dir = `${root}/${d.name}`;
         try {
-          const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'));
+          const pkg = JSON.parse(readFileSync(join(root, d.name, 'package.json'), 'utf8'));
           return [
             {
               dir,
