@@ -47,7 +47,7 @@ export default function SiteLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-cinnabar/20 selection:text-cinnabar">
-      <header className="sticky top-0 z-40 border-b bg-paper/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b bg-paper">
         <div className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 shrink-0">
             <Link to="/" className="flex items-center gap-2.5 shrink-0 group">

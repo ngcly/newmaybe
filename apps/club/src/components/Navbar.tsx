@@ -45,7 +45,7 @@ export default function Navbar({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[var(--paper)]/92 backdrop-blur-md border-b border-[var(--line)] transition-colors duration-500">
+    <header className="sticky top-0 z-40 bg-[var(--paper)] border-b border-[var(--line)] transition-[border-color] duration-300">
       <div className="max-w-[1080px] mx-auto px-4 sm:px-6 min-h-16 py-2 flex flex-wrap items-center justify-between gap-x-2 lg:gap-4 gap-y-2">
         {/* Logo & Brand */}
         <a

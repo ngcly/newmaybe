@@ -100,13 +100,14 @@
             meta.name = 'theme-color';
             meta.content = color;
             targetDocument.head.appendChild(meta);
-            let scheme = targetDocument.querySelector('meta[name="color-scheme"]');
-            if (!scheme) {
-              scheme = targetDocument.createElement('meta');
-              scheme.name = 'color-scheme';
-              targetDocument.head.appendChild(scheme);
-            }
+            // Replace color-scheme meta as well; WebKit ignores attribute mutations on existing head nodes.
+            targetDocument
+              .querySelectorAll('meta[name="color-scheme"]')
+              .forEach((el) => el.remove());
+            const scheme = targetDocument.createElement('meta');
+            scheme.name = 'color-scheme';
             scheme.content = theme;
+            targetDocument.head.appendChild(scheme);
             targetDocument.documentElement.style.colorScheme = theme;
             targetDocument.documentElement.style.backgroundColor = color;
             if (targetDocument.body) {
@@ -121,6 +122,51 @@
                 },
                 { once: true },
               );
+            }
+            // Force iOS Safari to commit the pending themeColor to UIProcess immediately.
+            // WebKit marks themeColor as pending in WebPage, but on iOS it is only transmitted
+            // to UIProcess within a RemoteLayerTreeTransaction during willCommitLayerTree().
+            // Creating a temporary composited layer and performing an instant 1px scroll tick
+            // forces WebKit to commit the layer tree and triggers Safari's live color-sampling observer.
+            if (typeof window !== 'undefined' && targetDocument === document) {
+              if (targetDocument.body) {
+                const nudge = targetDocument.createElement('div');
+                nudge.setAttribute('aria-hidden', 'true');
+                nudge.style.cssText =
+                  'position:fixed;top:0;left:0;width:1px;height:1px;transform:translateZ(0);opacity:0.01;pointer-events:none;z-index:-1;';
+                targetDocument.body.appendChild(nudge);
+                const y = window.scrollY;
+                const tickY = y === 0 ? 1 : y - 1;
+                try {
+                  window.scrollTo({ top: tickY, behavior: 'instant' });
+                } catch {
+                  window.scrollTo(0, tickY);
+                }
+                let cleaned = false;
+                let frame = 0;
+                const cleanup = () => {
+                  if (cleaned) return;
+                  cleaned = true;
+                  clearTimeout(timer);
+                  if (frame && typeof window.cancelAnimationFrame === 'function') {
+                    window.cancelAnimationFrame(frame);
+                  }
+                  nudge.remove();
+                  // Only restore if scroll position is still at the 1px tick offset,
+                  // avoiding overriding any user-initiated scrolling.
+                  if (window.scrollY === tickY) {
+                    try {
+                      window.scrollTo({ top: y, behavior: 'instant' });
+                    } catch {
+                      window.scrollTo(0, y);
+                    }
+                  }
+                };
+                if (typeof window.requestAnimationFrame === 'function') {
+                  frame = window.requestAnimationFrame(cleanup);
+                }
+                const timer = setTimeout(cleanup, 80);
+              }
             }
             targetDocument.dispatchEvent(new Event('newmaybe:theme-change'));
           }

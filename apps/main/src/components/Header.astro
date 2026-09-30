@@ -282,13 +282,16 @@ const isActive = (href: string) => {
     left: 0;
     right: 0;
     z-index: 100;
-    backdrop-filter: blur(6px);
-    background: color-mix(in srgb, var(--paper) 70%, transparent);
+    background: var(--paper);
     border-bottom: 1px solid transparent;
-    transition: border-color 0.4s ease;
+    transition:
+      border-color 0.4s ease,
+      background-color 0.3s ease;
   }
   header.scrolled {
     border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--paper) 70%, transparent);
+    backdrop-filter: blur(6px);
   }
   nav {
     display: flex;
