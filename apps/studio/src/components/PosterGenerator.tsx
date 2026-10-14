@@ -1,3 +1,4 @@
+import { fitHeading } from '../features/creative/canvas-text';
 import { loadDraft, saveDraft, INITIAL_SAVE_STATUS } from '../lib/draft-storage';
 import { light } from '@newmaybe/design-tokens';
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -73,6 +74,7 @@ export default function PosterGenerator({ initialQuote }: PosterGeneratorProps) 
   });
 
   const [saveStatus, setSaveStatus] = useState(INITIAL_SAVE_STATUS);
+  const [headingNotice, setHeadingNotice] = useState('');
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -141,25 +143,33 @@ export default function PosterGenerator({ initialQuote }: PosterGeneratorProps) 
 
     // Title
     ctx.fillStyle = colors.text;
-    ctx.font = 'normal 64px "Noto Serif SC", "Songti SC", serif';
+    const fittedTitle = fitHeading(ctx, title, width - 160, 64, 28);
     if (align === 'center') {
       ctx.textAlign = 'center';
-      ctx.fillText(title, width / 2, titleY);
+      ctx.fillText(fittedTitle.text, width / 2, titleY);
     } else {
       ctx.textAlign = 'left';
-      ctx.fillText(title, 80, titleY);
+      ctx.fillText(fittedTitle.text, 80, titleY);
     }
 
     // Subtitle
     ctx.fillStyle = colors.accent;
-    ctx.font = 'normal 24px "Noto Serif SC", "Songti SC", serif';
+    const fittedSubtitle = fitHeading(ctx, subtitle, width - 160, 24, 16);
     if (align === 'center') {
       ctx.textAlign = 'center';
-      ctx.fillText(subtitle, width / 2, subtitleY);
+      ctx.fillText(fittedSubtitle.text, width / 2, subtitleY);
     } else {
       ctx.textAlign = 'left';
-      ctx.fillText(subtitle, 80, subtitleY);
+      ctx.fillText(fittedSubtitle.text, 80, subtitleY);
     }
+
+    setHeadingNotice(
+      fittedTitle.truncated || fittedSubtitle.truncated
+        ? '标题或副标题已缩小，仍超出画幅的部分以省略号显示；请缩短文案后导出。'
+        : fittedTitle.adjusted || fittedSubtitle.adjusted
+          ? '标题或副标题已自动缩小以适应画幅。'
+          : '',
+    );
 
     // Decorative line
     ctx.strokeStyle = colors.line;
@@ -273,16 +283,24 @@ export default function PosterGenerator({ initialQuote }: PosterGeneratorProps) 
         </div>
         <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
           <h2 className="text-2xl font-medium text-[var(--ink)]">新可能排版海报生成器</h2>
-          <span className="text-xs text-[var(--ink-faint)]">
-            Canvas 像素级精准绘制 · 东方版式美学
-          </span>
+          <span className="text-xs text-[var(--ink-faint)]">东方版式 · 高清导出</span>
         </div>
         <p className="text-sm text-[var(--ink-soft)]">
-          在前端通过 HTML5 Canvas
-          绘制高清排版海报，支持多比例构图与经典印款，实时响应文案与色彩调校。
+          制作属于你的文字海报，支持多比例构图与经典印款，实时响应文案与色彩调校。
         </p>
       </div>
 
+      {headingNotice && (
+        <p role="status" className="text-sm text-[var(--ochre)]">
+          {headingNotice}
+        </p>
+      )}
+      <a
+        href="#poster-preview"
+        className="md:hidden sticky top-2 z-20 self-end px-4 py-2 bg-[var(--paper)] border border-[var(--line)] rounded"
+      >
+        预览与导出 ↓
+      </a>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* ======================================================== */}
         {/* STAGE 1: INPUT CONTENT (Col 1-5)                         */}
@@ -460,6 +478,7 @@ export default function PosterGenerator({ initialQuote }: PosterGeneratorProps) 
             {/* Canvas Preview Container */}
             <div className="w-full flex justify-center items-center bg-[var(--paper)] border border-[var(--line)] rounded-md p-4 sm:p-6 shadow-inner overflow-hidden min-h-60">
               <canvas
+                id="poster-preview"
                 ref={canvasRef}
                 className="w-full max-w-[460px] h-auto border border-[var(--line)]/60 rounded shadow-md"
               />

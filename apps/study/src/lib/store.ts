@@ -32,8 +32,9 @@ function readRecord(k: string): Record<string, unknown> {
 function write(k: string, v: unknown) {
   try {
     localStorage.setItem(k, JSON.stringify(v));
+    return true;
   } catch {
-    /* ignore */
+    return false;
   }
 }
 
@@ -138,18 +139,37 @@ export function streakDays(): number {
 
 // 仿写草稿
 export type DraftMap = Record<string, string>;
+const pendingDrafts = new Map<string, string>();
+const warnUnsavedDrafts = (event: BeforeUnloadEvent) => {
+  event.preventDefault();
+  event.returnValue = '';
+};
+export function getUnsavedDraftIds(): string[] {
+  return [...pendingDrafts.keys()];
+}
 export function getDrafts(): DraftMap {
   const value = readRecord(KEY_DRAFTS);
-  return Object.fromEntries(
-    Object.entries(value).filter(
-      (entry): entry is [string, string] => typeof entry[1] === 'string',
+  return {
+    ...Object.fromEntries(
+      Object.entries(value).filter(
+        (entry): entry is [string, string] => typeof entry[1] === 'string',
+      ),
     ),
-  );
+    ...Object.fromEntries(pendingDrafts),
+  };
 }
 export function saveDraft(id: string, text: string) {
   const d = getDrafts();
   d[id] = text;
-  write(KEY_DRAFTS, d);
+  const saved = write(KEY_DRAFTS, d);
+  if (saved) {
+    pendingDrafts.clear();
+    window.removeEventListener('beforeunload', warnUnsavedDrafts);
+  } else {
+    pendingDrafts.set(id, text);
+    window.addEventListener('beforeunload', warnUnsavedDrafts);
+  }
+  return saved;
 }
 export function getDrillDone(): string[] {
   const value = read<unknown>(KEY_DONE, []);

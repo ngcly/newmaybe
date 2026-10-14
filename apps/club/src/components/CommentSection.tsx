@@ -11,7 +11,7 @@ interface CommentSectionProps {
     replyToId?: string,
     replyToAuthor?: string,
   ) => Promise<void>;
-  onLikeComment: (commentId: string) => void;
+  onLikeComment: (commentId: string) => Promise<void>;
 }
 
 const QUICK_TAGS = [
@@ -39,11 +39,15 @@ export default function CommentSection({
   const [commentText, setCommentText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [likeError, setLikeError] = useState('');
+  const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
+  const pendingLikeIds = useRef(new Set<string>());
   const [likedCommentIds, setLikedCommentIds] = useState<Record<string, boolean>>({});
 
   // 答跋 / 回复交互状态
   const [activeReplyTarget, setActiveReplyTarget] = useState<{
     commentId: string; // 隶属的主题跋 ID
+    targetId: string;
     author: string; // 回复的目标文友署名
   } | null>(null);
   const [replyAuthorName, setReplyAuthorName] = useState('');
@@ -108,12 +112,20 @@ export default function CommentSection({
     }
   };
 
-  const handleLike = (commentId: string) => {
-    onLikeComment(commentId);
-    setLikedCommentIds((prev) => ({
-      ...prev,
-      [commentId]: true,
-    }));
+  const handleLike = async (commentId: string) => {
+    if (likedCommentIds[commentId] || pendingLikeIds.current.has(commentId)) return;
+    pendingLikeIds.current.add(commentId);
+    setPendingLikes((prev) => ({ ...prev, [commentId]: true }));
+    setLikeError('');
+    try {
+      await onLikeComment(commentId);
+      setLikedCommentIds((prev) => ({ ...prev, [commentId]: true }));
+    } catch {
+      setLikeError('共鸣失败，请稍后重试');
+    } finally {
+      pendingLikeIds.current.delete(commentId);
+      setPendingLikes((prev) => ({ ...prev, [commentId]: false }));
+    }
   };
 
   const handleQuickTagClick = (tag: string) => {
@@ -124,8 +136,8 @@ export default function CommentSection({
     textareaRef.current?.focus();
   };
 
-  const startReply = (commentId: string, targetAuthor: string) => {
-    setActiveReplyTarget({ commentId, author: targetAuthor });
+  const startReply = (commentId: string, targetAuthor: string, targetId = commentId) => {
+    setActiveReplyTarget({ commentId, targetId, author: targetAuthor });
     setReplyText('');
     setReplyError('');
     setTimeout(() => {
@@ -135,6 +147,11 @@ export default function CommentSection({
 
   return (
     <section className="mt-14 pt-10 border-t border-[var(--line)]/60 font-serif">
+      {likeError && (
+        <p role="alert" className="text-sm text-[var(--cinnabar)]">
+          {likeError}
+        </p>
+      )}
       {/* 评注区头部：东方典雅题跋刊头 */}
       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-8">
         <div>
@@ -327,6 +344,8 @@ export default function CommentSection({
                           : 'text-[var(--ink-faint)] hover:text-[var(--cinnabar)] hover:bg-[color-mix(in_srgb,var(--cinnabar)_5%,transparent)]'
                       }`}
                       title="与此题跋心念共鸣"
+                      aria-pressed={hasLikedThis}
+                      disabled={hasLikedThis || pendingLikes[c.id]}
                     >
                       <Heart
                         className={`w-3.5 h-3.5 transition-transform group-hover:scale-110 ${
@@ -386,7 +405,7 @@ export default function CommentSection({
                               {/* 针对子回复继续回复 */}
                               <button
                                 type="button"
-                                onClick={() => startReply(c.id, reply.author)}
+                                onClick={() => startReply(c.id, reply.author, reply.id)}
                                 className="text-[11px] font-serif text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors cursor-pointer flex items-center gap-0.5"
                                 title={`回复 ${reply.author}`}
                               >
@@ -403,6 +422,8 @@ export default function CommentSection({
                                     : 'text-[var(--ink-faint)] hover:text-[var(--cinnabar)]'
                                 }`}
                                 title="点赞答跋"
+                                aria-pressed={replyLiked}
+                                disabled={replyLiked || pendingLikes[reply.id]}
                               >
                                 <Heart
                                   className={`w-3 h-3 ${replyLiked ? 'fill-current text-[var(--cinnabar)]' : ''}`}
@@ -425,7 +446,7 @@ export default function CommentSection({
                 {isReplyingToThis && (
                   <form
                     onSubmit={(e) =>
-                      handleReplySubmit(e, activeReplyTarget.commentId, activeReplyTarget.author)
+                      handleReplySubmit(e, activeReplyTarget.targetId, activeReplyTarget.author)
                     }
                     className="mt-4 p-4 rounded border border-[var(--ochre)]/60 bg-[color-mix(in_srgb,var(--paper-deep)_40%,var(--paper))] shadow-xs animate-fade-in"
                   >

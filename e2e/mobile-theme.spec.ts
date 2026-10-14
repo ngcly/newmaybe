@@ -84,7 +84,7 @@ for (const width of [320, 375, 390, 640, 768, 1024, 1280]) {
   test(`Club navigation and expanded search fit at ${width}px`, async ({ page }, testInfo) => {
     test.skip(!enabled('club'));
     await page.setViewportSize({ width, height: 844 });
-    await page.route('**/api/articles', (route) =>
+    await page.route('**/api/articles?*', (route) =>
       route.fulfill({ json: { articles: INITIAL_ARTICLES } }),
     );
     await page.goto('http://127.0.0.1:4406/');

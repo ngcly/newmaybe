@@ -4,7 +4,7 @@ import { expect, test } from './test';
 import { enabled } from './apps';
 
 // Validate the deployment checker against real local build outputs.
-// AI's /api/security additionally requires deployed Worker bindings.
+// Worker endpoints require deployment bindings; these checks exercise static build outputs.
 for (const [app, port] of [
   ['main', 4401],
   ['graph', 4402],
@@ -21,7 +21,21 @@ for (const [app, port] of [
       'scripts/smoke.ts',
       app,
       `http://127.0.0.1:${port}`,
+      '--static-only',
     ]);
     expect(stdout).toContain('OK /');
   });
 }
+
+test('Club full deployment check rejects a static-only deployment without the API', async () => {
+  test.skip(!enabled('club'));
+  await expect(
+    promisify(execFile)(process.execPath, [
+      '--import',
+      'tsx',
+      'scripts/smoke.ts',
+      'club',
+      'http://127.0.0.1:4406',
+    ]),
+  ).rejects.toThrow();
+});

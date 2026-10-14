@@ -174,6 +174,16 @@ export default function App() {
           </button>
         </nav>
 
+        <p className="px-4 md:px-6 py-2 text-xs text-[var(--ink-soft)] border-b border-[var(--line)]">
+          {
+            {
+              chat: '搜索花园里的文字，获取带出处的回答。',
+              gardener: '发现孤立笔记，寻找值得建立的内容关联。',
+              capture: '记录灵感并整理成可继续创作的草稿。',
+              ego: '用过去的文字审视和拓展此刻的新想法。',
+            }[activeTab]
+          }
+        </p>
         {/* Tab Content Panels */}
         <div className="flex-grow overflow-hidden relative">
           {activeTab === 'chat' && (

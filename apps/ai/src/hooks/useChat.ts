@@ -1,3 +1,4 @@
+import { loadConversation } from '../lib/conversation-storage';
 import { useRequestSession } from './useRequestSession';
 import { fetchFreeAI } from '@newmaybe/ai-client/free-ai';
 import { useState, useEffect, useCallback } from 'react';
@@ -60,16 +61,8 @@ export interface UseChatReturn {
 
 export function useChat(): UseChatReturn {
   const [messages, setMessages] = useState<Message[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('newmaybe_ai_messages');
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.warn('Failed to parse saved AI messages from localStorage', e);
-        }
-      }
-    }
+    const saved = loadConversation('newmaybe_ai_messages');
+    if (saved) return saved;
     return [{ ...WELCOME_MESSAGE, timestamp: timestamp() }];
   });
 

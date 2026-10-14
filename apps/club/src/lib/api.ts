@@ -1,11 +1,17 @@
-import type { Article, Comment } from '../types';
+import {
+  summarizeArticle,
+  type ArticleSummary,
+  type ArticlePage,
+  type Article,
+  type Comment,
+} from '../types';
 import { INITIAL_ARTICLES, INITIAL_COMMENTS } from '../data/initialArticles';
 
 const STORAGE_ARTICLES_KEY = 'newmaybe_club_articles';
 const STORAGE_COMMENTS_KEY = 'newmaybe_club_comments';
 
 // Local storage fallback helpers
-function getLocalArticles(): Article[] {
+export function getLocalArticles(): ArticleSummary[] {
   if (typeof window === 'undefined') return INITIAL_ARTICLES;
   try {
     const saved = localStorage.getItem(STORAGE_ARTICLES_KEY);
@@ -48,35 +54,50 @@ export function getCachedComments(): Record<string, Comment[]> {
 }
 
 export const ClubAPI = {
-  // 1. Fetch articles (Network First, local fallback)
-  async fetchArticles(): Promise<Article[]> {
+  async fetchArticles(params = new URLSearchParams()): Promise<ArticlePage> {
     try {
-      const res = await fetch('/api/articles');
-      if (res.ok) {
-        const contentType = res.headers.get('content-type') || '';
-        if (contentType.includes('application/json')) {
-          const data = (await res.json()) as { articles: Article[] };
-          if (Array.isArray(data.articles)) {
-            return data.articles;
-          }
+      const res = await fetch(`/api/articles?${params}`);
+      if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+        const data = (await res.json()) as ArticlePage;
+        if (Array.isArray(data.articles)) {
+          return {
+            ...data,
+            articles: data.articles.map(summarizeArticle),
+            nextOffset: data.nextOffset ?? null,
+          };
         }
       }
     } catch {
-      // Backend not running or offline; fall through to local cache
+      /* Show cached summaries without pretending they are current. */
     }
-
-    return getLocalArticles();
+    return { articles: getLocalArticles(), nextOffset: null, offline: true };
   },
 
   // 2. Fetch single article & comments
   async fetchArticle(id: string): Promise<{ article: Article | null; comments: Comment[] }> {
     try {
       const res = await fetch(`/api/articles/${encodeURIComponent(id)}`);
+      if (res.status === 404) return { article: null, comments: [] };
       if (res.ok) {
         const contentType = res.headers.get('content-type') || '';
         if (contentType.includes('application/json')) {
           const data = (await res.json()) as { article: Article; comments: Comment[] };
-          if (data && Array.isArray(data.comments)) {
+          if (
+            data?.article?.id === id &&
+            typeof data.article.content === 'string' &&
+            Array.isArray(data.comments)
+          ) {
+            try {
+              const recent: Article[] = JSON.parse(
+                localStorage.getItem('newmaybe_club_recent_articles') || '[]',
+              );
+              localStorage.setItem(
+                'newmaybe_club_recent_articles',
+                JSON.stringify([data.article, ...recent.filter((a) => a.id !== id)].slice(0, 5)),
+              );
+            } catch {
+              /* Reading still works without a cache. */
+            }
             return data;
           }
         }
@@ -85,8 +106,15 @@ export const ClubAPI = {
       /* fallback */
     }
 
-    const localArts = getLocalArticles();
-    const found = localArts.find((a) => a.id === id) || null;
+    let found = INITIAL_ARTICLES.find((a) => a.id === id) || null;
+    try {
+      const recent: Article[] = JSON.parse(
+        localStorage.getItem('newmaybe_club_recent_articles') || '[]',
+      );
+      found = recent.find((a) => a.id === id && typeof a.content === 'string') || found;
+    } catch {
+      /* Invalid cache falls back to seed articles. */
+    }
     const commentsMap = getCachedComments();
     const fallbackComments = commentsMap[id] || INITIAL_COMMENTS[id] || [];
     return { article: found, comments: fallbackComments };
@@ -148,10 +176,12 @@ export const ClubAPI = {
   },
 
   // 6. Like a comment
-  async likeComment(commentId: string): Promise<void> {
+  async likeComment(commentId: string): Promise<number> {
     const res = await fetch(`/api/comments/${encodeURIComponent(commentId)}/like`, {
       method: 'POST',
     });
     if (!res.ok) throw new Error('点赞失败');
+    const data = (await res.json()) as { likes: number };
+    return data.likes;
   },
 };

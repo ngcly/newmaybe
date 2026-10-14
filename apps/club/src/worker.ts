@@ -1,3 +1,7 @@
+import { articlePage } from './server/article-page';
+import { mapArticle, mapComment, type RawArticleRow, type RawCommentRow } from './server/rows';
+import { readFeed } from './server/feed';
+import { readInput, articleInput, commentInput, InputError, sourceKey } from './server/input';
 import type { Article, Comment } from './types';
 import { INITIAL_ARTICLES, INITIAL_COMMENTS } from './data/initialArticles';
 
@@ -28,73 +32,6 @@ export interface Env {
   };
 }
 
-interface RawArticleRow {
-  id: string;
-  title: string;
-  summary: string;
-  content: string;
-  author: string;
-  author_seal: string | null;
-  topic_id: string;
-  topic_name: string;
-  pub_date: string;
-  reading_time: number;
-  word_count: number;
-  likes: number;
-  comments_count: number;
-  series_title: string | null;
-  series_order: number | null;
-  golden_quote: string | null;
-  featured: number;
-  created_at: number;
-}
-
-interface RawCommentRow {
-  id: string;
-  article_id: string;
-  author: string;
-  content: string;
-  likes: number;
-  created_at: string;
-  reply_to_id?: string | null;
-  reply_to_author?: string | null;
-}
-
-function mapArticle(row: RawArticleRow): Article {
-  return {
-    id: row.id,
-    title: row.title,
-    summary: row.summary,
-    content: row.content,
-    author: row.author,
-    authorSeal: row.author_seal ?? undefined,
-    topicId: row.topic_id,
-    topicName: row.topic_name,
-    pubDate: row.pub_date,
-    readingTime: row.reading_time,
-    wordCount: row.word_count,
-    likes: row.likes,
-    commentsCount: row.comments_count,
-    seriesTitle: row.series_title ?? undefined,
-    seriesOrder: row.series_order ?? undefined,
-    goldenQuote: row.golden_quote ?? undefined,
-    featured: Boolean(row.featured),
-  };
-}
-
-function mapComment(row: RawCommentRow): Comment {
-  return {
-    id: row.id,
-    articleId: row.article_id,
-    author: row.author,
-    content: row.content,
-    likes: row.likes,
-    createdAt: row.created_at,
-    replyToId: row.reply_to_id ?? undefined,
-    replyToAuthor: row.reply_to_author ?? undefined,
-  };
-}
-
 function corsHeaders(request: Request): HeadersInit {
   const origin = request.headers.get('Origin');
   return {
@@ -111,8 +48,6 @@ function jsonResponse(data: unknown, status = 200, request?: Request): Response 
 }
 
 type WriteAction = 'article' | 'comment' | 'like';
-const MAX_ARTICLE_LENGTH = 50_000;
-const MAX_COMMENT_LENGTH = 1_000;
 const WRITE_LIMITS: Record<WriteAction, number> = {
   article: 3,
   comment: 20,
@@ -124,13 +59,7 @@ async function enforceWriteLimit(
   db: D1Database,
   action: WriteAction,
 ): Promise<Response | null> {
-  // Cloudflare supplies this header to Workers. Missing addresses share one bucket.
-  const address = request.headers.get('CF-Connecting-IP') || 'unknown';
-  const bytes = new TextEncoder().encode(address);
-  const digest = await crypto.subtle.digest('SHA-256', bytes);
-  const source = Array.from(new Uint8Array(digest), (byte) =>
-    byte.toString(16).padStart(2, '0'),
-  ).join('');
+  const source = await sourceKey(request);
   const periodStart = Math.floor(Date.now() / 3_600_000) * 3_600;
   const key = `${action}:${source}:${periodStart}`;
   await db
@@ -241,7 +170,15 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders(request) });
     }
 
-    // Only route /api/* requests to Worker logic
+    if (
+      (request.method === 'GET' || request.method === 'HEAD') &&
+      (url.pathname === '/articles' || url.pathname.startsWith('/articles/'))
+    ) {
+      await ensureSeedData(env.DB);
+      return articlePage(request, env);
+    }
+
+    // Other documents and static files use the asset binding.
     if (!url.pathname.startsWith('/api/')) {
       if (env.ASSETS) {
         return env.ASSETS.fetch(request);
@@ -255,53 +192,7 @@ export default {
     try {
       // 1. GET /api/articles - List articles with optional filter, topic, search
       if (request.method === 'GET' && url.pathname === '/api/articles') {
-        const topicId = url.searchParams.get('topicId');
-        const seriesTitle = url.searchParams.get('seriesTitle');
-        const filter = url.searchParams.get('filter'); // 'featured' | 'latest' | 'series'
-        const q = url.searchParams.get('q')?.trim().toLowerCase();
-
-        let sql = 'SELECT * FROM articles WHERE 1=1';
-        const bindings: unknown[] = [];
-
-        if (topicId) {
-          sql += ' AND topic_id = ?';
-          bindings.push(topicId);
-        }
-
-        if (seriesTitle) {
-          sql += ' AND series_title = ?';
-          bindings.push(seriesTitle);
-        }
-
-        if (filter === 'series') {
-          sql += ' AND series_title IS NOT NULL AND series_title != ""';
-        }
-
-        if (q) {
-          sql += ` AND (
-            LOWER(title) LIKE ? OR
-            LOWER(author) LIKE ? OR
-            LOWER(summary) LIKE ? OR
-            LOWER(golden_quote) LIKE ? OR
-            LOWER(series_title) LIKE ?
-          )`;
-          const pattern = `%${q}%`;
-          bindings.push(pattern, pattern, pattern, pattern, pattern);
-        }
-
-        // Sorting
-        if (filter === 'featured') {
-          sql += ' ORDER BY featured DESC, likes DESC, pub_date DESC';
-        } else if (filter === 'series') {
-          sql += ' ORDER BY series_title ASC, series_order ASC';
-        } else {
-          // latest default
-          sql += ' ORDER BY pub_date DESC, created_at DESC';
-        }
-
-        const stmt = env.DB.prepare(sql).bind(...bindings);
-        const { results } = await stmt.all<RawArticleRow>();
-        return jsonResponse({ articles: results.map(mapArticle) }, 200, request);
+        return jsonResponse(await readFeed(url, env.DB), 200, request);
       }
 
       // 2. GET /api/articles/:id - Get single article & its comments
@@ -334,14 +225,8 @@ export default {
 
       // 3. POST /api/articles - Create article
       if (request.method === 'POST' && url.pathname === '/api/articles') {
-        const body = (await request.json()) as Partial<Article>;
-        if (!body.title?.trim() || !body.content?.trim() || !body.topicId) {
-          return jsonResponse({ error: '标题、正文与投稿专题不能为空' }, 400, request);
-        }
-        const content = body.content.trim();
-        if (content.length > MAX_ARTICLE_LENGTH) {
-          return jsonResponse({ error: '正文最多 50000 字，请缩短后再投稿' }, 400, request);
-        }
+        const body = articleInput(await readInput(request));
+        const content = body.content;
         const limited = await enforceWriteLimit(request, env.DB, 'article');
         if (limited) return limited;
 
@@ -424,7 +309,15 @@ export default {
         const id = articleLikeMatch[1];
         const limited = await enforceWriteLimit(request, env.DB, 'like');
         if (limited) return limited;
-        await env.DB.prepare('UPDATE articles SET likes = likes + 1 WHERE id = ?').bind(id).run();
+        const exists = await env.DB.prepare('SELECT id FROM articles WHERE id = ?')
+          .bind(id)
+          .first();
+        if (!exists) throw new InputError('篇章未找到', 404);
+        await env.DB.prepare(
+          'INSERT OR IGNORE INTO article_likes (article_id, source) VALUES (?, ?)',
+        )
+          .bind(id, await sourceKey(request))
+          .run();
         const row = await env.DB.prepare('SELECT likes FROM articles WHERE id = ?')
           .bind(id)
           .first<{ likes: number }>();
@@ -435,18 +328,18 @@ export default {
       const addCommentMatch = url.pathname.match(/^\/api\/articles\/([^/]+)\/comments$/);
       if (request.method === 'POST' && addCommentMatch) {
         const articleId = addCommentMatch[1];
-        const body = (await request.json()) as {
-          author?: string;
-          content?: string;
-          replyToId?: string;
-          replyToAuthor?: string;
-        };
-        if (!body.content?.trim()) {
-          return jsonResponse({ error: '评注内容不能为空' }, 400, request);
-        }
-        const content = body.content.trim();
-        if (content.length > MAX_COMMENT_LENGTH) {
-          return jsonResponse({ error: '评注最多 1000 字，请缩短后再发表' }, 400, request);
+        const body = commentInput(await readInput(request));
+        const content = body.content;
+        const article = await env.DB.prepare('SELECT id FROM articles WHERE id = ?')
+          .bind(articleId)
+          .first();
+        if (!article) throw new InputError('篇章未找到', 404);
+        let parent: RawCommentRow | null = null;
+        if (body.replyToId) {
+          parent = await env.DB.prepare('SELECT * FROM comments WHERE id = ? AND article_id = ?')
+            .bind(body.replyToId, articleId)
+            .first<RawCommentRow>();
+          if (!parent) throw new InputError('回复对象不存在或不属于当前篇章');
         }
         const limited = await enforceWriteLimit(request, env.DB, 'comment');
         if (limited) return limited;
@@ -458,8 +351,8 @@ export default {
           content,
           createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
           likes: 0,
-          replyToId: body.replyToId?.trim() || undefined,
-          replyToAuthor: body.replyToAuthor?.trim().slice(0, 30) || undefined,
+          replyToId: parent ? parent.reply_to_id || parent.id : undefined,
+          replyToAuthor: parent?.author,
         };
 
         await env.DB.batch([
@@ -489,10 +382,19 @@ export default {
         const commentId = commentLikeMatch[1];
         const limited = await enforceWriteLimit(request, env.DB, 'like');
         if (limited) return limited;
-        await env.DB.prepare('UPDATE comments SET likes = likes + 1 WHERE id = ?')
+        const exists = await env.DB.prepare('SELECT id FROM comments WHERE id = ?')
           .bind(commentId)
+          .first();
+        if (!exists) throw new InputError('评注未找到', 404);
+        await env.DB.prepare(
+          'INSERT OR IGNORE INTO comment_likes (comment_id, source) VALUES (?, ?)',
+        )
+          .bind(commentId, await sourceKey(request))
           .run();
-        return jsonResponse({ success: true }, 200, request);
+        const row = await env.DB.prepare('SELECT likes FROM comments WHERE id = ?')
+          .bind(commentId)
+          .first<{ likes: number }>();
+        return jsonResponse({ success: true, likes: row!.likes }, 200, request);
       }
 
       // 7. POST /api/init-seed - Manual trigger to seed or recheck
@@ -503,11 +405,12 @@ export default {
 
       return jsonResponse({ error: 'Endpoint Not Found' }, 404, request);
     } catch (err) {
+      if (err instanceof InputError)
+        return jsonResponse({ error: err.message }, err.status, request);
       console.error('API Error:', err);
       return jsonResponse(
         {
           error: '服务内部异常，请稍后重试',
-          details: err instanceof Error ? err.message : String(err),
         },
         500,
         request,

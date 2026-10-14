@@ -1,17 +1,18 @@
+import { articleHref } from '../lib/article-url';
 import { BookOpen, Heart, MessageSquare } from 'lucide-react';
-import type { Article } from '../types';
+import type { ArticleSummary } from '../types';
 import SealStamp from './SealStamp';
 
 interface ArticleCardProps {
-  article: Article;
-  onSelect: (article: Article) => void;
+  article: ArticleSummary;
+  onSelect: (article: ArticleSummary) => void;
   onSelectTopic?: (topicId: string) => void;
 }
 
 export default function ArticleCard({ article, onSelect, onSelectTopic }: ArticleCardProps) {
   return (
-    <article className="group bg-[var(--paper)] border border-[var(--line)]/70 hover:border-[var(--ochre)]/60 rounded p-6 sm:p-7 transition-all duration-300 hover:shadow-[var(--shadow-paper-hover)] hover:-translate-y-0.5 flex flex-col justify-between cursor-pointer relative">
-      <div onClick={() => onSelect(article)}>
+    <article className="group bg-[var(--paper)] border border-[var(--line)]/70 hover:border-[var(--ochre)]/60 rounded p-6 sm:p-7 transition-all duration-300 hover:shadow-[var(--shadow-paper-hover)] hover:-translate-y-0.5 flex flex-col justify-between relative">
+      <div>
         {/* Card Header: Topic, Author & Meta in a harmonious line */}
         <div className="flex items-center justify-between gap-3 mb-3.5 flex-wrap">
           <div className="flex items-center gap-2 flex-wrap">
@@ -61,7 +62,24 @@ export default function ArticleCard({ article, onSelect, onSelectTopic }: Articl
 
         {/* Title */}
         <h3 className="font-serif font-medium text-lg sm:text-xl text-[var(--ink)] mb-3 leading-snug group-hover:text-[var(--ochre)] transition-colors tracking-wide">
-          {article.title}
+          <a
+            href={articleHref(article.id)}
+            onClick={(event) => {
+              if (
+                event.metaKey ||
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.altKey ||
+                event.button !== 0
+              )
+                return;
+              event.preventDefault();
+              onSelect(article);
+            }}
+            className="focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--ochre)]"
+          >
+            {article.title}
+          </a>
         </h3>
 
         {/* Golden quote snippet: Literary quotation style without heavy background box */}

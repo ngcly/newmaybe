@@ -1,7 +1,10 @@
+import { useClubFeed } from './hooks/useClubFeed';
+import { usePageMetadata } from './hooks/usePageMetadata';
+import { useArticleRoute } from './hooks/useArticleRoute';
 import { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { resolveSubdomain as _resolveSubdomain } from '@newmaybe/content/utils';
 import { Sparkles, Clock, BookOpen, Flame, Search } from 'lucide-react';
-import type { Article, Comment, ReaderPreferences, FeedFilter } from './types';
+import type { Article, ArticleSummary, Comment, ReaderPreferences, FeedFilter } from './types';
 import { TOPICS } from './data/topics';
 import { INITIAL_ARTICLES } from './data/initialArticles';
 import { ClubAPI, getCachedComments } from './lib/api';
@@ -16,7 +19,6 @@ const _isDev =
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 const resolveSubdomain = (url: string) => _resolveSubdomain(url, _isDev);
 
-const STORAGE_ARTICLES_KEY = 'newmaybe_club_articles';
 const STORAGE_COMMENTS_KEY = 'newmaybe_club_comments';
 const STORAGE_PREFS_KEY = 'newmaybe_club_reader_prefs';
 
@@ -30,7 +32,22 @@ const DEFAULT_PREFERENCES: ReaderPreferences = {
 export default function App() {
   const [currentTab, setCurrentTab] = useState<'plaza' | 'topics'>('plaza');
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
+  const { articleId: activeArticleId, invalidPath, navigate, path } = useArticleRoute();
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [articleLoading, setArticleLoading] = useState(Boolean(activeArticleId));
+  usePageMetadata(
+    selectedArticle?.id === activeArticleId ? selectedArticle : null,
+    path,
+    invalidPath || (activeArticleId && !articleLoading && !selectedArticle) ? 404 : 200,
+  );
+  const selectArticle = (article: ArticleSummary | null) => {
+    const full =
+      article && 'content' in article && typeof article.content === 'string'
+        ? (article as Article)
+        : INITIAL_ARTICLES.find((a) => a.id === article?.id) || null;
+    setSelectedArticle(full);
+    navigate(article?.id || null);
+  };
   const [isWriterOpen, setIsWriterOpen] = useState(false);
   const [feedFilter, setFeedFilter] = useState<FeedFilter>('featured');
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,62 +78,40 @@ export default function App() {
     return DEFAULT_PREFERENCES;
   });
 
-  // Articles state with initial local cache
-  const [articles, setArticles] = useState<Article[]>(() => {
-    if (typeof window === 'undefined') return INITIAL_ARTICLES;
-    try {
-      const saved = localStorage.getItem(STORAGE_ARTICLES_KEY);
-      if (saved) {
-        const parsed: Article[] = JSON.parse(saved);
-        const merged = parsed.map((item) => {
-          const init = INITIAL_ARTICLES.find((a) => a.id === item.id);
-          return init ? { ...init, ...item } : item;
-        });
-        INITIAL_ARTICLES.forEach((init) => {
-          if (!merged.some((m) => m.id === init.id)) {
-            merged.push(init);
-          }
-        });
-        return merged;
-      }
-    } catch {
-      /* ignore */
-    }
-    return INITIAL_ARTICLES;
-  });
+  const query = new URLSearchParams({
+    filter: feedFilter,
+    q: searchQuery.trim(),
+    ...(selectedTopicId ? { topicId: selectedTopicId } : {}),
+  }).toString();
+  const {
+    articles,
+    setArticles,
+    stats: feedStats,
+    loading: feedLoading,
+    offline: feedOffline,
+    nextOffset,
+    loadMore,
+  } = useClubFeed(query, syncVersion, feedMutationVersion);
 
   // Comments state
   const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>(getCachedComments);
 
-  // Keep the complete article collection independent of the current view filters.
-  useEffect(() => {
-    let active = true;
-    const version = feedMutationVersion.current;
-    ClubAPI.fetchArticles().then((cloudArticles) => {
-      if (!active || feedMutationVersion.current !== version) return;
-      setArticles(cloudArticles);
-    });
-
-    return () => {
-      active = false;
-    };
-  }, [syncVersion]);
-
   // Fetch comments from Cloudflare D1 when an article is opened
-  const activeArticleId = selectedArticle?.id;
   useEffect(() => {
     if (activeArticleId) window.scrollTo(0, 0);
   }, [activeArticleId]);
 
   useEffect(() => {
     if (!activeArticleId) return;
+    // A route change starts a fresh detail request, including direct links.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setArticleLoading(true);
     let active = true;
     const version = articleMutationVersions.current[activeArticleId] || 0;
     ClubAPI.fetchArticle(activeArticleId).then(({ article: refreshed, comments }) => {
       if (!active || (articleMutationVersions.current[activeArticleId] || 0) !== version) return;
-      if (refreshed) {
-        setSelectedArticle((prev) => (prev?.id === refreshed.id ? refreshed : prev));
-      }
+      setSelectedArticle(refreshed);
+      setArticleLoading(false);
       if (Array.isArray(comments)) {
         setCommentsMap((prev) => ({ ...prev, [activeArticleId]: comments }));
       }
@@ -135,15 +130,6 @@ export default function App() {
       /* ignore */
     }
   }, [preferences]);
-
-  // Persist articles
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_ARTICLES_KEY, JSON.stringify(articles));
-    } catch {
-      /* ignore */
-    }
-  }, [articles]);
 
   // Persist comments
   useEffect(() => {
@@ -165,13 +151,15 @@ export default function App() {
       acc[cur.seriesTitle].count += 1;
     }
     return acc;
-  }, {});
-  const seriesList = Object.values(seriesMap);
+  }, Object.create(null));
+  const seriesList = feedStats?.series || Object.values(seriesMap);
+  const topicCount = (id: string) =>
+    feedStats?.topics[id] ?? articles.filter((a) => a.topicId === id).length;
 
   // Filtered articles
   const searchedArticles = articles.filter((a) => {
     if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
+    const q = searchQuery.trim().toLowerCase();
     return (
       a.title.toLowerCase().includes(q) ||
       a.author.toLowerCase().includes(q) ||
@@ -249,25 +237,22 @@ export default function App() {
     }
   };
 
-  const handleLikeComment = (commentId: string) => {
+  const handleLikeComment = async (commentId: string) => {
     const articleId = activeArticleId;
     if (articleId) markMutation(articleId);
-    ClubAPI.likeComment(commentId)
-      .then(() => {
-        setCommentsMap((prev) => {
-          const next = { ...prev };
-          for (const key of Object.keys(next)) {
-            next[key] = next[key].map((c) =>
-              c.id === commentId ? { ...c, likes: c.likes + 1 } : c,
-            );
-          }
-          return next;
-        });
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (articleId) finishMutation(articleId);
-      });
+    try {
+      const likes = await ClubAPI.likeComment(commentId);
+      setCommentsMap((prev) =>
+        Object.fromEntries(
+          Object.entries(prev).map(([key, comments]) => [
+            key,
+            comments.map((c) => (c.id === commentId ? { ...c, likes } : c)),
+          ]),
+        ),
+      );
+    } finally {
+      if (articleId) finishMutation(articleId);
+    }
   };
 
   const handleSubmitArticle = async (
@@ -279,7 +264,7 @@ export default function App() {
       setArticles((prev) => [saved, ...prev.filter((a) => a.id !== saved.id)]);
       setSelectedTopicId(null);
       setCurrentTab('plaza');
-      setSelectedArticle(saved);
+      selectArticle(saved);
     } finally {
       feedMutationVersion.current += 1;
       setSyncVersion((version) => version + 1);
@@ -292,7 +277,7 @@ export default function App() {
       <Navbar
         currentTab={currentTab}
         onSelectTab={(tab) => {
-          setSelectedArticle(null);
+          selectArticle(null);
           setCurrentTab(tab);
         }}
         onOpenWriter={() => setIsWriterOpen(true)}
@@ -303,7 +288,7 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-grow">
-        {selectedArticle ? (
+        {activeArticleId && selectedArticle?.id === activeArticleId ? (
           <ArticleReader
             key={selectedArticle.id}
             article={selectedArticle}
@@ -312,12 +297,21 @@ export default function App() {
             preferences={preferences}
             onPreferencesChange={setPreferences}
             onResetPreferences={() => setPreferences(DEFAULT_PREFERENCES)}
-            onBack={() => setSelectedArticle(null)}
-            onSelectArticle={(art) => setSelectedArticle(art)}
+            onBack={() => selectArticle(null)}
+            onSelectArticle={selectArticle}
             onLikeArticle={handleLikeArticle}
             onAddComment={handleAddComment}
             onLikeComment={handleLikeComment}
           />
+        ) : activeArticleId || invalidPath ? (
+          <div className="p-12 text-center">
+            <p role="status">
+              {!invalidPath && articleLoading ? '正在加载篇章…' : '篇章不存在或暂时无法读取。'}
+            </p>
+            <button className="mt-4 underline" onClick={() => selectArticle(null)}>
+              返回雅集广场
+            </button>
+          </div>
         ) : currentTab === 'plaza' ? (
           <div className="max-w-[1080px] mx-auto px-6 py-8 md:py-12">
             {/* Community Hero Intro */}
@@ -418,11 +412,11 @@ export default function App() {
                 >
                   全部专题
                   <span className="text-[var(--ink-faint)] text-[10px] ml-1 font-sans">
-                    ({articles.length})
+                    ({feedStats?.total ?? articles.length})
                   </span>
                 </button>
                 {TOPICS.map((t) => {
-                  const count = articles.filter((a) => a.topicId === t.id).length;
+                  const count = topicCount(t.id);
                   return (
                     <button
                       key={t.id}
@@ -448,6 +442,8 @@ export default function App() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               {/* Left Column: Articles */}
               <div className="lg:col-span-8 flex flex-col gap-5">
+                {feedLoading && <p role="status">正在加载篇章…</p>}
+                {feedOffline && <p role="status">暂时无法连接雅集，当前显示本地缓存。</p>}
                 {displayedArticles.length === 0 ? (
                   <div className="text-center py-16 border border-dashed border-[var(--line)] rounded text-sm text-[var(--ink-faint)] font-serif">
                     未找到相关文稿，
@@ -477,10 +473,19 @@ export default function App() {
                         ...article,
                         commentsCount: commentsMap[article.id]?.length ?? article.commentsCount,
                       }}
-                      onSelect={(art) => setSelectedArticle(art)}
+                      onSelect={selectArticle}
                       onSelectTopic={(topicId) => setSelectedTopicId(topicId)}
                     />
                   ))
+                )}
+                {nextOffset !== null && (
+                  <button
+                    disabled={feedLoading}
+                    onClick={loadMore}
+                    className="p-3 border border-[var(--line)] rounded"
+                  >
+                    {feedLoading ? '正在加载…' : '加载更多篇章'}
+                  </button>
                 )}
               </div>
 
@@ -557,7 +562,7 @@ export default function App() {
                           </span>
                         </div>
                         <span className="text-[11px] font-serif text-[var(--ink-faint)] font-sans">
-                          {articles.filter((a) => a.topicId === t.id).length} 篇
+                          {topicCount(t.id)} 篇
                         </span>
                       </div>
                     ))}
@@ -606,7 +611,7 @@ export default function App() {
               {TOPICS.map((topic) => (
                 <TopicCard
                   key={topic.id}
-                  topic={topic}
+                  topic={{ ...topic, articleCount: topicCount(topic.id) }}
                   onSelect={(topicId) => {
                     setSelectedTopicId(topicId);
                     setCurrentTab('plaza');

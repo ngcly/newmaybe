@@ -9,7 +9,7 @@ import {
   MessageSquare,
   X,
 } from 'lucide-react';
-import type { Article, Comment, ReaderPreferences } from '../types';
+import type { Article, ArticleSummary, Comment, ReaderPreferences } from '../types';
 import CommentSection from './CommentSection';
 import ReadingProgressBar from './ReadingProgressBar';
 import ReaderSettingsDrawer from './ReaderSettingsDrawer';
@@ -18,13 +18,13 @@ import SealStamp from './SealStamp';
 
 interface ArticleReaderProps {
   article: Article;
-  allArticles: Article[];
+  allArticles: ArticleSummary[];
   comments: Comment[];
   preferences: ReaderPreferences;
   onPreferencesChange: (prefs: ReaderPreferences) => void;
   onResetPreferences: () => void;
   onBack: () => void;
-  onSelectArticle: (article: Article) => void;
+  onSelectArticle: (article: ArticleSummary) => void;
   onLikeArticle: (articleId: string) => Promise<void>;
   onAddComment: (
     articleId: string,
@@ -33,7 +33,7 @@ interface ArticleReaderProps {
     replyToId?: string,
     replyToAuthor?: string,
   ) => Promise<void>;
-  onLikeComment: (commentId: string) => void;
+  onLikeComment: (commentId: string) => Promise<void>;
 }
 
 export default function ArticleReader({

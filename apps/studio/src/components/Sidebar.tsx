@@ -8,8 +8,8 @@ interface SidebarProps {
 
 export default function Sidebar({ activeTab, onTabChange, resolveSubdomain }: SidebarProps) {
   return (
-    <aside className="w-full md:w-72 bg-[var(--paper-deep)] border-b md:border-b-0 md:border-r border-[var(--line)] flex flex-col p-6 shrink-0 transition-colors duration-500">
-      <div className="mb-8">
+    <aside className="studio-sidebar w-full md:w-72 bg-[var(--paper-deep)] border-b md:border-b-0 md:border-r border-[var(--line)] flex flex-col p-6 shrink-0 transition-colors duration-500">
+      <div className="mb-3 md:mb-8">
         <a
           href={resolveSubdomain('https://newmaybe.com')}
           className="text-xl font-semibold tracking-wide flex items-baseline gap-1 text-[var(--ink)] no-underline"
@@ -19,7 +19,22 @@ export default function Sidebar({ activeTab, onTabChange, resolveSubdomain }: Si
         <p className="text-xs text-[var(--ink-faint)] mt-2">创作层 · 排版工具与灵感工坊</p>
       </div>
 
-      <nav className="flex flex-col gap-5 flex-grow">
+      <label className="md:hidden text-sm flex items-center gap-3">
+        <span>创作工具</span>
+        <select
+          aria-label="创作工具"
+          value={activeTab}
+          onChange={(event) => onTabChange(event.target.value as Tab)}
+          className="min-w-0 flex-1 border border-[var(--line)] bg-[var(--paper)] p-2 rounded"
+        >
+          <option value="poster">封面海报</option>
+          <option value="card">念头与拾遗卡片</option>
+          <option value="formatter">文字排版</option>
+          <option value="inspiration">写作命题</option>
+          <option value="assets">素材画廊</option>
+        </select>
+      </label>
+      <nav className="hidden md:flex flex-col gap-5 flex-grow">
         <div>
           <span className="text-[10px] uppercase font-serif tracking-wider text-[var(--ink-faint)] block mb-1.5 px-2">
             排版与卡片 · Formatting

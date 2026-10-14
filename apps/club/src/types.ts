@@ -52,3 +52,21 @@ export interface ReaderPreferences {
 
 export type FeedFilter = 'featured' | 'latest' | 'series';
 export type ViewMode = 'plaza' | 'topics' | 'article';
+
+export type ArticleSummary = Omit<Article, 'content'>;
+export interface FeedStats {
+  total: number;
+  topics: Record<string, number>;
+  series: { title: string; count: number; author: string }[];
+}
+export interface ArticlePage {
+  articles: ArticleSummary[];
+  nextOffset: number | null;
+  stats?: FeedStats;
+  offline?: boolean;
+}
+export function summarizeArticle(article: Article | ArticleSummary): ArticleSummary {
+  const { content, ...summary } = article as Article;
+  void content;
+  return summary;
+}

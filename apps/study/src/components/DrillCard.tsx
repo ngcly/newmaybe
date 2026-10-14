@@ -8,12 +8,14 @@ const AI_MAX_TOTAL_CHARS = 800;
 export default function DrillCard({
   drill,
   draft,
+  saveFailed,
   done,
   onDraft,
   onDone,
 }: {
   drill: (typeof DRILLS)[number];
   draft: string;
+  saveFailed: boolean;
   done: boolean;
   onDraft: (t: string) => void;
   onDone: () => void;
@@ -39,9 +41,13 @@ export default function DrillCard({
 
   const handleCopy = () => {
     if (!draft) return;
-    navigator.clipboard.writeText(draft);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    void navigator.clipboard
+      .writeText(draft)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => setCopied(false));
   };
 
   // 结构化渲染 AI 评语
@@ -133,6 +139,11 @@ export default function DrillCard({
               className="w-full rounded-lg border bg-paper p-3 text-sm leading-7 outline-none focus:border-cinnabar/60 resize-y"
             />
           </div>
+          {saveFailed && (
+            <p role="alert" className="text-sm text-cinnabar">
+              保存失败，文字仍在当前页面。请复制习作后再离开，或继续编辑以重试保存。
+            </p>
+          )}
 
           <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
             <div className="flex items-center gap-2">

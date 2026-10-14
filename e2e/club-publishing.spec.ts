@@ -67,7 +67,9 @@ test('Club clears cached and sample comments when the server confirms an empty l
     )
     .toEqual([]);
   await page.reload();
-  await page.getByText(INITIAL_ARTICLES[0].title, { exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: INITIAL_ARTICLES[0].title, exact: true }),
+  ).toBeVisible();
   await expect(page.locator('#comments-section article')).toHaveCount(0);
 });
 

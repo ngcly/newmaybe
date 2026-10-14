@@ -1,3 +1,4 @@
+import { loadConversation } from '../lib/conversation-storage';
 import { useRequestSession } from '../hooks/useRequestSession';
 import { fetchFreeAI } from '@newmaybe/ai-client/free-ai';
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -34,16 +35,8 @@ export default function EgoMirror({
   customBaseUrl,
 }: EgoMirrorProps) {
   const [messages, setMessages] = useState<Message[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('newmaybe_ai_ego_messages');
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch {
-          // ignore
-        }
-      }
-    }
+    const saved = loadConversation('newmaybe_ai_ego_messages');
+    if (saved) return saved;
     return [
       {
         id: 'ego-welcome',
@@ -67,7 +60,11 @@ export default function EgoMirror({
 
   // Persist messages
   useEffect(() => {
-    localStorage.setItem('newmaybe_ai_ego_messages', JSON.stringify(messages));
+    try {
+      localStorage.setItem('newmaybe_ai_ego_messages', JSON.stringify(messages));
+    } catch {
+      /* Keep the current conversation usable when storage is full. */
+    }
   }, [messages]);
 
   // Derive all unique reference documents referenced in this session to show in right panel

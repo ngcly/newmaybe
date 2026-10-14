@@ -3,6 +3,7 @@ import { DRILLS } from '@/data/practice';
 import quotes from '@/data/quotes.json';
 import {
   getDrafts,
+  getUnsavedDraftIds,
   saveDraft,
   getDrillDone,
   toggleDrillDone,
@@ -34,6 +35,7 @@ type AIProvider = 'free' | 'openai' | 'gemini';
 
 export default function Practice() {
   const [drafts, setDrafts] = useState<DraftMapState>(() => getDrafts());
+  const [unsaved, setUnsaved] = useState(getUnsavedDraftIds);
   const [doneList, setDoneList] = useState<string[]>(() => getDrillDone());
   const [filter, setFilter] = useState<number>(0);
   const [qi, setQi] = useState(() => Math.floor(Math.random() * (quotes as Quote[]).length));
@@ -294,9 +296,11 @@ export default function Practice() {
             key={d.id}
             drill={d}
             draft={drafts[d.id] ?? ''}
+            saveFailed={unsaved.includes(d.id)}
             done={doneList.includes(d.id)}
             onDraft={(t) => {
               saveDraft(d.id, t);
+              setUnsaved(getUnsavedDraftIds());
               setDrafts((s) => ({ ...s, [d.id]: t }));
             }}
             onDone={() => {

@@ -180,12 +180,15 @@ const isDev = import.meta.env.DEV;
         right: 3rem;
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
         font-size: 0.78rem;
         color: var(--ink-faint);
         z-index: 100;
         transition: opacity 1.2s ease-in-out;
         opacity: 1;
-        pointer-events: none;
+        pointer-events: auto;
       }
 
       /* 沉浸式输入状态 (淡出控制元素) */
@@ -203,6 +206,13 @@ const isDev = import.meta.env.DEV;
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.3s ease;
+      }
+
+      body:has(#saveStatus[role='alert']) footer,
+      body footer:focus-within {
+        opacity: 1;
+        pointer-events: auto;
+        background: var(--paper);
       }
 
       @media (max-width: 680px) {
@@ -282,7 +292,8 @@ const isDev = import.meta.env.DEV;
     <!-- 底部状态栏 -->
     <footer>
       <span id="wordCount">字数: 0</span>
-      <span>自动保存于本地浏览器</span>
+      <span id="saveStatus" role="status">自动保存于本地浏览器</span>
+      <button id="downloadTextBtn" class="audio-btn">下载文字</button>
     </footer>
 
     <script is:inline>
@@ -291,6 +302,35 @@ const isDev = import.meta.env.DEV;
       const editor = document.getElementById('editor');
       const wordCount = document.getElementById('wordCount');
       let typingTimer;
+      let unsaved = false;
+      const saveStatus = document.getElementById('saveStatus');
+      const saveDraft = (text) => {
+        try {
+          localStorage.setItem('newmaybe_zen_draft', text);
+          unsaved = false;
+          saveStatus.setAttribute('role', 'status');
+          saveStatus.textContent = '已保存于本地浏览器';
+        } catch {
+          unsaved = true;
+          saveStatus.setAttribute('role', 'alert');
+          saveStatus.textContent = '保存失败，请下载文字后再离开';
+        }
+      };
+      window.addEventListener('beforeunload', (event) => {
+        if (!unsaved) return;
+        event.preventDefault();
+        event.returnValue = '';
+      });
+      document.getElementById('downloadTextBtn').addEventListener('click', () => {
+        const url = URL.createObjectURL(
+          new Blob([editor.value], { type: 'text/plain;charset=utf-8' }),
+        );
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = '禅意写作.txt';
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
 
       // 当输入时，启动“打字沉浸状态”
       editor.addEventListener('input', () => {
@@ -308,7 +348,7 @@ const isDev = import.meta.env.DEV;
         wordCount.innerText = `字数: ${count}`;
 
         // 自动保存
-        localStorage.setItem('newmaybe_zen_draft', editor.value);
+        saveDraft(editor.value);
       });
 
       // 鼠标移动时自动退出沉浸状态，防止完全迷失
@@ -319,7 +359,12 @@ const isDev = import.meta.env.DEV;
       // 恢复草稿或读取 URL 传参
       const params = new URLSearchParams(window.location.search);
       const draftParam = params.get('draft');
-      const savedDraft = localStorage.getItem('newmaybe_zen_draft');
+      let savedDraft = null;
+      try {
+        savedDraft = localStorage.getItem('newmaybe_zen_draft');
+      } catch {
+        /* Storage may be unavailable. */
+      }
 
       if (draftParam) {
         const shouldImport =
@@ -330,7 +375,7 @@ const isDev = import.meta.env.DEV;
         editor.value = initialDraft;
         const count = initialDraft.replace(/[\s\p{P}]/gu, '').length;
         wordCount.innerText = `字数: ${count}`;
-        if (shouldImport) localStorage.setItem('newmaybe_zen_draft', draftParam);
+        if (shouldImport) saveDraft(draftParam);
         window.history.replaceState({}, document.title, window.location.pathname);
       } else {
         if (savedDraft) {

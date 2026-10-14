@@ -584,3 +584,18 @@ svg:active {
     right: 1rem;
   }
 }
+
+#graph-controls-toggle {
+  display: block;
+  margin: 0.5rem 0;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+#graph-controls[hidden] {
+  display: none;
+}

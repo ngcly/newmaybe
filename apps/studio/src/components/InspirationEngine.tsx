@@ -14,6 +14,7 @@ export default function InspirationEngine({ resolveSubdomain }: InspirationEngin
   const [poemError, setPoemError] = useState(false);
   const [aiPrompt, setAiPrompt] = useState<Prompt | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('随笔');
   const [copiedPromptMsg, setCopiedPromptMsg] = useState(false);
 
@@ -78,6 +79,7 @@ export default function InspirationEngine({ resolveSubdomain }: InspirationEngin
   const handleGeneratePrompt = async () => {
     setAiLoading(true);
     setAiPrompt(null);
+    setAiError(false);
     try {
       const endpoint = resolveSubdomain('https://ai.newmaybe.com') + '/api/chat';
       const res = await fetchFreeAI(endpoint, {
@@ -95,10 +97,11 @@ export default function InspirationEngine({ resolveSubdomain }: InspirationEngin
         }),
       });
       const text = await readAIResponse(res);
-      if (text) {
+      if (text.trim()) {
         setAiPrompt({ category: selectedCategory, text: text.trim() });
-      }
+      } else throw new Error('Empty AI response');
     } catch {
+      setAiError(true);
       setAiPrompt({
         category: selectedCategory,
         text: '在一个没有手机信号的山中小屋里，用一封信记录下这24小时内所有细微的感受与念头。',
@@ -184,7 +187,7 @@ export default function InspirationEngine({ resolveSubdomain }: InspirationEngin
                 &ldquo;{aiPrompt.text}&rdquo;
               </p>
               <span className="inline-block mt-3 text-xs text-[var(--ink-faint)] border border-[var(--line)] px-2 py-0.5 rounded">
-                {aiPrompt.category} · 由 AI 生成
+                {aiPrompt.category} · {aiError ? '备用命题' : '由 AI 生成'}
               </span>
             </div>
           ) : (
@@ -193,6 +196,12 @@ export default function InspirationEngine({ resolveSubdomain }: InspirationEngin
             </p>
           )}
         </div>
+
+        {aiError && (
+          <p role="alert" className="text-sm text-[var(--ochre)]">
+            AI 暂不可用，以下提供一条备用命题；你可以稍后重试。
+          </p>
+        )}
 
         <div className="flex flex-wrap justify-between items-center gap-3 pt-2 border-t border-[var(--line)]">
           <button

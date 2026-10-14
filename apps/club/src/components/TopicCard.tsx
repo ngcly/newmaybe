@@ -8,9 +8,10 @@ interface TopicCardProps {
 
 export default function TopicCard({ topic, isSelected, onSelect }: TopicCardProps) {
   return (
-    <div
+    <button
+      type="button"
       onClick={() => onSelect(topic.id)}
-      className={`p-6 rounded border transition-all duration-300 cursor-pointer flex flex-col justify-between group ${
+      className={`text-left p-6 rounded border transition-all duration-300 cursor-pointer flex flex-col justify-between group ${
         isSelected
           ? 'bg-[var(--paper)] border-[var(--ochre)] shadow-sm'
           : 'bg-[var(--paper)] border-[var(--line)]/70 hover:border-[var(--ochre)]/60 hover:shadow-[var(--shadow-paper-hover)] hover:-translate-y-0.5'
@@ -35,6 +36,6 @@ export default function TopicCard({ topic, isSelected, onSelect }: TopicCardProp
         <span>探索专题</span>
         <span className="group-hover:translate-x-1 transition-transform">→</span>
       </div>
-    </div>
+    </button>
   );
 }

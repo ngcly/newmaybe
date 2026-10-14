@@ -18,6 +18,8 @@
 
 > `ai` / `studio` / `study` / `club` 是 React + Vite 应用，框架预设选 **Vite**；`main` / `graph` / `lab` 选 **Astro**。
 
+Club 文章地址使用 `/articles/:id`，不兼容旧 Hash 路由。部署必须使用 `apps/club/wrangler.toml`：`ASSETS` 静态资源绑定提供应用入口，`run_worker_first` 将 `/articles`、`/articles/*`、`/api/*` 交给 Worker。文章直达响应包含独立标题、摘要、canonical、Open Graph / Twitter 元信息和可读正文；不存在的文章返回 HTTP 404，数据库读取异常返回 503。Vite 本地预览只能验证客户端路由，线上部署还需运行完整 smoke 检查服务端文章响应。路由与页面渲染改造不需要额外 D1 迁移。
+
 `club` 的 D1 数据库需要先初始化基础表，再应用版本化迁移。**新库和现有旧库都执行下面两步，然后再部署 Worker**：
 
 ```bash
@@ -25,7 +27,7 @@ npx wrangler d1 execute newmaybe-club-db --remote --config apps/club/wrangler.to
 npx wrangler d1 migrations apply newmaybe-club-db --remote --config apps/club/wrangler.toml
 ```
 
-`schema.sql` 是基础表结构；后续字段变更放在 `apps/club/migrations/`。`0001_comment_replies.sql` 为已有 `comments` 表增加回复字段，不删除文章或评论。Wrangler 记录已应用的迁移，后续部署可重复运行上述命令；不要单独重复执行迁移 SQL。迁移机制见 [Cloudflare D1 文档](https://developers.cloudflare.com/d1/reference/migrations/)。本地联调将 `--remote` 换成 `--local`。
+`schema.sql` 是基础表结构；后续字段变更放在 `apps/club/migrations/`。`0001_comment_replies.sql` 为已有 `comments` 表增加回复字段，不删除文章或评论。Wrangler 记录已应用的迁移，后续部署可重复运行上述命令；不要单独重复执行迁移 SQL。`0002_unique_likes.sql` 增加文章和评论共鸣去重表及计数触发器，保留已有计数；必须在发布本次 Worker 前应用。共鸣按 Cloudflare 来源 IP 的 SHA-256 摘要去重，同一共享出口的访客会共用一次共鸣额度，本地缺少来源头时也共用额度。迁移机制见 [Cloudflare D1 文档](https://developers.cloudflare.com/d1/reference/migrations/)。本地联调将 `--remote` 换成 `--local`。
 
 如果数据库此前已手工添加 `reply_to_id` / `reply_to_author`，需要先核对表结构和迁移记录，不能再次执行同名 `ALTER TABLE`；上述升级路径面向尚未添加回复字段的旧库。
 
@@ -162,4 +164,4 @@ astro build && pagefind --site dist
 
 CI 根据工作区声明的依赖计算传递影响范围；根脚本、锁文件、测试或 CI 变更触发全部应用。每个受影响应用执行类型检查、构建、JS 预算、浏览器回归，并复用 npm/Vite/Astro 缓存。设计 Token 的生成结果也受 CI 校验。
 
-`npm run smoke -- main https://newmaybe.com` 可验证页面和静态资产。`.github/workflows/deployment-smoke.yml` 在 GitHub 收到成功的 deployment_status 事件时运行；部署 environment 需为应用名（main/graph/ai/lab/studio/study/club），environment_url 需为实际 URL。若 Cloudflare 项目不回传此事件，可在 Actions 中手动运行 Deployment smoke，或在外部部署流水线成功后调用同一脚本。检查不会调用模型或写入用户数据。
+`npm run smoke -- main https://newmaybe.com` 可验证页面和静态资产。`.github/workflows/deployment-smoke.yml` 在 GitHub 收到成功的 deployment_status 事件时运行；部署 environment 需为应用名（main/graph/ai/lab/studio/study/club），environment_url 需为实际 URL。若 Cloudflare 项目不回传此事件，可在 Actions 中手动运行 Deployment smoke，或在外部部署流水线成功后调用同一脚本。检查不会调用模型或写入用户数据。Club 默认还校验分页摘要 API，以识别遗漏 Worker 的静态部署；本地仅检查构建产物时可追加 `--static-only`，线上部署验证不要使用此选项。
