@@ -147,10 +147,6 @@ astro build && pagefind --site dist
 
 `pagefind` 在 Astro 静态产物上建立全文搜索索引，生成 `/pagefind/` 目录。Cloudflare Pages 会将其与其余静态资产一起发布。若构建日志中出现 `pagefind` 相关错误，检查 `pagefind` 是否在 `apps/main/package.json` 中列为 devDependency。
 
-## tools 退役
-
-`apps/tools` 已删除，所有站内入口改为 Studio。发布 Studio 后，在 Cloudflare 为旧主机 `tools.newmaybe.com` 配置永久重定向至 `https://studio.newmaybe.com/`，保留查询参数（`content` 会打开卡片，`tab=formatter` 会打开排版）。确认旧链接可跳转后停止/删除 `newmaybe-tools` 构建项目。此步骤需在 Cloudflare 控制台执行，仓库变更不会自动移除线上项目。
-
 ## 免费 AI 防滥用配置（发布前必须完成）
 
 1. 在 Cloudflare Turnstile 创建 widget，允许 `ai.newmaybe.com`、`studio.newmaybe.com`、`study.newmaybe.com`；本地联调时另加 localhost。
