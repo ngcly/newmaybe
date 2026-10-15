@@ -6,7 +6,7 @@ interface Props {
   type?: 'yang' | 'yin';
   /** 形状：方形、圆形、长方形 */
   shape?: 'square' | 'round' | 'rect';
-  /** 尺寸等级：xs (19px), sm (25px), md (35px), lg (48px) */
+  /** 尺寸等级：xs (19px), sm (30px), md (35px), lg (48px) */
   size?: 'xs' | 'sm' | 'md' | 'lg';
   /** 是否应用微小手工雕刻倾斜角，更具自然金石手盖印痕 */
   tilt?: boolean;
@@ -26,8 +26,9 @@ const {
   title = text,
 } = Astro.props;
 
-// 计算文字布局：如果是 2 字或 4 字，在方印或长方印下自动采用纵排古典阅读顺序
-const isMultiChar = text.length >= 2;
+// 多字方印按右列至左列排布，每列最多两字。圆形双字仍保持横排。
+const characters = Array.from(text);
+const isMultiChar = characters.length >= 2;
 ---
 
 <span
@@ -36,7 +37,7 @@ const isMultiChar = text.length >= 2;
     `seal-${type}`,
     `seal-${shape}`,
     `seal-${size}`,
-    { 'seal-tilt': tilt, 'seal-multi': isMultiChar },
+    { 'seal-tilt': tilt, 'seal-multi': isMultiChar, 'seal-many': characters.length > 2 },
     className,
   ]}
   title={title}
@@ -44,7 +45,7 @@ const isMultiChar = text.length >= 2;
   role="img"
 >
   <span class="seal-inner">
-    <span class="seal-text">{text}</span>
+    <span class="seal-text">{characters.map((character) => <span>{character}</span>)}</span>
   </span>
 </span>
 
@@ -85,17 +86,31 @@ const isMultiChar = text.length >= 2;
   .seal-text {
     font-family: var(--serif-kai), 'Kaiti SC', 'STKaiti', 'KaiTi', var(--serif-cn), serif;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0;
+    line-height: 1;
     text-align: center;
     white-space: nowrap;
-    display: inline-block;
+    display: inline-grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1em;
+    grid-template-rows: 1em;
+    gap: 0.04em;
   }
 
-  /* 纵排双字或多字在方印下的字距微调 */
+  .seal-multi .seal-text {
+    font-size: var(--seal-multi-font-size);
+  }
+
   .seal-multi.seal-square .seal-text,
-  .seal-multi.seal-rect .seal-text {
-    writing-mode: vertical-rl;
-    letter-spacing: 0.08em;
+  .seal-multi.seal-rect .seal-text,
+  .seal-many .seal-text {
+    grid-template-rows: repeat(2, 1em);
+    direction: rtl;
+  }
+
+  /* 四字圆印还需为圆弧留出对角空间。 */
+  .seal-many.seal-round .seal-text {
+    font-size: calc(var(--seal-multi-font-size) * 0.85);
   }
 
   /* ── 形状设定 ── */
@@ -117,6 +132,7 @@ const isMultiChar = text.length >= 2;
 
   /* ── 尺寸设定 ── */
   .seal-xs {
+    --seal-multi-font-size: 6px;
     width: 19px;
     height: 19px;
     font-size: 0.65rem;
@@ -127,16 +143,18 @@ const isMultiChar = text.length >= 2;
   }
 
   .seal-sm {
-    width: 25px;
-    height: 25px;
+    --seal-multi-font-size: 10.5px;
+    width: 30px;
+    height: 30px;
     font-size: 0.78rem;
   }
   .seal-sm.seal-rect {
     width: auto;
-    height: 25px;
+    height: 30px;
   }
 
   .seal-md {
+    --seal-multi-font-size: 12px;
     width: 35px;
     height: 35px;
     font-size: 0.98rem;
@@ -147,6 +165,7 @@ const isMultiChar = text.length >= 2;
   }
 
   .seal-lg {
+    --seal-multi-font-size: 17px;
     width: 48px;
     height: 48px;
     font-size: 1.25rem;
