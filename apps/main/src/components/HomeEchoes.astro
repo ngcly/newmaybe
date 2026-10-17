@@ -34,18 +34,7 @@ const fmtDate = (d: Date) =>
         fragment && FragmentContent && (
           <article class="echo-card frag-card reveal">
             <div class="card-top">
-              <div class="card-title-badge">
-                <span class="badge-dot" />
-                <span class="badge-text">Fragment · 最新念头</span>
-              </div>
-              {(fragment.data.mood || fragment.data.location) && (
-                <div class="frag-meta">
-                  {fragment.data.location && (
-                    <span class="meta-item">📍 {fragment.data.location}</span>
-                  )}
-                  {fragment.data.mood && <span class="meta-item mood">{fragment.data.mood}</span>}
-                </div>
-              )}
+              <span class="badge-text">Fragment · 最新念头</span>
             </div>
 
             <div class="card-body frag-body">
@@ -53,7 +42,17 @@ const fmtDate = (d: Date) =>
             </div>
 
             <div class="card-foot">
-              <time class="card-date">{fmtDate(fragment.data.pubDate)}</time>
+              <div class="frag-meta">
+                <time class="card-date" datetime={fragment.data.pubDate.toISOString()}>
+                  {fmtDate(fragment.data.pubDate)}
+                </time>
+                {fragment.data.location && (
+                  <span class="meta-item">
+                    <span aria-hidden="true">📍</span> {fragment.data.location}
+                  </span>
+                )}
+                {fragment.data.mood && <span class="meta-item">{fragment.data.mood}</span>}
+              </div>
               <a href="/fragments" class="card-link">
                 全部念头 <span class="arrow">→</span>
               </a>
@@ -65,37 +64,33 @@ const fmtDate = (d: Date) =>
       {
         excerpt && ExcerptContent && (
           <figure class="echo-card excerpt-card reveal">
-            <div class="quote-mark" aria-hidden="true">
-              “
-            </div>
             <div class="card-top">
-              <div class="card-title-badge">
-                <span class="badge-dot ochre" />
-                <span class="badge-text">Excerpt · 今日拾遗</span>
-              </div>
-              <span class="excerpt-badge-leaf">典籍签条</span>
+              <span class="badge-text">Excerpt · 今日拾遗</span>
             </div>
 
             <div class="card-body excerpt-body">
+              <span class="quote-mark" aria-hidden="true">
+                “
+              </span>
               <blockquote class="excerpt-text">
                 <ExcerptContent />
               </blockquote>
               {excerpt.data.comment && <p class="excerpt-comment">{excerpt.data.comment}</p>}
             </div>
 
-            <div class="card-foot excerpt-foot">
-              <figcaption class="excerpt-source">
-                <span class="dash">—</span>
-                <span class="author">{excerpt.data.author}</span>
-                {excerpt.data.source && <cite class="source">《{excerpt.data.source}》</cite>}
-              </figcaption>
-              <div class="foot-actions">
-                <a href="/excerpts" class="card-link">
-                  全部拾遗 <span class="arrow">→</span>
-                </a>
+            <figcaption class="card-foot">
+              <div class="excerpt-source">
+                <span class="source-text">
+                  <span class="dash">—</span>
+                  <span class="author">{excerpt.data.author}</span>
+                  {excerpt.data.source && <cite class="source">《{excerpt.data.source}》</cite>}
+                </span>
                 <SealStamp text="拾遗" type="yang" size="sm" title="拾遗印记" />
               </div>
-            </div>
+              <a href="/excerpts" class="card-link">
+                全部拾遗 <span class="arrow">→</span>
+              </a>
+            </figcaption>
           </figure>
         )
       }
@@ -141,12 +136,12 @@ const fmtDate = (d: Date) =>
     margin: 0;
   }
 
-  /* 双联对偶网格 */
+  /* 保留双栏对齐，让每则文字按内容自然收尾。 */
   .echoes-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2.2rem;
-    align-items: stretch;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: start;
   }
 
   .echoes-grid.is-single {
@@ -154,67 +149,15 @@ const fmtDate = (d: Date) =>
     justify-content: center;
   }
 
-  /* 基础纸页卡片容器 */
+  /* 文字直接落在纸面上，留白承担分隔。 */
   .echo-card {
-    background: color-mix(in srgb, var(--paper-deep) 70%, var(--paper));
-    border: 1px solid var(--line);
-    border-radius: 3px;
-    padding: 2.2rem 2.2rem 1.8rem;
     margin: 0;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: var(--shadow-paper);
-    transition:
-      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 0.3s ease,
-      background-color 0.3s ease;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
-  .echo-card:hover {
-    background: var(--paper-deep);
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-paper-hover);
-    border-color: color-mix(in srgb, var(--ochre) 35%, var(--line));
-  }
-
-  :root.dark .echo-card:hover {
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
-  }
-
-  /* 卡片顶部顶栏 */
   .card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-bottom: 1rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .card-title-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .badge-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--ink-faint);
-    transition: background-color 0.3s ease;
-  }
-
-  .badge-dot.ochre {
-    background: var(--ochre);
-  }
-
-  .echo-card:hover .badge-dot {
-    background: var(--ochre);
+    margin-bottom: 1.4rem;
   }
 
   .badge-text {
@@ -226,35 +169,22 @@ const fmtDate = (d: Date) =>
 
   .frag-meta {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.7rem;
+    gap: 0.2rem 0.7rem;
     font-family: var(--serif-cn);
     font-size: 0.82rem;
     color: var(--ink-faint);
   }
 
-  .meta-item.mood {
-    padding: 0.1rem 0.45rem;
-    background: color-mix(in srgb, var(--ink) 4%, transparent);
-    border-radius: 2px;
-    border: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
-  }
-
-  .excerpt-badge-leaf {
-    font-family: var(--serif-cn);
-    font-size: 0.82rem;
-    color: var(--ochre);
-    background: color-mix(in srgb, var(--ochre) 10%, transparent);
-    padding: 0.15rem 0.55rem;
-    border-radius: 2px;
-    border: 1px solid color-mix(in srgb, var(--ochre) 22%, transparent);
-    letter-spacing: 0.04em;
+  .meta-item::before {
+    content: '·';
+    margin-right: 0.7rem;
   }
 
   /* 卡片正文 */
   .card-body {
-    flex-grow: 1;
-    margin-bottom: 1.8rem;
+    margin-bottom: 1.5rem;
   }
 
   /* 念头正文样式 */
@@ -265,6 +195,7 @@ const fmtDate = (d: Date) =>
     font-weight: 300;
     margin: 0;
     letter-spacing: 0.03em;
+    text-align: start;
   }
 
   .frag-body :global(p + p) {
@@ -272,14 +203,18 @@ const fmtDate = (d: Date) =>
   }
 
   /* 拾遗正文样式（古典楷体 + 典雅字距） */
+  .excerpt-body {
+    position: relative;
+  }
+
   .quote-mark {
     position: absolute;
-    top: 3.5rem;
-    left: 1.4rem;
+    top: -0.65rem;
+    left: -1.15rem;
     font-family: var(--serif-en);
-    font-size: 4rem;
+    font-size: 3.5rem;
     color: var(--ochre);
-    opacity: 0.09;
+    opacity: 0.18;
     line-height: 1;
     pointer-events: none;
     user-select: none;
@@ -301,8 +236,7 @@ const fmtDate = (d: Date) =>
 
   .excerpt-text :global(p) {
     margin: 0;
-    text-align: justify;
-    text-justify: inter-character;
+    text-align: start;
     font-weight: 400;
   }
 
@@ -312,8 +246,6 @@ const fmtDate = (d: Date) =>
 
   .excerpt-comment {
     margin-top: 1.2rem;
-    padding-top: 0.9rem;
-    border-top: 1px dashed var(--line);
     font-size: 0.88rem;
     color: var(--ink-faint);
     line-height: 1.6;
@@ -321,14 +253,12 @@ const fmtDate = (d: Date) =>
     font-style: italic;
   }
 
-  /* 卡片底部栏 */
+  /* 日期与出处作为落款，归档链接退到下一行。 */
   .card-foot {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 1rem;
-    padding-top: 1.1rem;
-    border-top: 1px dashed var(--line);
   }
 
   .card-date {
@@ -341,14 +271,13 @@ const fmtDate = (d: Date) =>
   .card-link {
     font-family: var(--serif-cn);
     font-size: 0.88rem;
-    color: var(--ochre);
+    color: var(--ink-faint);
     text-decoration: none;
     letter-spacing: 0.06em;
     border-bottom: 1px solid transparent;
     transition:
       border-color 0.3s,
-      color 0.3s,
-      transform 0.25s ease;
+      color 0.3s;
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
@@ -358,7 +287,9 @@ const fmtDate = (d: Date) =>
     transition: transform 0.25s ease;
   }
 
-  .card-link:hover {
+  .card-link:hover,
+  .card-link:focus-visible {
+    color: var(--ochre);
     border-bottom-color: var(--ochre);
   }
 
@@ -369,15 +300,20 @@ const fmtDate = (d: Date) =>
   /* 拾遗底部 */
   .excerpt-source {
     display: flex;
-    align-items: baseline;
-    gap: 0.4rem;
+    align-items: center;
+    gap: 0.9rem;
     font-family: var(--serif-cn);
     font-size: 0.92rem;
     color: var(--ink-soft);
   }
 
+  .source-text {
+    min-width: 0;
+  }
+
   .dash {
     color: var(--ochre);
+    margin-right: 0.4rem;
   }
 
   .author {
@@ -389,21 +325,11 @@ const fmtDate = (d: Date) =>
     color: var(--ink-faint);
   }
 
-  .foot-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
-  }
-
   /* 响应式适配 */
   @media (max-width: 860px) {
     .echoes-grid {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
-
-    .echo-card {
-      padding: 1.8rem 1.6rem 1.5rem;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 3.5rem;
     }
   }
 
@@ -420,13 +346,7 @@ const fmtDate = (d: Date) =>
     }
 
     .card-top {
-      flex-wrap: wrap;
-      gap: 0.6rem;
-    }
-
-    .card-foot {
-      flex-wrap: wrap;
-      gap: 0.8rem;
+      margin-bottom: 1rem;
     }
 
     .excerpt-text {
@@ -437,6 +357,17 @@ const fmtDate = (d: Date) =>
     .frag-body :global(p) {
       font-size: 1.05rem;
       line-height: 1.9;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-link,
+    .card-link .arrow {
+      transition: none;
+    }
+
+    .card-link:hover .arrow {
+      transform: none;
     }
   }
 </style>

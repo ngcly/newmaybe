@@ -6,7 +6,7 @@ interface Props {
   type?: 'yang' | 'yin';
   /** 形状：方形、圆形、长方形 */
   shape?: 'square' | 'round' | 'rect';
-  /** 尺寸等级：xs (19px), sm (30px), md (35px), lg (48px) */
+  /** 尺寸等级：xs (19px), sm (25px), md (35px), lg (48px) */
   size?: 'xs' | 'sm' | 'md' | 'lg';
   /** 是否应用微小手工雕刻倾斜角，更具自然金石手盖印痕 */
   tilt?: boolean;
@@ -143,14 +143,15 @@ const isMultiChar = characters.length >= 2;
   }
 
   .seal-sm {
-    --seal-multi-font-size: 10.5px;
-    width: 30px;
-    height: 30px;
+    --seal-multi-font-size: 9px;
+    width: 25px;
+    height: 25px;
     font-size: 0.78rem;
   }
   .seal-sm.seal-rect {
     width: auto;
-    height: 30px;
+    height: 25px;
+    padding-block: 0;
   }
 
   .seal-md {

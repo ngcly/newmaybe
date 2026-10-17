@@ -25,7 +25,7 @@ const APPS = [
     desc: '四十三部古籍与写作研习',
     url: 'https://study.newmaybe.com',
     type: 'study',
-    tag: '典籍文库',
+    tag: '典藏文库',
   },
   {
     name: '创作工坊',
@@ -54,56 +54,50 @@ const APPS = [
 ] as const;
 ---
 
-<section class="ecosystem-section" id="ecosystem">
+<section class="ecosystem-section" id="ecosystem" aria-labelledby="ecosystem-title">
   <div class="wrap">
     <div class="section-head reveal">
       <div>
-        <span class="eyebrow">Extension & Subspaces</span>
-        <h2>
-          数字生态<span class="cn">独立子空间</span>
-        </h2>
+        <span class="eyebrow">Digital Ecosystem</span>
+        <h2 id="ecosystem-title">数字生态</h2>
       </div>
-      <p class="section-intro">从思维脉络到典籍研读，由文字延伸出的 6 处探索天地。</p>
+      <p class="section-intro">由文字生发，向阅读、创作、交谈与探索延伸。</p>
     </div>
 
-    <div class="eco-grid">
+    <ul class="eco-grid" role="list">
       {
-        APPS.map((app, idx) => (
-          <a
-            href={resolveSubdomain(app.url)}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="eco-card reveal"
-            style={`animation-delay: ${0.08 * idx}s;`}
-          >
-            <div class="eco-card-top">
-              <div class="eco-icon-badge">
-                <EcosystemIcon type={app.type} />
-              </div>
-              <span class="eco-tag">{app.tag}</span>
-            </div>
-            <div class="eco-card-body">
-              <div class="eco-title-row">
-                <h3 class="eco-name">{app.name}</h3>
-                <span class="eco-en">{app.en}</span>
+        APPS.map((app) => (
+          <li class="eco-item reveal">
+            <a
+              href={resolveSubdomain(app.url)}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="eco-entry"
+            >
+              <div class="eco-heading">
+                <span class="eco-icon">
+                  <EcosystemIcon type={app.type} size={20} />
+                </span>
+                <div class="eco-title-row">
+                  <h3 class="eco-name">{app.name}</h3>
+                  <span class="eco-en" lang="en">
+                    {app.en}
+                  </span>
+                </div>
+                <span class="eco-tag">{app.tag}</span>
               </div>
               <p class="eco-desc">{app.desc}</p>
-            </div>
-            <div class="eco-card-foot">
-              <span class="eco-action">前往探索</span>
-              <span class="eco-arrow">↗</span>
-            </div>
-          </a>
+            </a>
+          </li>
         ))
       }
-    </div>
+    </ul>
   </div>
 </section>
 
 <style>
   .ecosystem-section {
     padding: 4.5rem 0;
-    position: relative;
     scroll-margin-top: 80px;
   }
 
@@ -124,129 +118,80 @@ const APPS = [
     color: var(--ink);
   }
 
-  .section-head h2 .cn {
-    font-family: var(--serif-cn);
-    font-size: 1.4rem;
-    color: var(--ink-faint);
-    font-weight: 400;
-    margin-left: 0.8rem;
-  }
-
   .section-intro {
     color: var(--ink-soft);
     font-size: 0.95rem;
     max-width: 32ch;
     line-height: 1.6;
+    margin: 0;
+    text-align: start;
+    text-wrap: balance;
   }
 
   .eco-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.2rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.6rem 2.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
 
-  .eco-card {
-    background: color-mix(in srgb, var(--paper-deep) 65%, var(--paper));
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    padding: 1.5rem 1.6rem;
-    box-shadow: var(--shadow-paper);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  .eco-item {
+    min-width: 0;
+  }
+
+  /* 以留白与页线组织入口，让名称成为目录的主体。 */
+  .eco-entry {
+    display: block;
+    height: 100%;
+    padding: 1rem 0 1.6rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
     text-decoration: none;
     color: inherit;
-    position: relative;
-    overflow: hidden;
-    transition:
-      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 0.35s ease,
-      box-shadow 0.35s ease,
-      background-color 0.35s ease;
+    transition: border-color 0.3s ease;
   }
 
-  .eco-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--ochre);
-    opacity: 0;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition:
-      opacity 0.35s ease,
-      transform 0.35s ease;
+  .eco-entry:hover,
+  .eco-entry:focus-visible {
+    border-bottom-color: var(--ochre);
   }
 
-  .eco-card:hover {
-    background: var(--paper-deep);
-    transform: translateY(-3px);
-    border-color: color-mix(in srgb, var(--ochre) 40%, var(--line));
-    box-shadow: var(--shadow-paper-hover);
+  .eco-entry:focus-visible {
+    outline: 1.5px dashed var(--ochre);
+    outline-offset: 6px;
   }
 
-  .eco-card:hover::before {
-    opacity: 1;
-    transform: scaleX(1);
-  }
-
-  .eco-card-top {
+  .eco-heading {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.2rem;
+    gap: 0.7rem;
   }
 
-  .eco-icon-badge {
-    width: 34px;
-    height: 34px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.05rem;
-    background: color-mix(in srgb, var(--ochre) 12%, transparent);
+  .eco-icon {
+    display: inline-flex;
+    flex-shrink: 0;
     color: var(--ochre);
-    border-radius: 4px;
-    border: 1px solid color-mix(in srgb, var(--ochre) 25%, transparent);
-    font-family: var(--serif-cn);
-    font-weight: 500;
-  }
-
-  .eco-tag {
-    font-family: var(--serif-en);
-    font-size: 0.75rem;
-    font-style: italic;
-    color: var(--ink-faint);
-    background: color-mix(in srgb, var(--ink) 4%, transparent);
-    padding: 0.2rem 0.6rem;
-    border-radius: 2px;
-    border: 1px solid var(--line);
-    letter-spacing: 0.05em;
-  }
-
-  .eco-card-body {
-    margin-bottom: 1.5rem;
   }
 
   .eco-title-row {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    gap: 0.1rem 0.5rem;
+    min-width: 0;
   }
 
   .eco-name {
     font-family: var(--serif-cn);
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 500;
     color: var(--ink);
     transition: color 0.3s ease;
   }
 
-  .eco-card:hover .eco-name {
+  .eco-entry:hover .eco-name,
+  .eco-entry:focus-visible .eco-name {
     color: var(--ochre);
   }
 
@@ -261,35 +206,30 @@ const APPS = [
     font-size: 0.9rem;
     color: var(--ink-soft);
     line-height: 1.7;
-    margin: 0;
+    margin: 0.7rem 0 0;
+    padding-left: calc(20px + 0.7rem);
+    text-align: start;
+    overflow-wrap: anywhere;
   }
 
-  .eco-card-foot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 1rem;
-    border-top: 1px dashed var(--line);
-    font-size: 0.82rem;
+  .eco-tag {
+    margin-left: auto;
+    flex-shrink: 0;
     color: var(--ink-faint);
+    white-space: nowrap;
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
     transition: color 0.3s ease;
   }
 
-  .eco-card:hover .eco-card-foot {
+  .eco-entry:hover .eco-tag,
+  .eco-entry:focus-visible .eco-tag {
     color: var(--ochre);
-  }
-
-  .eco-arrow {
-    transition: transform 0.3s ease;
-  }
-
-  .eco-card:hover .eco-arrow {
-    transform: translate(2px, -2px);
   }
 
   @media (max-width: 960px) {
     .eco-grid {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
@@ -298,12 +238,22 @@ const APPS = [
       padding: 3.5rem 0;
     }
     .eco-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
     }
     .section-head {
       flex-direction: column;
       align-items: flex-start;
       margin-bottom: 2rem;
+      gap: 0.8rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .eco-entry,
+    .eco-name,
+    .eco-tag {
+      transition: none;
     }
   }
 </style>
