@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { toFullWidthCjkPunctuation } from './cjk-punctuation';
 
 // Define the book classifications
 const VERSE_BOOKS = new Set([
@@ -47,6 +48,33 @@ const bookDirs = fs
 
 console.log(`Found ${bookDirs.length} books to normalize.`);
 
+// `--punctuation-only` fixes the text of already-normalized files in place. A full rerun is
+// not idempotent (couplet chapters lose their section names), so use it for punctuation fixes.
+if (process.argv.includes('--punctuation-only')) {
+  const fixStrings = (value: unknown): unknown =>
+    typeof value === 'string'
+      ? toFullWidthCjkPunctuation(value)
+      : Array.isArray(value)
+        ? value.map(fixStrings)
+        : value && typeof value === 'object'
+          ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, fixStrings(v)]))
+          : value;
+  let changedFiles = 0;
+  for (const bookId of bookDirs) {
+    const bookPath = path.join(TEXTS_DIR, bookId);
+    for (const file of fs.readdirSync(bookPath).filter((name) => name.endsWith('.json'))) {
+      const filePath = path.join(bookPath, file);
+      const data: unknown = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      const fixed = fixStrings(data);
+      if (JSON.stringify(fixed) === JSON.stringify(data)) continue;
+      fs.writeFileSync(filePath, JSON.stringify(fixed, null, 2) + '\n', 'utf-8');
+      changedFiles++;
+    }
+  }
+  console.log(`Fixed CJK punctuation in ${changedFiles} files.`);
+  process.exit(0);
+}
+
 let totalChaptersProcessed = 0;
 
 for (const bookId of bookDirs) {
@@ -88,13 +116,18 @@ for (const bookId of bookDirs) {
       continue;
     }
 
-    const rawTitle = (data.title || '').trim();
-    const rawParas = [...(data.paras || [])];
+    // Full-width punctuation first, so subtitle detection and line splitting below see `，；？！`.
+    const rawTitle = toFullWidthCjkPunctuation((data.title || '').trim());
+    const rawParas = (data.paras || []).map((stanza) =>
+      Array.isArray(stanza)
+        ? stanza.map(toFullWidthCjkPunctuation)
+        : toFullWidthCjkPunctuation(stanza),
+    );
 
     // Preserve already-normalized metadata so rerunning this script is safe.
-    let tuneName = (data.tune || '').trim();
+    let tuneName = toFullWidthCjkPunctuation((data.tune || '').trim());
     let cleanTitle = data.tune || data.author ? rawTitle : '';
-    let poemAuthor = (data.author || '').trim();
+    let poemAuthor = toFullWidthCjkPunctuation((data.author || '').trim());
 
     // 1. Bracket-based Tune extraction from first paragraph (e.g. 【菩萨蛮】 in huajianji)
     const firstPara = rawParas[0] || '';
