@@ -59,7 +59,8 @@ function sitsBetweenCjk(chars: string[], i: number, next: number): boolean {
 }
 
 // Most half-width `?` in these texts stand in for characters lost in transcoding:
-// 《春秋?僖公五年》 lost a middle dot, 刘?不信 and ”?得 lost a rare Han character.
+// 《春秋?僖公五年》 lost a middle dot (see restoreTitleMiddleDots), 刘?不信 and ”?得
+// lost a rare Han character.
 function readsAsQuestion(chars: string[], i: number, next: number): boolean {
   if (!HAN.test(chars[i - 1] ?? '')) return false;
   let asksSomething = false;
@@ -72,4 +73,12 @@ function readsAsQuestion(chars: string[], i: number, next: number): boolean {
   if (after === undefined || LINE_END.test(after) || CLOSER.test(after)) return true;
   // `刘?，` and `受惊?.` cannot be questions; text running on needs a question word before it.
   return !MID_SENTENCE_MARK.test(after) && asksSomething;
+}
+
+// Transcoding also turned the middle dot between a book and its chapter into `?`:
+// 《春秋?僖公五年》 → 《春秋·僖公五年》, 《易?象》 → 《易·象》.
+export function restoreTitleMiddleDots(text: string): string {
+  return text.replace(/《[^《》]*》/g, (title) =>
+    title.replace(/(?<=\p{Script=Han})\?(?=\p{Script=Han})/gu, '·'),
+  );
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { toFullWidthCjkPunctuation as fix } from './cjk-punctuation';
+import { restoreTitleMiddleDots, toFullWidthCjkPunctuation as fix } from './cjk-punctuation';
 
 describe('CJK punctuation normalization', () => {
   it.each([
@@ -68,4 +68,20 @@ describe('CJK punctuation normalization', () => {
     const once = fix('云对雨, 雪对风; 晚照对晴空!');
     expect(fix(once)).toBe(once);
   });
+});
+
+describe('book title middle dots', () => {
+  it.each([
+    ['《春秋?僖公五年》晋人败狄', '《春秋·僖公五年》晋人败狄'],
+    ['《春秋?桓公十二年?经》书：公', '《春秋·桓公十二年·经》书：公'],
+    ['在《易?蛊》之上九云', '在《易·蛊》之上九云'],
+  ])('restores %s', (input, expected) => expect(restoreTitleMiddleDots(input)).toBe(expected));
+
+  it.each([
+    '刘?不信，请辂至府',
+    '天下英雄谁敌手?曹刘',
+    '《春秋?僖公五年',
+    '《天问?》',
+    '《Vue?React》',
+  ])('leaves other ? alone: %s', (input) => expect(restoreTitleMiddleDots(input)).toBe(input));
 });
