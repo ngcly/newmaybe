@@ -9,10 +9,10 @@
   --white: #ffffff;
   --paper-deep: #efe9de;
   --ink: #2b2722;
-  --ink-soft: #5b5349;
-  --ink-faint: #685e51;
+  --ink-soft: #514840;
+  --ink-faint: #716659;
   --ochre: #92502d;
-  --ochre-deep: #8a4f2e;
+  --ochre-deep: #7a3f20;
   --line: #d9cfbf;
   --watermark-opacity: 0.032;
   --paper-blur: rgba(247, 243, 236, 0.85);
@@ -29,6 +29,21 @@
   --serif-kai: 'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', 'Noto Serif SC', serif;
   --serif-en: 'Cormorant Garamond', 'Noto Serif SC', serif;
 }
+:root {
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.9375rem;
+  --fs-base: 1.0625rem;
+  --fs-md: 1.1875rem;
+  --fs-lg: 1.375rem;
+  --fs-xl: 1.625rem;
+  --fs-2xl: 2.125rem;
+  --fs-headline: clamp(2rem, 5vw, 3.25rem);
+  --fs-title: clamp(2.4rem, 6vw, 4rem);
+  --fs-display: clamp(2.8rem, 7vw, 5.6rem);
+  --corner-sm: 2px;
+  --corner-md: 4px;
+  --corner-round: 999px;
+}
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
     color-scheme: dark;
@@ -38,10 +53,10 @@
     --paper: #1e1b18;
     --paper-deep: #262320;
     --ink: #e8e0d5;
-    --ink-soft: #b5a99a;
-    --ink-faint: #a49789;
+    --ink-soft: #c0b4a5;
+    --ink-faint: #998d7f;
     --ochre: #c4814e;
-    --ochre-deep: #a8643c;
+    --ochre-deep: #d89660;
     --line: #3a3430;
     --watermark-opacity: 0.045;
     --paper-blur: rgba(30, 27, 24, 0.85);
@@ -64,10 +79,10 @@
   --paper: #1e1b18;
   --paper-deep: #262320;
   --ink: #e8e0d5;
-  --ink-soft: #b5a99a;
-  --ink-faint: #a49789;
+  --ink-soft: #c0b4a5;
+  --ink-faint: #998d7f;
   --ochre: #c4814e;
-  --ochre-deep: #a8643c;
+  --ochre-deep: #d89660;
   --line: #3a3430;
   --watermark-opacity: 0.045;
   --paper-blur: rgba(30, 27, 24, 0.85);
@@ -91,10 +106,10 @@
   --white: #ffffff;
   --paper-deep: #efe9de;
   --ink: #2b2722;
-  --ink-soft: #5b5349;
-  --ink-faint: #685e51;
+  --ink-soft: #514840;
+  --ink-faint: #716659;
   --ochre: #92502d;
-  --ochre-deep: #8a4f2e;
+  --ochre-deep: #7a3f20;
   --line: #d9cfbf;
   --watermark-opacity: 0.032;
   --paper-blur: rgba(247, 243, 236, 0.85);
@@ -119,10 +134,10 @@ body {
   --paper: #f7f3ec;
   --paper-deep: #efe9de;
   --ink: #2b2722;
-  --ink-soft: #5b5349;
-  --ink-faint: #685e51;
+  --ink-soft: #514840;
+  --ink-faint: #716659;
   --ochre: #92502d;
-  --ochre-deep: #8a4f2e;
+  --ochre-deep: #7a3f20;
   --cinnabar: #c53d31;
   --line: #d9cfbf;
 }
@@ -133,7 +148,7 @@ body {
   --ink-soft: #615442;
   --ink-faint: #71624e;
   --ochre: #92502d;
-  --ochre-deep: #8a4f2e;
+  --ochre-deep: #7a3f20;
   --cinnabar: #c53d31;
   --line: #cfc0a4;
 }
@@ -144,7 +159,7 @@ body {
   --ink-soft: #465a48;
   --ink-faint: #526b56;
   --ochre: #92502d;
-  --ochre-deep: #8a4f2e;
+  --ochre-deep: #7a3f20;
   --cinnabar: #c53d31;
   --line: #bdcfbc;
 }
@@ -155,7 +170,7 @@ body {
   --ink-soft: #c6bcb0;
   --ink-faint: #aa9f92;
   --ochre: #c4814e;
-  --ochre-deep: #a8643c;
+  --ochre-deep: #d89660;
   --cinnabar: #e85548;
   --line: #48413b;
 }
@@ -164,10 +179,10 @@ body {
     --paper: #1e1b18;
     --paper-deep: #262320;
     --ink: #e8e0d5;
-    --ink-soft: #b5a99a;
-    --ink-faint: #a49789;
+    --ink-soft: #c0b4a5;
+    --ink-faint: #998d7f;
     --ochre: #c4814e;
-    --ochre-deep: #a8643c;
+    --ochre-deep: #d89660;
     --cinnabar: #e85548;
     --line: #3a3430;
   }
@@ -178,7 +193,7 @@ body {
     --ink-soft: #c7b8a0;
     --ink-faint: #ac9b83;
     --ochre: #c4814e;
-    --ochre-deep: #a8643c;
+    --ochre-deep: #d89660;
     --cinnabar: #e85548;
     --line: #54483a;
   }
@@ -189,7 +204,7 @@ body {
     --ink-soft: #b9ccb9;
     --ink-faint: #a0b5a0;
     --ochre: #c4814e;
-    --ochre-deep: #a8643c;
+    --ochre-deep: #d89660;
     --cinnabar: #e85548;
     --line: #465749;
   }
@@ -198,10 +213,10 @@ body {
   --paper: #1e1b18;
   --paper-deep: #262320;
   --ink: #e8e0d5;
-  --ink-soft: #b5a99a;
-  --ink-faint: #a49789;
+  --ink-soft: #c0b4a5;
+  --ink-faint: #998d7f;
   --ochre: #c4814e;
-  --ochre-deep: #a8643c;
+  --ochre-deep: #d89660;
   --cinnabar: #e85548;
   --line: #3a3430;
 }
@@ -212,7 +227,7 @@ body {
   --ink-soft: #c7b8a0;
   --ink-faint: #ac9b83;
   --ochre: #c4814e;
-  --ochre-deep: #a8643c;
+  --ochre-deep: #d89660;
   --cinnabar: #e85548;
   --line: #54483a;
 }
@@ -223,7 +238,7 @@ body {
   --ink-soft: #b9ccb9;
   --ink-faint: #a0b5a0;
   --ochre: #c4814e;
-  --ochre-deep: #a8643c;
+  --ochre-deep: #d89660;
   --cinnabar: #e85548;
   --line: #465749;
 }

@@ -1,0 +1,22 @@
+---
+// 全站共用字体样式表。主站用同源路径；其他站点引用主站地址，与主站请求的是同一个网址，缓存共用。
+import { FONT_STYLESHEET_PATH, fontStylesheetUrl } from './fonts.js';
+
+interface Props {
+  sameOrigin?: boolean;
+}
+
+const { sameOrigin = false } = Astro.props;
+const href = sameOrigin ? FONT_STYLESHEET_PATH : fontStylesheetUrl({ dev: import.meta.env.DEV });
+---
+
+{
+  sameOrigin ? (
+    <link rel="stylesheet" href={href} />
+  ) : (
+    <>
+      <link rel="preconnect" href={new URL(href).origin} crossorigin />
+      <link rel="stylesheet" href={href} crossorigin />
+    </>
+  )
+}

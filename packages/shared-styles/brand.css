@@ -1,0 +1,75 @@
+/* 子站品牌标识：朱印 + newmaybe.子域名 + 中文站名。主站只用「newmaybe.」，不加印。
+   结构：
+   <a class="nm-brand">
+     <span class="nm-brand-seal">雅</span>
+     <span class="nm-brand-text">
+       <span class="nm-brand-word">newmaybe<span class="nm-brand-dot">.</span><span class="nm-brand-sub">club</span></span>
+       <span class="nm-brand-name">文友雅集</span>
+     </span>
+   </a>
+   侧栏等窄处加 nm-brand--stacked，中文站名换到第二行。
+   子元素都挂在 .nm-brand 下，避免被各子站的局部重置样式（如 * { padding: 0 }）覆盖。 */
+.nm-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-shrink: 0;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nm-brand .nm-brand-seal {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.9rem;
+  border: 1px solid var(--cinnabar);
+  border-radius: var(--corner-sm);
+  color: var(--cinnabar-text);
+  font-family: var(--serif-kai);
+  font-size: var(--fs-md);
+  line-height: 1;
+}
+.nm-brand .nm-brand-text {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.nm-brand .nm-brand-word {
+  font-family: var(--serif-en);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.nm-brand .nm-brand-dot {
+  color: var(--ochre);
+}
+.nm-brand .nm-brand-sub {
+  color: var(--ochre);
+  font-style: italic;
+  font-weight: 400;
+}
+.nm-brand .nm-brand-name {
+  padding-left: 0.8rem;
+  border-left: 1px solid var(--line);
+  font-family: var(--serif-cn);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.2em;
+  line-height: 1.2;
+  color: var(--ink-faint);
+}
+.nm-brand--stacked .nm-brand-text {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+.nm-brand--stacked .nm-brand-name {
+  padding-left: 0;
+  border-left: 0;
+}
+@media (max-width: 640px) {
+  .nm-brand:not(.nm-brand--stacked) .nm-brand-name {
+    display: none;
+  }
+}

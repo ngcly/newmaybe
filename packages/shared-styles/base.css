@@ -1,8 +1,2 @@
-@import '@fontsource/cormorant-garamond/latin-400.css';
-@import '@fontsource/cormorant-garamond/latin-400-italic.css';
-@import '@fontsource/cormorant-garamond/latin-600.css';
-@import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
-@import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
-@import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
-@import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
+/* 字体不在这里引入：页面 <head> 用 FontStylesheet.astro 引用主站发布的全站共用字体。 */
 @import './tokens.css';

@@ -1,0 +1,21 @@
+/* React 子站的 Tailwind 字号与圆角指向全站变量（--fs-*、--corner-*），与主站保持同一套阶梯。
+   在 @import 'tailwindcss' 之后引入；text-4xl 及以上留给毛笔标题与装饰大字，不做映射。 */
+@theme {
+  --text-xs: var(--fs-xs);
+  --text-sm: var(--fs-sm);
+  --text-base: var(--fs-base);
+  --text-lg: var(--fs-md);
+  --text-xl: var(--fs-lg);
+  --text-2xl: var(--fs-xl);
+  --text-3xl: var(--fs-2xl);
+
+  /* 按钮、输入框、标签 2px；面板、卡片、弹层 4px；rounded-full 不变 */
+  --radius: var(--corner-sm);
+  --radius-xs: var(--corner-sm);
+  --radius-sm: var(--corner-sm);
+  --radius-md: var(--corner-sm);
+  --radius-lg: var(--corner-md);
+  --radius-xl: var(--corner-md);
+  --radius-2xl: var(--corner-md);
+  --radius-3xl: var(--corner-md);
+}

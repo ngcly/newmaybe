@@ -5,10 +5,10 @@ export const light = {
   white: '#ffffff',
   'paper-deep': '#efe9de',
   ink: '#2b2722',
-  'ink-soft': '#5b5349',
-  'ink-faint': '#685e51',
+  'ink-soft': '#514840',
+  'ink-faint': '#716659',
   ochre: '#92502d',
-  'ochre-deep': '#8a4f2e',
+  'ochre-deep': '#7a3f20',
   line: '#d9cfbf',
   'watermark-opacity': '0.032',
   'paper-blur': 'rgba(247, 243, 236, 0.85)',
@@ -29,10 +29,11 @@ export const dark = {
   paper: '#1e1b18',
   'paper-deep': '#262320',
   ink: '#e8e0d5',
-  'ink-soft': '#b5a99a',
-  'ink-faint': '#a49789',
+  'ink-soft': '#c0b4a5',
+  'ink-faint': '#998d7f',
   ochre: '#c4814e',
-  'ochre-deep': '#a8643c',
+  // Stronger accent for hover/active states; on dark paper that means lighter.
+  'ochre-deep': '#d89660',
   line: '#3a3430',
   'watermark-opacity': '0.045',
   'paper-blur': 'rgba(30, 27, 24, 0.85)',
@@ -45,6 +46,27 @@ export const dark = {
   'withered-bg': '#2d2722',
   'withered-ink': '#d4c7bc',
   bamboo: '#7da08c',
+} as const;
+
+// One type scale for every text size. Prefixed fs- so it never collides with Tailwind's --text-*.
+export const typeScale = {
+  'fs-xs': '0.8125rem', // 13px: dates, tags, captions
+  'fs-sm': '0.9375rem', // 15px: navigation, buttons, secondary notes
+  'fs-base': '1.0625rem', // 17px: list summaries, interface copy
+  'fs-md': '1.1875rem', // 19px: reading text, ledes, quotations
+  'fs-lg': '1.375rem', // 22px: subheadings, wordmark
+  'fs-xl': '1.625rem', // 26px: entry titles
+  'fs-2xl': '2.125rem', // 34px: section titles
+  'fs-headline': 'clamp(2rem, 5vw, 3.25rem)', // article titles
+  'fs-title': 'clamp(2.4rem, 6vw, 4rem)', // page titles
+  'fs-display': 'clamp(2.8rem, 7vw, 5.6rem)', // homepage hero
+} as const;
+
+// Three corner sizes; prefixed corner- so they never collide with Tailwind's --radius-*.
+export const corners = {
+  'corner-sm': '2px', // buttons, inputs, chips, images
+  'corner-md': '4px', // floating panels: menus, dialogs, toasts
+  'corner-round': '999px', // pill toolbars and segmented controls
 } as const;
 
 // Club reading surfaces override the shared semantic colors inside the reader.
@@ -131,62 +153,79 @@ export const clubReaderDark = {
     line: '#465749',
   },
 } as const;
+// Study keeps shadcn-style HSL variables; derive them from the shared palette so its
+// paper, ink and cinnabar match every other app. Only 黛 (dai) and the raised light
+// surface are Study's own.
+const hsl = (hex: string) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+  const h =
+    d === 0 ? 0 : max === r ? ((g - b) / d + 6) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  const round = (n: number) => Math.round(n * 10) / 10;
+  return `${round(h * 60)} ${round(s * 100)}% ${round(l * 100)}%`;
+};
+
 export const studyLight = {
-  background: '42 33% 96%',
-  foreground: '30 10% 16%',
+  background: hsl(light.paper),
+  foreground: hsl(light.ink),
   card: '45 60% 99%',
-  'card-foreground': '30 10% 16%',
+  'card-foreground': hsl(light.ink),
   popover: '45 60% 99%',
-  'popover-foreground': '30 10% 16%',
-  primary: '6 58% 40%',
+  'popover-foreground': hsl(light.ink),
+  primary: hsl(light['cinnabar-text']),
   'primary-foreground': '45 60% 98%',
-  secondary: '42 24% 90%',
-  'secondary-foreground': '30 10% 20%',
-  muted: '42 20% 91%',
-  'muted-foreground': '32 8% 35%',
+  secondary: hsl(light['paper-deep']),
+  'secondary-foreground': hsl(light.ink),
+  muted: hsl(light['paper-deep']),
+  'muted-foreground': hsl(light['ink-soft']),
   accent: '193 24% 31%',
   'accent-foreground': '45 60% 98%',
   destructive: '0 70% 45%',
   'destructive-foreground': '0 0% 98%',
-  border: '40 22% 84%',
-  input: '40 22% 84%',
-  ring: '6 58% 40%',
-  radius: '0.5rem',
-  'study-cinnabar': '#a63a2c',
+  border: hsl(light.line),
+  input: hsl(light.line),
+  ring: hsl(light['cinnabar-text']),
+  radius: corners['corner-sm'],
+  'study-cinnabar': light.cinnabar,
   'study-dai': '#3d5560',
-  'study-paper': '#f7f4ee',
+  'study-paper': light.paper,
   'study-surface': '#fffdf8',
-  'study-scrollbar': '#d8cdb8',
-  'study-cinnabar-text': '#a63a2c',
+  'study-scrollbar': light.line,
+  'study-cinnabar-text': light['cinnabar-text'],
   'study-dai-text': '#3d5560',
-  'study-on-accent': '#ffffff',
+  'study-on-accent': light.white,
 } as const;
 export const studyDark = {
-  background: '213 30% 9%',
-  foreground: '46 18% 86%',
-  card: '213 26% 13%',
-  'card-foreground': '46 18% 86%',
-  popover: '213 26% 13%',
-  'popover-foreground': '46 18% 86%',
-  primary: '7 52% 55%',
-  'primary-foreground': '45 40% 96%',
-  secondary: '213 20% 18%',
-  'secondary-foreground': '46 15% 82%',
-  muted: '213 18% 16%',
-  'muted-foreground': '46 8% 70%',
+  background: hsl(dark.paper),
+  foreground: hsl(dark.ink),
+  card: hsl(dark['paper-deep']),
+  'card-foreground': hsl(dark.ink),
+  popover: hsl(dark['paper-deep']),
+  'popover-foreground': hsl(dark.ink),
+  primary: hsl(dark['cinnabar-text']),
+  'primary-foreground': hsl(dark.paper),
+  secondary: hsl(dark['withered-bg']),
+  'secondary-foreground': hsl(dark.ink),
+  muted: hsl(dark['withered-bg']),
+  'muted-foreground': hsl(dark['ink-soft']),
   accent: '194 26% 55%',
   'accent-foreground': '46 18% 88%',
   destructive: '0 60% 50%',
   'destructive-foreground': '0 0% 98%',
-  border: '213 18% 22%',
-  input: '213 18% 22%',
-  ring: '7 52% 55%',
-  'study-cinnabar': '#b04a38',
+  border: hsl(dark.line),
+  input: hsl(dark.line),
+  ring: hsl(dark['cinnabar-text']),
+  // Seal ink is the same red by day and night; cinnabar text brightens on dark paper.
+  'study-cinnabar': light.cinnabar,
   'study-dai': '#46626e',
-  'study-paper': '#10171f',
-  'study-surface': '#151e28',
-  'study-scrollbar': '#2b3a47',
-  'study-cinnabar-text': '#cd6a55',
+  'study-paper': dark.paper,
+  'study-surface': dark['paper-deep'],
+  'study-scrollbar': dark.line,
+  'study-cinnabar-text': dark['cinnabar-text'],
   'study-dai-text': '#7fa3b3',
 } as const;
 
@@ -267,7 +306,7 @@ export const CARD_THEMES = {
     bg: light.ochre,
     text: light.paper,
     accent: light.paper,
-    line: light['ochre-deep'],
+    line: '#8a4f2e', // matches POSTER_THEMES.ochre; exported cards keep their rule color
     textSoft: light.paper,
     textFaint: light.paper,
   },

@@ -8,6 +8,8 @@ import {
   clubReaderDark,
   studyLight,
   studyDark,
+  typeScale,
+  corners,
 } from '../packages/design-tokens/src/index';
 const block = (selector: string, values: Record<string, string>) =>
   selector +
@@ -23,6 +25,7 @@ const outputs = {
     header +
     ':root {\n  color-scheme: light;\n  background-color: var(--paper);\n}\n' +
     block(':root', light) +
+    block(':root', { ...typeScale, ...corners }) +
     '@media (prefers-color-scheme: dark) {\n' +
     '  :root:not(.light) {\n    color-scheme: dark;\n    background-color: var(--paper);\n  }\n' +
     block(':root:not(.light)', dark) +

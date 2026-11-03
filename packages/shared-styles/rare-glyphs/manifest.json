@@ -1,0 +1,251 @@
+{
+  "sources": [
+    {
+      "id": "noto",
+      "url": "https://github.com/notofonts/noto-cjk/raw/main/Serif/SubsetOTF/SC/NotoSerifSC-Regular.otf",
+      "license": "SIL Open Font License 1.1"
+    },
+    {
+      "id": "jigmo",
+      "url": "https://kamichikoichi.github.io/jigmo/Jigmo-20250912.zip",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "jigmo2",
+      "url": "https://kamichikoichi.github.io/jigmo/Jigmo-20250912.zip",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "jigmo3",
+      "url": "https://kamichikoichi.github.io/jigmo/Jigmo-20250912.zip",
+      "license": "CC0 1.0"
+    }
+  ],
+  "faces": [
+    {
+      "file": "noto-0.woff2",
+      "source": "noto",
+      "chars": "㐌㑌㑹㒔㒲㓦㔋㔍㔩㕓㕳㖔㖦㛗㝱㞕"
+    },
+    {
+      "file": "noto-1.woff2",
+      "source": "noto",
+      "chars": "㞞㞦㟁㟥㟬㠁㠕㠗㡠㥛㧮㨄㨪㨰㩉㩙"
+    },
+    {
+      "file": "noto-2.woff2",
+      "source": "noto",
+      "chars": "㩟㩧㩻㫄㫰㬋㭎㮏㯼㲲㳛㳠㳡㴎㴑㵋"
+    },
+    {
+      "file": "noto-3.woff2",
+      "source": "noto",
+      "chars": "㵌㵎㵐㶉㶏㸌㸐㹖㹠㹮㺎㺑㻞㻬㻯㼐"
+    },
+    {
+      "file": "noto-4.woff2",
+      "source": "noto",
+      "chars": "㼜㾖㾭㿚䀉䀶䀹䁹䃜䄂䄡䊮䊸䋎䋏䋺"
+    },
+    {
+      "file": "noto-5.woff2",
+      "source": "noto",
+      "chars": "䌌䌰䌷䍐䍠䍡䍧䍽䏶䐜䐞䐠䐣䐩䐪䐼"
+    },
+    {
+      "file": "noto-6.woff2",
+      "source": "noto",
+      "chars": "䐿䑕䔁䔩䔲䕷䗖䗯䗶䘖䘝䘭䙞䛏䜩䝙"
+    },
+    {
+      "file": "noto-7.woff2",
+      "source": "noto",
+      "chars": "䝞䟡䟤䠞䢑䢵䣕䣜䣳䤅䤕䤵䥈䥫䦶䦷"
+    },
+    {
+      "file": "noto-8.woff2",
+      "source": "noto",
+      "chars": "䧟䨥䩺䪢䪣䬧䬾䭔䭞䭣䯄䯲䯼䱇䱐䱜"
+    },
+    {
+      "file": "noto-9.woff2",
+      "source": "noto",
+      "chars": "䱤䱥䱭䱰䱹䲛䲦䲻䳅䳒䴔䴖䴗䴙䴛䴠"
+    },
+    {
+      "file": "noto-10.woff2",
+      "source": "noto",
+      "chars": "䴥䵣侲僛儠刓剸匵咇咈咮唊唚啅啽喭"
+    },
+    {
+      "file": "noto-11.woff2",
+      "source": "noto",
+      "chars": "噇噮嚈塪媢屩岇岏崪崿嵲嶻幍幰彄忺"
+    },
+    {
+      "file": "noto-12.woff2",
+      "source": "noto",
+      "chars": "悤悷憪懎捘掯揌搊搕搘搳摴攦斮斸杅"
+    },
+    {
+      "file": "noto-13.woff2",
+      "source": "noto",
+      "chars": "杙枲枿柮梪棔椑椵槥橃櫑欀欱歍毾洭"
+    },
+    {
+      "file": "noto-14.woff2",
+      "source": "noto",
+      "chars": "滱澟瀡瀱焍熛熢犨狤狫瑇甒甖痆痑盄"
+    },
+    {
+      "file": "noto-15.woff2",
+      "source": "noto",
+      "chars": "眊眜睟瞂瞚瞤瞫矼磶祋禖秬穄穼筥篏"
+    },
+    {
+      "file": "noto-16.woff2",
+      "source": "noto",
+      "chars": "簴籝籰絍絙緺纕绖缹罦罬羓聻肐胘胣"
+    },
+    {
+      "file": "noto-17.woff2",
+      "source": "noto",
+      "chars": "胹胾腷膋膎膫膰膹臡茞茩莝菆萯葅葌"
+    },
+    {
+      "file": "noto-18.woff2",
+      "source": "noto",
+      "chars": "葹薋薲藋虋虨虪虸蚄蚿蛂蛈蛚蛣蜹蜼"
+    },
+    {
+      "file": "noto-19.woff2",
+      "source": "noto",
+      "chars": "螉螝螾蟁蟢蠒蠮蠾袔袚袟裩褧褵襔襢"
+    },
+    {
+      "file": "noto-20.woff2",
+      "source": "noto",
+      "chars": "觡觻觾謑谾貈貜跐跴踖踠踧蹏蹧躆躧"
+    },
+    {
+      "file": "noto-21.woff2",
+      "source": "noto",
+      "chars": "軥軬輀輠轣迆迾遬遰鄩鄽醁醦醲醶醼"
+    },
+    {
+      "file": "noto-22.woff2",
+      "source": "noto",
+      "chars": "醽釱鈚鉐鋡錔鍱鏚镮闬阸雊雘霣靤靸"
+    },
+    {
+      "file": "noto-23.woff2",
+      "source": "noto",
+      "chars": "鞓韎韐顦飵飺餗餥餦餭饆饠馂駬騋騞"
+    },
+    {
+      "file": "noto-24.woff2",
+      "source": "noto",
+      "chars": "驔驲骭髆髲髶髾鬅鬌鬒鬕鬙鬺魌魧鮆"
+    },
+    {
+      "file": "noto-25.woff2",
+      "source": "noto",
+      "chars": "鮧鯶鯸鰡鱄鱮鳷鴘鵴鵹鵽鷃鷠鸃鸆鸧"
+    },
+    {
+      "file": "noto-26.woff2",
+      "source": "noto",
+      "chars": "鹔鹙鹥鹲鹴麀麨黡鼒鼕𪩘𫄨𫄸𫐄𫗧𫘧"
+    },
+    {
+      "file": "noto-27.woff2",
+      "source": "noto",
+      "chars": "𬀩𬤇𬬻𬮱𬯎"
+    },
+    {
+      "file": "jigmo2-0.woff2",
+      "source": "jigmo2",
+      "chars": "𠈃𠉄𠊱𠡠𠲮𠳹𠷺𠼙𠾎𡁠𡆩𡇘𡙁𡙡𡨴𡲆"
+    },
+    {
+      "file": "jigmo2-1.woff2",
+      "source": "jigmo2",
+      "chars": "𡶭𡸷𡹤𡺯𡻻𢈦𢐪𢓨𢕟𢘙𢜤𢠸𢣺𢬵𢮞𢱈"
+    },
+    {
+      "file": "jigmo2-2.woff2",
+      "source": "jigmo2",
+      "chars": "𢱉𢲾𢳥𢵞𣍾𣖾𣗥𣗳𣜭𣞺𣨎𣨼𣬠𣬶𣬼𣲭"
+    },
+    {
+      "file": "jigmo2-3.woff2",
+      "source": "jigmo2",
+      "chars": "𣲵𣹠𤄬𤄶𤆑𤘝𤛎𤜣𤝻𤞞𤟇𤟎𤟑𤟤𤠢𤡑"
+    },
+    {
+      "file": "jigmo2-4.woff2",
+      "source": "jigmo2",
+      "chars": "𤡓𤢖𤢺𤣎𤤮𤥎𤨿𤫫𤱶𤴯𥁲𥉐𥌓𥌠𥐙𥑮"
+    },
+    {
+      "file": "jigmo2-5.woff2",
+      "source": "jigmo2",
+      "chars": "𥚑𥜗𥩟𥮐𥮾𥳑𥹆𥹋𥻓𥿉𦁎𦂯𦅖𦈙𦊰𦋏"
+    },
+    {
+      "file": "jigmo2-6.woff2",
+      "source": "jigmo2",
+      "chars": "𦌊𦍲𦙌𦙤𦙫𦝫𦞂𦞤𦞧𦢊𦨻𦬆𦬩𦬸𦱤𦵧"
+    },
+    {
+      "file": "jigmo2-7.woff2",
+      "source": "jigmo2",
+      "chars": "𦷾𦿆𧇭𧊁𧊳𧊵𧌊𧌒𧍡𧍪𧑒𧑤𧒭𧕛𧜽𧝓"
+    },
+    {
+      "file": "jigmo2-8.woff2",
+      "source": "jigmo2",
+      "chars": "𧞔𧟌𧰚𧲂𨀵𨁏𨂂𨇤𨎍𨑺𨓦𨕌𨚑𨚗𨚲𨜩"
+    },
+    {
+      "file": "jigmo2-9.woff2",
+      "source": "jigmo2",
+      "chars": "𨜰𨞪𨟹𨠔𨣅𨨄𨫼𨭛𨮗𨮸𨱀𨲠𨳩𨴃𨸟𨻻"
+    },
+    {
+      "file": "jigmo2-10.woff2",
+      "source": "jigmo2",
+      "chars": "𩇯𩇵𩈅𩊅𩍐𩜌𩜑𩜼𩜽𩟩𩣡𩦎𩫻𩭪𩮎𩮑"
+    },
+    {
+      "file": "jigmo2-11.woff2",
+      "source": "jigmo2",
+      "chars": "𩲫𩳁𩴧𩴵𩵀𩵻𩶯𩷟𩼧𩾥𩿧𩿨𪁺𪂧𪃑𪄀"
+    },
+    {
+      "file": "jigmo2-12.woff2",
+      "source": "jigmo2",
+      "chars": "𪄶𪅆𪅠𪆻𪇆𪇱𪈘𪉮𪉱𪊊𪊨𪐼𪑦𪓰𪡧𪨱"
+    },
+    {
+      "file": "jigmo2-13.woff2",
+      "source": "jigmo2",
+      "chars": "𪭢𪸩𪹳𪿪𫄫𫄬𫇛𫇪𫇴𫈦𫊹𫏐𫏑𫐌𫐕𫓪"
+    },
+    {
+      "file": "jigmo2-14.woff2",
+      "source": "jigmo2",
+      "chars": "𫕥𫖇𫗡𫘈𫚥𫛶𫫾𬙎𬡇𭞧𭟼𭡗𭳇𮄥𮅕𮈧"
+    },
+    {
+      "file": "jigmo2-15.woff2",
+      "source": "jigmo2",
+      "chars": "𮎰𮞉𮢩𮧴"
+    },
+    {
+      "file": "jigmo3-0.woff2",
+      "source": "jigmo3",
+      "chars": "𰬸"
+    }
+  ]
+}

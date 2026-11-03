@@ -3,12 +3,19 @@
   "version": "1.0.0",
   "private": true,
   "exports": {
+    "./FontStylesheet.astro": "./FontStylesheet.astro",
     "./base.css": "./base.css",
+    "./brand.css": "./brand.css",
+    "./fonts": {
+      "types": "./fonts.d.ts",
+      "default": "./fonts.js"
+    },
+    "./tailwind-scale.css": "./tailwind-scale.css",
     "./tokens.css": "./tokens.css"
   },
   "dependencies": {
-    "@fontsource/cormorant-garamond": "^5.2.11",
-    "@fontsource/noto-serif-sc": "^5.2.9",
+    "@fontsource/cormorant-garamond": "~5.2.11",
+    "@fontsource/noto-serif-sc": "~5.2.9",
     "@newmaybe/design-tokens": "*"
   }
 }

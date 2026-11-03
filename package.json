@@ -34,6 +34,8 @@
     "build": "npm run build --workspaces --if-present",
     "tokens:build": "node --import tsx scripts/generate-tokens.ts",
     "tokens:check": "node --import tsx scripts/generate-tokens.ts --check",
+    "fonts:build": "node --import tsx scripts/build-shared-fonts.ts",
+    "fonts:rare": "node --import tsx scripts/build-rare-glyphs.ts",
     "test:e2e": "playwright test",
     "budget": "node --import tsx scripts/check-budgets.ts",
     "affected": "node --import tsx scripts/affected-apps.ts",
