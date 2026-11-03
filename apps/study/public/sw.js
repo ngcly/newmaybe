@@ -33,11 +33,11 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
 
-  // 跨域资源不拦截（除 Google Fonts 切片与 CDN 样式外）
-  const isGoogleFont =
-    url.hostname.includes('fonts.gstatic.com') || url.hostname.includes('fonts.googleapis.com');
+  // 主站发布的全站共用字体：字体文件名带哈希，缓存优先；样式表走下方的网络优先，离线时用缓存
+  const isSharedFont = url.hostname === 'newmaybe.com' && url.pathname.startsWith('/fonts/');
 
-  if (url.origin !== self.location.origin && !isGoogleFont) {
+  // 其他跨域资源不拦截
+  if (url.origin !== self.location.origin && !isSharedFont) {
     return;
   }
 
@@ -66,7 +66,8 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Only content-hashed static assets use cache-first.
-  const isStaticOrText = url.pathname.startsWith('/assets/') || isGoogleFont;
+  const isStaticOrText =
+    url.pathname.startsWith('/assets/') || (isSharedFont && url.pathname.includes('/files/'));
 
   if (isStaticOrText) {
     event.respondWith(

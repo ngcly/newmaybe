@@ -105,7 +105,7 @@ export default function PathPage() {
                           </div>
 
                           <div className="mt-3 pt-2.5 border-t">
-                            <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                               <span>
                                 {b.dynasty} · {b.author}
                               </span>

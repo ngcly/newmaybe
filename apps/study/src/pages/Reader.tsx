@@ -21,7 +21,7 @@ import { ChevronLeft, ChevronRight, Minimize2 } from 'lucide-react';
 import { ReaderSkeleton } from '@/components/ReaderSkeleton';
 import { ReaderSettingsDrawer } from '@/components/ReaderSettingsDrawer';
 import { ReaderToolbar } from '@/components/ReaderToolbar';
-import { notify, paraClass, renderAnnotatedText } from '@/lib/reader-utils';
+import { notify, paraClass, renderAnnotatedText, sectionTitles } from '@/lib/reader-utils';
 
 export default function Reader() {
   const { bookId = '', n = '0' } = useParams();
@@ -153,6 +153,9 @@ export default function Reader() {
   const layoutType = data?.layout?.type;
   const verse = layoutType === 'poetry' || layoutType === 'ci';
   const isCoupletBook = layoutType === 'couplet';
+  // 章内各篇篇名（聊斋志异），显示为小标题
+  const sections = data ? sectionTitles(data.paras) : new Set<string>();
+  const isSection = (stanza: string[]) => stanza.length === 1 && sections.has(stanza[0]);
 
   const tuneName = data?.tune || '';
   const subTitle = data?.title || '';
@@ -338,7 +341,7 @@ export default function Reader() {
                           acc.push(
                             <div key={`banxin-${i}`} className="banxin-fold shrink-0 select-none">
                               <div className="banxin-fishtail" />
-                              <div className="py-2 text-[10px] opacity-70 font-semibold">
+                              <div className="py-2 text-xs opacity-70 font-semibold">
                                 {book.title}
                               </div>
                               <div className="banxin-fishtail rotate-180" />
@@ -352,6 +355,15 @@ export default function Reader() {
                             />,
                           );
                         }
+                      }
+
+                      if (isSection(stanza)) {
+                        acc.push(
+                          <h2 key={i} className="reader-section">
+                            {stanza[0]}
+                          </h2>,
+                        );
+                        return acc;
                       }
 
                       stanza.forEach((line, idx) => {
@@ -381,6 +393,14 @@ export default function Reader() {
               >
                 {data.paras.map((stanza, i) => {
                   const pCls = stanza.length === 1 ? paraClass(stanza[0]) : '';
+
+                  if (isSection(stanza)) {
+                    return (
+                      <h2 key={i} className="reader-section">
+                        {stanza[0]}
+                      </h2>
+                    );
+                  }
 
                   if (isCoupletBook && !pCls) {
                     return (

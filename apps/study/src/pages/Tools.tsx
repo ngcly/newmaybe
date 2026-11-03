@@ -93,7 +93,7 @@ export default function Tools() {
               </h3>
               <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-cinnabar" />
             </div>
-            <span className="inline-block mt-2 text-[11px] px-2 py-0.5 rounded-full bg-dai/10 text-dai">
+            <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-dai/10 text-dai">
               {t.tag}
             </span>
             <p className="mt-3 text-sm text-muted-foreground leading-6">{t.desc}</p>

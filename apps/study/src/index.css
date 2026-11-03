@@ -1,6 +1,9 @@
+/* 字体由 index.html 引用主站发布的全站共用字体（sharedFonts 插件注入），这里不再打包 */
 @import '@newmaybe/shared-styles/tokens.css';
+@import '@newmaybe/shared-styles/brand.css';
 @import '@newmaybe/design-tokens/study.css';
 @import 'tailwindcss';
+@import '@newmaybe/shared-styles/tailwind-scale.css';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -37,11 +40,8 @@
   --color-paper: var(--study-paper);
   --color-surface: var(--study-surface);
   --font-brush: 'Ma Shan Zheng', 'Noto Serif SC', 'Songti SC', serif;
-  --radius-xs: calc(var(--radius) - 6px);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  /* font-serif 与正文同一套衬线，不落到 Georgia 与系统宋体 */
+  --font-serif: var(--serif-cn);
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 
@@ -93,13 +93,34 @@
     font-feature-settings: 'palt' 1;
     text-wrap: pretty;
     background-image:
-      radial-gradient(ellipse at 15% 0%, rgba(166, 58, 44, 0.03), transparent 55%),
-      radial-gradient(ellipse at 90% 100%, rgba(61, 85, 96, 0.04), transparent 50%);
+      radial-gradient(
+        ellipse at 15% 0%,
+        color-mix(in srgb, var(--study-cinnabar) 3%, transparent),
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse at 90% 100%,
+        color-mix(in srgb, var(--study-dai) 4%, transparent),
+        transparent 50%
+      );
   }
   html.dark body {
     background-image:
-      radial-gradient(ellipse at 15% 0%, rgba(205, 106, 85, 0.05), transparent 55%),
-      radial-gradient(ellipse at 90% 100%, rgba(127, 163, 179, 0.05), transparent 50%);
+      radial-gradient(
+        ellipse at 15% 0%,
+        color-mix(in srgb, var(--study-cinnabar-text) 5%, transparent),
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse at 90% 100%,
+        color-mix(in srgb, var(--study-dai-text) 5%, transparent),
+        transparent 50%
+      );
+  }
+  /* 段落与引用的诗句保持全角标点；body 上的 palt（标点半宽）只留给导航、标签等界面文字 */
+  p,
+  blockquote {
+    font-feature-settings: normal;
   }
 }
 
@@ -109,20 +130,20 @@
     text-orientation: upright;
   }
   .seal {
-    @apply inline-flex items-center justify-center rounded-[4px] bg-cinnabar text-white font-brush;
-    box-shadow: 0 1px 3px rgba(166, 58, 44, 0.4);
+    @apply inline-flex items-center justify-center rounded-sm bg-cinnabar text-white font-brush;
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--study-cinnabar) 40%, transparent);
   }
   .chapter-nav::-webkit-scrollbar {
     width: 4px;
   }
   .chapter-nav::-webkit-scrollbar-thumb {
     background: var(--study-scrollbar);
-    border-radius: 2px;
+    border-radius: var(--corner-sm);
   }
 }
 
-/* 玄青夜读：硬编码工具类的暗色映射 */
-.dark .text-cinnabar {
+/* 朱色文字统一用加深/提亮后的 cinnabar-text，保证在纸色与卡片上都达到对比度；朱色底仍用 cinnabar */
+.text-cinnabar {
   color: var(--study-cinnabar-text);
 }
 .dark .text-dai {
@@ -149,7 +170,8 @@
 }
 /* 楷体模式 */
 .reader-body.reader-kai p,
-.reader-vertical.reader-kai p {
+.reader-vertical.reader-kai p,
+.reader-kai .reader-section {
   font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'Noto Serif SC', 'Songti SC', serif;
   font-weight: 400 !important;
 }
@@ -179,6 +201,47 @@
   margin-left: 2.2em;
   margin-right: 1.2em;
 }
+/* 卷首篇目行（本篇目：……）：淡化如目录 */
+.reader-body p.reader-contents,
+.reader-vertical p.reader-contents {
+  text-indent: 0;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.85em;
+  line-height: 1.95;
+  letter-spacing: 0.06em;
+}
+/* 章内篇名小标题：朱砂、加粗、字距舒展 */
+.reader-section {
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: var(--study-cinnabar-text);
+}
+/* 横排：居中，两侧细线同章名下的饰线；篇前多留一段空白 */
+.reader-body .reader-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9em;
+  margin: 2.6em 0 1em;
+  line-height: 2.05;
+}
+.reader-body .reader-section::before,
+.reader-body .reader-section::after {
+  content: '';
+  width: 1.8em;
+  height: 1px;
+  background: color-mix(in srgb, var(--study-cinnabar-text) 45%, transparent);
+}
+/* 抵消末字后的字距，使两侧细线对称 */
+.reader-body .reader-section::after {
+  margin-left: -0.3em;
+}
+/* 竖排：自上沉下一截，前后留出行距 */
+.reader-vertical .reader-section {
+  margin: 0 1.4em 0 2.4em;
+  padding-top: 1.5em;
+  line-height: 2.3;
+}
 
 /* 竖排古籍画卷模式 */
 .reader-vertical-wrapper {
@@ -191,7 +254,7 @@
 }
 .reader-vertical-wrapper::-webkit-scrollbar-thumb {
   background: var(--study-scrollbar);
-  border-radius: 3px;
+  border-radius: var(--corner-sm);
 }
 .dark .reader-vertical-wrapper::-webkit-scrollbar-thumb {
   background: var(--study-scrollbar);
@@ -213,11 +276,11 @@
   letter-spacing: 0.12em;
 }
 .reader-vertical p:not(.reader-divider):not(.reader-pattern) {
-  border-left: 1px dashed rgba(166, 58, 44, 0.15);
+  border-left: 1px dashed color-mix(in srgb, var(--study-cinnabar) 15%, transparent);
   padding-left: 0.6em;
 }
 .dark .reader-vertical p:not(.reader-divider):not(.reader-pattern) {
-  border-left-color: rgba(205, 106, 85, 0.2);
+  border-left-color: color-mix(in srgb, var(--study-cinnabar-text) 20%, transparent);
 }
 
 /* 词牌大字朱砂印章 */
@@ -228,9 +291,9 @@
   padding: 0.25rem 0.75rem;
   background-color: var(--study-cinnabar);
   color: var(--study-on-accent);
-  border-radius: 4px;
+  border-radius: var(--corner-sm);
   font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
-  box-shadow: 0 2px 6px rgba(166, 58, 44, 0.35);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--study-cinnabar) 35%, transparent);
   letter-spacing: 0.1em;
 }
 .dark .tune-seal-badge {
@@ -239,20 +302,20 @@
 
 /* 声律对仗卡片 */
 .couplet-card {
-  background: rgba(166, 58, 44, 0.03);
-  border: 1px solid rgba(166, 58, 44, 0.18);
-  border-radius: 8px;
+  background: color-mix(in srgb, var(--study-cinnabar) 3%, transparent);
+  border: 1px solid color-mix(in srgb, var(--study-cinnabar) 18%, transparent);
+  border-radius: var(--corner-md);
   padding: 1.25rem 1.5rem;
   margin: 1.25rem 0;
   transition: all 0.25s ease;
 }
 .couplet-card:hover {
-  border-color: rgba(166, 58, 44, 0.4);
-  box-shadow: 0 4px 12px rgba(166, 58, 44, 0.08);
+  border-color: color-mix(in srgb, var(--study-cinnabar) 40%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--study-cinnabar) 8%, transparent);
 }
 .dark .couplet-card {
-  background: rgba(205, 106, 85, 0.04);
-  border-color: rgba(205, 106, 85, 0.2);
+  background: color-mix(in srgb, var(--study-cinnabar-text) 4%, transparent);
+  border-color: color-mix(in srgb, var(--study-cinnabar-text) 20%, transparent);
 }
 
 /* 宣纸肌理 */
@@ -294,9 +357,9 @@
 .crease-line {
   margin-left: 2.2em;
   margin-right: 1.4em;
-  border-left: 2px solid rgba(166, 58, 44, 0.07);
-  border-right: 1px solid rgba(166, 58, 44, 0.03);
-  box-shadow: -4px 0 8px -2px rgba(166, 58, 44, 0.04);
+  border-left: 2px solid color-mix(in srgb, var(--study-cinnabar) 7%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--study-cinnabar) 3%, transparent);
+  box-shadow: -4px 0 8px -2px color-mix(in srgb, var(--study-cinnabar) 4%, transparent);
   align-self: stretch;
 }
 .dark .crease-line {
@@ -315,10 +378,10 @@
   margin-left: 2.2em;
   margin-right: 1.6em;
   width: 22px;
-  border-left: 1px solid rgba(166, 58, 44, 0.12);
-  border-right: 1px solid rgba(166, 58, 44, 0.12);
-  background-color: rgba(166, 58, 44, 0.015);
-  color: rgba(166, 58, 44, 0.35);
+  border-left: 1px solid color-mix(in srgb, var(--study-cinnabar) 12%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--study-cinnabar) 12%, transparent);
+  background-color: color-mix(in srgb, var(--study-cinnabar) 1.5%, transparent);
+  color: color-mix(in srgb, var(--study-cinnabar) 35%, transparent);
   font-size: 0.72em;
   padding: 1.5rem 0;
   letter-spacing: 0.1em;
@@ -369,7 +432,7 @@
   position: relative;
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
-  border-radius: 12px;
+  border-radius: var(--corner-md);
   overflow: hidden;
   transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -382,41 +445,41 @@
   width: 5px;
   background: linear-gradient(
     90deg,
-    rgba(166, 58, 44, 0.35) 0%,
-    rgba(166, 58, 44, 0.08) 70%,
+    color-mix(in srgb, var(--study-cinnabar) 35%, transparent) 0%,
+    color-mix(in srgb, var(--study-cinnabar) 8%, transparent) 70%,
     transparent 100%
   );
-  border-right: 1px solid rgba(166, 58, 44, 0.2);
+  border-right: 1px solid color-mix(in srgb, var(--study-cinnabar) 20%, transparent);
   pointer-events: none;
 }
 .book-spine-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(166, 58, 44, 0.45);
+  border-color: color-mix(in srgb, var(--study-cinnabar) 45%, transparent);
   box-shadow: 0 8px 24px rgba(43, 39, 34, 0.06);
 }
 .dark .book-spine-card::before {
   background: linear-gradient(
     90deg,
-    rgba(205, 106, 85, 0.4) 0%,
-    rgba(205, 106, 85, 0.08) 70%,
+    color-mix(in srgb, var(--study-cinnabar-text) 40%, transparent) 0%,
+    color-mix(in srgb, var(--study-cinnabar-text) 8%, transparent) 70%,
     transparent 100%
   );
-  border-right-color: rgba(205, 106, 85, 0.25);
+  border-right-color: color-mix(in srgb, var(--study-cinnabar-text) 25%, transparent);
 }
 .dark .book-spine-card:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  border-color: rgba(205, 106, 85, 0.4);
+  border-color: color-mix(in srgb, var(--study-cinnabar-text) 40%, transparent);
 }
 
 /* 结构化 AI 评阅卡片 */
 .critique-section {
   border-left: 3px solid var(--study-cinnabar);
   padding: 0.75rem 1rem;
-  background: rgba(166, 58, 44, 0.025);
-  border-radius: 0 6px 6px 0;
+  background: color-mix(in srgb, var(--study-cinnabar) 2.5%, transparent);
+  border-radius: 0 var(--corner-md) var(--corner-md) 0;
   margin-top: 0.75rem;
 }
 .dark .critique-section {
   border-left-color: var(--study-cinnabar-text);
-  background: rgba(205, 106, 85, 0.05);
+  background: color-mix(in srgb, var(--study-cinnabar-text) 5%, transparent);
 }

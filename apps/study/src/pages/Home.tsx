@@ -99,7 +99,7 @@ export default function Home() {
             <span className="text-cinnabar ml-1.5 inline-block">而读</span>
           </h1>
 
-          <p className="mt-6 max-w-2xl text-muted-foreground leading-8 text-base md:text-lg">
+          <p className="mt-6 max-w-3xl text-muted-foreground leading-8 text-base md:text-lg">
             不做泛泛的古籍图书馆。四十三部经典，每一部都回答三个核心问题：
             <span className="text-foreground font-semibold"> 为什么读、怎么读、仿什么写</span>。
             从对仗启蒙到红楼融通，铺就一条清晰可循的文人进阶之路。
@@ -108,13 +108,13 @@ export default function Home() {
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
               to="/path"
-              className="inline-flex items-center gap-2 rounded-lg bg-cinnabar px-6 py-3 text-white font-medium hover:bg-cinnabar/90 shadow-sm transition-all"
+              className="inline-flex items-center gap-2 rounded-lg bg-cinnabar px-6 py-3 text-base text-white font-medium hover:bg-cinnabar/90 shadow-sm transition-all"
             >
               查看进阶路径 <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               to="/books"
-              className="inline-flex items-center gap-2 rounded-lg border border-cinnabar/40 text-cinnabar px-6 py-3 font-medium bg-surface hover:bg-cinnabar/5 transition-all shadow-xs"
+              className="inline-flex items-center gap-2 rounded-lg border border-cinnabar/40 text-cinnabar px-6 py-3 text-base font-medium bg-surface hover:bg-cinnabar/5 transition-all shadow-xs"
             >
               进入文林书库
             </Link>
@@ -294,14 +294,14 @@ export default function Home() {
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="seal w-7 h-7 text-xs rounded-[3px] shrink-0 font-medium">
+                      <span className="seal w-7 h-7 text-xs rounded-sm shrink-0 font-medium">
                         {b.dynasty.slice(0, 1)}
                       </span>
                       <h3 className="text-lg font-bold text-foreground group-hover:text-cinnabar transition-colors truncate">
                         {b.title}
                       </h3>
                     </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-dai/10 text-dai font-medium shrink-0">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-dai/10 text-dai font-medium shrink-0">
                       {TIER_NAMES[b.tier]}
                     </span>
                   </div>
@@ -321,13 +321,13 @@ export default function Home() {
                       {b.tags.slice(0, 2).map((t) => (
                         <span
                           key={t}
-                          className="text-[10px] px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground"
+                          className="text-xs px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground"
                         >
                           {t}
                         </span>
                       ))}
                     </div>
-                    <span className="text-[11px] text-muted-foreground group-hover:text-cinnabar transition-colors font-medium">
+                    <span className="text-xs text-muted-foreground group-hover:text-cinnabar transition-colors font-medium">
                       {read > 0 ? `已读 ${read}/${b.chapters} 章 (${percent}%)` : '开始研读 →'}
                     </span>
                   </div>

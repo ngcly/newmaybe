@@ -50,29 +50,18 @@ export default function SiteLayout() {
       <header className="sticky top-0 z-40 border-b bg-paper">
         <div className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 shrink-0">
-            <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-              <span className="seal w-8 h-8 text-lg leading-none group-hover:scale-105 transition-transform">
+            <Link to="/" className="nm-brand">
+              <span className="nm-brand-seal" aria-hidden="true">
                 书
               </span>
-              <div className="flex flex-col">
-                <span className="font-brush text-xl tracking-wide leading-tight group-hover:text-cinnabar transition-colors">
-                  林下书房
+              <span className="nm-brand-text">
+                <span className="nm-brand-word">
+                  newmaybe<span className="nm-brand-dot">.</span>
+                  <span className="nm-brand-sub">study</span>
                 </span>
-                <span className="text-[10px] text-muted-foreground scale-90 origin-left hidden sm:inline -mt-0.5">
-                  为古风写作而读
-                </span>
-              </div>
+                <span className="nm-brand-name">林下书房</span>
+              </span>
             </Link>
-            <a
-              href="https://newmaybe.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-cinnabar border-l pl-2.5 py-0.5 transition-colors"
-              title="返回 newmaybe 首页与数字生态"
-            >
-              <span>newmaybe</span>
-              <span className="text-[9px] opacity-70">↗</span>
-            </a>
           </div>
 
           {/* 桌面端导航 */}
@@ -105,7 +94,7 @@ export default function SiteLayout() {
               title={theme === 'dark' ? '切换日读（素白米纸）' : '切换夜读（玄青深墨）'}
             >
               {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400" />
+                <Sun className="w-4 h-4 text-[var(--ochre)]" />
               ) : (
                 <Moon className="w-4 h-4 text-dai" />
               )}
@@ -204,7 +193,7 @@ export default function SiteLayout() {
           <p className="text-muted-foreground">
             林下书房 · 以古人之规矩，开自己之生面 · 收录古籍四十三部，全文四千余章
           </p>
-          <div className="flex items-center justify-center gap-4 text-[11px] pt-1">
+          <div className="flex items-center justify-center gap-4 text-xs pt-1">
             <a
               href="https://newmaybe.com"
               target="_blank"

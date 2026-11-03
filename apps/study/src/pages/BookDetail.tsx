@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { BOOK_MAP, TIER_NAMES, STAGES } from '@/data/catalog';
 import { loadIndex } from '@/lib/texts';
+import { matchChapter } from '@/lib/chapter-match';
 import { bookReadCount, getReadMap } from '@/lib/store';
 import {
   BookOpen,
@@ -29,30 +30,6 @@ function ChapterListSkeleton() {
       ))}
     </div>
   );
-}
-
-// 把“精读篇目”模糊匹配到章节号
-function normTitle(s: string): string {
-  return s.replace(/[（(].*?[)）]/g, '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
-}
-function isSubseq(m: string, t: string): boolean {
-  let i = 0;
-  for (const c of t) if (c === m[i]) i++;
-  return i >= m.length;
-}
-function matchChapter(must: string, chapters: string[]): number {
-  const m = normTitle(must);
-  if (m.length < 2) return -1;
-  for (let i = 0; i < chapters.length; i++) {
-    const t = normTitle(chapters[i]);
-    if (t.includes(m) || m.includes(t)) return i;
-  }
-  if (m.length >= 3) {
-    for (let i = 0; i < chapters.length; i++) {
-      if (isSubseq(m, normTitle(chapters[i]))) return i;
-    }
-  }
-  return -1;
 }
 
 const CHUNK_SIZE = 50;
@@ -158,7 +135,7 @@ export default function BookDetail() {
           <div className="book-spine-card p-6 relative bg-surface border rounded-xl shadow-xs">
             <div className="flex items-start justify-between gap-3 mb-3">
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className="seal w-8 h-8 text-sm rounded-[4px] shrink-0 font-medium">
+                <span className="seal w-8 h-8 text-sm rounded-sm shrink-0 font-medium">
                   {book.dynasty.slice(0, 1)}
                 </span>
                 <h1 className="text-2xl font-bold text-foreground truncate">{book.title}</h1>
@@ -236,11 +213,11 @@ export default function BookDetail() {
                       )}
                     </div>
                     {isRead ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] text-cinnabar shrink-0 bg-cinnabar/10 px-1.5 py-0.5 rounded">
+                      <span className="inline-flex items-center gap-1 text-xs text-cinnabar shrink-0 bg-cinnabar/10 px-1.5 py-0.5 rounded">
                         <CheckCircle2 className="w-3 h-3" /> 已读
                       </span>
                     ) : (
-                      <span className="text-[11px] text-muted-foreground shrink-0">待读</span>
+                      <span className="text-xs text-muted-foreground shrink-0">待读</span>
                     )}
                   </li>
                 );
@@ -353,7 +330,7 @@ export default function BookDetail() {
                         done
                           ? 'bg-cinnabar'
                           : isMust
-                            ? 'bg-amber-500 ring-2 ring-amber-500/20'
+                            ? 'bg-[var(--ochre)] ring-2 ring-[var(--ochre)]/20'
                             : 'bg-border'
                       }`}
                     />
@@ -363,12 +340,10 @@ export default function BookDetail() {
                       {t}
                     </span>
                     {isMust && (
-                      <Star className="w-3 h-3 text-amber-500 fill-amber-500/20 shrink-0 ml-auto" />
+                      <Star className="w-3 h-3 text-[var(--ochre)] fill-[var(--ochre)]/20 shrink-0 ml-auto" />
                     )}
                     {done && (
-                      <span className="text-[10px] text-muted-foreground shrink-0 ml-auto">
-                        已读
-                      </span>
+                      <span className="text-xs text-muted-foreground shrink-0 ml-auto">已读</span>
                     )}
                   </Link>
                 );

@@ -170,7 +170,7 @@ export const BOOKS: Book[] = [
     dynasty: '清',
     tier: 'core',
     stage: 2,
-    chapters: 271,
+    chapters: 285,
     tags: ['词', '婉约', '炼字'],
     why: '古风歌词和婉约文笔的直接范本。学炼字琢句、长短句节奏、情景交融。',
     how: '先读小令再读慢词。每首圈出最惊艳的一两个字（炼字），想它为什么好。',

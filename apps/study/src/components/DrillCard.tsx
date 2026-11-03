@@ -92,10 +92,10 @@ export default function DrillCard({
     >
       <div className="flex items-center justify-between gap-2 mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-dai/10 text-dai font-medium">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-dai/10 text-dai font-medium">
             {drill.type}
           </span>
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground font-medium">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground font-medium">
             {LEVELS[drill.level]}
           </span>
         </div>

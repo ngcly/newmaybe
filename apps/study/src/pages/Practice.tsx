@@ -188,7 +188,7 @@ export default function Practice() {
           </div>
 
           <div className="pt-2 flex items-center justify-between">
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               * API Key 仅保存在您的浏览器本地，不经过第三方中转。
             </p>
             <button
@@ -203,7 +203,7 @@ export default function Practice() {
               }}
               className="rounded-lg bg-cinnabar px-4 py-2 text-xs font-medium text-white hover:bg-cinnabar/90 transition-colors shadow-xs"
             >
-              {configSaved ? '已保存配置 ✓' : '保存配置'}
+              {configSaved ? '已保存配置' : '保存配置'}
             </button>
           </div>
         </div>
@@ -238,7 +238,7 @@ export default function Practice() {
                 <div
                   key={i}
                   title={`${c.date}：读过 ${c.n} 章`}
-                  className={`w-3 h-3 rounded-[2px] transition-colors ${
+                  className={`w-3 h-3 rounded-sm transition-colors ${
                     c.n === 0
                       ? 'bg-secondary'
                       : c.n < 3

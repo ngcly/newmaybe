@@ -136,14 +136,14 @@ export default function Books() {
               <div>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="seal w-7 h-7 text-xs rounded-[3px] shrink-0 font-medium">
+                    <span className="seal w-7 h-7 text-xs rounded-sm shrink-0 font-medium">
                       {b.dynasty.slice(0, 1)}
                     </span>
                     <h3 className="text-lg font-bold text-foreground group-hover:text-cinnabar transition-colors truncate">
                       {b.title}
                     </h3>
                   </div>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-dai/10 text-dai font-medium shrink-0">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-dai/10 text-dai font-medium shrink-0">
                     {stageInfo.name}
                   </span>
                 </div>
@@ -163,7 +163,7 @@ export default function Books() {
                     {b.tags.slice(0, 3).map((t) => (
                       <span
                         key={t}
-                        className="text-[10px] px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground"
+                        className="text-xs px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground"
                       >
                         {t}
                       </span>
@@ -171,11 +171,11 @@ export default function Books() {
                   </div>
 
                   {read > 0 ? (
-                    <span className="text-[11px] font-medium text-cinnabar shrink-0 flex items-center gap-1">
+                    <span className="text-xs font-medium text-cinnabar shrink-0 flex items-center gap-1">
                       <BookOpen className="w-3 h-3" /> {read}/{b.chapters}
                     </span>
                   ) : (
-                    <span className="text-[11px] text-muted-foreground shrink-0 group-hover:text-cinnabar transition-colors font-medium">
+                    <span className="text-xs text-muted-foreground shrink-0 group-hover:text-cinnabar transition-colors font-medium">
                       {TIER_NAMES[b.tier]} →
                     </span>
                   )}
