@@ -19,20 +19,19 @@ const allTags = Array.from(new Set(excerpts.flatMap((excerpt) => excerpt.data.ta
   <section class="excerpts-page">
     <div class="wrap">
       <header class="page-head reveal">
-        <span class="eyebrow">Excerpts</span>
         <h1>拾遗<span class="zh">浮光掠影</span></h1>
         <p class="intro">阅读时掠过心头、让人驻足的句子，或是闪烁着智慧的他人片段。</p>
       </header>
 
       {
         allTags.length > 0 && (
-          <div class="tag-filters reveal">
-            <button class="tag-btn active" data-tag="all">
+          <div class="tag-filters filter-bar reveal">
+            <button class="tag-btn filter-tab active" data-tag="all">
               全部
             </button>
             {allTags.map((tag) => (
-              <button class="tag-btn" data-tag={tag}>
-                #{tag}
+              <button class="tag-btn filter-tab" data-tag={tag}>
+                {tag}
               </button>
             ))}
           </div>
@@ -150,47 +149,26 @@ const allTags = Array.from(new Set(excerpts.flatMap((excerpt) => excerpt.data.ta
   }
   .page-head h1 {
     font-weight: 500;
-    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-size: var(--fs-title);
     line-height: 1.15;
     color: var(--ink);
     margin-bottom: 1.8rem;
   }
   .page-head .intro {
-    font-size: 1.1rem;
+    font-size: var(--fs-base);
     line-height: 1.9;
     color: var(--ink-soft);
     font-weight: 300;
   }
 
-  /* 药丸式分类标签 */
+  /* 标签较多，沿用文字页筛选样式但小一号 */
   .tag-filters {
-    display: flex;
     justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.8rem;
     margin: 0 auto 4.5rem;
     max-width: 800px;
   }
-  .tag-btn {
-    background: transparent;
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    padding: 0.4rem 1.1rem;
-    font-size: 0.85rem;
-    color: var(--ink-soft);
-    cursor: pointer;
-    font-family: var(--serif-cn), serif;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .tag-btn:hover {
-    border-color: var(--ochre);
-    color: var(--ochre);
-    transform: translateY(-1px);
-  }
-  .tag-btn.active {
-    background: var(--ochre);
-    border-color: var(--ochre);
-    color: var(--paper);
+  .tag-filters .filter-tab {
+    font-size: var(--fs-sm);
   }
 
   /* 时光中轴排版容器 */
@@ -235,7 +213,7 @@ const allTags = Array.from(new Set(excerpts.flatMap((excerpt) => excerpt.data.ta
       background-color: color-mix(in srgb, var(--ochre) 6%, transparent);
       padding: 0.8rem 1rem;
       margin: -0.8rem -1rem;
-      border-radius: 4px;
+      border-radius: var(--corner-md);
     }
     100% {
       background-color: transparent;
@@ -261,10 +239,10 @@ const allTags = Array.from(new Set(excerpts.flatMap((excerpt) => excerpt.data.ta
   }
 
   .comment-text {
-    font-size: 0.92rem;
+    font-size: var(--fs-sm);
     line-height: 1.7;
     color: var(--ink-soft);
-    font-style: italic;
+    font-family: var(--serif-kai);
     margin: 0;
     text-align: right;
   }
@@ -308,7 +286,7 @@ const allTags = Array.from(new Set(excerpts.flatMap((excerpt) => excerpt.data.ta
     align-items: baseline;
     gap: 0.5rem;
     font-family: var(--serif-cn), serif;
-    font-size: 1.05rem;
+    font-size: var(--fs-base);
     color: var(--ink-soft);
     margin-bottom: 0.8rem;
   }
@@ -318,10 +296,9 @@ const allTags = Array.from(new Set(excerpts.flatMap((excerpt) => excerpt.data.ta
   }
 
   .excerpt-header .year {
-    font-size: 0.85rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
-    font-family: var(--serif-en), serif;
-    font-style: italic;
+    font-variant-numeric: tabular-nums;
   }
 
   .excerpt-header .divider {
@@ -337,7 +314,6 @@ const allTags = Array.from(new Set(excerpts.flatMap((excerpt) => excerpt.data.ta
 
   .excerpt-header .source {
     color: var(--ink-soft);
-    font-style: italic;
   }
 
   .excerpt-main {
@@ -360,7 +336,7 @@ const allTags = Array.from(new Set(excerpts.flatMap((excerpt) => excerpt.data.ta
 
   .excerpt-body :global(p) {
     font-family: var(--serif-kai);
-    font-size: 1.32rem;
+    font-size: var(--fs-lg);
     line-height: 1.95;
     color: var(--ink);
     text-align: justify;
@@ -424,11 +400,11 @@ const allTags = Array.from(new Set(excerpts.flatMap((excerpt) => excerpt.data.ta
       padding-left: 0;
     }
     .excerpt-header {
-      font-size: 0.98rem;
+      font-size: var(--fs-sm);
       margin-bottom: 0.6rem;
     }
     .excerpt-body :global(p) {
-      font-size: 1.15rem;
+      font-size: var(--fs-md);
       line-height: 1.8;
     }
   }

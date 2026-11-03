@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { SITE } from '../config';
 import SealStamp from '../components/SealStamp.astro';
+import Icon from '../components/Icon.astro';
 ---
 
 <Base
@@ -12,7 +13,6 @@ import SealStamp from '../components/SealStamp.astro';
   <section class="about">
     <div class="wrap">
       <header class="about-head reveal">
-        <span class="eyebrow">About</span>
         <h1>关于<span class="zh">这片角落</span></h1>
       </header>
 
@@ -69,7 +69,7 @@ import SealStamp from '../components/SealStamp.astro';
       <div id="contact" class="contact-section reveal" style="scroll-margin-top: 80px;">
         <div class="contact-divider">
           <span class="line"></span>
-          <span class="symbol">✉</span>
+          <span class="symbol"><Icon name="letter" /></span>
           <span class="line"></span>
         </div>
 
@@ -194,7 +194,7 @@ import SealStamp from '../components/SealStamp.astro';
   }
   .about-head h1 {
     font-weight: 500;
-    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-size: var(--fs-title);
     line-height: 1.15;
     color: var(--ink);
   }
@@ -212,14 +212,14 @@ import SealStamp from '../components/SealStamp.astro';
     margin: 0;
   }
   .about-body .lead {
-    font-size: 1.35rem;
+    font-size: var(--fs-lg);
     line-height: 1.85;
     color: var(--ink);
     font-weight: 300;
     margin-bottom: 2rem;
   }
   .about-body p {
-    font-size: 1.1rem;
+    font-size: var(--fs-base);
     line-height: 1.95;
     color: var(--ink-soft);
     font-weight: 300;
@@ -240,7 +240,7 @@ import SealStamp from '../components/SealStamp.astro';
   .signature .name {
     font-family: var(--serif-en);
     font-style: italic;
-    font-size: 1.3rem;
+    font-size: var(--fs-lg);
     color: var(--ink);
   }
 
@@ -264,7 +264,7 @@ import SealStamp from '../components/SealStamp.astro';
   .facet .num {
     font-family: var(--serif-en);
     font-style: italic;
-    font-size: 1.4rem;
+    font-size: var(--fs-lg);
     color: var(--ochre);
     display: block;
     margin-bottom: 0.6rem;
@@ -272,12 +272,12 @@ import SealStamp from '../components/SealStamp.astro';
   .facet h3 {
     font-family: var(--serif-cn);
     font-weight: 500;
-    font-size: 1.25rem;
+    font-size: var(--fs-md);
     color: var(--ink);
     margin-bottom: 0.7rem;
   }
   .facet p {
-    font-size: 1rem;
+    font-size: var(--fs-base);
     line-height: 1.8;
     color: var(--ink-soft);
     font-weight: 300;
@@ -312,7 +312,7 @@ import SealStamp from '../components/SealStamp.astro';
   }
   .contact-divider .symbol {
     color: var(--ink-faint);
-    font-size: 1.1rem;
+    font-size: var(--fs-base);
   }
 
   .contact-grid {
@@ -324,13 +324,13 @@ import SealStamp from '../components/SealStamp.astro';
   }
   .contact-info h2 {
     font-family: var(--serif-cn), serif;
-    font-size: 1.8rem;
+    font-size: var(--fs-xl);
     font-weight: 500;
     color: var(--ink);
     margin-bottom: 1.2rem;
   }
   .contact-intro {
-    font-size: 1.05rem;
+    font-size: var(--fs-base);
     line-height: 1.85;
     color: var(--ink-soft);
     font-weight: 300;
@@ -345,12 +345,10 @@ import SealStamp from '../components/SealStamp.astro';
     text-align: center;
   }
   .env-hint {
-    font-family: var(--serif-en);
-    font-style: italic;
-    font-size: 0.88rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
     margin-top: 1rem;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.08em;
     transition: opacity 0.3s;
   }
   .envelope-wrap:hover .env-hint {
@@ -383,7 +381,7 @@ import SealStamp from '../components/SealStamp.astro';
     inset: 0;
     background: var(--paper-deep);
     border: 1px solid var(--line);
-    border-radius: 3px;
+    border-radius: var(--corner-sm);
     z-index: 1;
   }
 
@@ -395,7 +393,7 @@ import SealStamp from '../components/SealStamp.astro';
     height: 85%;
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 2px;
+    border-radius: var(--corner-sm);
     z-index: 2;
     transition:
       transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
@@ -490,13 +488,13 @@ import SealStamp from '../components/SealStamp.astro';
   }
   .letter-eyebrow {
     font-family: var(--serif-cn);
-    font-size: 0.82rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
     letter-spacing: 0.12em;
   }
   .letter-email {
     font-family: var(--serif-en);
-    font-size: 1.1rem;
+    font-size: var(--fs-base);
     color: var(--ink);
     font-weight: 400;
     letter-spacing: 0.04em;
@@ -506,9 +504,8 @@ import SealStamp from '../components/SealStamp.astro';
     color: var(--ochre);
   }
   .letter-cta {
-    font-family: var(--serif-en);
-    font-style: italic;
-    font-size: 0.88rem;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.1em;
     color: var(--ochre);
     margin-top: 0.2rem;
     opacity: 0;
@@ -575,11 +572,11 @@ import SealStamp from '../components/SealStamp.astro';
   .channel-label {
     font-family: var(--serif-en);
     font-style: italic;
-    font-size: 1.05rem;
+    font-size: var(--fs-base);
     color: var(--ochre);
   }
   .channel-value {
-    font-size: 1.3rem;
+    font-size: var(--fs-lg);
     color: var(--ink);
     font-weight: 400;
     transition: color 0.3s;
@@ -589,13 +586,13 @@ import SealStamp from '../components/SealStamp.astro';
   }
   .channel-note {
     grid-area: note;
-    font-size: 0.95rem;
+    font-size: var(--fs-sm);
     color: var(--ink-faint);
     font-weight: 300;
   }
   .arrow {
     grid-area: arrow;
-    font-size: 1.4rem;
+    font-size: var(--fs-lg);
     color: var(--ink-faint);
     transition:
       transform 0.3s,
@@ -610,9 +607,9 @@ import SealStamp from '../components/SealStamp.astro';
     max-width: 56ch;
     margin: 4.5rem auto 0;
     text-align: center;
-    font-family: var(--serif-en);
-    font-style: italic;
-    font-size: 1.05rem;
+    /* 附言用楷体，像信末手写的一行 */
+    font-family: var(--serif-kai);
+    font-size: var(--fs-base);
     color: var(--ink-faint);
     line-height: 1.8;
   }
@@ -630,7 +627,7 @@ import SealStamp from '../components/SealStamp.astro';
       padding: 0.2rem 0 0.2rem 1.2rem;
     }
     .about-body .lead {
-      font-size: 1.2rem;
+      font-size: var(--fs-md);
     }
     .contact-grid {
       grid-template-columns: 1fr;
@@ -638,7 +635,7 @@ import SealStamp from '../components/SealStamp.astro';
       text-align: center;
     }
     .channel-value {
-      font-size: 1.15rem;
+      font-size: var(--fs-md);
     }
     .envelope-wrap {
       margin: 2rem auto 2rem;

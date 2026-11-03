@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
 import { COLL_LABEL, connTitle, connUrl, resolveConnections } from '../../lib/connections';
 
 export async function getStaticPaths() {
@@ -26,11 +27,13 @@ const updatedDate = note.data.updatedDate?.toLocaleDateString('zh-CN', {
   day: 'numeric',
 });
 
-const stageInfo = {
-  sprout: { icon: '🌱', label: '萌芽', class: 'stage-sprout' },
-  bud: { icon: '🌿', label: '成长', class: 'stage-bud' },
-  evergreen: { icon: '🌳', label: '常青', class: 'stage-evergreen' },
-}[note.data.stage] || { icon: '🌱', label: '萌芽', class: 'stage-sprout' };
+const stageInfo = (
+  {
+    sprout: { icon: 'sprout', label: '萌芽', class: 'stage-sprout' },
+    bud: { icon: 'bud', label: '成长', class: 'stage-bud' },
+    evergreen: { icon: 'tree', label: '常青', class: 'stage-evergreen' },
+  } as const
+)[note.data.stage] ?? { icon: 'sprout', label: '萌芽', class: 'stage-sprout' };
 
 const resolvedConnections = await resolveConnections(note.data.connections);
 ---
@@ -68,7 +71,7 @@ const resolvedConnections = await resolveConnections(note.data.connections);
             <div class="meta-item">
               <span class="meta-label">成长阶段</span>
               <span class={`stage-badge ${stageInfo.class}`}>
-                {stageInfo.icon}
+                <Icon name={stageInfo.icon} />
                 {stageInfo.label}
               </span>
             </div>
@@ -79,7 +82,7 @@ const resolvedConnections = await resolveConnections(note.data.connections);
                   <span class="meta-label">知识标签</span>
                   <div class="meta-tags">
                     {note.data.tags.map((tag) => (
-                      <span class="tag-badge">#{tag}</span>
+                      <span class="tag-badge">{tag}</span>
                     ))}
                   </div>
                 </div>
@@ -127,7 +130,7 @@ const resolvedConnections = await resolveConnections(note.data.connections);
   .back {
     display: inline-block;
     font-family: var(--serif-cn), serif;
-    font-size: 0.9rem;
+    font-size: var(--fs-sm);
     color: var(--ink-faint);
     text-decoration: none;
     margin-bottom: 1.5rem;
@@ -137,14 +140,14 @@ const resolvedConnections = await resolveConnections(note.data.connections);
     color: var(--ochre);
   }
   .note-head h1 {
-    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-size: var(--fs-headline);
     font-weight: 500;
     color: var(--ink);
     line-height: 1.25;
     margin-bottom: 1.2rem;
   }
   .note-meta-row {
-    font-size: 0.9rem;
+    font-size: var(--fs-sm);
     color: var(--ink-faint);
     font-family: var(--serif-cn), serif;
   }
@@ -163,7 +166,7 @@ const resolvedConnections = await resolveConnections(note.data.connections);
   }
   .prose {
     font-family: var(--serif-cn), serif;
-    font-size: 1.1rem;
+    font-size: var(--fs-base);
     line-height: 2;
     color: var(--ink-soft);
   }
@@ -198,13 +201,13 @@ const resolvedConnections = await resolveConnections(note.data.connections);
   .sidebar-box {
     background: var(--paper-deep);
     border: 1px solid var(--line);
-    border-radius: 4px;
+    border-radius: var(--corner-md);
     padding: 1.5rem;
   }
 
   .sidebar-title {
     font-family: var(--serif-cn), serif;
-    font-size: 0.85rem;
+    font-size: var(--fs-xs);
     color: var(--ochre);
     font-weight: 600;
     letter-spacing: 0.05em;
@@ -223,16 +226,18 @@ const resolvedConnections = await resolveConnections(note.data.connections);
     margin-top: 1.2rem;
   }
   .meta-label {
-    font-size: 0.8rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
   }
 
   /* 状态徽章 */
   .stage-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     padding: 0.3rem 0.6rem;
-    font-size: 0.85rem;
-    border-radius: 3px;
+    font-size: var(--fs-xs);
+    border-radius: var(--corner-sm);
     font-weight: 500;
     width: fit-content;
   }
@@ -257,8 +262,13 @@ const resolvedConnections = await resolveConnections(note.data.connections);
     gap: 0.4rem;
   }
   .tag-badge {
-    font-size: 0.78rem;
+    font-size: var(--fs-xs);
     color: var(--ink-soft);
+  }
+  .tag-badge + .tag-badge::before {
+    content: '·';
+    margin-right: 0.4rem;
+    color: var(--ink-faint);
   }
 
   /* 关系网络列表 */
@@ -272,7 +282,7 @@ const resolvedConnections = await resolveConnections(note.data.connections);
   }
   .conn-link {
     text-decoration: none;
-    font-size: 0.88rem;
+    font-size: var(--fs-sm);
     line-height: 1.4;
     display: flex;
     flex-direction: column;
@@ -280,7 +290,7 @@ const resolvedConnections = await resolveConnections(note.data.connections);
     transition: color 0.3s ease;
   }
   .conn-tag {
-    font-size: 0.72rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
   }
   .conn-title {
@@ -292,7 +302,7 @@ const resolvedConnections = await resolveConnections(note.data.connections);
     color: var(--ochre);
   }
   .conn-empty {
-    font-size: 0.82rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
     line-height: 1.6;
     margin: 0;

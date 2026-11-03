@@ -1,0 +1,98 @@
+---
+// 首页区块标题：卷次序号 + 中文标题与副题，右侧放导语或「全部」链接
+interface Props {
+  index: string;
+  title: string;
+  subtitle?: string;
+  intro?: string;
+  more?: { href: string; label: string };
+  id?: string;
+}
+
+const { index, title, subtitle, intro, more, id } = Astro.props;
+---
+
+<div class="section-head reveal">
+  <div>
+    <span class="section-index" aria-hidden="true">{index}</span>
+    <h2 id={id}>
+      {title}
+      {subtitle && <span class="sub">{subtitle}</span>}
+    </h2>
+  </div>
+  {intro && <p class="section-intro">{intro}</p>}
+  {
+    more && (
+      <a href={more.href} class="section-more">
+        {more.label} <span aria-hidden="true">→</span>
+      </a>
+    )
+  }
+</div>
+
+<style>
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  .section-index {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1rem;
+    font-size: var(--fs-sm);
+    letter-spacing: 0.2em;
+    color: var(--ochre);
+  }
+  .section-index::after {
+    content: '';
+    width: 2.5rem;
+    height: 1px;
+    background: color-mix(in srgb, var(--ochre) 45%, transparent);
+  }
+  h2 {
+    font-weight: 500;
+    font-size: var(--fs-2xl);
+    line-height: 1.3;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+  .sub {
+    margin-left: 0.8rem;
+    font-size: var(--fs-lg);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    color: var(--ink-faint);
+  }
+  .section-intro {
+    max-width: 32ch;
+    margin: 0;
+    text-align: start;
+    font-size: var(--fs-sm);
+    line-height: 1.7;
+    color: var(--ink-soft);
+  }
+  .section-more {
+    font-size: var(--fs-sm);
+    letter-spacing: 0.06em;
+    color: var(--ochre);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s;
+  }
+  .section-more:hover {
+    border-color: var(--ochre);
+  }
+  @media (max-width: 680px) {
+    .section-head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.8rem;
+      margin-bottom: 2rem;
+    }
+  }
+</style>

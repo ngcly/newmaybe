@@ -55,7 +55,6 @@ const isActive = (href: string) => {
         <div class="eco-dropdown" id="ecoDropdown" aria-hidden="true" inert>
           <div class="eco-dropdown-header">
             <span class="eco-dropdown-title">数字生态 · 漫游子空间</span>
-            <span class="eco-dropdown-sub">6 Spaces</span>
           </div>
           <div class="eco-dropdown-grid">
             <a
@@ -220,14 +219,13 @@ const isActive = (href: string) => {
   }
   .logo {
     font-family: var(--serif-en);
-    font-size: 1.5rem;
+    font-size: var(--fs-lg);
     font-weight: 600;
     letter-spacing: 0.02em;
     color: var(--ink);
     text-decoration: none;
     display: flex;
     align-items: baseline;
-    gap: 0.4rem;
   }
   .logo .dot {
     color: var(--ochre);
@@ -246,7 +244,7 @@ const isActive = (href: string) => {
   .nav-links a {
     color: var(--ink-soft);
     text-decoration: none;
-    font-size: 0.92rem;
+    font-size: var(--fs-sm);
     letter-spacing: 0.08em;
     position: relative;
     padding-bottom: 2px;
@@ -289,7 +287,7 @@ const isActive = (href: string) => {
     padding: 0 0 2px 0;
     margin: 0;
     font-family: inherit;
-    font-size: 0.92rem;
+    font-size: var(--fs-sm);
     letter-spacing: 0.08em;
     color: var(--ink-soft);
     cursor: pointer;
@@ -341,7 +339,7 @@ const isActive = (href: string) => {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--line);
-    border-radius: 4px;
+    border-radius: var(--corner-md);
     box-shadow:
       0 4px 16px rgba(43, 39, 34, 0.05),
       0 12px 32px rgba(43, 39, 34, 0.08);
@@ -388,16 +386,10 @@ const isActive = (href: string) => {
   }
   .eco-dropdown-title {
     font-family: var(--serif-cn);
-    font-size: 0.82rem;
+    font-size: var(--fs-xs);
     letter-spacing: 0.04em;
     color: var(--ink-soft);
     font-weight: 500;
-  }
-  .eco-dropdown-sub {
-    font-family: var(--serif-en);
-    font-style: italic;
-    font-size: 0.72rem;
-    color: var(--ochre);
   }
   .eco-dropdown-grid {
     display: grid;
@@ -409,7 +401,7 @@ const isActive = (href: string) => {
     align-items: flex-start;
     gap: 0.55rem;
     padding: 0.55rem 0.6rem;
-    border-radius: 3px;
+    border-radius: var(--corner-sm);
     background: transparent;
     border: 1px solid transparent;
     text-decoration: none;
@@ -446,7 +438,7 @@ const isActive = (href: string) => {
   }
   .eco-item-name {
     font-family: var(--serif-cn);
-    font-size: 0.84rem;
+    font-size: var(--fs-xs);
     font-weight: 500;
     color: var(--ink);
     display: flex;
@@ -459,7 +451,7 @@ const isActive = (href: string) => {
   }
   .eco-arrow-icon {
     font-family: var(--serif-en);
-    font-size: 0.72rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
     opacity: 0.5;
     transition:
@@ -473,7 +465,7 @@ const isActive = (href: string) => {
     transform: translate(1px, -1px);
   }
   .eco-item-desc {
-    font-size: 0.69rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
     margin-top: 0.12rem;
     white-space: nowrap;
@@ -508,11 +500,11 @@ const isActive = (href: string) => {
   .kbd-chip {
     display: inline-block;
     font-family: var(--serif-en);
-    font-size: 0.68rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
     background: color-mix(in srgb, var(--ink) 4%, transparent);
     border: 1px solid var(--line);
-    border-radius: 3px;
+    border-radius: var(--corner-sm);
     padding: 0.1rem 0.35rem;
     margin-left: 0.4rem;
     line-height: 1;

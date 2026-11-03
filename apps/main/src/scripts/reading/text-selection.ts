@@ -94,7 +94,7 @@ export function setupTextSelection() {
       void navigator.clipboard.writeText(quoteStr);
 
       const textSpan = copyBtn.querySelector('.sel-text');
-      if (textSpan) textSpan.textContent = '已复制 ✔';
+      if (textSpan) textSpan.textContent = '已复制';
       setTimeout(() => {
         if (textSpan) textSpan.textContent = '摘录';
         hidePopover();

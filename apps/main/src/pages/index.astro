@@ -28,12 +28,10 @@ const latestExcerpt = (await getCollection('excerpts', ({ data }) => !data.draft
   <Hero />
   <div class="rule"></div>
   <PostList posts={posts} />
+  {/* 文章列表自带底线，这里不再加分隔线 */}
   {
     (latestFragment || latestExcerpt) && (
-      <>
-        <div class="rule" />
-        <HomeEchoes fragment={latestFragment} excerpt={latestExcerpt} />
-      </>
+      <HomeEchoes fragment={latestFragment} excerpt={latestExcerpt} />
     )
   }
   <div class="rule"></div>

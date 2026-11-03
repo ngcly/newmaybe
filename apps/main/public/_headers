@@ -1,6 +1,16 @@
-# 静态资源（含 Fontsource 字体，均有内容哈希）
+# 静态资源（均有内容哈希）
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# 全站共用字体（/fonts/<版本>/）：七个站点引用同一份，子域名跨域加载需要 CORS。
+# 字体文件名带内容哈希，可永久缓存；样式表文件名固定，只缓存一小时。
+/fonts/:version/files/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/:version/fonts.css
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=3600
 
 # OG 分享图（构建期生成，无内容哈希，只做短期缓存）
 /og/*

@@ -2,6 +2,8 @@
 import type { CollectionEntry } from 'astro:content';
 import { render } from 'astro:content';
 import SealStamp from './SealStamp.astro';
+import SectionHead from './SectionHead.astro';
+import Icon from './Icon.astro';
 
 interface Props {
   fragment?: CollectionEntry<'fragments'>;
@@ -19,22 +21,19 @@ const fmtDate = (d: Date) =>
 
 <section class="section-echoes" id="echoes">
   <div class="wrap">
-    <div class="section-head reveal">
-      <div>
-        <span class="eyebrow">Echoes & Fragments</span>
-        <h2>
-          念头与拾遗<span class="cn">瞬息与摘录</span>
-        </h2>
-      </div>
-      <p class="section-intro">一侧是即时生发的瞬息手记，一侧是偶遇驻留的他山字句。</p>
-    </div>
+    <SectionHead
+      index="贰"
+      title="念头与拾遗"
+      subtitle="瞬息与摘录"
+      intro="一侧是即时生发的瞬息手记，一侧是偶遇驻留的他山字句。"
+    />
 
     <div class={`echoes-grid ${!(fragment && excerpt) ? 'is-single' : ''}`}>
       {
         fragment && FragmentContent && (
           <article class="echo-card frag-card reveal">
             <div class="card-top">
-              <span class="badge-text">Fragment · 最新念头</span>
+              <span class="badge-text">最新念头</span>
             </div>
 
             <div class="card-body frag-body">
@@ -48,7 +47,7 @@ const fmtDate = (d: Date) =>
                 </time>
                 {fragment.data.location && (
                   <span class="meta-item">
-                    <span aria-hidden="true">📍</span> {fragment.data.location}
+                    <Icon name="pin" /> {fragment.data.location}
                   </span>
                 )}
                 {fragment.data.mood && <span class="meta-item">{fragment.data.mood}</span>}
@@ -65,7 +64,7 @@ const fmtDate = (d: Date) =>
         excerpt && ExcerptContent && (
           <figure class="echo-card excerpt-card reveal">
             <div class="card-top">
-              <span class="badge-text">Excerpt · 今日拾遗</span>
+              <span class="badge-text">今日拾遗</span>
             </div>
 
             <div class="card-body excerpt-body">
@@ -103,39 +102,6 @@ const fmtDate = (d: Date) =>
     padding: 4.5rem 0;
   }
 
-  .section-head {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 3rem;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-  }
-
-  .section-head h2 {
-    font-family: var(--serif-en);
-    font-weight: 600;
-    font-size: 2.2rem;
-    letter-spacing: 0.01em;
-    color: var(--ink);
-  }
-
-  .section-head h2 .cn {
-    font-family: var(--serif-cn);
-    font-size: 1.4rem;
-    color: var(--ink-faint);
-    font-weight: 400;
-    margin-left: 0.8rem;
-  }
-
-  .section-intro {
-    color: var(--ink-soft);
-    font-size: 0.95rem;
-    max-width: 32ch;
-    line-height: 1.7;
-    margin: 0;
-  }
-
   /* 保留双栏对齐，让每则文字按内容自然收尾。 */
   .echoes-grid {
     display: grid;
@@ -162,7 +128,7 @@ const fmtDate = (d: Date) =>
 
   .badge-text {
     font-family: var(--serif-cn);
-    font-size: 0.88rem;
+    font-size: var(--fs-sm);
     letter-spacing: 0.05em;
     color: var(--ink-faint);
   }
@@ -173,7 +139,7 @@ const fmtDate = (d: Date) =>
     align-items: center;
     gap: 0.2rem 0.7rem;
     font-family: var(--serif-cn);
-    font-size: 0.82rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
   }
 
@@ -189,7 +155,7 @@ const fmtDate = (d: Date) =>
 
   /* 念头正文样式 */
   .frag-body :global(p) {
-    font-size: 1.14rem;
+    font-size: var(--fs-md);
     line-height: 2;
     color: var(--ink-soft);
     font-weight: 300;
@@ -222,7 +188,7 @@ const fmtDate = (d: Date) =>
 
   .excerpt-text {
     font-family: var(--serif-kai), 'Kaiti SC', 'STKaiti', 'KaiTi', var(--serif-cn), serif;
-    font-size: 1.25rem;
+    font-size: var(--fs-md);
     line-height: 2.05;
     letter-spacing: 0.045em;
     color: var(--ink);
@@ -246,11 +212,12 @@ const fmtDate = (d: Date) =>
 
   .excerpt-comment {
     margin-top: 1.2rem;
-    font-size: 0.88rem;
+    font-size: var(--fs-sm);
     color: var(--ink-faint);
     line-height: 1.6;
-    font-weight: 300;
-    font-style: italic;
+    /* 批注用楷体，代替中文无法真正呈现的斜体 */
+    font-family: var(--serif-kai);
+    letter-spacing: 0.04em;
   }
 
   /* 日期与出处作为落款，归档链接退到下一行。 */
@@ -262,15 +229,15 @@ const fmtDate = (d: Date) =>
   }
 
   .card-date {
-    font-family: var(--serif-en);
-    font-style: italic;
-    font-size: 0.92rem;
+    font-size: var(--fs-xs);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
     color: var(--ink-faint);
   }
 
   .card-link {
     font-family: var(--serif-cn);
-    font-size: 0.88rem;
+    font-size: var(--fs-sm);
     color: var(--ink-faint);
     text-decoration: none;
     letter-spacing: 0.06em;
@@ -303,7 +270,7 @@ const fmtDate = (d: Date) =>
     align-items: center;
     gap: 0.9rem;
     font-family: var(--serif-cn);
-    font-size: 0.92rem;
+    font-size: var(--fs-sm);
     color: var(--ink-soft);
   }
 
@@ -338,24 +305,17 @@ const fmtDate = (d: Date) =>
       padding: 3.5rem 0;
     }
 
-    .section-head {
-      flex-direction: column;
-      align-items: flex-start;
-      margin-bottom: 2rem;
-      gap: 0.8rem;
-    }
-
     .card-top {
       margin-bottom: 1rem;
     }
 
     .excerpt-text {
-      font-size: 1.15rem;
+      font-size: var(--fs-md);
       line-height: 1.95;
     }
 
     .frag-body :global(p) {
-      font-size: 1.05rem;
+      font-size: var(--fs-base);
       line-height: 1.9;
     }
   }

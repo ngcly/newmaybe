@@ -1,18 +1,21 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import SectionHead from './SectionHead.astro';
 
 interface Props {
   posts: CollectionEntry<'posts'>[];
+  index?: string;
   heading?: string;
-  headingCn?: string;
+  subheading?: string;
   showMore?: boolean;
   showHeading?: boolean;
 }
 
 const {
   posts,
-  heading = 'Writing',
-  headingCn = '近期文字',
+  index = '壹',
+  heading = '近期文字',
+  subheading = '新写与旧作',
   showMore = true,
   showHeading = true,
 } = Astro.props;
@@ -24,17 +27,12 @@ const fmt = (d: Date) => d.toLocaleDateString('zh-CN', { year: 'numeric', month:
   <div class="wrap">
     {
       showHeading && (
-        <div class="section-head reveal">
-          <h2>
-            {heading}
-            <span class="cn">{headingCn}</span>
-          </h2>
-          {showMore && (
-            <a href="/writing" class="more">
-              全部文字 →
-            </a>
-          )}
-        </div>
+        <SectionHead
+          index={index}
+          title={heading}
+          subtitle={subheading}
+          more={showMore ? { href: '/writing', label: '全部文字' } : undefined}
+        />
       )
     }
 
@@ -64,39 +62,6 @@ const fmt = (d: Date) => d.toLocaleDateString('zh-CN', { year: 'numeric', month:
   .section {
     padding: 4.5rem 0;
   }
-  .section-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 3.5rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  .section-head h2 {
-    font-family: var(--serif-en);
-    font-weight: 600;
-    font-size: 2.2rem;
-    letter-spacing: 0.01em;
-  }
-  .section-head h2 .cn {
-    font-family: var(--serif-cn);
-    font-size: 1.4rem;
-    color: var(--ink-faint);
-    font-weight: 400;
-    margin-left: 0.8rem;
-  }
-  .section-head .more {
-    font-size: 0.9rem;
-    color: var(--ochre);
-    text-decoration: none;
-    letter-spacing: 0.06em;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.3s;
-  }
-  .section-head .more:hover {
-    border-color: var(--ochre);
-  }
-
   .post {
     padding: 2.2rem 0;
     border-top: 1px solid var(--line);
@@ -141,10 +106,10 @@ const fmt = (d: Date) => d.toLocaleDateString('zh-CN', { year: 'numeric', month:
     border-top-color: color-mix(in srgb, var(--ochre) 40%, var(--line));
   }
   .post .date {
-    font-family: var(--serif-en);
     color: var(--ink-faint);
-    font-size: 1.05rem;
-    font-style: italic;
+    font-size: var(--fs-sm);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
     transition: color 0.3s ease;
   }
   .post:hover .date {
@@ -152,7 +117,7 @@ const fmt = (d: Date) => d.toLocaleDateString('zh-CN', { year: 'numeric', month:
   }
   .post h3 {
     font-weight: 500;
-    font-size: 1.5rem;
+    font-size: var(--fs-xl);
     line-height: 1.4;
     margin-bottom: 0.6rem;
     transition: color 0.3s ease;
@@ -163,16 +128,15 @@ const fmt = (d: Date) => d.toLocaleDateString('zh-CN', { year: 'numeric', month:
   }
   .post p {
     color: var(--ink-soft);
-    font-size: 1.02rem;
+    font-size: var(--fs-base);
     font-weight: 300;
     max-width: 60ch;
   }
   .post .tag {
     display: inline-block;
     margin-top: 0.9rem;
-    font-family: var(--serif-en);
-    font-style: italic;
-    font-size: 0.92rem;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.06em;
     color: var(--ink-faint);
   }
   @media (max-width: 680px) {
@@ -181,7 +145,7 @@ const fmt = (d: Date) => d.toLocaleDateString('zh-CN', { year: 'numeric', month:
       gap: 0.5rem;
     }
     .post .date {
-      font-size: 0.95rem;
+      font-size: var(--fs-sm);
     }
     /* 单列堆叠下卡片内容可能超过 250px，解除高度限制避免静默裁切；
        过滤动画在该断点降级为纯透明度（.post.hidden 的 max-height: 0 仍生效） */

@@ -7,6 +7,7 @@ import MobileDrawer from '../components/MobileDrawer.astro';
 import Footer from '../components/Footer.astro';
 import Search from '../components/Search.astro';
 import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
+import FontStylesheet from '@newmaybe/shared-styles/FontStylesheet.astro';
 
 interface Props {
   title?: string;
@@ -42,6 +43,7 @@ const currentPath = Astro.url.pathname;
   <head>
     <meta charset="UTF-8" />
     <ThemeChrome />
+    <FontStylesheet sameOrigin />
     <script is:inline>
       document.documentElement.classList.add('js');
       // 在 DOM 交换完成后立即应用诗歌版式偏好，防止横竖排闪烁

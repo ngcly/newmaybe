@@ -42,10 +42,6 @@ const { epigraph, year } = Astro.props;
             </>
           ))
         }
-        <a href="/#ecosystem" class="foot-link foot-eco">
-          数字生态 <span class="arrow">→</span>
-        </a>
-        <span class="foot-divider" aria-hidden="true">·</span>
         <a href="/rss.xml" class="foot-link">RSS</a>
         <span class="foot-divider" aria-hidden="true">·</span>
         <a href={`mailto:${SITE.email}`} class="foot-link">联络</a>
@@ -89,7 +85,7 @@ const { epigraph, year } = Astro.props;
   }
   .foot-epigraph p {
     font-family: var(--serif-cn), serif;
-    font-size: 1.15rem;
+    font-size: var(--fs-md);
     font-weight: 300;
     color: var(--ink);
     letter-spacing: 0.08em;
@@ -104,7 +100,7 @@ const { epigraph, year } = Astro.props;
   }
   .foot-brand-title {
     font-family: var(--serif-en);
-    font-size: 1.35rem;
+    font-size: var(--fs-lg);
     font-weight: 600;
     letter-spacing: 0.02em;
     color: var(--ink);
@@ -123,7 +119,7 @@ const { epigraph, year } = Astro.props;
   .foot-link {
     color: var(--ink-soft);
     text-decoration: none;
-    font-size: 0.88rem;
+    font-size: var(--fs-sm);
     font-family: var(--serif-cn), serif;
     transition: color 0.25s ease;
   }
@@ -132,21 +128,9 @@ const { epigraph, year } = Astro.props;
   }
   .foot-divider {
     color: var(--ink-faint);
-    font-size: 0.75rem;
+    font-size: var(--fs-xs);
     opacity: 0.6;
     user-select: none;
-  }
-  .foot-eco {
-    color: var(--ochre);
-  }
-  .foot-eco .arrow {
-    font-family: var(--serif-en);
-    font-size: 0.78rem;
-    display: inline-block;
-    transition: transform 0.25s ease;
-  }
-  .foot-eco:hover .arrow {
-    transform: translateX(3px);
   }
   .foot-colophon-base {
     display: flex;
@@ -154,7 +138,7 @@ const { epigraph, year } = Astro.props;
     justify-content: center;
     flex-wrap: wrap;
     gap: 0.5rem;
-    font-size: 0.78rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
     margin-top: 0.4rem;
     padding-top: 1rem;
@@ -178,7 +162,7 @@ const { epigraph, year } = Astro.props;
       gap: 0.8rem;
     }
     .foot-epigraph p {
-      font-size: 1.05rem;
+      font-size: var(--fs-base);
     }
     .foot-nav-line {
       gap: 0.5rem 0.6rem;

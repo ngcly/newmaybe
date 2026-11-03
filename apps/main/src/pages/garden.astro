@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import { resolveSubdomain } from '../config';
+import Icon from '../components/Icon.astro';
 
 const notes = (await getCollection('notes', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
@@ -17,27 +18,24 @@ const fmtDate = (d: Date) =>
 // 按成长阶段分组
 const stages = {
   evergreen: {
-    label: '常青 / Evergreen 🌳',
+    label: '常青',
+    icon: 'tree',
     desc: '已经定型、反复引用、沉淀下来的长期价值思想。',
     notes: [] as typeof notes,
   },
   bud: {
-    label: '成长 / Cultivations 🌿',
+    label: '成长',
+    icon: 'bud',
     desc: '经历过数次扩写与整理，有了一定结构，仍在不断演化。',
     notes: [] as typeof notes,
   },
   sprout: {
-    label: '萌芽 / Seedlings 🌱',
+    label: '萌芽',
+    icon: 'sprout',
     desc: '刚刚闪现的零碎想法，记录在大纲和只言片语中。',
     notes: [] as typeof notes,
   },
-};
-
-const phaseMap = {
-  sprout: 'PHASE 01',
-  bud: 'PHASE 02',
-  evergreen: 'PHASE 03',
-};
+} as const;
 
 notes.forEach((note) => {
   if (stages[note.data.stage]) {
@@ -78,7 +76,6 @@ memories.forEach((mem) => {
     <div class="wrap">
       <header class="page-head reveal">
         <div class="head-left-col">
-          <span class="eyebrow">Digital Garden & Wiki</span>
           <h1>花园<span class="zh">落叶与档案</span></h1>
           <div class="graph-action">
             <a
@@ -101,15 +98,9 @@ memories.forEach((mem) => {
       </header>
 
       <!-- 选项卡切换器 -->
-      <div class="tab-controls reveal">
-        <button class="tab-btn active" data-tab="notes">
-          <span class="btn-label-zh">笔记落叶集</span>
-          <span class="btn-label-en">Seedlings</span>
-        </button>
-        <button class="tab-btn" data-tab="memories">
-          <span class="btn-label-zh">记忆档案库</span>
-          <span class="btn-label-en">Archive</span>
-        </button>
+      <div class="tab-controls filter-bar reveal">
+        <button class="tab-btn filter-tab active" data-tab="notes">笔记落叶集</button>
+        <button class="tab-btn filter-tab" data-tab="memories">记忆档案库</button>
       </div>
 
       <!-- 选项卡内容：笔记落叶集 -->
@@ -121,8 +112,10 @@ memories.forEach((mem) => {
                 group.notes.length > 0 && (
                   <div class="stage-section">
                     <header class="stage-head">
-                      <span class="stage-index">{phaseMap[key as keyof typeof phaseMap]}</span>
-                      <h2>{group.label}</h2>
+                      <h2>
+                        <Icon name={group.icon} class="stage-icon" />
+                        {group.label}
+                      </h2>
                       <p class="stage-desc">{group.desc}</p>
                     </header>
                     <div class="notes-grid">
@@ -133,7 +126,7 @@ memories.forEach((mem) => {
                           {note.data.tags && note.data.tags.length > 0 && (
                             <div class="card-tags">
                               {note.data.tags.map((tag) => (
-                                <span class="tag">#{tag}</span>
+                                <span class="tag">{tag}</span>
                               ))}
                             </div>
                           )}
@@ -153,7 +146,6 @@ memories.forEach((mem) => {
           {
             Object.entries(categories).map(([cat, items]) => (
               <div class="cat-section">
-                <span class="cat-meta">CLASSIFICATION //</span>
                 <h2 class="cat-title">{cat}</h2>
                 <div class="memory-list">
                   {items.map((item) => (
@@ -242,13 +234,13 @@ memories.forEach((mem) => {
   }
   .page-head h1 {
     font-weight: 500;
-    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-size: var(--fs-title);
     line-height: 1.15;
     color: var(--ink);
     margin: 0.8rem 0 0 0;
   }
   .page-head .intro {
-    font-size: 1.1rem;
+    font-size: var(--fs-base);
     line-height: 1.9;
     color: var(--ink-soft);
     font-weight: 300;
@@ -263,7 +255,7 @@ memories.forEach((mem) => {
     align-items: center;
     gap: 0.4rem;
     font-family: var(--serif-cn), serif;
-    font-size: 0.95rem;
+    font-size: var(--fs-sm);
     color: var(--ochre);
     text-decoration: none;
     border-bottom: 1px dashed var(--ochre);
@@ -284,57 +276,17 @@ memories.forEach((mem) => {
     transform: translate(2px, -2px);
   }
 
-  /* Tab 切换控制 */
+  /* Tab 切换控制：沿用全站筛选样式，下划线落在分隔线上 */
   .tab-controls {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
     gap: 2.2rem;
     margin: 3.5rem 0 2.2rem;
     border-bottom: 1px solid var(--line);
-    width: 100%;
   }
-  .tab-btn {
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    padding: 0.6rem 0;
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.4rem;
-    transition: all 0.3s ease;
-    color: var(--ink-soft);
-    margin-bottom: -1px;
+  .tab-controls .filter-tab {
+    padding: 0.6rem 0.1rem;
   }
-  .tab-btn .btn-label-zh {
-    font-family: var(--serif-cn), serif;
-    font-size: 1.15rem;
-    font-weight: 400;
-    color: inherit;
-    transition: color 0.3s;
-  }
-  .tab-btn .btn-label-en {
-    font-family: var(--serif-en), serif;
-    font-style: italic;
-    font-size: 0.82rem;
-    color: var(--ink-faint);
-    transition: color 0.3s ease;
-  }
-  .tab-btn:hover {
-    color: var(--ochre);
-    border-bottom-color: color-mix(in srgb, var(--ochre) 40%, transparent);
-  }
-  .tab-btn.active {
-    color: var(--ink);
-    border-bottom-color: var(--ochre);
-  }
-  .tab-btn.active .btn-label-zh {
-    font-weight: 500;
-    color: var(--ink);
-  }
-  .tab-btn.active .btn-label-en {
-    color: var(--ochre);
+  .tab-controls .filter-tab::after {
+    bottom: -1px;
   }
 
   /* Tab 内容区 */
@@ -368,28 +320,33 @@ memories.forEach((mem) => {
     border-top: 1px solid var(--line);
     padding-top: 2rem;
   }
+  /* 选项卡已有分隔线，第一组不再重复 */
+  .stage-section:first-child,
+  .cat-section:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
   .stage-head {
     margin-bottom: 2.2rem;
     max-width: 70ch;
   }
-  .stage-index {
-    font-family: var(--serif-en), serif;
-    font-size: 0.76rem;
-    font-style: italic;
-    color: var(--ochre);
-    letter-spacing: 0.12em;
-    display: block;
-    margin-bottom: 0.5rem;
-  }
   .stage-head h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
     font-family: var(--serif-cn), serif;
-    font-size: 1.6rem;
+    font-size: var(--fs-xl);
     font-weight: 500;
     color: var(--ink);
     margin-bottom: 0.5rem;
   }
+  .stage-head :global(.stage-icon) {
+    width: 0.85em;
+    height: 0.85em;
+    color: var(--ochre);
+  }
   .stage-desc {
-    font-size: 0.92rem;
+    font-size: var(--fs-sm);
     color: var(--ink-faint);
     line-height: 1.6;
   }
@@ -407,107 +364,52 @@ memories.forEach((mem) => {
     width: min(80vw, 450px);
     height: min(80vw, 450px);
     color: var(--ink);
-    --wm-max-op: 0.055;
-    --wm-min-op: 0.035;
-    opacity: var(--wm-max-op);
+    opacity: 0.045;
     pointer-events: none;
     z-index: 0;
     transform: rotate(30deg);
     user-select: none;
-    animation: pulseWatermark 10s ease-in-out infinite;
-  }
-
-  @keyframes pulseWatermark {
-    0%,
-    100% {
-      opacity: var(--wm-max-op);
-    }
-    50% {
-      opacity: var(--wm-min-op);
-    }
   }
 
   :root.dark .leaf-watermark {
-    --wm-max-op: 0.025;
-    --wm-min-op: 0.015;
+    opacity: 0.02;
   }
 
+  /* 笔记条目只用左侧页线区分阶段：萌芽虚线、成长细线、常青赭石粗线 */
   .note-card {
     display: block;
-    background: var(--paper-deep);
-    border: 1px solid var(--line);
-    outline: 1px solid var(--line);
-    outline-offset: -5px;
-    border-radius: 2px;
-    padding: 1.8rem;
+    padding: 1.2rem 0 1.2rem 1.4rem;
+    border-left: 1px solid var(--line);
     text-decoration: none;
-    box-shadow: var(--shadow-paper);
     transition:
       transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 0.3s ease,
-      background-color 0.3s ease;
+      border-color 0.3s ease;
   }
-
-  /* 萌芽 Seedlings - 左侧虚线 */
-  :global(.note-card-sprout) {
-    border: none;
-    border-left: 2px dashed var(--line);
-    background: transparent;
-    padding: 1.2rem 0 1.2rem 1.4rem;
-    border-radius: 0;
-  }
-  :global(.note-card-sprout):hover {
+  .note-card:hover {
     border-left-color: var(--ochre);
     transform: translateX(4px);
   }
-
-  /* 成长 Cultivations - 左侧细实线 */
-  :global(.note-card-bud) {
-    border: none;
-    border-left: 2px solid var(--line);
-    background: transparent;
-    padding: 1.2rem 0 1.2rem 1.4rem;
-    border-radius: 0;
+  .note-card.note-card-sprout {
+    border-left-style: dashed;
   }
-  :global(.note-card-bud):hover {
-    border-left-color: var(--ochre);
-    transform: translateX(4px);
-  }
-
-  /* 常青 Evergreen - 左侧双倍厚度赭石实线 + 微彩背景 */
-  :global(.note-card-evergreen) {
+  .note-card.note-card-evergreen {
     grid-column: span 2;
-    border: none;
-    border-left: 3px solid var(--ochre);
-    background: color-mix(in srgb, var(--ochre) 3%, var(--paper-deep));
-    padding: 1.8rem 1.8rem 1.8rem 2rem;
-    border-radius: 0 4px 4px 0;
+    border-left: 2px solid var(--ochre);
   }
-  :global(.note-card-evergreen) .card-title {
-    font-size: 1.35rem;
-    font-family: var(--serif-cn), serif;
-    font-weight: 500;
-  }
-  :global(.note-card-evergreen):hover {
-    background: color-mix(in srgb, var(--ochre) 6%, var(--paper-deep));
-    transform: translateX(4px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.03);
-  }
-  :root.dark :global(.note-card-evergreen):hover {
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+  .note-card-evergreen .card-title {
+    font-size: var(--fs-lg);
   }
   .card-date {
     display: block;
-    font-family: var(--serif-en), serif;
-    font-style: italic;
-    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
     margin-bottom: 0.6rem;
   }
   .card-title {
     font-family: var(--serif-cn), serif;
-    font-size: 1.15rem;
+    font-size: var(--fs-md);
     font-weight: 500;
     color: var(--ink);
     line-height: 1.45;
@@ -523,9 +425,12 @@ memories.forEach((mem) => {
     gap: 0.5rem;
   }
   .tag {
-    font-size: 0.76rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
-    opacity: 0.85;
+  }
+  .tag + .tag::before {
+    content: '·';
+    margin-right: 0.5rem;
   }
 
   /* ── 记忆档案库样式 ── */
@@ -540,18 +445,9 @@ memories.forEach((mem) => {
     border-top: 1px solid var(--line);
     padding-top: 2rem;
   }
-  .cat-meta {
-    font-family: var(--serif-en), serif;
-    font-size: 0.72rem;
-    font-style: italic;
-    color: var(--ink-faint);
-    letter-spacing: 0.12em;
-    display: block;
-    margin-bottom: 0.4rem;
-  }
   .cat-title {
     font-family: var(--serif-cn), serif;
-    font-size: 1.4rem;
+    font-size: var(--fs-lg);
     font-weight: 500;
     color: var(--ochre);
     margin-bottom: 1.8rem;
@@ -591,18 +487,18 @@ memories.forEach((mem) => {
   }
   .item-title {
     font-family: var(--serif-cn), serif;
-    font-size: 1.15rem;
+    font-size: var(--fs-md);
     font-weight: 500;
     color: var(--ink);
   }
   .item-version {
     font-family: var(--serif-en), serif;
-    font-size: 0.78rem;
+    font-size: var(--fs-xs);
     color: var(--ochre);
     font-style: italic;
     background: color-mix(in srgb, var(--ochre) 8%, transparent);
     padding: 0.1rem 0.4rem;
-    border-radius: 2px;
+    border-radius: var(--corner-sm);
   }
   .arrow {
     color: var(--ink-faint);
@@ -632,10 +528,7 @@ memories.forEach((mem) => {
       grid-template-columns: 1fr;
       gap: 1.2rem;
     }
-    .note-card {
-      padding: 1.4rem;
-    }
-    :global(.note-card-evergreen) {
+    .note-card.note-card-evergreen {
       grid-column: span 1;
     }
     .notes-container,
@@ -646,8 +539,7 @@ memories.forEach((mem) => {
       padding: 1rem 1.2rem;
     }
     .tab-controls {
-      justify-content: center;
-      gap: 0.6rem;
+      gap: 1.8rem;
       margin-top: 2rem;
     }
   }

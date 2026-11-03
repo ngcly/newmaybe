@@ -37,7 +37,7 @@ import { SITE } from '../config';
   .hero-eyebrow {
     font-family: var(--serif-en);
     font-style: italic;
-    font-size: 1.15rem;
+    font-size: var(--fs-md);
     color: var(--ochre);
     letter-spacing: 0.04em;
     margin-bottom: 1.5rem;
@@ -47,7 +47,7 @@ import { SITE } from '../config';
   }
   .hero h1 {
     font-weight: 500;
-    font-size: clamp(2.8rem, 7vw, 5.6rem);
+    font-size: var(--fs-display);
     line-height: 1.25;
     letter-spacing: 0.05em;
     margin-bottom: 2rem;
@@ -64,7 +64,7 @@ import { SITE } from '../config';
     font-weight: 500;
   }
   .hero p.lede {
-    font-size: 1.18rem;
+    font-size: var(--fs-md);
     color: var(--ink-soft);
     max-width: 48ch;
     line-height: 1.9;
@@ -83,11 +83,11 @@ import { SITE } from '../config';
   }
   .hero-meta a {
     font-family: var(--serif-en);
-    font-size: 1.05rem;
+    font-size: var(--fs-base);
     color: var(--ink);
     text-decoration: none;
     border: 1px solid var(--ink);
-    border-radius: 2px;
+    border-radius: var(--corner-sm);
     padding: 0.7rem 1.8rem;
     letter-spacing: 0.05em;
     transition: all 0.35s ease;
@@ -98,7 +98,7 @@ import { SITE } from '../config';
   }
   .hero-meta .scroll-hint {
     font-family: var(--serif-cn);
-    font-size: 0.95rem;
+    font-size: var(--fs-sm);
     color: var(--ink-faint);
     letter-spacing: 0.15em;
     writing-mode: vertical-rl;
@@ -109,7 +109,8 @@ import { SITE } from '../config';
   .hero-meta .scroll-hint .arr {
     display: inline-block;
     writing-mode: horizontal-tb;
-    animation: bounce-subtle 2s infinite ease-in-out;
+    /* 提示三次后停下，不持续抢眼 */
+    animation: bounce-subtle 2s ease-in-out 3;
     color: var(--ochre);
   }
   @keyframes bounce-subtle {
@@ -128,7 +129,7 @@ import { SITE } from '../config';
     font-family: var(--serif-en);
     font-style: italic;
     color: var(--ink-faint);
-    font-size: 0.92rem;
+    font-size: var(--fs-sm);
     writing-mode: vertical-rl;
     letter-spacing: 0.18em;
     opacity: 0;
@@ -159,7 +160,7 @@ import { SITE } from '../config';
     }
     .hero-meta .scroll-hint {
       writing-mode: horizontal-tb;
-      font-size: 0.88rem;
+      font-size: var(--fs-sm);
       letter-spacing: 0.08em;
       gap: 0.35rem;
     }

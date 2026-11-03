@@ -1,92 +1,34 @@
 ---
 import { resolveSubdomain } from '../config';
-import EcosystemIcon from './EcosystemIcon.astro';
 
+// 首页只留一行名字；完整介绍在页眉「生态」菜单里
 const APPS = [
-  {
-    name: '思维图谱',
-    en: 'Graph',
-    desc: '思考的经纬与概念网络',
-    url: 'https://graph.newmaybe.com',
-    type: 'graph',
-    tag: 'D3 互动',
-  },
-  {
-    name: 'AI 园丁',
-    en: 'Gardener',
-    desc: '数字花园漫游与语料问答',
-    url: 'https://ai.newmaybe.com',
-    type: 'ai',
-    tag: 'RAG 智能',
-  },
-  {
-    name: '林下书房',
-    en: 'Study',
-    desc: '四十三部古籍与写作研习',
-    url: 'https://study.newmaybe.com',
-    type: 'study',
-    tag: '典藏文库',
-  },
-  {
-    name: '创作工坊',
-    en: 'Studio',
-    desc: '排版工具、卡片海报与灵感引擎',
-    url: 'https://studio.newmaybe.com',
-    type: 'studio',
-    tag: '创作工坊',
-  },
-  {
-    name: '文友雅集',
-    en: 'Club',
-    desc: '慢节奏人文写作与专题文集社区',
-    url: 'https://club.newmaybe.com',
-    type: 'club',
-    tag: '文友共写',
-  },
-  {
-    name: '实验室',
-    en: 'Lab',
-    desc: '图形感知与声色交互实验',
-    url: 'https://lab.newmaybe.com',
-    type: 'lab',
-    tag: 'Canvas 实验',
-  },
+  { name: '思维图谱', desc: '思考的经纬与概念网络', url: 'https://graph.newmaybe.com' },
+  { name: 'AI 园丁', desc: '数字花园漫游与语料问答', url: 'https://ai.newmaybe.com' },
+  { name: '林下书房', desc: '四十三部古籍与写作研习', url: 'https://study.newmaybe.com' },
+  { name: '创作工坊', desc: '排版工具、卡片海报与灵感引擎', url: 'https://studio.newmaybe.com' },
+  { name: '文友雅集', desc: '慢节奏人文写作与专题文集社区', url: 'https://club.newmaybe.com' },
+  { name: '实验室', desc: '图形感知与声色交互实验', url: 'https://lab.newmaybe.com' },
 ] as const;
 ---
 
-<section class="ecosystem-section" id="ecosystem" aria-labelledby="ecosystem-title">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div>
-        <span class="eyebrow">Digital Ecosystem</span>
-        <h2 id="ecosystem-title">数字生态</h2>
-      </div>
-      <p class="section-intro">由文字生发，向阅读、创作、交谈与探索延伸。</p>
-    </div>
-
-    <ul class="eco-grid" role="list">
+<section class="eco-strip" id="ecosystem" aria-labelledby="ecosystem-title">
+  <div class="wrap eco-inner reveal">
+    <h2 id="ecosystem-title" class="eco-label">数字生态</h2>
+    <ul class="eco-links" role="list">
       {
         APPS.map((app) => (
-          <li class="eco-item reveal">
+          <li>
             <a
               href={resolveSubdomain(app.url)}
               target="_blank"
               rel="noopener noreferrer"
-              class="eco-entry"
+              title={app.desc}
             >
-              <div class="eco-heading">
-                <span class="eco-icon">
-                  <EcosystemIcon type={app.type} size={20} />
-                </span>
-                <div class="eco-title-row">
-                  <h3 class="eco-name">{app.name}</h3>
-                  <span class="eco-en" lang="en">
-                    {app.en}
-                  </span>
-                </div>
-                <span class="eco-tag">{app.tag}</span>
-              </div>
-              <p class="eco-desc">{app.desc}</p>
+              {app.name}
+              <span class="arr" aria-hidden="true">
+                ↗
+              </span>
             </a>
           </li>
         ))
@@ -96,164 +38,59 @@ const APPS = [
 </section>
 
 <style>
-  .ecosystem-section {
-    padding: 4.5rem 0;
+  .eco-strip {
+    padding: 2.6rem 0;
     scroll-margin-top: 80px;
   }
-
-  .section-head {
+  .eco-inner {
     display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 3rem;
+    align-items: baseline;
+    gap: 1rem 3rem;
+  }
+  .eco-label {
+    flex-shrink: 0;
+    font-size: var(--fs-sm);
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+  }
+  .eco-links {
+    display: flex;
     flex-wrap: wrap;
-    gap: 1.5rem;
-  }
-
-  .section-head h2 {
-    font-family: var(--serif-en);
-    font-weight: 600;
-    font-size: 2.2rem;
-    letter-spacing: 0.01em;
-    color: var(--ink);
-  }
-
-  .section-intro {
-    color: var(--ink-soft);
-    font-size: 0.95rem;
-    max-width: 32ch;
-    line-height: 1.6;
-    margin: 0;
-    text-align: start;
-    text-wrap: balance;
-  }
-
-  .eco-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.6rem 2.5rem;
+    gap: 0.6rem 2.2rem;
     list-style: none;
     margin: 0;
     padding: 0;
   }
-
-  .eco-item {
-    min-width: 0;
-  }
-
-  /* 以留白与页线组织入口，让名称成为目录的主体。 */
-  .eco-entry {
-    display: block;
-    height: 100%;
-    padding: 1rem 0 1.6rem;
-    border-bottom: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+  .eco-links a {
+    font-size: var(--fs-base);
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
     text-decoration: none;
-    color: inherit;
-    transition: border-color 0.3s ease;
+    border-bottom: 1px solid transparent;
+    transition:
+      color 0.3s ease,
+      border-color 0.3s ease;
   }
-
-  .eco-entry:hover,
-  .eco-entry:focus-visible {
+  .eco-links a:hover,
+  .eco-links a:focus-visible {
+    color: var(--ochre);
     border-bottom-color: var(--ochre);
   }
-
-  .eco-entry:focus-visible {
-    outline: 1.5px dashed var(--ochre);
-    outline-offset: 6px;
-  }
-
-  .eco-heading {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-  }
-
-  .eco-icon {
-    display: inline-flex;
-    flex-shrink: 0;
-    color: var(--ochre);
-  }
-
-  .eco-title-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.1rem 0.5rem;
-    min-width: 0;
-  }
-
-  .eco-name {
-    font-family: var(--serif-cn);
-    font-size: 1.2rem;
-    font-weight: 500;
-    color: var(--ink);
-    transition: color 0.3s ease;
-  }
-
-  .eco-entry:hover .eco-name,
-  .eco-entry:focus-visible .eco-name {
-    color: var(--ochre);
-  }
-
-  .eco-en {
-    font-family: var(--serif-en);
-    font-size: 0.85rem;
-    font-style: italic;
+  .arr {
+    margin-left: 0.25rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
   }
-
-  .eco-desc {
-    font-size: 0.9rem;
-    color: var(--ink-soft);
-    line-height: 1.7;
-    margin: 0.7rem 0 0;
-    padding-left: calc(20px + 0.7rem);
-    text-align: start;
-    overflow-wrap: anywhere;
-  }
-
-  .eco-tag {
-    margin-left: auto;
-    flex-shrink: 0;
-    color: var(--ink-faint);
-    white-space: nowrap;
-    font-size: 0.75rem;
-    letter-spacing: 0.03em;
-    transition: color 0.3s ease;
-  }
-
-  .eco-entry:hover .eco-tag,
-  .eco-entry:focus-visible .eco-tag {
-    color: var(--ochre);
-  }
-
-  @media (max-width: 960px) {
-    .eco-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
   @media (max-width: 680px) {
-    .ecosystem-section {
-      padding: 3.5rem 0;
-    }
-    .eco-grid {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1rem;
-    }
-    .section-head {
+    .eco-inner {
       flex-direction: column;
-      align-items: flex-start;
-      margin-bottom: 2rem;
-      gap: 0.8rem;
     }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .eco-entry,
-    .eco-name,
-    .eco-tag {
-      transition: none;
+    .eco-links {
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      justify-content: start;
+      gap: 0.9rem 1.8rem;
     }
   }
 </style>

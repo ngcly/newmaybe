@@ -101,7 +101,7 @@ const resolvedConnections = await resolveConnections(memory.data.connections);
   .back {
     display: inline-block;
     font-family: var(--serif-cn), serif;
-    font-size: 0.9rem;
+    font-size: var(--fs-sm);
     color: var(--ink-faint);
     text-decoration: none;
     margin-bottom: 1.5rem;
@@ -120,7 +120,7 @@ const resolvedConnections = await resolveConnections(memory.data.connections);
     margin-bottom: 1.2rem;
   }
   .memory-head h1 {
-    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-size: var(--fs-headline);
     font-weight: 500;
     color: var(--ink);
     line-height: 1.25;
@@ -128,17 +128,17 @@ const resolvedConnections = await resolveConnections(memory.data.connections);
   }
   .version-tag {
     font-family: var(--serif-en), serif;
-    font-size: 0.9rem;
+    font-size: var(--fs-sm);
     font-style: italic;
     color: var(--ochre);
     border: 1px solid var(--line);
     background: var(--paper-deep);
     padding: 0.2rem 0.6rem;
-    border-radius: 3px;
+    border-radius: var(--corner-sm);
   }
 
   .memory-meta-row {
-    font-size: 0.9rem;
+    font-size: var(--fs-sm);
     color: var(--ink-faint);
     font-family: var(--serif-cn), serif;
     display: flex;
@@ -159,7 +159,7 @@ const resolvedConnections = await resolveConnections(memory.data.connections);
   }
   .prose {
     font-family: var(--serif-cn), serif;
-    font-size: 1.1rem;
+    font-size: var(--fs-base);
     line-height: 2;
     color: var(--ink-soft);
   }
@@ -191,13 +191,13 @@ const resolvedConnections = await resolveConnections(memory.data.connections);
   .sidebar-box {
     background: var(--paper-deep);
     border: 1px solid var(--line);
-    border-radius: 4px;
+    border-radius: var(--corner-md);
     padding: 1.5rem;
   }
 
   .sidebar-title {
     font-family: var(--serif-cn), serif;
-    font-size: 0.85rem;
+    font-size: var(--fs-xs);
     color: var(--ochre);
     font-weight: 600;
     letter-spacing: 0.05em;
@@ -218,7 +218,7 @@ const resolvedConnections = await resolveConnections(memory.data.connections);
   }
   .conn-link {
     text-decoration: none;
-    font-size: 0.88rem;
+    font-size: var(--fs-sm);
     line-height: 1.4;
     display: flex;
     flex-direction: column;
@@ -226,7 +226,7 @@ const resolvedConnections = await resolveConnections(memory.data.connections);
     transition: color 0.3s ease;
   }
   .conn-tag {
-    font-size: 0.72rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
   }
   .conn-title {
@@ -238,7 +238,7 @@ const resolvedConnections = await resolveConnections(memory.data.connections);
     color: var(--ochre);
   }
   .conn-empty {
-    font-size: 0.82rem;
+    font-size: var(--fs-xs);
     color: var(--ink-faint);
     line-height: 1.6;
     margin: 0;

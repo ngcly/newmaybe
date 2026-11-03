@@ -3,18 +3,7 @@
    文艺 editorial 风格：米纸底 / 墨色 / 赭石点缀
    ────────────────────────────────────────── */
 
-/* 自托管字体（via Fontsource）—— Vite 构建时自动打包 woff2，无外部请求 */
-@import '@fontsource/cormorant-garamond/latin-400.css';
-@import '@fontsource/cormorant-garamond/latin-400-italic.css';
-@import '@fontsource/cormorant-garamond/latin-600.css';
-@import '@fontsource/noto-serif-sc/chinese-simplified-300.css';
-@import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
-@import '@fontsource/noto-serif-sc/chinese-simplified-500.css';
-@import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
-@import '@fontsource/noto-serif-sc/latin-300.css';
-@import '@fontsource/noto-serif-sc/latin-400.css';
-@import '@fontsource/noto-serif-sc/latin-500.css';
-@import '@fontsource/noto-serif-sc/latin-600.css';
+/* 字体由 Base.astro 引用 /fonts/v1/fonts.css（全站共用，见 scripts/build-shared-fonts.ts） */
 
 @import '@newmaybe/shared-styles/tokens.css';
 
@@ -42,6 +31,8 @@ body {
   line-height: 1.8;
   letter-spacing: 0.02em;
   -webkit-font-smoothing: antialiased;
+  /* 汉字没有斜体字形；禁止浏览器把中文硬掰斜，斜体只留给 Cormorant 真斜体 */
+  font-synthesis: weight;
   font-feature-settings: 'palt' 1;
   text-spacing-trim: space-first;
   hanging-punctuation: first allow-end;
@@ -66,10 +57,10 @@ footer,
 .poem-wrap,
 .rule {
   transition:
-    background-color 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
-    color 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
-    border-color 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
-    box-shadow 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    background-color 0.35s ease,
+    color 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
 /* Note: Two separate dark rules are required and cannot be merged:
@@ -138,44 +129,47 @@ p {
   outline-offset: 3px;
 }
 
-/* 分隔横线 */
+/* 分隔横线：与 .wrap 的内容区同宽，不再铺满整屏 */
 .rule {
+  width: calc(100% - 4rem);
+  max-width: calc(var(--max) - 4rem);
   height: 1px;
+  margin: 0 auto;
   background: var(--line);
-  margin: 0 2rem;
 }
 
-/* 滚动进场 —— 仅在 JS 可用时隐藏初始态，禁用 JS 也能读到全部内容 */
-/* 滚动进场 —— 仅在 JS 可用时隐藏初始态，采用轻量水墨晕开聚焦与平滑位移 */
+/* 阅读段落里的中文标点保持全角宽度；body 上的 palt（标点半宽）只留给标题、导航、标签等界面文字。
+   注意：自托管的 Fontsource Noto Serif SC 不含 palt，目前两者看起来一样；换成支持 palt 的字体后才会有差别。 */
+p,
+blockquote,
+.prose li {
+  font-feature-settings: normal;
+}
+
+/* 标题换行时两行均衡，避免「北漂散 / 记」式的单字孤行 */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+/* 滚动进场 —— 仅在 JS 可用时隐藏初始态，禁用 JS 也能读到全部内容。
+   只做轻淡入与少量上移，不再模糊：动效留给首页标题，其余内容安静出现。 */
 html.js .reveal {
   opacity: 0;
-  transform: translateY(16px);
-  filter: blur(4px);
+  transform: translateY(8px);
   transition:
-    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 html.js .reveal.in {
   opacity: 1;
   transform: translateY(0);
-  filter: none;
-}
-@media (max-width: 680px) {
-  /* 移动端停用 GPU 密集的 filter blur，确保 60fps 丝滑滚动体验 */
-  html.js .reveal {
-    filter: none;
-    transform: translateY(12px);
-    transition:
-      opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   html.js .reveal {
     opacity: 1;
     transform: none;
-    filter: none;
     transition: none;
   }
 }
@@ -192,23 +186,50 @@ html.js .reveal.in {
   }
 }
 
-/* 各页面通用 eyebrow 标签与标题副文字 */
-.eyebrow {
-  font-family: var(--serif-en);
-  font-style: italic;
-  font-size: 1.1rem;
+/* 筛选与切换：纯文字，选中项墨色加赭石下划线（文字页、拾遗、花园共用） */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.8rem;
+}
+.filter-tab {
+  position: relative;
+  padding: 0.25rem 0.1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--serif-cn);
+  font-size: var(--fs-base);
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  transition: color 0.3s ease;
+}
+.filter-tab::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  width: 0;
+  height: 1.5px;
+  background: var(--ochre);
+  transform: translateX(-50%);
+  transition: width 0.3s ease;
+}
+.filter-tab:hover {
   color: var(--ochre);
-  letter-spacing: 0.05em;
-  display: block;
-  margin-bottom: 1rem;
+}
+.filter-tab.active {
+  color: var(--ink);
+}
+.filter-tab.active::after {
+  width: 100%;
 }
 
 /* ── 全局编辑正文排版（Editorial Spacing） ── */
 .prose {
   font-family: var(--serif-cn), serif;
-  font-size: 1.12rem;
+  font-size: var(--fs-md);
   color: var(--ink-soft);
-  font-feature-settings: 'palt' 1;
   text-spacing-trim: space-first;
   hanging-punctuation: first allow-end;
 }
@@ -231,7 +252,7 @@ html.js .reveal.in {
 
 /* 正文开篇导语提要排版 */
 .prose .lead {
-  font-size: 1.22rem;
+  font-size: var(--fs-md);
   line-height: 1.95;
   color: var(--ink);
   letter-spacing: 0.04em;

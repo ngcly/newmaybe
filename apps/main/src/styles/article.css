@@ -11,7 +11,7 @@
   font-family: var(--serif-cn);
   color: var(--ink-faint);
   text-decoration: none;
-  font-size: 0.92rem;
+  font-size: var(--fs-sm);
   margin-bottom: 1.8rem;
   letter-spacing: 0.04em;
   transition: color 0.3s ease;
@@ -23,14 +23,14 @@
   display: inline-flex;
   align-items: center;
   font-family: var(--serif-cn);
-  font-size: 0.82rem;
+  font-size: var(--fs-xs);
   color: var(--ink-faint);
   cursor: pointer;
   user-select: none;
   margin-bottom: 1.5rem;
   background: color-mix(in srgb, var(--paper-deep) 70%, var(--paper));
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: var(--corner-round);
   padding: 0.2rem 0.65rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   transition:
@@ -48,7 +48,7 @@
     background-color 0.25s ease,
     font-weight 0.25s ease;
   padding: 0.1rem 0.4rem;
-  border-radius: 10px;
+  border-radius: var(--corner-round);
 }
 .layout-toggle-minimal:not(.is-vertical) .opt-horiz,
 .layout-toggle-minimal.is-vertical .opt-vert {
@@ -71,7 +71,7 @@
 .cat {
   display: block;
   font-family: var(--serif-cn);
-  font-size: 0.88rem;
+  font-size: var(--fs-sm);
   font-weight: 500;
   color: var(--ochre);
   letter-spacing: 0.18em;
@@ -79,7 +79,7 @@
 }
 .article-head h1 {
   font-weight: 500;
-  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-size: var(--fs-headline);
   line-height: 1.28;
   letter-spacing: 0.02em;
   color: var(--ink);
@@ -87,12 +87,15 @@
 }
 .meta {
   color: var(--ink-faint);
-  font-size: 0.95rem;
+  font-size: var(--fs-sm);
   letter-spacing: 0.04em;
 }
 .meta time {
-  font-family: var(--serif-en);
-  font-style: italic;
+  font-variant-numeric: tabular-nums;
+}
+/* 侧栏较窄时整段换行，不把「分钟」拆开 */
+.meta > * {
+  white-space: nowrap;
 }
 
 /* 正文排版 —— 文艺向：窄栏、宽行高、首字微调 */
@@ -101,7 +104,7 @@
   margin: 0 auto;
 }
 .prose p {
-  font-size: 1.12rem;
+  font-size: var(--fs-md);
   line-height: 2;
   letter-spacing: 0.04em;
   color: var(--ink-soft);
@@ -111,13 +114,13 @@
 .prose h2 {
   font-family: var(--serif-cn);
   font-weight: 500;
-  font-size: 1.6rem;
+  font-size: var(--fs-xl);
   color: var(--ink);
   margin: 3rem 0 1.2rem;
 }
 .prose h3 {
   font-weight: 500;
-  font-size: 1.3rem;
+  font-size: var(--fs-lg);
   color: var(--ink);
   margin: 2.4rem 0 1rem;
 }
@@ -128,9 +131,14 @@
   margin: 2rem 0;
   font-style: normal;
   color: var(--ink);
-  font-size: 1.18rem;
+  font-size: var(--fs-md);
   line-height: 1.95;
   letter-spacing: 0.03em;
+}
+/* 中文强调用楷体，不用伪斜体 */
+.prose em {
+  font-style: normal;
+  font-family: var(--serif-kai);
 }
 .prose a {
   color: var(--ochre);
@@ -142,7 +150,7 @@
 }
 .prose img {
   max-width: 100%;
-  border-radius: 2px;
+  border-radius: var(--corner-sm);
   margin: 2rem 0;
 }
 .prose code {
@@ -150,12 +158,12 @@
   font-size: 0.9em;
   background: var(--paper-deep);
   padding: 0.15em 0.4em;
-  border-radius: 3px;
+  border-radius: var(--corner-sm);
 }
 .prose pre {
   background: var(--paper-deep);
   padding: 1.4rem;
-  border-radius: 4px;
+  border-radius: var(--corner-md);
   overflow-x: auto;
   margin: 2rem 0;
   border: 1px solid var(--line);
@@ -222,7 +230,7 @@
   text-align: center;
   letter-spacing: 0.12em;
   color: var(--ink);
-  font-size: 1.15rem;
+  font-size: var(--fs-md);
   line-height: 2.2;
   font-weight: 400;
   margin-bottom: 0;
@@ -280,7 +288,7 @@
   background-position: right 1.25rem top 0;
   padding: 3rem 2rem;
   border: 1px solid color-mix(in srgb, var(--cinnabar) 15%, transparent); /* 朱砂红外框 */
-  border-radius: 2px;
+  border-radius: var(--corner-sm);
   box-shadow: inset 0 0 40px color-mix(in srgb, var(--cinnabar) 2%, transparent);
 }
 
@@ -302,7 +310,7 @@
   text-align: start;
   letter-spacing: 0.35em; /* 竖排古典字间距偏宽 */
   line-height: 2.5rem; /* 强制行高为 2.5rem 以对齐红格 */
-  font-size: 1.15rem;
+  font-size: var(--fs-md);
   margin-bottom: 0;
   writing-mode: vertical-rl;
   scroll-snap-align: start; /* 每段吸附为独立一"页" */
@@ -361,10 +369,15 @@
   }
   .editorial-container .article-head::-webkit-scrollbar-thumb {
     background: color-mix(in srgb, var(--line) 50%, transparent);
-    border-radius: 2px;
+    border-radius: var(--corner-sm);
   }
   .editorial-container .article-head .back {
     margin-bottom: 1.8rem;
+  }
+  /* 侧栏只有约 195px 宽：标题降一档，四字标题能放进一行，长标题均衡折行 */
+  .editorial-container .article-head h1 {
+    font-size: var(--fs-2xl);
+    line-height: 1.35;
   }
   .editorial-container .editorial-content {
     min-width: 0;
@@ -403,7 +416,7 @@
 .colophon-epilogue {
   text-align: center;
   font-family: var(--serif-cn);
-  font-size: 0.8rem;
+  font-size: var(--fs-xs);
   color: var(--ink-faint);
   letter-spacing: 0.28em;
   margin: 0 auto 3rem;
@@ -435,14 +448,13 @@
   text-align: right;
 }
 .post-nav .nav-label {
-  font-family: var(--serif-en);
-  font-style: italic;
-  font-size: 0.9rem;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
   color: var(--ochre);
   margin-bottom: 0.4rem;
 }
 .post-nav .nav-title {
-  font-size: 1.1rem;
+  font-size: var(--fs-base);
   color: var(--ink);
   font-weight: 500;
   line-height: 1.4;
@@ -463,7 +475,7 @@
     font-size: 14rem;
   }
   .poem-wrap .prose p {
-    font-size: 1.05rem;
+    font-size: var(--fs-base);
   }
   .post-nav {
     grid-template-columns: 1fr;
@@ -487,47 +499,38 @@
   border-top: 1px solid var(--line);
 }
 .related-title {
-  font-family: var(--serif-en);
-  font-style: italic;
-  font-size: 1rem;
+  font-size: var(--fs-sm);
   color: var(--ink-faint);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.12em;
   margin-bottom: 1.2rem;
 }
 
+/* 与文章列表一致：页线分隔，不填底色 */
 .related-list {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  background: var(--line);
-  border-radius: 3px;
-  overflow: hidden;
-  border: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 .related-item {
   display: grid;
   grid-template-columns: 3rem 1fr auto;
   align-items: center;
   gap: 1rem;
-  padding: 1rem 1.2rem;
-  background: var(--paper-deep);
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
   text-decoration: none;
-  transition:
-    background 0.3s ease,
-    padding-left 0.3s ease;
+  transition: padding-left 0.3s ease;
 }
 .related-item:hover {
-  background: var(--paper);
-  padding-left: 1.6rem;
+  padding-left: 0.8rem;
 }
 .related-type {
-  font-family: var(--serif-en);
-  font-style: italic;
-  font-size: 0.8rem;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.1em;
   color: var(--ochre);
 }
 .related-name {
-  font-size: 1rem;
+  font-size: var(--fs-base);
   color: var(--ink);
   font-weight: 400;
   transition: color 0.3s;
@@ -537,7 +540,7 @@
 }
 .related-arrow {
   color: var(--ink-faint);
-  font-size: 1rem;
+  font-size: var(--fs-base);
   transition:
     transform 0.3s,
     color 0.3s;
@@ -567,12 +570,13 @@
 .scroll-hint-poetry {
   display: none;
   font-family: var(--serif-cn);
-  font-size: 0.85rem;
+  font-size: var(--fs-xs);
   color: var(--ink-faint);
   text-align: center;
   margin-top: 1.8rem;
   letter-spacing: 0.1em;
-  animation: fade-hint-po 2s infinite alternate;
+  /* 提示几次后停在清晰状态 */
+  animation: fade-hint-po 2s ease-in-out 3 alternate forwards;
   width: 100%;
   opacity: 0.8;
   transition: opacity 0.5s ease;
@@ -613,7 +617,7 @@
   border: none;
   color: var(--ink-faint);
   font-family: var(--serif-en);
-  font-size: 0.82rem;
+  font-size: var(--fs-xs);
   font-weight: 500;
   cursor: pointer;
   padding: 0 0.15rem;
@@ -628,24 +632,36 @@
 }
 .scaler-divider {
   color: var(--line);
-  font-size: 0.72rem;
+  font-size: var(--fs-xs);
   margin: 0 0.05rem;
 }
 
 /* 字号缩放阶梯 (sm / base / lg) */
 .prose.font-size-sm p {
-  font-size: 1rem;
+  font-size: var(--fs-base);
   line-height: 1.9;
 }
 .prose.font-size-lg p {
-  font-size: 1.25rem;
+  font-size: var(--fs-lg);
   line-height: 2.15;
 }
 .poem-wrap .prose.font-size-sm p {
-  font-size: 1.02rem;
+  font-size: var(--fs-base);
 }
 .poem-wrap .prose.font-size-lg p {
-  font-size: 1.28rem;
+  font-size: var(--fs-lg);
+}
+/* 手机上整体低一档：默认 17px，小 15px，大 19px */
+@media (max-width: 680px) {
+  .prose p {
+    font-size: var(--fs-base);
+  }
+  .prose.font-size-sm p {
+    font-size: var(--fs-sm);
+  }
+  .prose.font-size-lg p {
+    font-size: var(--fs-md);
+  }
 }
 
 /* ── 目录 (Table of Contents) ── */
@@ -662,7 +678,7 @@
 }
 .toc-title {
   font-family: var(--serif-cn);
-  font-size: 0.8rem;
+  font-size: var(--fs-xs);
   font-weight: 500;
   letter-spacing: 0.18em;
   color: var(--ink-faint);
@@ -677,12 +693,12 @@
   gap: 0.45rem;
 }
 .toc-item {
-  font-size: 0.88rem;
+  font-size: var(--fs-sm);
   line-height: 1.45;
 }
 .toc-item.depth-3 {
   padding-left: 0.85rem;
-  font-size: 0.82rem;
+  font-size: var(--fs-xs);
 }
 .toc-link {
   display: block;
@@ -712,10 +728,10 @@
   display: block;
   background: color-mix(in srgb, var(--paper-deep) 65%, var(--paper));
   border: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
-  border-radius: 6px;
+  border-radius: var(--corner-md);
   padding: 0.75rem 1.1rem;
   margin-bottom: 2.2rem;
-  font-size: 0.9rem;
+  font-size: var(--fs-sm);
   transition:
     background 0.3s,
     border-color 0.3s;
@@ -751,12 +767,10 @@
   content: '§';
   color: var(--ochre);
   font-family: var(--serif-en);
-  font-size: 0.95rem;
+  font-size: var(--fs-sm);
 }
 .toc-mobile-count {
-  font-family: var(--serif-en);
-  font-size: 0.82rem;
-  font-style: italic;
+  font-size: var(--fs-xs);
   color: var(--ink-faint);
 }
 .toc-mobile .toc-list {
@@ -778,9 +792,9 @@
   border: 1px solid var(--line);
   box-shadow: var(--shadow-paper-hover);
   padding: 0.55rem 0.85rem 0.55rem 1.1rem;
-  border-radius: 4px;
+  border-radius: var(--corner-md);
   font-family: var(--serif-cn);
-  font-size: 0.88rem;
+  font-size: var(--fs-sm);
   color: var(--ink);
   opacity: 0;
   transform: translateY(12px);
@@ -804,10 +818,10 @@
   background: var(--ochre);
   color: var(--paper);
   border: none;
-  border-radius: 3px;
+  border-radius: var(--corner-sm);
   padding: 0.25rem 0.65rem;
   font-family: var(--serif-cn);
-  font-size: 0.82rem;
+  font-size: var(--fs-xs);
   font-weight: 500;
   cursor: pointer;
   transition:
@@ -822,7 +836,7 @@
   background: transparent;
   border: none;
   color: var(--ink-faint);
-  font-size: 1.15rem;
+  font-size: var(--fs-md);
   line-height: 1;
   cursor: pointer;
   padding: 0 0.2rem;
@@ -875,7 +889,7 @@
     0 4px 14px rgba(0, 0, 0, 0.05),
     0 1px 3px rgba(0, 0, 0, 0.03);
   padding: 0.45rem 0.85rem 0.45rem 0.65rem;
-  border-radius: 24px;
+  border-radius: var(--corner-round);
   cursor: pointer;
   user-select: none;
   backdrop-filter: blur(10px);
@@ -909,12 +923,12 @@
   color: var(--ochre);
   font-family: var(--serif-en);
   font-weight: 600;
-  font-size: 0.82rem;
+  font-size: var(--fs-xs);
   line-height: 1;
 }
 
 .trigger-label {
-  font-size: 0.82rem;
+  font-size: var(--fs-xs);
   letter-spacing: 0.05em;
   font-weight: 400;
 }
@@ -926,7 +940,7 @@
   gap: 0.75rem;
   background: color-mix(in srgb, var(--paper-deep) 92%, var(--paper));
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--corner-md);
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.1),
     0 2px 8px rgba(0, 0, 0, 0.05);
@@ -958,7 +972,7 @@
 }
 
 .dock-label {
-  font-size: 0.76rem;
+  font-size: var(--fs-xs);
   color: var(--ink-faint);
   letter-spacing: 0.08em;
   font-weight: 500;
@@ -971,7 +985,7 @@
   align-items: center;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: var(--corner-round);
   padding: 2px;
   gap: 2px;
 }
@@ -987,9 +1001,9 @@
 }
 
 .dock-scale-btn {
-  font-size: 0.78rem;
+  font-size: var(--fs-xs);
   padding: 0.2rem 0.55rem;
-  border-radius: 12px;
+  border-radius: var(--corner-round);
   line-height: 1.2;
 }
 
@@ -1010,14 +1024,14 @@
   gap: 0.15rem;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: var(--corner-round);
   padding: 0.2rem 0.55rem;
-  font-size: 0.78rem;
+  font-size: var(--fs-xs);
 }
 
 .dock-poetry-toggle .opt {
   padding: 0.1rem 0.3rem;
-  border-radius: 10px;
+  border-radius: var(--corner-round);
   transition: all 0.2s ease;
 }
 
@@ -1030,7 +1044,7 @@
 
 .dock-divider {
   color: var(--line);
-  font-size: 0.7rem;
+  font-size: var(--fs-xs);
   opacity: 0.6;
 }
 
@@ -1047,10 +1061,10 @@
   justify-content: center;
   gap: 0.35rem;
   width: 100%;
-  font-size: 0.76rem;
+  font-size: var(--fs-xs);
   color: var(--ink-faint);
   padding: 0.25rem 0.5rem;
-  border-radius: 6px;
+  border-radius: var(--corner-sm);
 }
 
 .dock-top-btn:hover {
@@ -1090,7 +1104,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.85rem;
+    font-size: var(--fs-xs);
   }
 }
 
@@ -1107,7 +1121,7 @@
     0 8px 24px rgba(0, 0, 0, 0.12),
     0 2px 6px rgba(0, 0, 0, 0.06);
   padding: 0.35rem 0.65rem;
-  border-radius: 20px;
+  border-radius: var(--corner-round);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   opacity: 0;
@@ -1133,10 +1147,10 @@
   border: none;
   color: var(--ink-soft);
   font-family: var(--serif-cn);
-  font-size: 0.78rem;
+  font-size: var(--fs-xs);
   font-weight: 500;
   padding: 0.25rem 0.45rem;
-  border-radius: 12px;
+  border-radius: var(--corner-round);
   cursor: pointer;
   transition:
     color 0.2s,
@@ -1150,6 +1164,6 @@
 
 .sel-divider {
   color: var(--line);
-  font-size: 0.7rem;
+  font-size: var(--fs-xs);
   opacity: 0.5;
 }
