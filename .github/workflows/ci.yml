@@ -67,6 +67,9 @@ jobs:
           restore-keys: build-${{ runner.os }}-${{ matrix.app }}-${{ hashFiles('package-lock.json') }}-
       - run: npm run typecheck -w apps/${{ matrix.app }}
       - run: npm run build:${{ matrix.app }}
+        env:
+          # 这里的构建只供浏览器测试使用：全站共用字体指向测试中的主站预览（playwright.config 的 4401 端口），不依赖线上
+          NEWMAYBE_FONTS_ORIGIN: http://127.0.0.1:4401
       - run: npm run budget -- ${{ matrix.app }}
       - uses: actions/upload-artifact@v4
         with:

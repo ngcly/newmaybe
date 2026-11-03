@@ -18,7 +18,9 @@
 
 > `ai` / `studio` / `study` / `club` 是 React + Vite 应用，框架预设选 **Vite**；`main` / `graph` / `lab` 选 **Astro**。
 
-Club 文章地址使用 `/articles/:id`，不兼容旧 Hash 路由。部署必须使用 `apps/club/wrangler.toml`：`ASSETS` 静态资源绑定提供应用入口，`run_worker_first` 将 `/articles`、`/articles/*`、`/api/*` 交给 Worker。文章直达响应包含独立标题、摘要、canonical、Open Graph / Twitter 元信息和可读正文；不存在的文章返回 HTTP 404，数据库读取异常返回 503。Vite 本地预览只能验证客户端路由，线上部署还需运行完整 smoke 检查服务端文章响应。路由与页面渲染改造不需要额外 D1 迁移。
+Club 文章地址使用 `/articles/:id`，不兼容旧 Hash 路由。部署必须使用 `apps/club/wrangler.toml`：`ASSETS` 静态资源绑定提供应用入口，`run_worker_first` 将 `/articles`、`/articles/*`、`/api/*` 交给 Worker。文章直达响应包含独立标题、摘要、canonical、Open Graph / Twitter 元信息和可读正文；不存在的文章返回 HTTP 404，数据库读取异常返回 503。Vite 本地预览只能验证客户端路由，线上部署还需运行完整 smoke 检查服务端文章响应。作者管理需要下面的 `0003` 迁移。
+
+“一期一文”使用独立 HTML：`/featured` 是本期入口，`/featured/archive` 是目录，`/featured/:slug` 是永久作品地址。按 [精选交付与发布说明](apps/club/featured/README.md) 将作品放入 `apps/club/featured/issues/<slug>/` 并维护 `catalog.json`，再执行原有 `npm run build:club` 与 Worker 部署。`run_worker_first` 还必须包含 `/featured` 和 `/featured/*`。构建自动生成目录、元信息和公共导航，只打包 published 作品。`publishedAt` 不是定时发布开关；草稿与未知期号返回 404。已收录主站公开作品《记忆里的雨巷》（`/featured/issue-001`）与当前本期《那年，那人，那条路》（`/featured/issue-002`）。每期不新增数据库结构。社区投稿精选及其资源会检查 D1 原文的公开状态，撤稿后返回 404；主站文章精选使用 `sourcePost`，构建时检查原文已公开，无需 D1。主站原文撤下时须同步更新精选清单并重新部署。静态目录卡片在下次部署时调整。
 
 `club` 的 D1 数据库需要先初始化基础表，再应用版本化迁移。**新库和现有旧库都执行下面两步，然后再部署 Worker**：
 
@@ -29,15 +31,19 @@ npx wrangler d1 migrations apply newmaybe-club-db --remote --config apps/club/wr
 
 `schema.sql` 是基础表结构；后续字段变更放在 `apps/club/migrations/`。`0001_comment_replies.sql` 为已有 `comments` 表增加回复字段，不删除文章或评论。Wrangler 记录已应用的迁移，后续部署可重复运行上述命令；不要单独重复执行迁移 SQL。`0002_unique_likes.sql` 增加文章和评论共鸣去重表及计数触发器，保留已有计数；必须在发布本次 Worker 前应用。共鸣按 Cloudflare 来源 IP 的 SHA-256 摘要去重，同一共享出口的访客会共用一次共鸣额度，本地缺少来源头时也共用额度。迁移机制见 [Cloudflare D1 文档](https://developers.cloudflare.com/d1/reference/migrations/)。本地联调将 `--remote` 换成 `--local`。
 
+`0003_author_workspace.sql` 新增作者、验证码、会话、私有文稿、投稿快照及 `published_articles` 公开视图。**本次作者管理上线必须先应用此迁移**；此前已经执行 `0001`、`0002` 仍需执行 migrations apply。旧匿名记录保留在数据库，但不提供认领或兼容展示，未关联作者文稿的旧文章不再公开。
+
+作者中心 `/me` 和审核后台 `/admin` 也必须经过 Worker。`ningcly00@gmail.com` 已配置为管理员邮箱和验证码发信邮箱；部署前还需配置 `AUTH_SECRET`、`GMAIL_CLIENT_ID`、`GMAIL_CLIENT_SECRET`、`GMAIL_REFRESH_TOKEN` 四项 Worker secrets。配置方法、Google 授权注意事项和验收流程见 [作者管理与 Gmail 登录配置](apps/club/AUTHOR-WORKSPACE.md)。没有凭据时邮件发送返回未配置错误，不能完成登录。
+
 如果数据库此前已手工添加 `reply_to_id` / `reply_to_author`，需要先核对表结构和迁移记录，不能再次执行同名 `ALTER TABLE`；上述升级路径面向尚未添加回复字段的旧库。
 
-写入限额使用 `write_limits` 表，按 Cloudflare 提供的访问来源计算，每小时最多投稿 3 篇、评论 20 条、点赞 60 次。
+写入限额使用 `write_limits` 表，按 Cloudflare 提供的访问来源计算，公开互动按来源每小时最多评论 20 条、点赞 60 次；登录作者每小时最多新建 30 篇草稿、提交审核 10 次。
 
 ---
 
 ## 创建 Workers 项目
 
-本表的 `wrangler deploy` 命令及 `[assets]` 配置使用 Workers Static Assets。选择 Workers Git 构建时使用构建命令和部署命令；选择 Pages 时仅指定输出目录，不能把 Worker 入口及绑定视为 Pages Function。AI 应用必须使用 Worker 配置部署。
+本表的 `wrangler deploy` 命令及 `[assets]` 配置使用 Workers Static Assets。选择 Workers Git 构建时使用构建命令和部署命令；选择 Pages 时仅指定输出目录，不能把 Worker 入口及绑定视为 Pages Function。AI 和 Club 应用必须使用 Worker 配置部署。
 
 ## 创建项目（通用步骤）
 
@@ -146,6 +152,18 @@ astro build && pagefind --site dist
 ```
 
 `pagefind` 在 Astro 静态产物上建立全文搜索索引，生成 `/pagefind/` 目录。Cloudflare Pages 会将其与其余静态资产一起发布。若构建日志中出现 `pagefind` 相关错误，检查 `pagefind` 是否在 `apps/main/package.json` 中列为 devDependency。
+
+## 全站共用字体（`/fonts/v1/`）
+
+七个站点的字体（Noto Serif SC 300–700、Cormorant、马善政）统一由主站发布在 `https://newmaybe.com/fonts/v1/`，各站引用同一份 `fonts.css`，不再各自打包，也不再使用 Google Fonts。主站与子域名同属 `newmaybe.com`，浏览器对同一网址的缓存在各子域名之间共用。
+
+- 主站 `dev` / `build` 前自动运行 `scripts/build-shared-fonts.ts`，从 Fontsource 生成 `apps/main/public/fonts/v1/`（已加入 `.gitignore`）：中文按字符切片，页面只下载用到的部分；只发布 woff2，文件名带内容哈希。
+- `apps/main/public/_headers` 为字体文件设置 `Access-Control-Allow-Origin: *` 与一年 `immutable` 缓存；`fonts.css` 缓存一小时。缺少跨域头时，所有子站都会退回系统字体。
+- **部署顺序**：字体有改动（换字体、增删字重、升级 Fontsource）时，在 `packages/shared-styles/fonts.js` 中把 `FONT_VERSION` 改为新版本，**先部署主站，再部署其他站点**。子站的完整 smoke 检查会请求线上主站的 `fonts.css`，主站未部署时会失败。只新增字体面、不改动已有文件时（例如补字字体）不必改版本，重新部署主站即可。
+- **补字字体**：Study 文本里 Fontsource 切片没有的生僻字（扩展 A–H，以及文本整理时从 `<部件>` 占位、私用区字和乱码还原出的基本区字）由 `packages/shared-styles/rare-glyphs/` 的子集提供：字形优先取 Noto Serif SC 完整版（OFL），其余取 Jigmo（CC0）。子集文件已提交到仓库，构建时并入 `fonts.css`，以 `unicode-range` 归入 Noto Serif SC 字族，只有用到这些字的页面才下载。文本新增生僻字后运行 `npm run fonts:rare` 重新生成；`npm test` 会检查覆盖。生成需要 Python fontTools（`pip3 install fonttools brotli`），以及下载到 `node_modules/.cache/rare-glyph-sources/` 的源字体（地址见 `scripts/build-rare-glyphs.ts`，Jigmo 需解压）。
+- 本地开发：子站引用 `http://localhost:4321/fonts/v1/fonts.css`，需要同时运行 `npm run dev:main`；未运行时页面退回系统字体，功能不受影响。
+- 构建时可设置 `NEWMAYBE_FONTS_ORIGIN` 改变子站引用的主站地址（CI 的浏览器测试设为 `http://127.0.0.1:4401`）；线上构建不要设置。
+- Club「一期一文」精选作品仍使用 `scripts/club-featured.ts` 生成的独立字体目录，不受影响。
 
 ## 免费 AI 防滥用配置（发布前必须完成）
 
