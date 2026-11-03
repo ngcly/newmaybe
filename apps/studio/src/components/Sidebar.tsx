@@ -10,13 +10,18 @@ export default function Sidebar({ activeTab, onTabChange, resolveSubdomain }: Si
   return (
     <aside className="studio-sidebar w-full md:w-72 bg-[var(--paper-deep)] border-b md:border-b-0 md:border-r border-[var(--line)] flex flex-col p-6 shrink-0 transition-colors duration-500">
       <div className="mb-3 md:mb-8">
-        <a
-          href={resolveSubdomain('https://newmaybe.com')}
-          className="text-xl font-semibold tracking-wide flex items-baseline gap-1 text-[var(--ink)] no-underline"
-        >
-          newmaybe<span className="text-[var(--ochre)] font-serif">.studio</span>
+        <a href="/" className="nm-brand nm-brand--stacked">
+          <span className="nm-brand-seal" aria-hidden="true">
+            坊
+          </span>
+          <span className="nm-brand-text">
+            <span className="nm-brand-word">
+              newmaybe<span className="nm-brand-dot">.</span>
+              <span className="nm-brand-sub">studio</span>
+            </span>
+            <span className="nm-brand-name">创作工坊</span>
+          </span>
         </a>
-        <p className="text-xs text-[var(--ink-faint)] mt-2">创作层 · 排版工具与灵感工坊</p>
       </div>
 
       <label className="md:hidden text-sm flex items-center gap-3">
@@ -36,8 +41,8 @@ export default function Sidebar({ activeTab, onTabChange, resolveSubdomain }: Si
       </label>
       <nav className="hidden md:flex flex-col gap-5 flex-grow">
         <div>
-          <span className="text-[10px] uppercase font-serif tracking-wider text-[var(--ink-faint)] block mb-1.5 px-2">
-            排版与卡片 · Formatting
+          <span className="text-xs tracking-[0.2em] text-[var(--ink-faint)] block mb-1.5 px-2">
+            排版与卡片
           </span>
           <div className="flex flex-col gap-1">
             {(
@@ -50,7 +55,7 @@ export default function Sidebar({ activeTab, onTabChange, resolveSubdomain }: Si
               <button
                 key={key}
                 onClick={() => onTabChange(key)}
-                className={`text-left px-3.5 py-2.5 rounded text-sm font-medium transition-all cursor-pointer ${
+                className={`text-left px-3.5 py-2.5 rounded-[var(--corner-sm)] text-sm font-medium transition-all cursor-pointer ${
                   activeTab === key
                     ? 'bg-[var(--paper)] text-[var(--ochre)] border border-[var(--line)] shadow-sm'
                     : 'text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[var(--paper)]/50'
@@ -63,8 +68,8 @@ export default function Sidebar({ activeTab, onTabChange, resolveSubdomain }: Si
         </div>
 
         <div>
-          <span className="text-[10px] uppercase font-serif tracking-wider text-[var(--ink-faint)] block mb-1.5 px-2">
-            灵感与素材 · Inspiration
+          <span className="text-xs tracking-[0.2em] text-[var(--ink-faint)] block mb-1.5 px-2">
+            灵感与素材
           </span>
           <div className="flex flex-col gap-1">
             {(
@@ -76,7 +81,7 @@ export default function Sidebar({ activeTab, onTabChange, resolveSubdomain }: Si
               <button
                 key={key}
                 onClick={() => onTabChange(key)}
-                className={`text-left px-3.5 py-2.5 rounded text-sm font-medium transition-all cursor-pointer ${
+                className={`text-left px-3.5 py-2.5 rounded-[var(--corner-sm)] text-sm font-medium transition-all cursor-pointer ${
                   activeTab === key
                     ? 'bg-[var(--paper)] text-[var(--ochre)] border border-[var(--line)] shadow-sm'
                     : 'text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[var(--paper)]/50'

@@ -1,9 +1,11 @@
 ---
 import '@newmaybe/shared-styles/base.css';
+import '@newmaybe/shared-styles/brand.css';
 import '../styles/graph.css';
 import GraphHeader from '../components/GraphHeader.astro';
 import GraphDetailCard from '../components/GraphDetailCard.astro';
 import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
+import FontStylesheet from '@newmaybe/shared-styles/FontStylesheet.astro';
 
 const isDev = import.meta.env.DEV;
 const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
@@ -14,6 +16,7 @@ const mainSiteUrl = isDev ? 'http://localhost:4321' : 'https://newmaybe.com';
   <head>
     <meta charset="UTF-8" />
     <ThemeChrome />
+    <FontStylesheet />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 

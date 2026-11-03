@@ -202,10 +202,8 @@ connections: []
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="border-b border-[var(--line)] pb-4">
-        <h2 className="text-xl font-semibold text-[var(--ink)] font-serif">
-          灵感捕获板 (Capture Pad)
-        </h2>
-        <p className="text-xs text-[var(--ink-soft)] mt-1 font-sans">
+        <h2 className="text-xl font-semibold text-[var(--ink)] font-serif">灵感捕获板</h2>
+        <p className="text-xs text-[var(--ink-soft)] mt-1">
           输入任何碎片化的杂感，AI 将自动分析并包装为符合主站编译格式的 Markdown 文件，包含完整的
           YAML Frontmatter。
         </p>
@@ -219,9 +217,7 @@ connections: []
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
         {/* Input box */}
         <div className="flex flex-col space-y-4">
-          <label className="text-xs font-semibold text-[var(--ink-soft)] font-sans">
-            1. 录入灵感碎语
-          </label>
+          <label className="text-xs font-semibold text-[var(--ink-soft)]">1. 录入灵感碎语</label>
           <textarea
             value={input}
             onChange={(e) => updateDraft({ input: e.target.value })}
@@ -233,29 +229,29 @@ connections: []
             disabled={isLoading || !input.trim()}
             className="w-full bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] text-[var(--paper)] p-3 rounded font-semibold text-xs transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? '解析并生成中...' : '✨ 格式化为 Markdown 笔记'}
+            {isLoading ? '解析并生成中...' : '格式化为 Markdown 笔记'}
           </button>
         </div>
 
         {/* Output box */}
         <div className="flex flex-col space-y-4">
           <div className="flex justify-between items-center">
-            <label className="text-xs font-semibold text-[var(--ink-soft)] font-sans">
-              2. 格式化输出 (Astro Markdown)
+            <label className="text-xs font-semibold text-[var(--ink-soft)]">
+              2. 格式化输出（Markdown）
             </label>
             {output && (
               <div className="flex gap-2">
                 <button
                   onClick={handleCopy}
-                  className="px-2 py-1 text-[10px] rounded border border-[var(--line)] bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-colors"
+                  className="px-2 py-1 text-xs rounded border border-[var(--line)] bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-colors"
                 >
-                  {copySuccess ? '✓ 已复制' : '📋 复制'}
+                  {copySuccess ? '已复制' : '复制'}
                 </button>
                 <button
                   onClick={handleDownload}
-                  className="px-2 py-1 text-[10px] rounded border border-[var(--line)] bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-colors"
+                  className="px-2 py-1 text-xs rounded border border-[var(--line)] bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-colors"
                 >
-                  💾 下载 .md
+                  下载 .md
                 </button>
               </div>
             )}
@@ -265,10 +261,12 @@ connections: []
             {isLoading ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2 text-[var(--ink-soft)]">
                 <span className="w-6 h-6 border-2 border-[var(--ochre)] border-t-transparent rounded-full animate-spin" />
-                <span className="text-xs font-sans">AI 正在提炼语义，构建 YAML Frontmatter...</span>
+                <span className="text-xs">AI 正在提炼语义，构建 YAML Frontmatter...</span>
               </div>
             ) : error ? (
-              <p className="text-xs text-red-500 font-serif leading-relaxed">{error}</p>
+              <p className="text-xs text-[var(--cinnabar-text)] font-serif leading-relaxed">
+                {error}
+              </p>
             ) : output ? (
               <pre className="text-xs font-mono text-[var(--ink)] leading-relaxed whitespace-pre-wrap select-all selection:bg-[var(--ochre)] selection:text-[var(--paper)]">
                 {output}

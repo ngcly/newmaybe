@@ -31,10 +31,10 @@ export default function ChatMessage({ msg, resolveSubdomain }: ChatMessageProps)
         {/* References */}
         {msg.references && msg.references.length > 0 && (
           <div className="mt-4 pt-3 border-t border-dashed border-[var(--line)]">
-            <span className="block text-[10px] text-[var(--ochre)] tracking-wider uppercase mb-1.5 font-sans font-semibold">
-              参考引证 (References)
+            <span className="block text-xs text-[var(--ochre)] tracking-wider mb-1.5 font-semibold">
+              参考引证
             </span>
-            <div className="flex flex-wrap gap-2 font-sans text-xs">
+            <div className="flex flex-wrap gap-2 text-xs">
               {msg.references.map((ref, idx) => (
                 <a
                   key={idx}
@@ -60,10 +60,10 @@ export default function ChatMessage({ msg, resolveSubdomain }: ChatMessageProps)
                   '_blank',
                 );
               }}
-              className="px-2 py-1 rounded text-[10px] border border-[var(--line)] bg-[var(--paper-deep)] hover:bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-all hover:scale-[1.03] active:scale-[0.97]"
+              className="px-2 py-1 rounded text-xs border border-[var(--line)] bg-[var(--paper-deep)] hover:bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-all hover:scale-[1.03] active:scale-[0.97]"
               title="将此回答发送到卡片生成器"
             >
-              ✨ 发送至卡片加工厂
+              发送至卡片加工厂
             </button>
             <button
               onClick={() => {
@@ -72,10 +72,10 @@ export default function ChatMessage({ msg, resolveSubdomain }: ChatMessageProps)
                   '_blank',
                 );
               }}
-              className="px-2 py-1 rounded text-[10px] border border-[var(--line)] bg-[var(--paper-deep)] hover:bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-all hover:scale-[1.03] active:scale-[0.97]"
+              className="px-2 py-1 rounded text-xs border border-[var(--line)] bg-[var(--paper-deep)] hover:bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-all hover:scale-[1.03] active:scale-[0.97]"
               title="将此回答发送到海报生成器"
             >
-              🎨 发送至海报工作室
+              发送至海报工作室
             </button>
             <button
               onClick={() => {
@@ -84,15 +84,15 @@ export default function ChatMessage({ msg, resolveSubdomain }: ChatMessageProps)
                   '_blank',
                 );
               }}
-              className="px-2 py-1 rounded text-[10px] border border-[var(--line)] bg-[var(--paper-deep)] hover:bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-all hover:scale-[1.03] active:scale-[0.97]"
+              className="px-2 py-1 rounded text-xs border border-[var(--line)] bg-[var(--paper-deep)] hover:bg-[var(--paper)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-all hover:scale-[1.03] active:scale-[0.97]"
               title="将此回答发送到思维沙盒"
             >
-              🌐 发送至思维沙盒
+              发送至思维沙盒
             </button>
           </div>
         )}
       </div>
-      <span className="text-[10px] text-[var(--ink-faint)] mt-1.5 px-1">{msg.timestamp}</span>
+      <span className="text-xs text-[var(--ink-faint)] mt-1.5 px-1">{msg.timestamp}</span>
     </div>
   );
 }

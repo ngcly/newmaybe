@@ -52,6 +52,24 @@ function drawWrappedText(
   return y + visibleLines.length * lineHeight;
 }
 
+// Line pin matching the main site's location icon; an emoji would render in the system colour font.
+function drawPin(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
+  const r = size * 0.3;
+  const cy = y - size * 0.12;
+  ctx.save();
+  ctx.strokeStyle = ctx.fillStyle;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.arc(x, cy, r, Math.PI * 0.8, Math.PI * 2.2);
+  ctx.lineTo(x, y + size * 0.42);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(x, cy, r * 0.35, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
 export async function downloadCard(
   cardType: CardType,
   cardTheme: CardTheme,
@@ -105,8 +123,9 @@ export async function downloadCard(
     ctx.font = '14px "Noto Serif SC", "Songti SC", serif';
     ctx.textBaseline = 'middle';
     if (fragForm.location) {
+      drawPin(ctx, 66, height - 65, 14);
       ctx.textAlign = 'left';
-      ctx.fillText(`📍 ${fragForm.location}`, 60, height - 65);
+      ctx.fillText(fragForm.location, 80, height - 65);
     }
     if (fragForm.mood) {
       ctx.textAlign = 'right';
@@ -135,7 +154,7 @@ export async function downloadCard(
     ctx.fillText(`— ${excForm.author}`, width - 60, authorY);
     if (excForm.source) {
       ctx.fillStyle = themeColors.textFaint;
-      ctx.font = 'italic 14px "Noto Serif SC", "Songti SC", serif';
+      ctx.font = '14px "Noto Serif SC", "Songti SC", serif';
       ctx.fillText(excForm.source, width - 60, authorY + 22);
     }
 

@@ -43,7 +43,6 @@ export default function App() {
 
   const sidebarContent = (
     <Sidebar
-      resolveSubdomain={resolveSubdomain}
       stats={chat.stats}
       contentLoading={chat.contentLoading}
       contentError={chat.contentError}
@@ -118,7 +117,7 @@ export default function App() {
               </svg>
             </button>
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[var(--bamboo)]" />
               <span className="text-sm font-semibold text-[var(--ink)]">思考 Agent 终端</span>
             </div>
           </div>
@@ -134,7 +133,7 @@ export default function App() {
         <nav className="flex border-b border-[var(--line)] bg-[var(--paper-deep)] px-6 shrink-0 gap-4 transition-colors duration-500">
           <button
             onClick={() => setActiveTab('chat')}
-            className={`py-3.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+            className={`py-3.5 text-xs font-semibold tracking-wider border-b-2 transition-all cursor-pointer ${
               activeTab === 'chat'
                 ? 'border-[var(--ochre)] text-[var(--ochre)] font-bold'
                 : 'border-transparent text-[var(--ink-soft)] hover:text-[var(--ink)]'
@@ -144,7 +143,7 @@ export default function App() {
           </button>
           <button
             onClick={() => setActiveTab('gardener')}
-            className={`py-3.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+            className={`py-3.5 text-xs font-semibold tracking-wider border-b-2 transition-all cursor-pointer ${
               activeTab === 'gardener'
                 ? 'border-[var(--ochre)] text-[var(--ochre)] font-bold'
                 : 'border-transparent text-[var(--ink-soft)] hover:text-[var(--ink)]'
@@ -154,7 +153,7 @@ export default function App() {
           </button>
           <button
             onClick={() => setActiveTab('capture')}
-            className={`py-3.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+            className={`py-3.5 text-xs font-semibold tracking-wider border-b-2 transition-all cursor-pointer ${
               activeTab === 'capture'
                 ? 'border-[var(--ochre)] text-[var(--ochre)] font-bold'
                 : 'border-transparent text-[var(--ink-soft)] hover:text-[var(--ink)]'
@@ -164,7 +163,7 @@ export default function App() {
           </button>
           <button
             onClick={() => setActiveTab('ego')}
-            className={`py-3.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+            className={`py-3.5 text-xs font-semibold tracking-wider border-b-2 transition-all cursor-pointer ${
               activeTab === 'ego'
                 ? 'border-[var(--ochre)] text-[var(--ochre)] font-bold'
                 : 'border-transparent text-[var(--ink-soft)] hover:text-[var(--ink)]'

@@ -31,7 +31,7 @@ body {
   background: rgba(247, 243, 236, 0.85);
   backdrop-filter: blur(12px);
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--corner-md);
   padding: 1.5rem;
   box-shadow: 0 10px 30px rgba(43, 39, 34, 0.04);
   transition:
@@ -48,28 +48,34 @@ body {
 }
 .graph-header::-webkit-scrollbar-thumb {
   background: var(--line);
-  border-radius: 2px;
+  border-radius: var(--corner-sm);
 }
 
+.graph-brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
 .back-btn {
   display: inline-block;
-  font-size: 0.85rem;
+  font-size: var(--fs-xs);
   color: var(--ink-faint);
   text-decoration: none;
-  margin-bottom: 0.8rem;
   transition: color 0.3s;
 }
 .back-btn:hover {
   color: var(--ochre);
 }
 h1 {
-  font-size: 1.5rem;
+  font-size: var(--fs-xl);
   font-weight: 500;
   margin-bottom: 0.6rem;
   letter-spacing: 0.05em;
 }
 .desc {
-  font-size: 0.82rem;
+  font-size: var(--fs-xs);
   line-height: 1.6;
   color: var(--ink-soft);
   margin-bottom: 1.2rem;
@@ -87,10 +93,10 @@ h1 {
   flex: 1;
   padding: 0.5rem;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--corner-sm);
   background: transparent;
   color: var(--ink-soft);
-  font-size: 0.8rem;
+  font-size: var(--fs-xs);
   cursor: pointer;
   font-family: var(--serif-cn);
   transition: all 0.3s ease;
@@ -116,10 +122,10 @@ h1 {
   width: 100%;
   padding: 0.6rem 2.2rem 0.6rem 0.8rem;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--corner-sm);
   background: var(--paper);
   color: var(--ink);
-  font-size: 0.85rem;
+  font-size: var(--fs-xs);
   font-family: var(--serif-cn);
   outline: none;
   transition: border-color 0.3s;
@@ -135,7 +141,7 @@ h1 {
   background: none;
   border: none;
   color: var(--ink-faint);
-  font-size: 0.9rem;
+  font-size: var(--fs-sm);
   cursor: pointer;
 }
 
@@ -149,7 +155,7 @@ h1 {
   margin-bottom: 1rem;
 }
 .sandbox-section-title {
-  font-size: 0.75rem;
+  font-size: var(--fs-xs);
   text-transform: uppercase;
   color: var(--ochre);
   font-weight: 600;
@@ -159,10 +165,10 @@ h1 {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--corner-sm);
   background: var(--paper);
   color: var(--ink);
-  font-size: 0.8rem;
+  font-size: var(--fs-xs);
   font-family: var(--serif-cn);
   outline: none;
 }
@@ -173,10 +179,10 @@ h1 {
   flex: 2;
   padding: 0.5rem;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--corner-sm);
   background: var(--paper);
   color: var(--ink);
-  font-size: 0.8rem;
+  font-size: var(--fs-xs);
   font-family: var(--serif-cn);
   outline: none;
 }
@@ -188,8 +194,8 @@ h1 {
   background: var(--paper-deep);
   color: var(--ink);
   border: 1px solid var(--line);
-  border-radius: 4px;
-  font-size: 0.8rem;
+  border-radius: var(--corner-sm);
+  font-size: var(--fs-xs);
   font-family: var(--serif-cn);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -216,11 +222,11 @@ h1 {
   gap: 0.4rem;
   background: var(--paper);
   padding: 0.6rem;
-  border-radius: 4px;
+  border-radius: var(--corner-md);
   border: 1px solid var(--line);
 }
 .link-editor-title {
-  font-size: 0.72rem;
+  font-size: var(--fs-xs);
   color: var(--ink-soft);
 }
 .link-nodes-status {
@@ -228,7 +234,7 @@ h1 {
   gap: 0.4rem;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.75rem;
+  font-size: var(--fs-xs);
   color: var(--ink-soft);
   margin-top: 0.2rem;
 }
@@ -247,8 +253,8 @@ h1 {
   flex: 1;
   padding: 0.4rem;
   border: 1px solid var(--line);
-  border-radius: 3px;
-  font-size: 0.72rem;
+  border-radius: var(--corner-sm);
+  font-size: var(--fs-xs);
   cursor: pointer;
   background: var(--paper-deep);
   color: var(--ink);
@@ -276,7 +282,7 @@ h1 {
   margin-bottom: 0.8rem;
 }
 #physics-panel summary {
-  font-size: 0.75rem;
+  font-size: var(--fs-xs);
   text-transform: uppercase;
   color: var(--ink-soft);
   font-weight: 600;
@@ -289,7 +295,7 @@ h1 {
   justify-content: space-between;
   align-items: center;
   margin-top: 0.6rem;
-  font-size: 0.72rem;
+  font-size: var(--fs-xs);
   color: var(--ink-soft);
 }
 .physics-slider {
@@ -309,8 +315,8 @@ h1 {
   padding: 0.5rem;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 4px;
-  font-size: 0.75rem;
+  border-radius: var(--corner-sm);
+  font-size: var(--fs-xs);
   color: var(--ink-soft);
   font-family: var(--serif-cn);
   cursor: pointer;
@@ -341,7 +347,7 @@ h1 {
   margin-top: 1rem;
 }
 .node-list-panel summary {
-  font-size: 0.75rem;
+  font-size: var(--fs-xs);
   text-transform: uppercase;
   color: var(--ink-soft);
   font-weight: 600;
@@ -352,7 +358,7 @@ h1 {
   margin-top: 0.6rem;
 }
 .node-list-group-label {
-  font-size: 0.7rem;
+  font-size: var(--fs-xs);
   color: var(--ochre);
   font-weight: 600;
   margin-bottom: 0.3rem;
@@ -364,11 +370,11 @@ h1 {
   background: none;
   border: none;
   font-family: var(--serif-cn);
-  font-size: 0.78rem;
+  font-size: var(--fs-xs);
   color: var(--ink-soft);
   padding: 0.25rem 0.4rem;
   cursor: pointer;
-  border-radius: 2px;
+  border-radius: var(--corner-sm);
   transition: all 0.2s ease;
 }
 .node-list-item:hover,
@@ -390,7 +396,7 @@ h1 {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.78rem;
+  font-size: var(--fs-xs);
   color: var(--ink-soft);
 }
 .dot {
@@ -500,7 +506,7 @@ svg:active {
   background: rgba(247, 243, 236, 0.85);
   backdrop-filter: blur(12px);
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--corner-md);
   padding: 1.2rem;
   box-shadow: 0 12px 36px rgba(43, 39, 34, 0.08);
   display: none;
@@ -522,7 +528,7 @@ svg:active {
   }
 }
 .detail-type {
-  font-size: 0.72rem;
+  font-size: var(--fs-xs);
   text-transform: uppercase;
   color: var(--ochre);
   font-weight: 600;
@@ -530,13 +536,13 @@ svg:active {
   letter-spacing: 0.05em;
 }
 .detail-title {
-  font-size: 1.05rem;
+  font-size: var(--fs-base);
   font-weight: 500;
   color: var(--ink);
   margin-bottom: 0.4rem;
 }
 .detail-tip {
-  font-size: 0.76rem;
+  font-size: var(--fs-xs);
   color: var(--ink-faint);
 }
 
@@ -553,8 +559,8 @@ svg:active {
   padding: 0.4rem;
   background: var(--paper-deep);
   border: 1px solid var(--line);
-  border-radius: 3px;
-  font-size: 0.72rem;
+  border-radius: var(--corner-sm);
+  font-size: var(--fs-xs);
   color: var(--ink-soft);
   font-family: var(--serif-cn);
   cursor: pointer;
@@ -590,9 +596,11 @@ svg:active {
   margin: 0.5rem 0;
   padding: 0.35rem 0.65rem;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--corner-sm);
   background: var(--paper);
   color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-sm);
   cursor: pointer;
 }
 

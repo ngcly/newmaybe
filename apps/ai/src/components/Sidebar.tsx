@@ -2,7 +2,6 @@ import type { ProviderType, ContentStats } from '../types';
 import { DAILY_FREE_LIMIT, SUGGESTIONS, QUICK_ACTIONS } from '../constants';
 
 interface SidebarProps {
-  resolveSubdomain: (url: string) => string;
   stats: ContentStats | null;
   contentLoading: boolean;
   contentError: string | null;
@@ -28,7 +27,6 @@ interface SidebarProps {
 
 export default function Sidebar(props: SidebarProps) {
   const {
-    resolveSubdomain,
     stats,
     contentLoading,
     contentError,
@@ -55,15 +53,18 @@ export default function Sidebar(props: SidebarProps) {
   return (
     <>
       <div className="mb-6 flex justify-between items-start">
-        <div>
-          <a
-            href={resolveSubdomain('https://newmaybe.com')}
-            className="text-xl font-semibold tracking-wide flex items-baseline gap-1 text-[var(--ink)] no-underline"
-          >
-            newmaybe<span className="text-[var(--ochre)] font-serif">.ai</span>
-          </a>
-          <p className="text-xs text-[var(--ink-faint)] mt-2">智能层 · 个人知识 Agent 终端</p>
-        </div>
+        <a href="/" className="nm-brand nm-brand--stacked">
+          <span className="nm-brand-seal" aria-hidden="true">
+            园
+          </span>
+          <span className="nm-brand-text">
+            <span className="nm-brand-word">
+              newmaybe<span className="nm-brand-dot">.</span>
+              <span className="nm-brand-sub">ai</span>
+            </span>
+            <span className="nm-brand-name">AI 园丁</span>
+          </span>
+        </a>
         <button
           onClick={onCloseMobile}
           className="md:hidden p-1.5 rounded border border-[var(--line)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer"
@@ -81,17 +82,17 @@ export default function Sidebar(props: SidebarProps) {
 
       {/* Stats */}
       <div className="bg-[var(--paper)] border border-[var(--line)] rounded p-4 mb-5">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)] mb-2.5">
+        <h4 className="text-xs font-semibold tracking-wider text-[var(--ochre)] mb-2.5">
           知识图谱索引状态
         </h4>
-        {contentError && <p className="text-xs text-red-600 mb-2">{contentError}</p>}
+        {contentError && <p className="text-xs text-[var(--cinnabar-text)] mb-2">{contentError}</p>}
         <ul className="text-xs text-[var(--ink-soft)] space-y-1.5 list-none">
           {[
-            ['🌲 文章节点 (Writing)', stats?.posts, '篇'],
-            ['🌱 笔记节点 (Note)', stats?.notes, '篇'],
-            ['🌳 记忆节点 (Memory)', stats?.memories, '个'],
-            ['📖 拾遗节点 (Excerpt)', stats?.excerpts, '条'],
-            ['🍂 念头节点 (Fragment)', stats?.fragments, '个'],
+            ['文章', stats?.posts, '篇'],
+            ['笔记', stats?.notes, '篇'],
+            ['记忆', stats?.memories, '个'],
+            ['拾遗', stats?.excerpts, '条'],
+            ['念头', stats?.fragments, '个'],
           ].map(([label, count, unit]) => (
             <li key={label as string} className="flex justify-between">
               <span>{label}</span>
@@ -105,7 +106,7 @@ export default function Sidebar(props: SidebarProps) {
 
       {/* Quick actions */}
       <div className="bg-[var(--paper)] border border-[var(--line)] rounded p-4 mb-5">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)] mb-2.5">
+        <h4 className="text-xs font-semibold tracking-wider text-[var(--ochre)] mb-2.5">
           创意写作快捷指令
         </h4>
         <div className="flex flex-col gap-2">
@@ -116,7 +117,7 @@ export default function Sidebar(props: SidebarProps) {
                 onSetInputText(action.prompt);
                 onCloseMobile();
               }}
-              className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-[11px] text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
+              className="text-left w-full p-2 border border-[var(--line)] hover:border-[var(--ochre)] rounded text-xs text-[var(--ink-soft)] bg-transparent hover:bg-[var(--paper-deep)] cursor-pointer transition-all"
             >
               {action.label}
             </button>
@@ -128,9 +129,7 @@ export default function Sidebar(props: SidebarProps) {
       <div className="mt-auto pt-4 border-t border-[var(--line)]">
         {showConfig ? (
           <div className="flex flex-col gap-3">
-            <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">
-              接口协议模式
-            </label>
+            <label className="text-xs font-semibold text-[var(--ink-faint)]">接口协议模式</label>
             <select
               value={provider}
               onChange={(e) => {
@@ -156,7 +155,7 @@ export default function Sidebar(props: SidebarProps) {
 
             {provider !== 'free' && (
               <>
-                <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">
+                <label className="text-xs font-semibold text-[var(--ink-faint)]">
                   API Base URL
                 </label>
                 <input
@@ -170,9 +169,7 @@ export default function Sidebar(props: SidebarProps) {
                   }
                   className="w-full p-2 text-[16px] md:text-xs border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] outline-none"
                 />
-                <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">
-                  推理模型 (Model Name)
-                </label>
+                <label className="text-xs font-semibold text-[var(--ink-faint)]">推理模型</label>
                 <input
                   type="text"
                   value={model}
@@ -182,8 +179,8 @@ export default function Sidebar(props: SidebarProps) {
                 />
 
                 <div className="border border-[var(--line)] rounded p-2.5 bg-[var(--paper)]/50">
-                  <span className="block text-[9px] font-semibold text-[var(--ochre)] tracking-wider uppercase mb-1.5">
-                    💡 常用服务快速填制
+                  <span className="block text-xs font-semibold text-[var(--ochre)] tracking-wider mb-1.5">
+                    常用服务快速填制
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {SUGGESTIONS.filter((s) => {
@@ -197,7 +194,7 @@ export default function Sidebar(props: SidebarProps) {
                           onCustomBaseUrlChange(s.url);
                           onModelChange(s.model);
                         }}
-                        className="text-[10px] bg-[var(--paper-deep)] hover:bg-[var(--line)] border border-[var(--line)] text-[var(--ink-soft)] px-1.5 py-0.5 rounded cursor-pointer transition-colors"
+                        className="text-xs bg-[var(--paper-deep)] hover:bg-[var(--line)] border border-[var(--line)] text-[var(--ink-soft)] px-1.5 py-0.5 rounded cursor-pointer transition-colors"
                       >
                         {s.name}
                       </button>
@@ -205,9 +202,7 @@ export default function Sidebar(props: SidebarProps) {
                   </div>
                 </div>
 
-                <label className="text-[10px] uppercase font-semibold text-[var(--ink-faint)]">
-                  API 密钥 (API Key)
-                </label>
+                <label className="text-xs font-semibold text-[var(--ink-faint)]">API 密钥</label>
                 <input
                   type="password"
                   placeholder="输入 API Key..."
@@ -228,7 +223,7 @@ export default function Sidebar(props: SidebarProps) {
               {apiKey && (
                 <button
                   onClick={onClearConfig}
-                  className="px-2 border border-red-200 text-red-500 py-1.5 rounded text-xs cursor-pointer hover:bg-red-50/20"
+                  className="px-2 border border-[var(--cinnabar)]/40 text-[var(--cinnabar-text)] py-1.5 rounded text-xs cursor-pointer hover:bg-[var(--cinnabar-bg)]"
                 >
                   注销
                 </button>
@@ -264,7 +259,7 @@ export default function Sidebar(props: SidebarProps) {
                 onClick={() => onToggleConfig(true)}
                 className="flex-grow text-center border border-[var(--line)] hover:border-[var(--ochre)] text-[var(--ink-soft)] hover:text-[var(--ochre)] py-2 rounded text-xs transition-all cursor-pointer bg-[var(--paper)]/50"
               >
-                ⚙️ 配置推理引擎
+                配置推理引擎
               </button>
               {messageCount > 1 && (
                 <button
@@ -273,10 +268,10 @@ export default function Sidebar(props: SidebarProps) {
                       onClearMessages();
                     }
                   }}
-                  className="px-3 border border-red-200 hover:border-red-400 text-red-500 hover:bg-red-50/20 py-2 rounded text-xs transition-all cursor-pointer bg-[var(--paper)]/50"
+                  className="px-3 border border-[var(--cinnabar)]/40 hover:border-[var(--cinnabar)] text-[var(--cinnabar-text)] hover:bg-[var(--cinnabar-bg)] py-2 rounded text-xs transition-all cursor-pointer bg-[var(--paper)]/50"
                   title="清空对话历史"
                 >
-                  🗑️ 清空
+                  清空
                 </button>
               )}
             </div>

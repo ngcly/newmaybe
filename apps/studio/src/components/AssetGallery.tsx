@@ -7,21 +7,21 @@ const mainAsset = (path: string) => `https://newmaybe.com/${path}`;
 
 const ASSETS: Asset[] = [
   {
-    title: '默认 OG 分享封面 (Default OG)',
+    title: '默认 OG 分享封面',
     path: mainAsset('og-default.png'),
     type: '图片',
     kind: 'url',
     description: '主站发布的默认分享封面，可查看或复制完整图片地址。',
   },
   {
-    title: '品牌 Logo 矢量图 (Favicon SVG)',
+    title: '品牌 Logo 矢量图',
     path: mainAsset('favicon.svg'),
     type: '矢量图',
     kind: 'url',
     description: '主站发布的品牌图标，可在浏览器中打开并另存为 SVG。',
   },
   {
-    title: '背景噪点 SVG 覆盖层 (Noise Pattern)',
+    title: '背景噪点 SVG 覆盖层',
     path: `background-image: url("data:image/svg+xml,${encodeURIComponent(NOISE_SVG)}");`,
     type: 'CSS图案',
     kind: 'code',
@@ -91,10 +91,10 @@ export default function AssetGallery({
           >
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-serif text-[var(--ochre)] italic font-semibold">
+                <span className="text-xs font-serif text-[var(--ochre)] tracking-wider font-semibold">
                   {asset.type}
                 </span>
-                <span className="text-[10px] bg-[var(--paper)] text-[var(--ink-faint)] px-2 py-0.5 rounded border border-[var(--line)]">
+                <span className="text-xs bg-[var(--paper)] text-[var(--ink-faint)] px-2 py-0.5 rounded border border-[var(--line)]">
                   {asset.kind === 'url' ? '公共素材' : '使用片段'}
                 </span>
               </div>
@@ -122,7 +122,7 @@ export default function AssetGallery({
                 className="bg-[var(--paper)] hover:bg-[var(--line)] border border-[var(--line)] text-[var(--ink-soft)] px-3 py-1.5 rounded text-xs transition-colors cursor-pointer"
               >
                 {copiedAssetIdx === idx
-                  ? '已复制 ✔'
+                  ? '已复制'
                   : asset.kind === 'url'
                     ? '复制素材地址'
                     : '复制使用片段'}

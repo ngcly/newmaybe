@@ -57,10 +57,8 @@ export default function Gardener({ allContent, resolveSubdomain, onSwitchToChat 
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-[var(--line)] pb-4 gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-[var(--ink)] font-serif">
-            数字花园园丁 (Gardener Studio)
-          </h2>
-          <p className="text-xs text-[var(--ink-soft)] mt-1 font-sans">
+          <h2 className="text-xl font-semibold text-[var(--ink)] font-serif">数字花园园丁</h2>
+          <p className="text-xs text-[var(--ink-soft)] mt-1">
             AI 自动扫描内容脉络，为您找出孤立的思想碎语，催化沉睡的绿芽，推荐奇妙的语义连线。
           </p>
         </div>
@@ -125,20 +123,20 @@ export default function Gardener({ allContent, resolveSubdomain, onSwitchToChat 
                     className="p-4 rounded-lg bg-[var(--paper)] border border-[var(--line)] shadow-sm hover:border-[var(--ochre)] transition-all flex flex-col justify-between"
                   >
                     <div>
-                      <div className="flex justify-between text-[10px] text-[var(--ochre)] font-semibold uppercase tracking-wider mb-2">
+                      <div className="flex justify-between text-xs text-[var(--ochre)] font-semibold tracking-wider mb-2">
                         <span>关联相似度分值: {sug.score}</span>
                         <span>推荐 #{idx + 1}</span>
                       </div>
                       <div className="space-y-2">
                         <div className="p-2 rounded bg-[var(--paper-deep)] border border-[var(--line)]">
-                          <span className="text-[10px] text-[var(--ink-faint)] block">节点 A</span>
+                          <span className="text-xs text-[var(--ink-faint)] block">节点 A</span>
                           <span className="text-sm font-semibold text-[var(--ink)] font-serif">
                             {sug.source.title}
                           </span>
                         </div>
                         <div className="flex justify-center text-[var(--ink-faint)] py-0.5">⇄</div>
                         <div className="p-2 rounded bg-[var(--paper-deep)] border border-[var(--line)]">
-                          <span className="text-[10px] text-[var(--ink-faint)] block">节点 B</span>
+                          <span className="text-xs text-[var(--ink-faint)] block">节点 B</span>
                           <span className="text-sm font-semibold text-[var(--ink)] font-serif">
                             {sug.target.title}
                           </span>
@@ -147,14 +145,14 @@ export default function Gardener({ allContent, resolveSubdomain, onSwitchToChat 
 
                       {/* Keywords */}
                       <div className="mt-3">
-                        <span className="text-[10px] text-[var(--ink-faint)] block mb-1">
+                        <span className="text-xs text-[var(--ink-faint)] block mb-1">
                           共同提及词汇:
                         </span>
                         <div className="flex flex-wrap gap-1">
                           {sug.commonKeywords.map((kw, kIdx) => (
                             <span
                               key={kIdx}
-                              className="text-[10px] bg-[var(--paper-deep)] border border-[var(--line)] text-[var(--ink-soft)] px-1.5 py-0.5 rounded"
+                              className="text-xs bg-[var(--paper-deep)] border border-[var(--line)] text-[var(--ink-soft)] px-1.5 py-0.5 rounded"
                             >
                               {kw}
                             </span>
@@ -166,11 +164,11 @@ export default function Gardener({ allContent, resolveSubdomain, onSwitchToChat 
                     <div className="mt-4 pt-3 border-t border-[var(--line)] flex gap-2 justify-end">
                       <button
                         onClick={() => handleCopyConnection(sug.source.id, sug.target.id)}
-                        className="px-2.5 py-1 text-[10px] rounded border border-[var(--line)] bg-[var(--paper-deep)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-colors"
+                        className="px-2.5 py-1 text-xs rounded border border-[var(--line)] bg-[var(--paper-deep)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-colors"
                       >
                         {copySuccess === `${sug.source.id}-${sug.target.id}`
-                          ? '✓ 已复制连接语法'
-                          : '🔗 复制 Frontmatter 连接'}
+                          ? '已复制连接语法'
+                          : '复制 Frontmatter 连接'}
                       </button>
                       <button
                         onClick={() => {
@@ -179,9 +177,9 @@ export default function Gardener({ allContent, resolveSubdomain, onSwitchToChat 
                             '_blank',
                           );
                         }}
-                        className="px-2.5 py-1 text-[10px] rounded border border-[var(--line)] bg-[var(--paper-deep)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-colors"
+                        className="px-2.5 py-1 text-xs rounded border border-[var(--line)] bg-[var(--paper-deep)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-colors"
                       >
-                        🌐 在沙盒查看
+                        在沙盒查看
                       </button>
                     </div>
                   </div>
@@ -210,7 +208,7 @@ export default function Gardener({ allContent, resolveSubdomain, onSwitchToChat 
                   >
                     <div>
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-[10px] text-[var(--ochre)] font-semibold tracking-wide uppercase">
+                        <span className="text-xs text-[var(--ochre)] font-semibold tracking-wide">
                           {item.type === 'notes' ? '笔记' : '文章'}
                         </span>
                         <input
@@ -223,7 +221,7 @@ export default function Gardener({ allContent, resolveSubdomain, onSwitchToChat 
                       <h3 className="text-sm font-semibold text-[var(--ink)] font-serif mb-1">
                         {item.title}
                       </h3>
-                      <p className="text-xs text-[var(--ink-soft)] line-clamp-3 font-sans leading-relaxed">
+                      <p className="text-xs text-[var(--ink-soft)] line-clamp-3 leading-relaxed">
                         {item.content || '（暂无详细文本内容）'}
                       </p>
                     </div>
@@ -234,9 +232,9 @@ export default function Gardener({ allContent, resolveSubdomain, onSwitchToChat 
                           const promptText = `【诊断孤立节点】\n我的笔记《${item.title}》是一个孤立节点，它的当前内容是：\n"""\n${item.content.slice(0, 500)}\n"""\n\n请帮我分析它为什么被孤立，并从我现有的数字花园内容中推荐 3 个可能与它产生概念连接的已有笔记或文章，解释其内在的语义联系，并给出推荐 chimneys connection 语法。`;
                           onSwitchToChat(promptText);
                         }}
-                        className="px-2.5 py-1 text-[10px] rounded border border-[var(--line)] bg-[var(--paper-deep)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-colors"
+                        className="px-2.5 py-1 text-xs rounded border border-[var(--line)] bg-[var(--paper-deep)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-colors"
                       >
-                        🔍 AI 诊断并推荐连接
+                        AI 诊断并推荐连接
                       </button>
                     </div>
                   </div>
@@ -266,9 +264,9 @@ export default function Gardener({ allContent, resolveSubdomain, onSwitchToChat 
                     <div>
                       <div className="flex justify-between items-center mb-2">
                         <div className="flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          <span className="text-[10px] text-emerald-500 font-semibold tracking-wide uppercase">
-                            绿芽 Sprout
+                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--bamboo)]" />
+                          <span className="text-xs text-[var(--ink-soft)] font-semibold tracking-wide">
+                            绿芽
                           </span>
                         </div>
                         <input
@@ -281,7 +279,7 @@ export default function Gardener({ allContent, resolveSubdomain, onSwitchToChat 
                       <h3 className="text-sm font-semibold text-[var(--ink)] font-serif mb-1">
                         {item.title}
                       </h3>
-                      <p className="text-xs text-[var(--ink-soft)] line-clamp-3 font-sans leading-relaxed">
+                      <p className="text-xs text-[var(--ink-soft)] line-clamp-3 leading-relaxed">
                         {item.content || '（暂无详细文本内容）'}
                       </p>
                     </div>
@@ -292,9 +290,9 @@ export default function Gardener({ allContent, resolveSubdomain, onSwitchToChat 
                           const promptText = `【浇灌绿芽笔记】\n我的绿芽（sprout）笔记《${item.title}》需要拓展和浇灌。以下是当前的草稿内容：\n"""\n${item.content.slice(0, 500)}\n"""\n\n请帮我拓展它的论述。我想将它演化到 Bud（花蕾）阶段。请基于你的分析，提供扩展大纲、补充的核心概念、以及如何与我的数字花园其他部分建立联系的思路。`;
                           onSwitchToChat(promptText);
                         }}
-                        className="px-2.5 py-1 text-[10px] rounded border border-[var(--line)] bg-[var(--paper-deep)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-colors"
+                        className="px-2.5 py-1 text-xs rounded border border-[var(--line)] bg-[var(--paper-deep)] text-[var(--ink-soft)] hover:text-[var(--ochre)] cursor-pointer transition-colors"
                       >
-                        💧 浇灌并催化演化
+                        浇灌并催化演化
                       </button>
                     </div>
                   </div>

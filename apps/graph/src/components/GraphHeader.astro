@@ -7,7 +7,17 @@ const { mainSiteUrl } = Astro.props;
 ---
 
 <header class="graph-header">
-  <a href={mainSiteUrl} class="back-btn">← 返回主站 newmaybe.com</a>
+  <div class="graph-brand-row">
+    <a href="/" class="nm-brand" aria-label="思维图谱 · newmaybe.graph">
+      <span class="nm-brand-seal" aria-hidden="true">图</span>
+      <span class="nm-brand-text">
+        <span class="nm-brand-word"
+          >newmaybe<span class="nm-brand-dot">.</span><span class="nm-brand-sub">graph</span></span
+        >
+      </span>
+    </a>
+    <a href={mainSiteUrl} class="back-btn">← 返回主站</a>
+  </div>
   <h1>思考的经纬</h1>
   <button id="graph-controls-toggle" aria-expanded="true" aria-controls="graph-controls"
     >收起面板</button
@@ -58,11 +68,11 @@ const { mainSiteUrl } = Astro.props;
         />
         <div style="display: flex; gap: 0.4rem;">
           <select id="node-group-input" class="sandbox-select">
-            <option value="notes">笔记 (Note)</option>
-            <option value="posts">文章 (Writing)</option>
-            <option value="memories">记忆 (Memory)</option>
-            <option value="excerpts">拾遗 (Excerpt)</option>
-            <option value="fragments">念头 (Fragment)</option>
+            <option value="notes">笔记</option>
+            <option value="posts">文章</option>
+            <option value="memories">记忆</option>
+            <option value="excerpts">拾遗</option>
+            <option value="fragments">念头</option>
           </select>
           <button id="btn-add-node" class="sandbox-btn sandbox-btn-primary">添加节点</button>
         </div>
@@ -158,20 +168,20 @@ const { mainSiteUrl } = Astro.props;
       class="legend"
       style="margin-top: 1rem; border-top: 1px dashed var(--line); padding-top: 1rem;"
     >
-      <div class="legend-item"><span class="dot dot-posts"></span>文章 (Writing)</div>
-      <div class="legend-item"><span class="dot dot-notes"></span>笔记 (Note)</div>
-      <div class="legend-item"><span class="dot dot-memories"></span>记忆 (Memory)</div>
-      <div class="legend-item"><span class="dot dot-excerpts"></span>拾遗 (Excerpt)</div>
-      <div class="legend-item"><span class="dot dot-fragments"></span>念头 (Fragment)</div>
+      <div class="legend-item"><span class="dot dot-posts"></span>文章</div>
+      <div class="legend-item"><span class="dot dot-notes"></span>笔记</div>
+      <div class="legend-item"><span class="dot dot-memories"></span>记忆</div>
+      <div class="legend-item"><span class="dot dot-excerpts"></span>拾遗</div>
+      <div class="legend-item"><span class="dot dot-fragments"></span>念头</div>
     </div>
 
     <!-- 节点列表替代视图（无障碍） -->
     <details class="node-list-panel" id="node-list-panel">
-      <summary>📋 所有节点列表（无障碍键盘访问）</summary>
+      <summary>所有节点列表（无障碍键盘访问）</summary>
       <div id="node-list-content" style="max-height: 240px; overflow-y: auto; margin-top: 0.5rem;">
         <div
           class="search-empty"
-          style="font-size:0.78rem; color:var(--ink-faint); padding:1rem 0; text-align:center;"
+          style="font-size:var(--fs-xs); color:var(--ink-faint); padding:1rem 0; text-align:center;"
         >
           图谱数据加载中...
         </div>

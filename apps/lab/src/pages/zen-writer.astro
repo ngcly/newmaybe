@@ -1,6 +1,7 @@
 ---
 import '@newmaybe/shared-styles/base.css';
 import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
+import FontStylesheet from '@newmaybe/shared-styles/FontStylesheet.astro';
 
 const isDev = import.meta.env.DEV;
 ---
@@ -10,6 +11,7 @@ const isDev = import.meta.env.DEV;
   <head>
     <meta charset="UTF-8" />
     <ThemeChrome />
+    <FontStylesheet />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
@@ -79,7 +81,7 @@ const isDev = import.meta.env.DEV;
         left: 3rem;
       }
       .back-link {
-        font-size: 0.9rem;
+        font-size: var(--fs-sm);
         color: var(--ink-faint);
         text-decoration: none;
         transition: color 0.3s;
@@ -98,7 +100,7 @@ const isDev = import.meta.env.DEV;
         background: rgba(239, 233, 222, 0.6);
         backdrop-filter: blur(12px);
         border: 1px solid var(--line);
-        border-radius: 4px;
+        border-radius: var(--corner-md);
         padding: 0.6rem 1.2rem;
       }
       :root.dark .control-panel {
@@ -109,7 +111,7 @@ const isDev = import.meta.env.DEV;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.8rem;
+        font-size: var(--fs-xs);
         color: var(--ink-soft);
       }
       .audio-btn {
@@ -117,9 +119,9 @@ const isDev = import.meta.env.DEV;
         border: 1px solid var(--line);
         color: var(--ink-soft);
         cursor: pointer;
-        font-size: 0.76rem;
+        font-size: var(--fs-xs);
         padding: 0.25rem 0.5rem;
-        border-radius: 3px;
+        border-radius: var(--corner-sm);
         font-family: var(--serif-cn), serif;
         transition: all 0.3s;
       }
@@ -161,7 +163,7 @@ const isDev = import.meta.env.DEV;
         outline: none;
         resize: none;
         font-family: var(--serif-cn), serif;
-        font-size: 1.2rem; /* 动态修改 */
+        font-size: var(--fs-md); /* 动态修改 */
         line-height: 1.9;
         color: var(--ink);
         font-weight: 300;
@@ -183,7 +185,7 @@ const isDev = import.meta.env.DEV;
         align-items: center;
         flex-wrap: wrap;
         gap: 0.5rem;
-        font-size: 0.78rem;
+        font-size: var(--fs-xs);
         color: var(--ink-faint);
         z-index: 100;
         transition: opacity 1.2s ease-in-out;
@@ -265,14 +267,14 @@ const isDev = import.meta.env.DEV;
       </div>
       <div class="panel-item">
         <span>白噪音</span>
-        <button class="audio-btn" id="rainBtn" data-type="rain">雨声 🌧</button>
-        <button class="audio-btn" id="windBtn" data-type="wind">微风 🍃</button>
+        <button class="audio-btn" id="rainBtn" data-type="rain">雨声</button>
+        <button class="audio-btn" id="windBtn" data-type="wind">微风</button>
       </div>
       <div
         class="panel-item"
         style="border-left: 1px solid var(--line); padding-left: 1rem; gap: 0.5rem;"
       >
-        <span style="font-size: 0.72rem; color: var(--ink-faint);">导出:</span>
+        <span style="font-size: var(--fs-xs); color: var(--ink-faint);">导出:</span>
         <button class="audio-btn" id="sendToCardBtn" title="发送至卡片加工厂">卡片</button>
         <button class="audio-btn" id="sendToStudioBtn" title="发送至海报工作室">海报</button>
         <button class="audio-btn" id="sendToGraphBtn" title="发送至思维沙盒">沙盒</button>

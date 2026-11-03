@@ -250,12 +250,12 @@ export default function EgoMirror({
       <div className="flex-grow flex flex-col h-[65vh] max-lg:shrink-0 lg:h-full bg-[var(--paper)] border border-[var(--line)] rounded-lg overflow-hidden min-w-0">
         <header className="px-4 py-3 border-b border-[var(--line)] bg-[var(--paper-deep)] flex justify-between items-center shrink-0">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-[var(--ochre)]" />
             <span className="text-sm font-semibold text-[var(--ink)] font-serif">思想对撞沙盒</span>
           </div>
           <button
             onClick={handleClear}
-            className="text-[10px] text-[var(--ink-soft)] hover:text-[var(--ochre)] px-2 py-1 rounded border border-[var(--line)] bg-[var(--paper)] cursor-pointer"
+            className="text-xs text-[var(--ink-soft)] hover:text-[var(--ochre)] px-2 py-1 rounded border border-[var(--line)] bg-[var(--paper)] cursor-pointer"
           >
             清空对撞记录
           </button>
@@ -284,9 +284,7 @@ export default function EgoMirror({
                 >
                   <MarkdownText text={msg.text} />
                 </div>
-                <span className="text-[9px] text-[var(--ink-faint)] mt-1 px-1">
-                  {msg.timestamp}
-                </span>
+                <span className="text-xs text-[var(--ink-faint)] mt-1 px-1">{msg.timestamp}</span>
               </div>
             );
           })}
@@ -322,7 +320,7 @@ export default function EgoMirror({
       {/* Right Column: Historical citation references */}
       <div className="w-full lg:w-80 shrink-0 flex flex-col h-auto lg:h-full bg-[color-mix(in_srgb,var(--paper-deep)_50%,transparent)] border border-[var(--line)] rounded-lg overflow-hidden">
         <header className="px-4 py-3 border-b border-[var(--line)] bg-[var(--paper-deep)] shrink-0">
-          <span className="text-xs font-semibold text-[var(--ink-soft)] font-sans uppercase tracking-wider">
+          <span className="text-xs font-semibold text-[var(--ink-soft)] tracking-wider">
             历史文献投影 ({sessionReferences.length})
           </span>
         </header>
@@ -330,8 +328,8 @@ export default function EgoMirror({
         <div className="flex-grow overflow-y-auto p-4 space-y-3 scrollbar-none">
           {focusedRefs.length > 0 && (
             <div className="space-y-3 pb-3 border-b border-dashed border-[var(--line)]">
-              <span className="text-[10px] text-[var(--ochre)] font-semibold uppercase tracking-wider block">
-                ⚡ 本次对撞重点引证
+              <span className="text-xs text-[var(--ochre)] font-semibold tracking-wider block">
+                本次对撞重点引证
               </span>
               {focusedRefs.map((doc) => (
                 <div
@@ -346,12 +344,12 @@ export default function EgoMirror({
                       href={resolveSubdomain(doc.url)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[9px] text-[var(--ochre)] font-sans hover:underline shrink-0 ml-1"
+                      className="text-xs text-[var(--ochre)] hover:underline shrink-0 ml-1"
                     >
                       阅读全文 →
                     </a>
                   </div>
-                  <p className="text-[11px] text-[var(--ink-soft)] font-serif leading-relaxed line-clamp-4">
+                  <p className="text-xs text-[var(--ink-soft)] font-serif leading-relaxed line-clamp-4">
                     {doc.content}
                   </p>
                 </div>
@@ -360,8 +358,8 @@ export default function EgoMirror({
           )}
 
           <div className="space-y-3">
-            <span className="text-[10px] text-[var(--ink-faint)] font-semibold uppercase tracking-wider block">
-              📚 本轮对话全部关联
+            <span className="text-xs text-[var(--ink-faint)] font-semibold tracking-wider block">
+              本轮对话全部关联
             </span>
             {sessionReferences.length === 0 ? (
               <p className="text-xs text-[var(--ink-faint)] py-8 text-center font-serif">
@@ -384,12 +382,12 @@ export default function EgoMirror({
                         href={resolveSubdomain(doc.url)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[9px] text-[var(--ink-soft)] font-sans hover:text-[var(--ochre)] shrink-0 ml-1"
+                        className="text-xs text-[var(--ink-soft)] hover:text-[var(--ochre)] shrink-0 ml-1"
                       >
                         阅读全文 →
                       </a>
                     </div>
-                    <p className="text-[11px] text-[var(--ink-soft)] font-serif leading-relaxed line-clamp-3">
+                    <p className="text-xs text-[var(--ink-soft)] font-serif leading-relaxed line-clamp-3">
                       {doc.content}
                     </p>
                   </div>

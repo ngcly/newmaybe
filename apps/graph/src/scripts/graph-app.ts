@@ -66,11 +66,11 @@ const nodeRadii: Record<string, number> = {
 };
 
 const typeLabels: Record<string, string> = {
-  posts: '文章 / Writing',
-  notes: '笔记 / Note',
-  memories: '记忆 / Memory',
-  excerpts: '拾遗 / Excerpt',
-  fragments: '念头 / Fragment',
+  posts: '文章',
+  notes: '笔记',
+  memories: '记忆',
+  excerpts: '拾遗',
+  fragments: '念头',
 };
 
 const linkGroup = g.append('g').attr('class', 'links-group');
@@ -114,7 +114,7 @@ function populateNodeList() {
     const empty = document.createElement('div');
     empty.className = 'search-empty';
     empty.style.cssText =
-      'font-size:0.78rem;color:var(--ink-faint);padding:1rem 0;text-align:center';
+      'font-size:var(--fs-xs);color:var(--ink-faint);padding:1rem 0;text-align:center';
     empty.textContent = '暂无节点数据';
     container.appendChild(empty);
   }
@@ -252,10 +252,10 @@ function handleMouseOver(event: any, d: any) {
     const tipEl = document.getElementById('detail-tip');
     const cardEl = document.getElementById('detail-card');
     const actionsEl = document.getElementById('detail-cross-actions');
-    if (typeEl) typeEl.innerText = typeLabels[d.group] || 'Thought';
+    if (typeEl) typeEl.innerText = typeLabels[d.group] || '想法';
     if (titleEl) titleEl.innerText = d.title;
     if (tipEl) {
-      tipEl.innerText = d.url ? '双击该圆点跳转主域查看全文 ↗' : '心智沙盒自定义节点 ✏';
+      tipEl.innerText = d.url ? '双击该圆点跳转主域查看全文 ↗' : '心智沙盒自定义节点';
     }
     if (cardEl) cardEl.style.display = 'block';
     if (actionsEl) actionsEl.style.display = 'flex';
@@ -294,10 +294,10 @@ function selectNode(d: any) {
   const delLinkBtn = document.getElementById('btn-delete-link');
   const crossActions = document.getElementById('detail-cross-actions');
 
-  if (typeEl) typeEl.innerText = typeLabels[d.group] || 'Custom';
+  if (typeEl) typeEl.innerText = typeLabels[d.group] || '自定义';
   if (titleEl) titleEl.innerText = d.title;
   if (tipEl) {
-    tipEl.innerText = d.url ? '双击该圆点跳转主域查看全文 ↗' : '心智沙盒自定义节点 ✏';
+    tipEl.innerText = d.url ? '双击该圆点跳转主域查看全文 ↗' : '心智沙盒自定义节点';
   }
 
   if (delNodeBtn) delNodeBtn.style.display = currentMode === 'sandbox' ? 'inline-block' : 'none';

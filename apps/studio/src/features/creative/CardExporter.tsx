@@ -12,6 +12,22 @@ interface CardExporterProps {
 const STORAGE_KEY_FRAG = 'newmaybe:studio:draft:fragment:v2';
 const STORAGE_KEY_EXC = 'newmaybe:studio:draft:excerpt:v2';
 
+const groupTitle = 'text-sm font-medium text-[var(--ink)]';
+const labelClass = 'text-xs text-[var(--ink-soft)]';
+const inputClass =
+  'p-2 border border-[var(--line)] bg-[var(--paper)] rounded-[var(--corner-sm)] text-[var(--ink)] text-sm focus:border-[var(--ochre)] outline-none transition-colors';
+const optionClass = (active: boolean) =>
+  `py-1.5 px-2 rounded-[var(--corner-sm)] text-xs border transition-colors cursor-pointer ${
+    active
+      ? 'border-[var(--ochre)] text-[var(--ochre)] bg-[var(--paper)]'
+      : 'border-[var(--line)] text-[var(--ink-soft)] hover:text-[var(--ink)]'
+  }`;
+const SCALES = [
+  [1, '1 倍', '800×500'],
+  [2, '2 倍 · 推荐', '1600×1000'],
+  [3, '3 倍 · 印刷', '2400×1500'],
+] as const;
+
 const DEFAULT_FRAG: FragmentForm = {
   content: '留白处，自有新可能。',
   mood: '凌晨三点',
@@ -113,370 +129,98 @@ ${excForm.content}
     setTimeout(() => setImageExportSuccess(false), 2200);
   };
 
-  const themeOptions: [CardTheme, string, string][] = [
-    ['paper', '米纸底', '📄'],
-    ['dark', '黛墨底', '🌙'],
-    ['ochre', '赭石底', '🔴'],
-    ['bamboo', '竹青底', '🍃'],
-    ['cinnabar', '朱砂底', '🏮'],
-    ['withered', '枯木底', '🍂'],
+  const themeOptions: [CardTheme, string][] = [
+    ['paper', '米纸'],
+    ['dark', '黛墨'],
+    ['ochre', '赭石'],
+    ['bamboo', '竹青'],
+    ['cinnabar', '朱砂'],
+    ['withered', '枯木'],
   ];
+  const colors = CARD_THEMES[cardTheme];
+  const scaleDims = SCALES.find(([value]) => value === exportScale)?.[2];
 
   return (
-    <div className="max-w-6xl mx-auto flex flex-col gap-6">
-      {/* Tool Header with Pipeline Rhythm */}
-      <div className="flex flex-col gap-2">
-        <div className="inline-flex items-center gap-2 text-xs font-serif text-[var(--ink-faint)]">
-          <span className="text-[var(--ochre)] font-medium">阶段 1：输入内容</span>
-          <span>➔</span>
-          <span className="text-[var(--ochre)] font-medium">阶段 2：调校预览</span>
-          <span>➔</span>
-          <span className="text-[var(--ochre)] font-medium">阶段 3：成果导出</span>
-        </div>
-        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
-          <h2 className="text-2xl font-medium text-[var(--ink)]">念头/拾遗卡片生成器</h2>
-          <span className="text-xs text-[var(--ink-faint)]">
-            高仿真纸墨卡片 · 自动暂存 · 多倍率无损导出
-          </span>
-        </div>
+    <div className="max-w-6xl mx-auto flex flex-col gap-8">
+      <header className="flex flex-col gap-2">
+        <h2 className="text-2xl font-medium text-[var(--ink)]">念头/拾遗卡片生成器</h2>
         <p className="text-sm text-[var(--ink-soft)]">
-          按照「撰写内容 ➔ 调校风格 ➔
-          导出成果」的工作流，可视化制作文人书签卡片，并在本地安全暂存您的每一道灵感。
+          填写内容即可预览纸墨卡片；草稿自动暂存在本机，可导出图片或复制 Markdown。
         </p>
-      </div>
+      </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* ======================================================== */}
-        {/* STAGE 1: INPUT CONTROLS (Col 1-5)                        */}
-        {/* ======================================================== */}
-        <div className="lg:col-span-5 flex flex-col gap-5 bg-[var(--paper-deep)] border border-[var(--line)] rounded-lg p-5 sm:p-6 shadow-xs">
-          {/* Step 1 Title & Autosave status */}
-          <div className="flex items-center justify-between pb-3 border-b border-[var(--line)]">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[var(--ochre)] text-[var(--paper)] text-xs font-bold font-serif">
-                1
-              </span>
-              <span className="text-sm font-medium text-[var(--ink)]">输入内容与实用元数据</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span
-                role={saveStatus.saved || saveStatus === INITIAL_SAVE_STATUS ? 'status' : 'alert'}
-                className="text-[11px] text-[var(--ink-faint)] flex items-center gap-1"
-              >
-                {saveStatus.message}
-              </span>
-              <button
-                type="button"
-                onClick={handleResetDraft}
-                className="text-[11px] text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors cursor-pointer"
-                title="恢复为初始默认范例"
-              >
-                [重置]
-              </button>
-            </div>
-          </div>
-
-          {/* Card type toggle */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-[var(--ink-soft)] font-medium">卡片类型 Type</label>
-            <div className="grid grid-cols-2 gap-2 p-1 bg-[var(--paper)] border border-[var(--line)] rounded-md">
-              <button
-                type="button"
-                onClick={() => setCardType('fragment')}
-                className={`py-1.5 text-xs font-medium rounded transition-all cursor-pointer ${
-                  cardType === 'fragment'
-                    ? 'bg-[var(--ochre)] text-[var(--paper)] shadow-xs'
-                    : 'text-[var(--ink-soft)] hover:text-[var(--ink)] bg-transparent'
-                }`}
-              >
-                念头 (Fragment) · 随感短章
-              </button>
-              <button
-                type="button"
-                onClick={() => setCardType('excerpt')}
-                className={`py-1.5 text-xs font-medium rounded transition-all cursor-pointer ${
-                  cardType === 'excerpt'
-                    ? 'bg-[var(--ochre)] text-[var(--paper)] shadow-xs'
-                    : 'text-[var(--ink-soft)] hover:text-[var(--ink)] bg-transparent'
-                }`}
-              >
-                拾遗 (Excerpt) · 典籍金句
-              </button>
-            </div>
-          </div>
-
-          {/* Form Fields according to CardType */}
-          {cardType === 'fragment' ? (
-            <div className="flex flex-col gap-4">
-              {/* Fragment Content */}
-              <div className="flex flex-col gap-1.5">
-                <div className="flex justify-between items-baseline">
-                  <label className="text-xs text-[var(--ink-soft)] font-medium">
-                    念头正文 (Content)
-                  </label>
-                  <span className="text-[11px] text-[var(--ink-faint)]">
-                    {fragForm.content.length} 字
-                    {fragForm.content.length > 120 ? ' · 略长，建议精炼' : ' · 适合 20~100 字'}
-                  </span>
-                </div>
-                <textarea
-                  aria-label="念头正文"
-                  value={fragForm.content}
-                  onChange={(e) => updateFragForm((prev) => ({ ...prev, content: e.target.value }))}
-                  placeholder="在此写下这一刻的触动与念头..."
-                  className="p-3 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] font-serif text-sm leading-relaxed h-32 focus:border-[var(--ochre)] outline-none resize-none transition-colors"
-                />
-              </div>
-
-              {/* Mood & Location */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-[var(--ink-soft)] font-medium">
-                    此刻氛围/心绪 (Mood)
-                  </label>
-                  <input
-                    type="text"
-                    aria-label="此刻氛围/心情"
-                    value={fragForm.mood}
-                    onChange={(e) => updateFragForm((prev) => ({ ...prev, mood: e.target.value }))}
-                    placeholder="如：凌晨三点 / 晴窗"
-                    className="p-2 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-sm focus:border-[var(--ochre)] outline-none transition-colors"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-[var(--ink-soft)] font-medium">
-                    发生地点 (Location)
-                  </label>
-                  <input
-                    type="text"
-                    aria-label="发生地点"
-                    value={fragForm.location}
-                    onChange={(e) =>
-                      updateFragForm((prev) => ({ ...prev, location: e.target.value }))
-                    }
-                    placeholder="如：咸宁 / 案头"
-                    className="p-2 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-sm focus:border-[var(--ochre)] outline-none transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* Date */}
-              <div className="flex flex-col gap-1.5">
-                <div className="flex justify-between items-baseline">
-                  <label className="text-xs text-[var(--ink-soft)] font-medium">
-                    记录日期 (Date)
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => updateFragForm((prev) => ({ ...prev, pubDate: localIsoDate() }))}
-                    className="text-[11px] text-[var(--ochre)] hover:underline cursor-pointer"
-                  >
-                    设为今日
-                  </button>
-                </div>
-                <input
-                  type="date"
-                  aria-label="发布日期"
-                  value={fragForm.pubDate}
-                  onChange={(e) => updateFragForm((prev) => ({ ...prev, pubDate: e.target.value }))}
-                  className="p-2 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-sm focus:border-[var(--ochre)] outline-none transition-colors"
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              {/* Excerpt Content */}
-              <div className="flex flex-col gap-1.5">
-                <div className="flex justify-between items-baseline">
-                  <label className="text-xs text-[var(--ink-soft)] font-medium">
-                    引言金句 (Quote)
-                  </label>
-                  <span className="text-[11px] text-[var(--ink-faint)]">
-                    {excForm.content.length} 字
-                  </span>
-                </div>
-                <textarea
-                  aria-label="引言原文"
-                  value={excForm.content}
-                  onChange={(e) => updateExcForm((prev) => ({ ...prev, content: e.target.value }))}
-                  placeholder="在此录入打动你的引言原文..."
-                  className="p-3 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] font-serif text-sm leading-relaxed h-28 focus:border-[var(--ochre)] outline-none resize-none transition-colors"
-                />
-              </div>
-
-              {/* Author & Source */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-[var(--ink-soft)] font-medium">
-                    原作者 (Author)
-                  </label>
-                  <input
-                    type="text"
-                    aria-label="原作者"
-                    value={excForm.author}
-                    onChange={(e) => updateExcForm((prev) => ({ ...prev, author: e.target.value }))}
-                    placeholder="如：罗兰·巴特"
-                    className="p-2 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-sm focus:border-[var(--ochre)] outline-none transition-colors"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-[var(--ink-soft)] font-medium">
-                    书籍/篇名出处 (Source)
-                  </label>
-                  <input
-                    type="text"
-                    aria-label="书籍/篇名出处"
-                    value={excForm.source}
-                    onChange={(e) => updateExcForm((prev) => ({ ...prev, source: e.target.value }))}
-                    placeholder="如：《恋人絮语》"
-                    className="p-2 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-sm focus:border-[var(--ochre)] outline-none transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* Comment */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-[var(--ink-soft)] font-medium">
-                  个人随感/短评 (Comment)
-                </label>
-                <input
-                  type="text"
-                  aria-label="个人短评/随感"
-                  value={excForm.comment}
-                  onChange={(e) => updateExcForm((prev) => ({ ...prev, comment: e.target.value }))}
-                  placeholder="简短随笔，展示在卡片底部虚线下方"
-                  className="p-2 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-sm focus:border-[var(--ochre)] outline-none transition-colors"
-                />
-              </div>
-
-              {/* Tags & Date */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-[var(--ink-soft)] font-medium">
-                    标签 (以逗号分隔)
-                  </label>
-                  <input
-                    type="text"
-                    aria-label="标签（以逗号分隔）"
-                    value={excForm.tags}
-                    onChange={(e) => updateExcForm((prev) => ({ ...prev, tags: e.target.value }))}
-                    placeholder="如：语言, 情感"
-                    className="p-2 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-sm focus:border-[var(--ochre)] outline-none transition-colors"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex justify-between items-baseline">
-                    <label className="text-xs text-[var(--ink-soft)] font-medium">
-                      摘录日期 (Date)
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateExcForm((prev) => ({ ...prev, pubDate: localIsoDate() }))
-                      }
-                      className="text-[11px] text-[var(--ochre)] hover:underline cursor-pointer"
-                    >
-                      设为今日
-                    </button>
-                  </div>
-                  <input
-                    type="date"
-                    aria-label="摘录日期"
-                    value={excForm.pubDate}
-                    onChange={(e) =>
-                      updateExcForm((prev) => ({ ...prev, pubDate: e.target.value }))
-                    }
-                    className="p-2 border border-[var(--line)] bg-[var(--paper)] rounded text-[var(--ink)] text-sm focus:border-[var(--ochre)] outline-none transition-colors"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ======================================================== */}
-        {/* STAGE 2 & 3: PREVIEW & STYLE + EXPORT (Col 6-12)         */}
-        {/* ======================================================== */}
-        <div className="lg:col-span-7 flex flex-col gap-6">
-          {/* Stage 2 Box */}
-          <div className="flex flex-col gap-4 bg-[var(--paper-deep)] border border-[var(--line)] rounded-lg p-5 sm:p-6 shadow-xs">
-            <div className="flex items-center justify-between pb-3 border-b border-[var(--line)]">
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[var(--ochre)] text-[var(--paper)] text-xs font-bold font-serif">
-                  2
-                </span>
-                <span className="text-sm font-medium text-[var(--ink)]">
-                  调校外观风格与实时预览
-                </span>
-              </div>
-              <span className="text-xs font-serif text-[var(--ink-faint)]">
-                800 × 500 px · 16:10 黄金比例
-              </span>
-            </div>
-
-            {/* High-fidelity Live Card Preview */}
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_20rem] gap-8 xl:gap-10 items-start">
+        {/* 预览优先：卡片按导出比例 16:10 呈现，导出操作紧随其下 */}
+        <section aria-label="卡片预览与导出" className="xl:sticky xl:top-8 flex flex-col gap-4">
+          <div className="p-6 sm:p-10 bg-[var(--paper-deep)] border border-[var(--line)] rounded-[var(--corner-md)]">
             <div
-              style={{
-                backgroundColor: CARD_THEMES[cardTheme].bg,
-                color: CARD_THEMES[cardTheme].text,
-                borderColor: CARD_THEMES[cardTheme].line,
-              }}
-              className="border rounded-md p-6 sm:p-10 min-h-72 flex flex-col justify-between relative shadow-sm transition-all duration-300 overflow-hidden"
+              style={{ backgroundColor: colors.bg, color: colors.text, borderColor: colors.line }}
+              className="mx-auto w-full max-w-[720px] aspect-[16/10] border p-[6%] flex flex-col justify-between relative shadow-md overflow-hidden transition-colors duration-300"
             >
               {cardType === 'fragment' ? (
                 <>
                   <div
-                    style={{ color: CARD_THEMES[cardTheme].textFaint }}
-                    className="absolute top-4 right-6 text-xs italic font-serif"
+                    style={{ color: colors.textFaint }}
+                    className="absolute top-[6%] right-[7%] text-xs tabular-nums"
                   >
                     {fragForm.pubDate}
                   </div>
                   <div className="flex-grow flex items-center justify-start py-6">
                     <p
-                      style={{ color: CARD_THEMES[cardTheme].textSoft }}
+                      style={{ color: colors.textSoft }}
                       className="font-serif text-base sm:text-lg leading-relaxed whitespace-pre-line text-justify"
                     >
                       {fragForm.content || '请输入正文内容...'}
                     </p>
                   </div>
                   <div
-                    style={{
-                      color: CARD_THEMES[cardTheme].textFaint,
-                      borderColor: CARD_THEMES[cardTheme].line + '99',
-                    }}
+                    style={{ color: colors.textFaint, borderColor: colors.line + '99' }}
                     className="flex justify-between items-baseline border-t pt-4 mt-2 text-xs font-serif"
                   >
-                    <span>{fragForm.location ? `📍 ${fragForm.location}` : '　'}</span>
-                    <span>{fragForm.mood ? `${fragForm.mood}` : '　'}</span>
+                    <span className="inline-flex items-center gap-1">
+                      {fragForm.location ? (
+                        <>
+                          <svg
+                            className="w-3 h-3"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={1.8}
+                            aria-hidden="true"
+                          >
+                            <path d="M12 21c-4-4.2-6.5-7.6-6.5-11a6.5 6.5 0 0 1 13 0c0 3.4-2.5 6.8-6.5 11z" />
+                            <circle cx="12" cy="10" r="2.2" />
+                          </svg>
+                          {fragForm.location}
+                        </>
+                      ) : (
+                        '　'
+                      )}
+                    </span>
+                    <span>{fragForm.mood || '　'}</span>
                   </div>
                 </>
               ) : (
                 <>
                   <div
-                    style={{ color: CARD_THEMES[cardTheme].accent }}
+                    style={{ color: colors.accent }}
                     className="absolute top-3 left-5 opacity-15 text-5xl font-serif leading-none select-none pointer-events-none"
                   >
                     "
                   </div>
                   <div className="flex-grow flex flex-col justify-between py-4">
                     <p
-                      style={{ color: CARD_THEMES[cardTheme].text }}
+                      style={{ color: colors.text }}
                       className="font-serif text-base sm:text-lg leading-relaxed text-justify whitespace-pre-line relative z-10"
                     >
                       {excForm.content || '请输入引言原文...'}
                     </p>
                     <div className="text-right mt-4 flex flex-col items-end gap-1">
-                      <span
-                        style={{ color: CARD_THEMES[cardTheme].textSoft }}
-                        className="text-sm font-medium"
-                      >
+                      <span style={{ color: colors.textSoft }} className="text-sm font-medium">
                         — {excForm.author || '无名'}
                       </span>
                       {excForm.source && (
-                        <span
-                          style={{ color: CARD_THEMES[cardTheme].textFaint }}
-                          className="text-xs italic"
-                        >
+                        <span style={{ color: colors.textFaint }} className="text-xs">
                           {excForm.source}
                         </span>
                       )}
@@ -484,17 +228,17 @@ ${excForm.content}
                   </div>
                   {excForm.comment && (
                     <div
-                      style={{ borderColor: CARD_THEMES[cardTheme].line }}
+                      style={{ borderColor: colors.line }}
                       className="border-t border-dashed pt-3 mt-3"
                     >
                       <span
-                        style={{ color: CARD_THEMES[cardTheme].accent }}
-                        className="block text-[10px] tracking-wider uppercase mb-1 font-serif"
+                        style={{ color: colors.accent }}
+                        className="block text-xs tracking-wider mb-1 font-serif"
                       >
                         随感
                       </span>
                       <p
-                        style={{ color: CARD_THEMES[cardTheme].textSoft }}
+                        style={{ color: colors.textSoft }}
                         className="text-xs text-justify font-serif"
                       >
                         {excForm.comment}
@@ -504,125 +248,31 @@ ${excForm.content}
                 </>
               )}
             </div>
-
-            {/* Theme Picker directly beneath the card */}
-            <div className="flex flex-col gap-2 pt-2">
-              <label className="text-xs text-[var(--ink-soft)] font-medium">
-                纸墨配色方案 (Palette)
-              </label>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                {themeOptions.map(([key, label, icon]) => {
-                  const isActive = cardTheme === key;
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => setCardTheme(key)}
-                      className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded text-xs font-medium border transition-all cursor-pointer ${
-                        isActive
-                          ? 'border-[var(--ochre)] shadow-xs ring-1 ring-[var(--ochre)]'
-                          : 'bg-transparent text-[var(--ink-soft)] border-[var(--line)] hover:border-[var(--ink-soft)]'
-                      }`}
-                      style={{
-                        backgroundColor: CARD_THEMES[key].bg,
-                        color: CARD_THEMES[key].text,
-                      }}
-                    >
-                      <span className="text-xs">{icon}</span>
-                      <span>{label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
           </div>
 
-          {/* Stage 3 Box: Deliver & Export */}
-          <div className="flex flex-col gap-4 bg-[var(--paper-deep)] border border-[var(--line)] rounded-lg p-5 sm:p-6 shadow-xs">
-            <div className="flex items-center justify-between pb-3 border-b border-[var(--line)]">
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[var(--ochre)] text-[var(--paper)] text-xs font-bold font-serif">
-                  3
-                </span>
-                <span className="text-sm font-medium text-[var(--ink)]">成果导出与交付</span>
-              </div>
-              <span className="text-xs text-[var(--ink-faint)]">主次分明 · 突出高清图片下载</span>
-            </div>
-
-            {/* Scale Options */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-[var(--paper)] border border-[var(--line)] rounded-md">
-              <span className="text-xs text-[var(--ink-soft)] font-medium">导出图像清晰度：</span>
-              <div className="flex gap-1">
-                {(
-                  [
-                    [1, '1x 标准', '800×500'],
-                    [2, '2x 超清 · 推荐', '1600×1000'],
-                    [3, '3x 印刷级', '2400×1500'],
-                  ] as const
-                ).map(([scaleVal, label, dim]) => (
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className={labelClass}>导出清晰度</span>
+              <div className="flex gap-1.5">
+                {SCALES.map(([value, label, dims]) => (
                   <button
-                    key={scaleVal}
+                    key={value}
                     type="button"
-                    onClick={() => setExportScale(scaleVal)}
-                    className={`px-3 py-1 rounded text-xs transition-all cursor-pointer ${
-                      exportScale === scaleVal
-                        ? 'bg-[var(--ochre)] text-[var(--paper)] font-medium shadow-xs'
-                        : 'text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[var(--paper-deep)]'
-                    }`}
-                    title={`分辨率 ${dim}px`}
+                    aria-pressed={exportScale === value}
+                    onClick={() => setExportScale(value)}
+                    className={optionClass(exportScale === value)}
+                    title={`分辨率 ${dims}px`}
                   >
                     {label}
                   </button>
                 ))}
               </div>
             </div>
-
-            {/* Action Hierarchy: Primary vs Secondary */}
-            <div className="flex flex-col gap-2.5 pt-1">
-              {/* PRIMARY ACTION: Download Image */}
+            <div className="flex flex-col sm:flex-row gap-2">
               <button
                 type="button"
                 onClick={handleDownloadCard}
-                className="w-full bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] text-[var(--paper)] py-3.5 px-6 rounded-md font-medium text-sm sm:text-base transition-all hover:scale-[1.005] active:scale-[0.995] shadow hover:shadow-md cursor-pointer flex items-center justify-center gap-2"
-              >
-                {imageExportSuccess ? (
-                  <>
-                    <span className="text-lg">✔</span>
-                    <span>卡片图片已成功导出并下载！</span>
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="w-5 h-5 shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                      />
-                    </svg>
-                    <span>
-                      导出卡片图片 (
-                      {exportScale === 1
-                        ? '1x 标准 800×500'
-                        : exportScale === 2
-                          ? '2x 超清 1600×1000'
-                          : '3x 印刷级 2400×1500'}{' '}
-                      PNG)
-                    </span>
-                  </>
-                )}
-              </button>
-
-              {/* SECONDARY ACTION: Copy Markdown Code */}
-              <button
-                type="button"
-                onClick={handleExportMarkdown}
-                className="w-full bg-transparent hover:bg-[var(--paper)] border border-[var(--line)] text-[var(--ink-soft)] hover:text-[var(--ink)] py-2.5 px-4 rounded-md text-xs font-medium transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-[var(--corner-sm)] bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] text-[var(--paper)] text-sm font-medium transition-colors cursor-pointer"
               >
                 <svg
                   className="w-4 h-4 shrink-0"
@@ -633,17 +283,281 @@ ${excForm.content}
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={1.75}
-                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    strokeWidth={1.8}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                   />
                 </svg>
                 <span>
-                  {exportSuccess ? '已复制 Markdown 源码！✔' : '复制 Markdown 源码（次要）'}
+                  {imageExportSuccess ? '已导出，请查看下载' : `导出卡片图片 PNG · ${scaleDims}`}
                 </span>
+              </button>
+              <button
+                type="button"
+                onClick={handleExportMarkdown}
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[var(--corner-sm)] border border-[var(--line)] text-[var(--ink-soft)] hover:text-[var(--ink)] text-sm transition-colors cursor-pointer"
+              >
+                {exportSuccess ? '已复制 Markdown' : '复制 Markdown'}
               </button>
             </div>
           </div>
-        </div>
+        </section>
+
+        <aside
+          aria-label="卡片内容与配色"
+          className="flex flex-col divide-y divide-[var(--line)] border-y border-[var(--line)]"
+        >
+          <div className="flex flex-col gap-4 py-6">
+            <h3 className={groupTitle}>内容</h3>
+            <div className="grid grid-cols-2 gap-1.5" role="group" aria-label="卡片类型">
+              {(
+                [
+                  ['fragment', '念头'],
+                  ['excerpt', '拾遗'],
+                ] as const
+              ).map(([type, label]) => (
+                <button
+                  key={type}
+                  type="button"
+                  aria-pressed={cardType === type}
+                  onClick={() => setCardType(type)}
+                  className={optionClass(cardType === type)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {cardType === 'fragment' ? (
+              <>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex justify-between items-baseline">
+                    <label htmlFor="card-frag-content" className={labelClass}>
+                      正文
+                    </label>
+                    <span className="text-xs text-[var(--ink-faint)]">
+                      {fragForm.content.length} 字
+                      {fragForm.content.length > 120 ? ' · 略长，建议精炼' : ' · 宜 20～100 字'}
+                    </span>
+                  </div>
+                  <textarea
+                    id="card-frag-content"
+                    value={fragForm.content}
+                    onChange={(e) =>
+                      updateFragForm((prev) => ({ ...prev, content: e.target.value }))
+                    }
+                    placeholder="在此写下这一刻的触动与念头..."
+                    className={`${inputClass} p-3 leading-relaxed h-32 resize-none`}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="card-frag-mood" className={labelClass}>
+                      心绪
+                    </label>
+                    <input
+                      id="card-frag-mood"
+                      type="text"
+                      value={fragForm.mood}
+                      onChange={(e) =>
+                        updateFragForm((prev) => ({ ...prev, mood: e.target.value }))
+                      }
+                      placeholder="如：凌晨三点"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="card-frag-location" className={labelClass}>
+                      地点
+                    </label>
+                    <input
+                      id="card-frag-location"
+                      type="text"
+                      value={fragForm.location}
+                      onChange={(e) =>
+                        updateFragForm((prev) => ({ ...prev, location: e.target.value }))
+                      }
+                      placeholder="如：咸宁"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex justify-between items-baseline">
+                    <label htmlFor="card-frag-date" className={labelClass}>
+                      日期
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateFragForm((prev) => ({ ...prev, pubDate: localIsoDate() }))
+                      }
+                      className="text-xs text-[var(--ochre)] hover:underline cursor-pointer"
+                    >
+                      设为今日
+                    </button>
+                  </div>
+                  <input
+                    id="card-frag-date"
+                    type="date"
+                    value={fragForm.pubDate}
+                    onChange={(e) =>
+                      updateFragForm((prev) => ({ ...prev, pubDate: e.target.value }))
+                    }
+                    className={inputClass}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex justify-between items-baseline">
+                    <label htmlFor="card-exc-content" className={labelClass}>
+                      引文
+                    </label>
+                    <span className="text-xs text-[var(--ink-faint)]">
+                      {excForm.content.length} 字
+                    </span>
+                  </div>
+                  <textarea
+                    id="card-exc-content"
+                    value={excForm.content}
+                    onChange={(e) =>
+                      updateExcForm((prev) => ({ ...prev, content: e.target.value }))
+                    }
+                    placeholder="在此录入打动你的引言原文..."
+                    className={`${inputClass} p-3 leading-relaxed h-28 resize-none`}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="card-exc-author" className={labelClass}>
+                      作者
+                    </label>
+                    <input
+                      id="card-exc-author"
+                      type="text"
+                      value={excForm.author}
+                      onChange={(e) =>
+                        updateExcForm((prev) => ({ ...prev, author: e.target.value }))
+                      }
+                      placeholder="如：罗兰·巴特"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="card-exc-source" className={labelClass}>
+                      出处
+                    </label>
+                    <input
+                      id="card-exc-source"
+                      type="text"
+                      value={excForm.source}
+                      onChange={(e) =>
+                        updateExcForm((prev) => ({ ...prev, source: e.target.value }))
+                      }
+                      placeholder="如：《恋人絮语》"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="card-exc-comment" className={labelClass}>
+                    随感
+                  </label>
+                  <input
+                    id="card-exc-comment"
+                    type="text"
+                    value={excForm.comment}
+                    onChange={(e) =>
+                      updateExcForm((prev) => ({ ...prev, comment: e.target.value }))
+                    }
+                    placeholder="一句短评，显示在卡片底部"
+                    className={inputClass}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="card-exc-tags" className={labelClass}>
+                      标签
+                    </label>
+                    <input
+                      id="card-exc-tags"
+                      type="text"
+                      value={excForm.tags}
+                      onChange={(e) => updateExcForm((prev) => ({ ...prev, tags: e.target.value }))}
+                      placeholder="逗号分隔，如：语言, 情感"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex justify-between items-baseline">
+                      <label htmlFor="card-exc-date" className={labelClass}>
+                        日期
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateExcForm((prev) => ({ ...prev, pubDate: localIsoDate() }))
+                        }
+                        className="text-xs text-[var(--ochre)] hover:underline cursor-pointer"
+                      >
+                        设为今日
+                      </button>
+                    </div>
+                    <input
+                      id="card-exc-date"
+                      type="date"
+                      value={excForm.pubDate}
+                      onChange={(e) =>
+                        updateExcForm((prev) => ({ ...prev, pubDate: e.target.value }))
+                      }
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-3 py-6">
+            <h3 className={groupTitle}>配色</h3>
+            <div className="grid grid-cols-3 gap-2">
+              {themeOptions.map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={cardTheme === key}
+                  onClick={() => setCardTheme(key)}
+                  className={`py-2 rounded-[var(--corner-sm)] text-xs border transition-shadow cursor-pointer ${
+                    cardTheme === key
+                      ? 'border-[var(--ochre)] ring-1 ring-[var(--ochre)] ring-offset-2 ring-offset-[var(--paper)]'
+                      : 'border-[var(--line)]'
+                  }`}
+                  style={{ backgroundColor: CARD_THEMES[key].bg, color: CARD_THEMES[key].text }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 py-4">
+            <span
+              role={saveStatus.saved || saveStatus === INITIAL_SAVE_STATUS ? 'status' : 'alert'}
+              className="text-xs text-[var(--ink-faint)]"
+            >
+              {saveStatus.message}
+            </span>
+            <button
+              type="button"
+              onClick={handleResetDraft}
+              className="text-xs text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors cursor-pointer"
+              title="恢复为初始默认范例"
+            >
+              重置为范例
+            </button>
+          </div>
+        </aside>
       </div>
     </div>
   );

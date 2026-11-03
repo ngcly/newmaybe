@@ -1,6 +1,7 @@
 ---
 import '@newmaybe/shared-styles/base.css';
 import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
+import FontStylesheet from '@newmaybe/shared-styles/FontStylesheet.astro';
 ---
 
 <!doctype html>
@@ -8,6 +9,7 @@ import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
   <head>
     <meta charset="UTF-8" />
     <ThemeChrome />
+    <FontStylesheet />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
@@ -70,7 +72,7 @@ import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
         z-index: 100;
       }
       .back-link {
-        font-size: 0.9rem;
+        font-size: var(--fs-sm);
         color: var(--ink-faint);
         text-decoration: none;
         transition: color 0.3s;
@@ -98,7 +100,7 @@ import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
         background: rgba(239, 233, 222, 0.7);
         backdrop-filter: blur(12px);
         border: 1px solid var(--line);
-        border-radius: 4px;
+        border-radius: var(--corner-md);
         padding: 0.8rem 1.8rem;
         display: flex;
         align-items: center;
@@ -114,7 +116,7 @@ import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.8rem;
+        font-size: var(--fs-xs);
         color: var(--ink-soft);
       }
 
@@ -123,9 +125,9 @@ import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
         border: 1px solid var(--line);
         color: var(--ink-soft);
         cursor: pointer;
-        font-size: 0.76rem;
+        font-size: var(--fs-xs);
         padding: 0.25rem 0.5rem;
-        border-radius: 3px;
+        border-radius: var(--corner-sm);
         font-family: var(--serif-cn), serif;
         transition: all 0.3s;
       }
@@ -145,7 +147,7 @@ import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
         pointer-events: none;
         text-align: center;
         font-weight: 300;
-        font-size: 1.1rem;
+        font-size: var(--fs-base);
         color: var(--ink-soft);
         transition: opacity 1s ease-in-out;
         animation: pulse 3s infinite ease-in-out;
@@ -172,7 +174,8 @@ import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
 
     <div class="overlay-tip" id="overlayTip">
       敲击屏幕 · 扣响铜磬<br />
-      <span style="font-size: 0.85rem; color: var(--ink-faint); margin-top: 0.5rem; display: block;"
+      <span
+        style="font-size: var(--fs-xs); color: var(--ink-faint); margin-top: 0.5rem; display: block;"
         >听泛音在心海荡起涟漪</span
       >
     </div>
@@ -181,8 +184,8 @@ import ThemeChrome from '@newmaybe/design-tokens/theme-chrome';
     <div class="meditation-controls">
       <div class="control-item">
         <span>自然背景音：</span>
-        <button class="audio-btn" id="rainBtn">山雨 🌧</button>
-        <button class="audio-btn" id="windBtn">松风 🍃</button>
+        <button class="audio-btn" id="rainBtn">山雨</button>
+        <button class="audio-btn" id="windBtn">松风</button>
       </div>
       <div class="control-item">
         <span>磬音大小：</span>

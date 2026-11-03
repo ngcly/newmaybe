@@ -166,15 +166,7 @@ export default function TextFormatter() {
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-6">
-      {/* Header with 3-Stage Pipeline */}
       <div className="flex flex-col gap-2">
-        <div className="inline-flex items-center gap-2 text-xs font-serif text-[var(--ink-faint)]">
-          <span className="text-[var(--ochre)] font-medium">阶段 1：待洗文本</span>
-          <span>➔</span>
-          <span className="text-[var(--ochre)] font-medium">阶段 2：调阅统计</span>
-          <span>➔</span>
-          <span className="text-[var(--ochre)] font-medium">阶段 3：成果导出</span>
-        </div>
         <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
           <h2 className="text-2xl font-medium text-[var(--ink)]">中英文混排排版优化</h2>
           <span className="text-xs text-[var(--ink-faint)]">
@@ -201,21 +193,21 @@ export default function TextFormatter() {
             <div className="flex items-center gap-2">
               <span
                 role={saveStatus.saved || saveStatus === INITIAL_SAVE_STATUS ? 'status' : 'alert'}
-                className="text-[11px] text-[var(--ink-faint)] flex items-center gap-1"
+                className="text-xs text-[var(--ink-faint)] flex items-center gap-1"
               >
                 {saveStatus.message}
               </span>
               <button
                 type="button"
                 onClick={handleFillSample}
-                className="text-[11px] text-[var(--ochre)] hover:underline cursor-pointer"
+                className="text-xs text-[var(--ochre)] hover:underline cursor-pointer"
               >
                 范例
               </button>
               <button
                 type="button"
                 onClick={handleClear}
-                className="text-[11px] text-[var(--ink-faint)] hover:text-[var(--cinnabar)] cursor-pointer"
+                className="text-xs text-[var(--ink-faint)] hover:text-[var(--cinnabar)] cursor-pointer"
               >
                 清空
               </button>
@@ -225,7 +217,7 @@ export default function TextFormatter() {
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between items-baseline">
               <label className="text-xs text-[var(--ink-soft)] font-medium">原始文本</label>
-              <span className="text-[11px] text-[var(--ink-faint)]">{inputText.length} 字符</span>
+              <span className="text-xs text-[var(--ink-faint)]">{inputText.length} 字符</span>
             </div>
             <textarea
               aria-label="输入待清洗文本"
@@ -294,7 +286,7 @@ export default function TextFormatter() {
                 <label className="text-xs text-[var(--ink-soft)] font-medium">
                   洗练呈现 ({formatNames[exportFormat]})
                 </label>
-                <span className="text-[11px] text-[var(--ink-faint)]">
+                <span className="text-xs text-[var(--ink-faint)]">
                   {outputText ? `${outputText.length} 字符` : '尚未洗练'}
                 </span>
               </div>
@@ -311,21 +303,19 @@ export default function TextFormatter() {
             {formatStats ? (
               <div className="grid grid-cols-3 gap-2 bg-[var(--paper)] border border-[var(--line)] rounded p-3 text-center">
                 <div className="flex flex-col">
-                  <span className="text-[10px] text-[var(--ink-faint)] font-serif">洗练后字符</span>
+                  <span className="text-xs text-[var(--ink-faint)] font-serif">洗练后字符</span>
                   <span className="font-semibold text-sm text-[var(--ochre)]">
                     {formatStats.formattedChars}
                   </span>
                 </div>
                 <div className="flex flex-col border-x border-[var(--line)]">
-                  <span className="text-[10px] text-[var(--ink-faint)] font-serif">
-                    盘古空格插入
-                  </span>
+                  <span className="text-xs text-[var(--ink-faint)] font-serif">盘古空格插入</span>
                   <span className="font-semibold text-sm text-[var(--bamboo)]">
                     +{formatStats.spaces} 处
                   </span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] text-[var(--ink-faint)] font-serif">标点规范化</span>
+                  <span className="text-xs text-[var(--ink-faint)] font-serif">标点规范化</span>
                   <span className="font-semibold text-sm text-[var(--cinnabar)]">
                     {formatStats.symbols} 处
                   </span>
@@ -363,8 +353,7 @@ export default function TextFormatter() {
               >
                 {copyMsg ? (
                   <>
-                    <span className="text-lg">✔</span>
-                    <span>已复制 {formatNames[exportFormat]} 到剪贴板！</span>
+                    <span>已复制 {formatNames[exportFormat]} 到剪贴板</span>
                   </>
                 ) : (
                   <>

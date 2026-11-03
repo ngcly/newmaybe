@@ -1,5 +1,7 @@
 @import '@newmaybe/shared-styles/tokens.css';
+@import '@newmaybe/shared-styles/brand.css';
 @import 'tailwindcss';
+@import '@newmaybe/shared-styles/tailwind-scale.css';
 
 @theme {
   --font-serif: var(--serif-cn);

@@ -135,9 +135,7 @@ export default function InspirationEngine({ resolveSubdomain }: InspirationEngin
 
       {/* Daily Poem */}
       <div className="bg-[var(--paper-deep)] border border-[var(--line)] rounded-lg px-8 py-6 shadow-sm">
-        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--ochre)]">
-          今日诗词
-        </span>
+        <span className="text-xs font-semibold tracking-wider text-[var(--ochre)]">今日诗词</span>
         {dailyPoem ? (
           <div className="mt-4">
             <p className="font-serif text-xl leading-loose text-[var(--ink)] tracking-wider">
@@ -209,14 +207,14 @@ export default function InspirationEngine({ resolveSubdomain }: InspirationEngin
             disabled={aiLoading}
             className="bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] disabled:opacity-50 text-[var(--paper)] px-5 py-2.5 rounded text-sm transition-all cursor-pointer font-medium hover:scale-[1.02] active:scale-[0.98]"
           >
-            {aiLoading ? '生成中…' : '生成命题 ✦'}
+            {aiLoading ? '生成中…' : '生成命题'}
           </button>
           {aiPrompt && (
             <button
               onClick={handleCopyToZenWriter}
               className="bg-[var(--paper)] hover:bg-[var(--line)] border border-[var(--line)] text-[var(--ink-soft)] px-5 py-2.5 rounded text-sm transition-colors cursor-pointer font-medium"
             >
-              {copiedPromptMsg ? '已复制，前往写作中… ✍' : '复制并前往禅意写作空间 ↗'}
+              {copiedPromptMsg ? '已复制，前往写作中…' : '复制并前往禅意写作空间 ↗'}
             </button>
           )}
         </div>
