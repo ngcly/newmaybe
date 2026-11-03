@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { restoreTitleMiddleDots, toFullWidthCjkPunctuation as fix } from './cjk-punctuation';
+import {
+  normalizeMarks,
+  restoreTitleMiddleDots,
+  toFullWidthCjkPunctuation as fix,
+} from './cjk-punctuation';
 
 describe('CJK punctuation normalization', () => {
   it.each([
@@ -10,6 +14,9 @@ describe('CJK punctuation normalization', () => {
     ['以通押）,也可以用', '以通押），也可以用'],
     ['平平仄,②仄平平', '平平仄，②仄平平'],
     ['兰三尺剑,○仄平平', '兰三尺剑，○仄平平'],
+    ['请雍闿.彼若无异心', '请雍闿。彼若无异心'],
+    ['照人此夜凄凉.', '照人此夜凄凉。'],
+    ['惠子曰∶“子非鱼', '惠子曰：“子非鱼'],
   ])('converts %s', (input, expected) => expect(fix(input)).toBe(expected));
 
   it('drops the space after converted punctuation', () => {
@@ -84,4 +91,17 @@ describe('book title middle dots', () => {
     '《天问?》',
     '《Vue?React》',
   ])('leaves other ? alone: %s', (input) => expect(restoreTitleMiddleDots(input)).toBe(input));
+});
+
+describe('normalizeMarks', () => {
+  it('turns box-drawing lines into a dash and drops tabs and zero-width spaces', () => {
+    expect(normalizeMarks('──右一曲')).toBe('——右一曲');
+    expect(normalizeMarks('故城南，━━《春秋·昭公')).toBe('故城南，——《春秋·昭公');
+    expect(normalizeMarks('先走了。\t雨村出来')).toBe('先走了。雨村出来');
+    expect(normalizeMarks('所不知邪？\u200b”')).toBe('所不知邪？”');
+  });
+
+  it('keeps a single box-drawing line, as in tone tables', () => {
+    expect(normalizeMarks('平平│仄仄')).toBe('平平│仄仄');
+  });
 });

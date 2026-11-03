@@ -1,6 +1,6 @@
-// Classical texts scraped from the web mix half-width , ; : ! ? into Chinese sentences.
-// They become full-width only when CJK text sits on both sides, so Latin text, numbers,
-// URLs and code keep their ASCII punctuation.
+// Classical texts scraped from the web mix half-width , ; : ! ? . into Chinese sentences, and
+// 庄子 writes the colon with the ratio sign ∶. They become full-width only when CJK text sits on
+// both sides, so Latin text, numbers, URLs and code keep their ASCII punctuation.
 
 const FULL_WIDTH: Record<string, string> = {
   ',': '，',
@@ -8,6 +8,8 @@ const FULL_WIDTH: Record<string, string> = {
   ':': '：',
   '!': '！',
   '?': '？',
+  '.': '。',
+  '∶': '：',
 };
 
 const HAN = /\p{Script=Han}/u;
@@ -81,4 +83,10 @@ export function restoreTitleMiddleDots(text: string): string {
   return text.replace(/《[^《》]*》/g, (title) =>
     title.replace(/(?<=\p{Script=Han})\?(?=\p{Script=Han})/gu, '·'),
   );
+}
+
+// Box-drawing lines stand in for the Chinese dash (──右一曲, ━━滶水注之), and some texts carry
+// tabs and zero-width spaces left over from their source pages.
+export function normalizeMarks(text: string): string {
+  return text.replace(/[─━]{2}/g, '——').replace(/[\t\u200b]/g, '');
 }

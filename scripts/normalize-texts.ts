@@ -1,8 +1,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { restoreTitleMiddleDots, toFullWidthCjkPunctuation } from './cjk-punctuation';
+import {
+  normalizeMarks,
+  restoreTitleMiddleDots,
+  toFullWidthCjkPunctuation,
+} from './cjk-punctuation';
+import { fixChapterQuotes, quoteProblems } from './cjk-quotes';
+import { restorePrivateUseCharacters } from './private-use-characters';
 
-const fixText = (text: string) => toFullWidthCjkPunctuation(restoreTitleMiddleDots(text));
+// Private-use characters go first, so the punctuation rules see the characters they stand for.
+const fixText = (text: string, bookId: string) =>
+  toFullWidthCjkPunctuation(
+    restoreTitleMiddleDots(normalizeMarks(restorePrivateUseCharacters(text, bookId))),
+  );
 
 // Define the book classifications
 const VERSE_BOOKS = new Set([
@@ -50,30 +60,39 @@ const bookDirs = fs
 
 console.log(`Found ${bookDirs.length} books to normalize.`);
 
-// `--punctuation-only` fixes the text of already-normalized files in place. A full rerun is
-// not idempotent (couplet chapters lose their section names), so use it for punctuation fixes.
+// `--punctuation-only` fixes the text of already-normalized files in place (punctuation, quotes,
+// middle dots, private-use characters). A full rerun is not idempotent (couplet chapters lose
+// their section names), so use it for text fixes.
 if (process.argv.includes('--punctuation-only')) {
-  const fixStrings = (value: unknown): unknown =>
+  const fixStrings = (value: unknown, bookId: string): unknown =>
     typeof value === 'string'
-      ? fixText(value)
+      ? fixText(value, bookId)
       : Array.isArray(value)
-        ? value.map(fixStrings)
+        ? value.map((v) => fixStrings(v, bookId))
         : value && typeof value === 'object'
-          ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, fixStrings(v)]))
+          ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, fixStrings(v, bookId)]))
           : value;
   let changedFiles = 0;
+  const unpaired: string[] = [];
   for (const bookId of bookDirs) {
     const bookPath = path.join(TEXTS_DIR, bookId);
     for (const file of fs.readdirSync(bookPath).filter((name) => name.endsWith('.json'))) {
       const filePath = path.join(bookPath, file);
       const data: unknown = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-      const fixed = fixStrings(data);
+      const fixed = fixStrings(data, bookId) as SourceChapter;
+      if (Array.isArray(fixed.paras)) {
+        fixed.paras = fixChapterQuotes(fixed.paras);
+        const lines = fixed.paras.flat();
+        if (quoteProblems(lines).length > 0) unpaired.push(`${bookId}/${file}`);
+      }
       if (JSON.stringify(fixed) === JSON.stringify(data)) continue;
       fs.writeFileSync(filePath, JSON.stringify(fixed, null, 2) + '\n', 'utf-8');
       changedFiles++;
     }
   }
-  console.log(`Fixed CJK punctuation in ${changedFiles} files.`);
+  console.log(`Fixed text in ${changedFiles} files.`);
+  // Quotes missing altogether cannot be inferred; these chapters need reading.
+  if (unpaired.length > 0) console.log(`Unpaired quotes left in ${unpaired.length} chapters.`);
   process.exit(0);
 }
 
@@ -119,15 +138,15 @@ for (const bookId of bookDirs) {
     }
 
     // Fix punctuation first, so subtitle detection and line splitting below see `，；？！`.
-    const rawTitle = fixText((data.title || '').trim());
+    const rawTitle = fixText((data.title || '').trim(), bookId);
     const rawParas = (data.paras || []).map((stanza) =>
-      Array.isArray(stanza) ? stanza.map(fixText) : fixText(stanza),
+      Array.isArray(stanza) ? stanza.map((line) => fixText(line, bookId)) : fixText(stanza, bookId),
     );
 
     // Preserve already-normalized metadata so rerunning this script is safe.
-    let tuneName = fixText((data.tune || '').trim());
+    let tuneName = fixText((data.tune || '').trim(), bookId);
     let cleanTitle = data.tune || data.author ? rawTitle : '';
-    let poemAuthor = fixText((data.author || '').trim());
+    let poemAuthor = fixText((data.author || '').trim(), bookId);
 
     // 1. Bracket-based Tune extraction from first paragraph (e.g. 【菩萨蛮】 in huajianji)
     const firstPara = rawParas[0] || '';
@@ -328,7 +347,7 @@ for (const bookId of bookDirs) {
     // Prepare restructured JSON object
     const structuredData: NormalizedChapter = {
       title: cleanTitle,
-      paras,
+      paras: fixChapterQuotes(paras),
       layout: {
         type: layoutType,
         watermark,
