@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- club:head -->
+    <!-- 自定义样式放在框架插槽之后，资源使用 ./assets/... 相对路径。 -->
+    <style>
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--serif-cn);
+      }
+      main {
+        max-width: 42rem;
+        margin: 4rem auto;
+        padding: 0 1.5rem;
+        line-height: 2;
+      }
+      h1 {
+        font-size: clamp(1.8rem, 5vw, 3rem);
+        line-height: 1.5;
+      }
+      a {
+        color: var(--ochre);
+      }
+      a:focus-visible {
+        outline: 2px solid var(--ochre);
+        outline-offset: 4px;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- club:nav -->
+    <main>
+      <header>
+        <p>第 001 期 · 作者笔名</p>
+        <h1>在这里，开始这一期的设计。</h1>
+      </header>
+      <article aria-label="精选正文">
+        <p>这里替换为经作者确认的完整文章，保留无需 JavaScript 也可阅读的正文。</p>
+        <p>布局、字体、背景与交互均可重新设计。这个文件只是交付骨架，不是视觉模板。</p>
+      </article>
+    </main>
+  </body>
+</html>

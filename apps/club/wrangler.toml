@@ -5,7 +5,7 @@ compatibility_date = "2026-06-01"
 [assets]
 directory = "./dist"
 binding = "ASSETS"
-run_worker_first = ["/articles", "/articles/*", "/api/*"]
+run_worker_first = ["/articles", "/articles/*", "/featured", "/featured/*", "/me", "/admin", "/api/*"]
 not_found_handling = "single-page-application"
 
 [[d1_databases]]
@@ -14,3 +14,7 @@ database_name = "newmaybe-club-db"
 database_id = "cca3f403-d205-4f20-9192-c7051a99c4f5"
 
 migrations_dir = "migrations"
+
+[vars]
+CLUB_ADMIN_EMAILS = "ningcly00@gmail.com"
+GMAIL_SENDER = "ningcly00@gmail.com"

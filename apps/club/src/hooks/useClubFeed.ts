@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { ClubAPI, getLocalArticles } from '../lib/api';
-import { summarizeArticle, type ArticleSummary, type FeedStats } from '../types';
+import { type ArticleSummary, type FeedStats } from '../types';
 
 export function useClubFeed(
   query: string,
@@ -11,9 +11,12 @@ export function useClubFeed(
   const [stats, setStats] = useState<FeedStats>();
   const [nextOffset, setNextOffset] = useState<number | null>(null);
   const [page, setPage] = useState({ query, offset: 0, attempt: 0 });
-  if (page.query !== query) setPage({ query, offset: 0, attempt: 0 });
-  const offset = page.query === query ? page.offset : 0;
   const [loading, setLoading] = useState(true);
+  if (page.query !== query) {
+    setPage({ query, offset: 0, attempt: 0 });
+    setLoading(true);
+  }
+  const offset = page.query === query ? page.offset : 0;
   const [offline, setOffline] = useState(false);
   const snapshot = useRef<{
     query: string;
@@ -71,16 +74,6 @@ export function useClubFeed(
       active = false;
     };
   }, [query, offset, page.attempt, syncVersion, mutationVersion]);
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        'newmaybe_club_articles',
-        JSON.stringify(articles.slice(0, 100).map(summarizeArticle)),
-      );
-    } catch {
-      /* Cache is optional; drafts have their own save feedback. */
-    }
-  }, [articles]);
   return {
     articles,
     setArticles,

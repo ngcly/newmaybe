@@ -1,6 +1,6 @@
 import { expect, test, type Page, type Route } from './test';
 import { enabled } from './apps';
-import { INITIAL_ARTICLES } from '../apps/club/src/data/initialArticles';
+import { INITIAL_ARTICLES } from '../apps/club/src/test/initialArticles';
 
 const clubUrl = 'http://127.0.0.1:4406/';
 
@@ -16,18 +16,6 @@ async function mockClubApi(page: Page) {
     });
   });
 }
-
-test('Club keeps a draft when the writer closes before the debounce fires', async ({ page }) => {
-  test.skip(!enabled('club'));
-  await mockClubApi(page);
-  await page.goto(clubUrl);
-  await page.getByRole('button', { name: '即刻落笔', exact: true }).click();
-  await page.getByPlaceholder('在此处题写文章标题...').fill('未完的草稿');
-  await page.getByPlaceholder(/^在此落墨起笔/).fill('刚写完的正文');
-  await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: '即刻落笔', exact: true }).click();
-  await expect(page.getByPlaceholder(/^在此落墨起笔/)).toHaveValue('刚写完的正文');
-});
 
 test('Club accepts an empty server comment list and preserves a new comment against an old response', async ({
   page,
@@ -55,8 +43,9 @@ test('Club accepts an empty server comment list and preserves a new comment agai
         },
       });
     }
+    if (path.endsWith('/like')) return route.fulfill({ json: { likes: 1 } });
     detailRequests += 1;
-    if (detailRequests > 1) {
+    if (detailRequests !== 2) {
       return route.fulfill({
         json: {
           article: INITIAL_ARTICLES.find((article) => article.id === path.split('/')[3]),
@@ -79,11 +68,18 @@ test('Club accepts an empty server comment list and preserves a new comment agai
   });
   await page.goto(clubUrl);
   await page.getByText(INITIAL_ARTICLES[0].title, { exact: true }).click();
+  await page
+    .locator('button')
+    .filter({ has: page.locator('svg.lucide-heart') })
+    .first()
+    .click();
   await expect.poll(() => Boolean(heldDetail)).toBe(true);
   await page
     .getByPlaceholder('写下此刻的共鸣、眉批或感悟... 慢笔深思，见字如晤。')
     .fill('新的评注');
   await page.getByRole('button', { name: '盖印题跋' }).click();
+  // The form clears once the server confirms the post; until then the draft is a second match.
+  await expect(page.getByRole('textbox', { name: '题跋内容' })).toHaveValue('');
   await expect(page.getByText('新的评注', { exact: true })).toBeVisible();
   await heldDetail!.fulfill({
     json: {
@@ -159,10 +155,11 @@ test('Club manual dark toggle updates reading palette with a light system prefer
   await page.getByRole('button', { name: '羊皮暖' }).click();
   await page.getByRole('button', { name: '关闭', exact: true }).click();
   const reader = page.locator('.club-reader-theme-parchment');
-  const before = await reader.evaluate((element) => getComputedStyle(element).backgroundColor);
+  const background = () => reader.evaluate((element) => getComputedStyle(element).backgroundColor);
+  // Measure the settled parchment colour, not a frame of its fade-in transition.
+  await expect.poll(() => reader.evaluate((element) => element.getAnimations().length)).toBe(0);
+  const before = await background();
   await page.getByRole('button', { name: '切换明暗主题' }).click();
-  await page.waitForTimeout(350);
-  const after = await reader.evaluate((element) => getComputedStyle(element).backgroundColor);
-  expect(before).not.toBe(after);
   await expect(page.locator('html')).toHaveClass(/dark/);
+  await expect.poll(background).not.toBe(before);
 });

@@ -1,9 +1,12 @@
 import { articlePage } from './server/article-page';
+import { featuredPage } from './server/featured-page';
 import { mapArticle, mapComment, type RawArticleRow, type RawCommentRow } from './server/rows';
 import { readFeed } from './server/feed';
-import { readInput, articleInput, commentInput, InputError, sourceKey } from './server/input';
-import type { Article, Comment } from './types';
-import { INITIAL_ARTICLES, INITIAL_COMMENTS } from './data/initialArticles';
+import { readInput, commentInput, InputError, sourceKey } from './server/input';
+import { authRoute } from './server/auth';
+import { manuscriptRoute } from './server/manuscripts';
+import { protectWrite } from './server/http';
+import type { Comment } from './types';
 
 export interface D1PreparedStatement {
   bind(...values: unknown[]): D1PreparedStatement;
@@ -27,29 +30,23 @@ export interface D1Database {
 
 export interface Env {
   DB: D1Database;
+  AUTH_SECRET?: string;
+  CLUB_ADMIN_EMAILS?: string;
+  GMAIL_SENDER?: string;
+  GMAIL_CLIENT_ID?: string;
+  GMAIL_CLIENT_SECRET?: string;
+  GMAIL_REFRESH_TOKEN?: string;
   ASSETS?: {
     fetch: (request: Request) => Promise<Response>;
   };
 }
 
-function corsHeaders(request: Request): HeadersInit {
-  const origin = request.headers.get('Origin');
-  return {
-    'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json; charset=utf-8',
-  };
+function jsonResponse(data: unknown, status = 200, _request?: Request): Response {
+  return Response.json(data, { status, headers: { 'Cache-Control': 'no-store' } });
 }
 
-function jsonResponse(data: unknown, status = 200, request?: Request): Response {
-  const headers = request ? corsHeaders(request) : { 'Content-Type': 'application/json' };
-  return new Response(JSON.stringify(data), { status, headers });
-}
-
-type WriteAction = 'article' | 'comment' | 'like';
+type WriteAction = 'comment' | 'like';
 const WRITE_LIMITS: Record<WriteAction, number> = {
-  article: 3,
   comment: 20,
   like: 60,
 };
@@ -80,104 +77,38 @@ async function enforceWriteLimit(
   return jsonResponse({ error: '操作过于频繁，请稍后再试' }, 429, request);
 }
 
-// Auto seed initial data if DB is empty
-async function ensureSeedData(db: D1Database): Promise<void> {
-  try {
-    const checkArticles = await db
-      .prepare('SELECT count(*) as count FROM articles')
-      .first<{ count: number }>();
-    // Seed only a new article database. An empty comment list on an existing
-    // database may be intentional and must not resurrect sample comments.
-    if (checkArticles && checkArticles.count > 0) return;
-
-    const articleStatements: D1PreparedStatement[] = [];
-    for (const a of INITIAL_ARTICLES) {
-      articleStatements.push(
-        db
-          .prepare(
-            `INSERT OR IGNORE INTO articles (
-              id, title, summary, content, author, author_seal,
-              topic_id, topic_name, pub_date, reading_time, word_count,
-              likes, comments_count, series_title, series_order, golden_quote, featured
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          )
-          .bind(
-            a.id,
-            a.title,
-            a.summary,
-            a.content,
-            a.author,
-            a.authorSeal || null,
-            a.topicId,
-            a.topicName,
-            a.pubDate,
-            a.readingTime,
-            a.wordCount,
-            a.likes,
-            a.commentsCount,
-            a.seriesTitle || null,
-            a.seriesOrder || null,
-            a.goldenQuote || null,
-            a.featured ? 1 : 0,
-          ),
-      );
-    }
-
-    const commentStatements: D1PreparedStatement[] = [];
-    for (const [articleId, comments] of Object.entries(INITIAL_COMMENTS)) {
-      for (const c of comments) {
-        commentStatements.push(
-          db
-            .prepare(
-              `INSERT OR IGNORE INTO comments (id, article_id, author, content, likes, created_at, reply_to_id, reply_to_author)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            )
-            .bind(
-              c.id,
-              articleId,
-              c.author,
-              c.content,
-              c.likes,
-              c.createdAt,
-              c.replyToId || null,
-              c.replyToAuthor || null,
-            ),
-        );
-      }
-    }
-    commentStatements.push(
-      db.prepare(
-        `UPDATE articles SET comments_count = (SELECT count(*) FROM comments WHERE comments.article_id = articles.id)
-         WHERE id IN ('club-1', 'club-2', 'club-3', 'club-4', 'club-5', 'club-6')`,
-      ),
-    );
-
-    const batch = [...articleStatements, ...commentStatements];
-    if (batch.length > 0) {
-      await db.batch(batch);
-    }
-  } catch (err) {
-    console.error('ensureSeedData failed:', err);
-  }
-}
-
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
+    if (url.pathname === '/featured' || url.pathname.startsWith('/featured/')) {
+      return featuredPage(request, env.ASSETS, undefined, env.DB);
+    }
+
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: corsHeaders(request) });
+      return new Response(null, {
+        status: 204,
+        headers: { Allow: 'GET, HEAD, POST, PUT, DELETE' },
+      });
     }
 
     if (
       (request.method === 'GET' || request.method === 'HEAD') &&
       (url.pathname === '/articles' || url.pathname.startsWith('/articles/'))
     ) {
-      await ensureSeedData(env.DB);
       return articlePage(request, env);
     }
 
+    if (['/me', '/admin'].includes(url.pathname)) {
+      if (!['GET', 'HEAD'].includes(request.method)) return new Response(null, { status: 405 });
+      const shell = await env.ASSETS?.fetch(new Request(new URL('/', url)));
+      if (!shell?.ok) return new Response('暂时无法打开写作空间', { status: 503 });
+      const headers = new Headers(shell.headers);
+      headers.set('X-Robots-Tag', 'noindex');
+      headers.set('Cache-Control', 'no-store');
+      return new Response(request.method === 'HEAD' ? null : shell.body, { headers });
+    }
     // Other documents and static files use the asset binding.
     if (!url.pathname.startsWith('/api/')) {
       if (env.ASSETS) {
@@ -186,10 +117,15 @@ export default {
       return new Response('Not Found', { status: 404 });
     }
 
-    // Ensure database table initialized & seeded on first call
-    await ensureSeedData(env.DB);
-
     try {
+      protectWrite(request);
+      if (url.pathname.startsWith('/api/auth/')) return await authRoute(request, env);
+      if (
+        url.pathname === '/api/manuscripts' ||
+        url.pathname.startsWith('/api/manuscripts/') ||
+        url.pathname.startsWith('/api/admin/')
+      )
+        return await manuscriptRoute(request, env);
       // 1. GET /api/articles - List articles with optional filter, topic, search
       if (request.method === 'GET' && url.pathname === '/api/articles') {
         return jsonResponse(await readFeed(url, env.DB), 200, request);
@@ -199,7 +135,7 @@ export default {
       const articleDetailMatch = url.pathname.match(/^\/api\/articles\/([^/]+)$/);
       if (request.method === 'GET' && articleDetailMatch) {
         const id = articleDetailMatch[1];
-        const row = await env.DB.prepare('SELECT * FROM articles WHERE id = ?')
+        const row = await env.DB.prepare('SELECT * FROM published_articles WHERE id = ?')
           .bind(id)
           .first<RawArticleRow>();
 
@@ -223,93 +159,13 @@ export default {
         );
       }
 
-      // 3. POST /api/articles - Create article
-      if (request.method === 'POST' && url.pathname === '/api/articles') {
-        const body = articleInput(await readInput(request));
-        const content = body.content;
-        const limited = await enforceWriteLimit(request, env.DB, 'article');
-        if (limited) return limited;
-
-        const wordCount = content.length;
-        const readingTime = Math.max(1, Math.ceil(wordCount / 130));
-        const summary =
-          content
-            .split('\n')
-            .find((l) => l.trim().length > 10)
-            ?.slice(0, 80) || content.slice(0, 60);
-
-        const newArticle: Article = {
-          id: `club-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          title: body.title.trim().slice(0, 100),
-          summary: summary.trim() + '...',
-          content,
-          author: body.author?.trim().slice(0, 30) || '文友',
-          authorSeal:
-            body.authorSeal?.trim().slice(0, 2) || body.author?.trim().slice(0, 2) || '文友',
-          topicId: body.topicId,
-          topicName: body.topicName || '文友雅集',
-          pubDate: new Date().toISOString().split('T')[0],
-          readingTime,
-          wordCount,
-          likes: 1,
-          commentsCount: 0,
-          seriesTitle: body.seriesTitle?.trim().slice(0, 50) || undefined,
-          seriesOrder: undefined,
-          goldenQuote: body.goldenQuote?.trim().slice(0, 200) || undefined,
-          featured: false,
-          isUserCreated: true,
-        };
-
-        await env.DB.prepare(
-          `INSERT INTO articles (
-            id, title, summary, content, author, author_seal,
-            topic_id, topic_name, pub_date, reading_time, word_count,
-            likes, comments_count, series_title, series_order, golden_quote, featured
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-            CASE WHEN ? IS NULL THEN NULL ELSE
-              (SELECT COALESCE(MAX(series_order), 0) + 1 FROM articles WHERE series_title = ?)
-            END, ?, ?)`,
-        )
-          .bind(
-            newArticle.id,
-            newArticle.title,
-            newArticle.summary,
-            newArticle.content,
-            newArticle.author,
-            newArticle.authorSeal || null,
-            newArticle.topicId,
-            newArticle.topicName,
-            newArticle.pubDate,
-            newArticle.readingTime,
-            newArticle.wordCount,
-            newArticle.likes,
-            newArticle.commentsCount,
-            newArticle.seriesTitle || null,
-            newArticle.seriesTitle || null,
-            newArticle.seriesTitle || null,
-            newArticle.goldenQuote || null,
-            0,
-          )
-          .run();
-
-        const savedRow = await env.DB.prepare('SELECT * FROM articles WHERE id = ?')
-          .bind(newArticle.id)
-          .first<RawArticleRow>();
-        if (!savedRow) throw new Error('Published article could not be loaded');
-        return jsonResponse(
-          { success: true, article: { ...mapArticle(savedRow), isUserCreated: true } },
-          201,
-          request,
-        );
-      }
-
       // 4. POST /api/articles/:id/like - Like article
       const articleLikeMatch = url.pathname.match(/^\/api\/articles\/([^/]+)\/like$/);
       if (request.method === 'POST' && articleLikeMatch) {
         const id = articleLikeMatch[1];
         const limited = await enforceWriteLimit(request, env.DB, 'like');
         if (limited) return limited;
-        const exists = await env.DB.prepare('SELECT id FROM articles WHERE id = ?')
+        const exists = await env.DB.prepare('SELECT id FROM published_articles WHERE id = ?')
           .bind(id)
           .first();
         if (!exists) throw new InputError('篇章未找到', 404);
@@ -330,7 +186,7 @@ export default {
         const articleId = addCommentMatch[1];
         const body = commentInput(await readInput(request));
         const content = body.content;
-        const article = await env.DB.prepare('SELECT id FROM articles WHERE id = ?')
+        const article = await env.DB.prepare('SELECT id FROM published_articles WHERE id = ?')
           .bind(articleId)
           .first();
         if (!article) throw new InputError('篇章未找到', 404);
@@ -382,7 +238,9 @@ export default {
         const commentId = commentLikeMatch[1];
         const limited = await enforceWriteLimit(request, env.DB, 'like');
         if (limited) return limited;
-        const exists = await env.DB.prepare('SELECT id FROM comments WHERE id = ?')
+        const exists = await env.DB.prepare(
+          'SELECT id FROM comments WHERE id = ? AND article_id IN (SELECT id FROM published_articles)',
+        )
           .bind(commentId)
           .first();
         if (!exists) throw new InputError('评注未找到', 404);
@@ -395,12 +253,6 @@ export default {
           .bind(commentId)
           .first<{ likes: number }>();
         return jsonResponse({ success: true, likes: row!.likes }, 200, request);
-      }
-
-      // 7. POST /api/init-seed - Manual trigger to seed or recheck
-      if (request.method === 'POST' && url.pathname === '/api/init-seed') {
-        await ensureSeedData(env.DB);
-        return jsonResponse({ success: true, message: '种子文集检查就绪' }, 200, request);
       }
 
       return jsonResponse({ error: 'Endpoint Not Found' }, 404, request);

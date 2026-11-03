@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PenTool, Search, Moon, Sun, ArrowLeft, X } from 'lucide-react';
 import { syncBrowserTheme } from '@newmaybe/design-tokens/browser-theme';
 
@@ -20,8 +20,30 @@ export default function Navbar({
   onSearchChange,
 }: NavbarProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  // The field keeps its own text so pinyin composition is never filtered mid-word.
+  const [draft, setDraft] = useState(searchQuery);
+  const [syncedQuery, setSyncedQuery] = useState(searchQuery);
+  if (syncedQuery !== searchQuery) {
+    setSyncedQuery(searchQuery);
+    setDraft(searchQuery);
+  }
   const searchTrigger = useRef<HTMLButtonElement>(null);
+  const header = useRef<HTMLElement>(null);
+  // Sticky page parts (the home sidebar) sit below the header, whose height changes with search.
+  useEffect(() => {
+    const element = header.current;
+    if (!element) return;
+    const observer = new ResizeObserver(() =>
+      document.documentElement.style.setProperty('--club-nav-h', `${element.offsetHeight}px`),
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+  // Pressing a close control ends an IME composition before the click lands; that pinyin must
+  // not become a query on its way out.
+  const closing = useRef(false);
   const closeSearch = () => {
+    closing.current = false;
     onSearchChange('');
     setIsSearchOpen(false);
     searchTrigger.current?.focus();
@@ -45,125 +67,129 @@ export default function Navbar({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[var(--paper)] border-b border-[var(--line)] transition-[border-color] duration-300">
-      <div className="max-w-[1080px] mx-auto px-4 sm:px-6 min-h-16 py-2 flex flex-wrap items-center justify-between gap-x-2 lg:gap-4 gap-y-2">
-        {/* Logo & Brand */}
+    <header className="club-nav" ref={header}>
+      <div className="club-nav-inner">
         <a
           href="/"
-          onClick={(e) => {
-            e.preventDefault();
+          className="club-brand nm-brand"
+          onClick={(event) => {
+            if (
+              event.metaKey ||
+              event.ctrlKey ||
+              event.shiftKey ||
+              event.altKey ||
+              event.button !== 0
+            )
+              return;
+            event.preventDefault();
             onSelectTab('plaza');
           }}
-          className="flex shrink-0 items-baseline gap-1.5 whitespace-nowrap no-underline group"
         >
-          <span className="font-serif font-semibold text-lg sm:text-xl tracking-tight text-[var(--ink)]">
-            newmaybe
+          <span className="nm-brand-seal" aria-hidden="true">
+            雅
           </span>
-          <span className="font-serif text-xs sm:text-sm text-[var(--ochre)] italic">.club</span>
-          <span className="hidden xl:inline-block ml-2 text-xs text-[var(--ink-faint)] border-l border-[var(--line)] pl-2 font-serif">
-            文友雅集
+          <span className="nm-brand-text">
+            <span className="nm-brand-word">
+              newmaybe<span className="nm-brand-dot">.</span>
+              <span className="nm-brand-sub">club</span>
+            </span>
+            <span className="nm-brand-name">文友雅集</span>
           </span>
         </a>
-
-        {/* Nav Tabs: a dedicated second row on phones prevents Chinese labels wrapping vertically. */}
-        <nav
-          aria-label="雅集导航"
-          className="order-3 lg:order-none basis-full lg:basis-auto flex items-center justify-center gap-1 border-t border-[var(--line)] lg:border-0 pt-2 lg:pt-0"
-        >
-          <button
-            onClick={() => onSelectTab('plaza')}
-            aria-pressed={currentTab === 'plaza'}
-            className={`min-h-11 flex-1 lg:flex-none whitespace-nowrap px-3 py-1.5 rounded text-sm font-serif transition-all cursor-pointer ${
-              currentTab === 'plaza'
-                ? 'text-[var(--ochre)] bg-[var(--paper-deep)] font-semibold shadow-2xs'
-                : 'text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[var(--paper-deep)]/60'
-            }`}
-          >
+        <nav aria-label="雅集导航" className="club-primary-nav">
+          <button onClick={() => onSelectTab('plaza')} aria-pressed={currentTab === 'plaza'}>
             文友广场
           </button>
-          <button
-            onClick={() => onSelectTab('topics')}
-            aria-pressed={currentTab === 'topics'}
-            className={`min-h-11 flex-1 lg:flex-none whitespace-nowrap px-3 py-1.5 rounded text-sm font-serif transition-all cursor-pointer ${
-              currentTab === 'topics'
-                ? 'text-[var(--ochre)] bg-[var(--paper-deep)] font-semibold shadow-2xs'
-                : 'text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[var(--paper-deep)]/60'
-            }`}
-          >
+          <button onClick={() => onSelectTab('topics')} aria-pressed={currentTab === 'topics'}>
             专题分类
           </button>
+          <a href="/featured">
+            一期一文
+            <span aria-hidden="true" className="club-nav-dot" />
+          </a>
         </nav>
-
-        {/* Right Actions */}
-        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-          {/* Quick Search */}
+        <div className="club-nav-actions">
           <button
             ref={searchTrigger}
+            onPointerDown={() => {
+              closing.current = isSearchOpen;
+            }}
             onClick={() => (isSearchOpen ? closeSearch() : setIsSearchOpen(true))}
             aria-label="搜索文稿"
             aria-expanded={isSearchOpen}
             aria-controls="club-nav-search"
-            className="min-w-11 min-h-11 justify-center px-2 text-xs font-serif rounded border border-transparent hover:border-[var(--line)] text-[var(--ink-soft)] hover:text-[var(--ochre)] flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="club-icon-button"
             title="搜索文稿"
           >
-            <Search className="w-3.5 h-3.5 text-[var(--ink-faint)]" />
-            <span className="hidden md:inline">搜索</span>
+            <Search aria-hidden="true" />
           </button>
-
-          {/* Write Button */}
+          <a href="/me" className="club-my-drafts">
+            我的文稿
+          </a>
           <button
             onClick={onOpenWriter}
-            className="min-w-11 min-h-11 flex justify-center items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 text-xs sm:text-sm whitespace-nowrap font-serif font-medium text-[var(--ochre)] bg-[color-mix(in_srgb,var(--ochre)_8%,transparent)] border border-[color-mix(in_srgb,var(--ochre)_30%,var(--line))] rounded hover:bg-[color-mix(in_srgb,var(--ochre)_15%,transparent)] transition-all cursor-pointer active:scale-95 shadow-xs"
+            className="club-write-button"
             aria-label="即刻落笔"
             title="即刻落笔"
           >
-            <PenTool className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">即刻落笔</span>
+            <PenTool aria-hidden="true" />
+            <span>即刻落笔</span>
           </button>
-
-          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="w-11 h-11 flex items-center justify-center rounded border border-[var(--line)] text-[var(--ink-soft)] hover:text-[var(--ochre)] bg-[var(--paper-deep)] transition-all cursor-pointer"
+            className="club-icon-button club-theme-button"
             aria-label="切换明暗主题"
             title="切换明暗主题"
           >
-            <Sun className="w-4 h-4 dark:hidden" />
-            <Moon className="w-4 h-4 hidden dark:block" />
+            <Sun aria-hidden="true" className="dark:hidden" />
+            <Moon aria-hidden="true" className="hidden dark:block" />
           </button>
-
-          {/* Return to main site */}
-          <a
-            href={resolveSubdomain('https://newmaybe.com')}
-            className="hidden lg:inline-flex items-center gap-1 text-xs font-serif text-[var(--ink-faint)] hover:text-[var(--ochre)] transition-colors no-underline ml-1"
-          >
-            <ArrowLeft className="w-3 h-3" />
-            <span>主站</span>
+          <a href={resolveSubdomain('https://newmaybe.com')} className="club-home-link">
+            <ArrowLeft aria-hidden="true" />
+            主站
           </a>
         </div>
         {isSearchOpen && (
-          <div
-            id="club-nav-search"
-            className="order-4 basis-full min-w-0 w-full flex items-center gap-2 pb-1"
-          >
+          <div id="club-nav-search" className="club-nav-search" role="search">
+            <Search aria-hidden="true" />
             <input
               type="search"
               autoFocus
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') closeSearch();
+              value={draft}
+              onChange={(event) => {
+                setDraft(event.target.value);
+                if (!(event.nativeEvent as InputEvent).isComposing)
+                  onSearchChange(event.target.value);
+              }}
+              onFocus={() => {
+                closing.current = false;
+              }}
+              onCompositionEnd={(event) => {
+                if (!closing.current) onSearchChange(event.currentTarget.value);
+              }}
+              onKeyDown={(event) => {
+                // The first Escape while composing belongs to the IME.
+                // The Escape that cancels a composition belongs to the IME (Safari reports 229).
+                if (
+                  event.key === 'Escape' &&
+                  !event.nativeEvent.isComposing &&
+                  event.nativeEvent.keyCode !== 229
+                )
+                  closeSearch();
               }}
               aria-label="搜索标题、文友或金句"
               placeholder="搜索标题、文友或金句..."
-              className="w-0 min-w-0 flex-1 min-h-11 px-3 text-base font-serif bg-[var(--paper-deep)] border border-[var(--ochre)] rounded text-[var(--ink)] shadow-xs"
             />
+            <span className="club-search-hint">ESC 退出</span>
             <button
+              onPointerDown={() => {
+                closing.current = true;
+              }}
               onClick={closeSearch}
               aria-label="关闭搜索"
-              className="w-11 h-11 shrink-0 flex items-center justify-center text-[var(--ink-soft)] hover:text-[var(--ink)] cursor-pointer"
+              className="club-icon-button"
             >
-              <X className="w-4 h-4" />
+              <X aria-hidden="true" />
             </button>
           </div>
         )}

@@ -23,7 +23,9 @@ export async function articlePage(request: Request, env: Env): Promise<Response>
   let status = 404;
   try {
     const row = id
-      ? await env.DB.prepare('SELECT * FROM articles WHERE id = ?').bind(id).first<RawArticleRow>()
+      ? await env.DB.prepare('SELECT * FROM published_articles WHERE id = ?')
+          .bind(id)
+          .first<RawArticleRow>()
       : null;
     if (row) {
       article = mapArticle(row);
@@ -59,14 +61,22 @@ export async function articlePage(request: Request, env: Env): Promise<Response>
       /<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/,
       () => `<link rel="canonical" href="${escapeHtml(metadata.canonical)}" />`,
     );
-  // Readable without JavaScript. React replaces this fallback when the interactive reader mounts.
+  // Readable without JavaScript, in the reader's own classes so the React hand-off does not jump.
   const body = article
-    ? `<article><h1>${escapeHtml(article.title)}</h1><p>${escapeHtml(article.author)} · ${escapeHtml(article.pubDate)}</p><div style="white-space:pre-wrap">${escapeHtml(article.content)}</div></article>`
-    : `<h1>${status === 404 ? '篇章不存在' : '篇章暂时无法读取，请稍后重试'}</h1>`;
+    ? `<article><header class="club-reader__header"><h1 class="club-reader__title">${escapeHtml(article.title)}</h1><p class="club-reader__metadata">${escapeHtml(article.author)} · ${escapeHtml(article.pubDate)}</p></header><div class="club-reader__body text-lg leading-[2.15]">${article.content
+        .split('\n\n')
+        .filter((paragraph) => paragraph.trim())
+        .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+        .join('')}</div></article>`
+    : `<h1 class="club-reader__title">${status === 404 ? '篇章不存在' : '篇章暂时无法读取，请稍后重试'}</h1>`;
+  // The reader mounts with the same published row instead of a loading state; `<` cannot close the tag.
+  const initial = article
+    ? `<script type="application/json" id="club-initial-article">${JSON.stringify(article).replace(/</g, '\\u003c')}</script>`
+    : '';
   html = html.replace(
     '<div id="root"></div>',
     () =>
-      `<div id="root"><main style="max-width:48rem;margin:2rem auto;padding:1.5rem;line-height:1.9"><a href="/">返回雅集广场</a>${body}</main></div>`,
+      `<div id="root"><main class="club-reader"><div class="club-reader__page"><nav class="club-reader__toolbar"><a class="club-reader__back" href="/">返回雅集广场</a></nav>${body}</div></main></div>${initial}`,
   );
   const headers = new Headers(shell.headers);
   headers.set('Content-Type', 'text/html; charset=utf-8');

@@ -1,5 +1,3 @@
-import { TOPICS } from '../data/topics';
-
 export class InputError extends Error {
   constructor(
     message: string,
@@ -46,7 +44,7 @@ export async function readInput(request: Request): Promise<Record<string, unknow
   return value as Record<string, unknown>;
 }
 
-function field(
+export function field(
   body: Record<string, unknown>,
   key: string,
   max: number,
@@ -60,22 +58,6 @@ function field(
   if (required && !text) throw new InputError(`${label}不能为空`);
   if (text.length > max) throw new InputError(`${label}最多 ${max} 字，请缩短后再提交`);
   return text;
-}
-
-export function articleInput(body: Record<string, unknown>) {
-  const topicId = field(body, 'topicId', 80, '专题', true);
-  const topic = TOPICS.find((t) => t.id === topicId);
-  if (!topic) throw new InputError('请选择有效的投稿专题');
-  return {
-    title: field(body, 'title', 100, '标题', true),
-    content: field(body, 'content', 50_000, '正文', true),
-    author: field(body, 'author', 30, '署名'),
-    authorSeal: field(body, 'authorSeal', 4, '印章'),
-    topicId,
-    topicName: topic.name,
-    seriesTitle: field(body, 'seriesTitle', 50, '专栏名称'),
-    goldenQuote: field(body, 'goldenQuote', 200, '金句'),
-  };
 }
 
 export function commentInput(body: Record<string, unknown>) {

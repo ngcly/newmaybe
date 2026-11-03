@@ -13,10 +13,14 @@ import {
   Send,
   Check,
 } from 'lucide-react';
-import type { Topic, Article } from '../types';
+import type { Topic, Article, ManuscriptDraft } from '../types';
 import { zenAudio } from '../lib/zenAudio';
 
 interface WriterModalProps {
+  initialDraft: ManuscriptDraft & { author: string };
+  storageKey: string;
+  getVersion: () => number;
+  onSave: (draft: ManuscriptDraft) => Promise<void>;
   topics: Topic[];
   isOpen: boolean;
   onClose: () => void;
@@ -25,7 +29,6 @@ interface WriterModalProps {
   ) => Promise<void>;
 }
 
-const STORAGE_DRAFT_KEY = 'newmaybe_club_writer_draft';
 const STORAGE_FONT_SIZE_KEY = 'newmaybe_club_writer_fontsize';
 
 interface WriterDraft {
@@ -38,39 +41,12 @@ interface WriterDraft {
   content: string;
 }
 
-function getStoredDraft(defaultTopicId: string): WriterDraft | null {
-  if (typeof window === 'undefined') return null;
+function storeBackup(key: string, version: number, draft: WriterDraft): boolean {
   try {
-    const saved = localStorage.getItem(STORAGE_DRAFT_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.title || parsed.content) {
-        return {
-          title: parsed.title || '',
-          author: parsed.author || '',
-          authorSeal: parsed.authorSeal || '',
-          topicId: parsed.topicId || defaultTopicId,
-          seriesTitle: parsed.seriesTitle || '',
-          goldenQuote: parsed.goldenQuote || '',
-          content: parsed.content || '',
-        };
-      }
-    }
+    localStorage.setItem(key, JSON.stringify({ version, draft }));
+    return true;
   } catch {
-    /* ignore */
-  }
-  return null;
-}
-
-function persistDraft(draft: WriterDraft): void {
-  try {
-    if (draft.title || draft.content) {
-      localStorage.setItem(STORAGE_DRAFT_KEY, JSON.stringify(draft));
-    } else {
-      localStorage.removeItem(STORAGE_DRAFT_KEY);
-    }
-  } catch {
-    // Retain draft in state if storage fails
+    return false;
   }
 }
 
@@ -79,11 +55,14 @@ export default function WriterModal({
   isOpen,
   onClose,
   onSubmitArticle,
+  initialDraft,
+  storageKey,
+  getVersion,
+  onSave,
 }: WriterModalProps) {
-  const [initialDraft] = useState(() => getStoredDraft(topics[0]?.id || 'deep-night'));
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
   const [title, setTitle] = useState(() => initialDraft?.title || '');
-  const [author, setAuthor] = useState(() => initialDraft?.author || '');
+  const author = initialDraft.author;
   const [authorSeal, setAuthorSeal] = useState(() => initialDraft?.authorSeal || '');
   const [topicId, setTopicId] = useState(
     () => initialDraft?.topicId || topics[0]?.id || 'deep-night',
@@ -91,7 +70,6 @@ export default function WriterModal({
   const [seriesTitle, setSeriesTitle] = useState(() => initialDraft?.seriesTitle || '');
   const [goldenQuote, setGoldenQuote] = useState(() => initialDraft?.goldenQuote || '');
   const [content, setContent] = useState(() => initialDraft?.content || '');
-  const [hasRestoredDraft, setHasRestoredDraft] = useState(() => Boolean(initialDraft));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
@@ -110,7 +88,13 @@ export default function WriterModal({
   const [isWindActive, setIsWindActive] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [lastSavedTime, setLastSavedTime] = useState<string>('');
+  const [lastSavedTime, setLastSavedTime] = useState('云端文稿已载入');
+  const [saveError, setSaveError] = useState('');
+  const [backupFailed, setBackupFailed] = useState(false);
+  const persistDraft = useCallback(
+    (draft: WriterDraft) => storeBackup(storageKey, getVersion(), draft),
+    [storageKey, getVersion],
+  );
 
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -157,14 +141,33 @@ export default function WriterModal({
     };
   }, []);
 
-  const handleClose = useCallback(() => {
+  const handleClose = useCallback(async () => {
     if (isSubmitting) return;
     zenAudio.stopAll();
     setIsRainActive(false);
     setIsWindActive(false);
-    persistDraft({ title, author, authorSeal, topicId, seriesTitle, goldenQuote, content });
-    onClose();
+    const backedUp = persistDraft({
+      title,
+      author,
+      authorSeal,
+      topicId,
+      seriesTitle,
+      goldenQuote,
+      content,
+    });
+    setIsSubmitting(true);
+    try {
+      await onSave({ title, authorSeal, topicId, seriesTitle, goldenQuote, content });
+      onClose();
+    } catch (error) {
+      setBackupFailed(!backedUp);
+      setSaveError(error instanceof Error ? error.message : '云端保存失败');
+    } finally {
+      setIsSubmitting(false);
+    }
   }, [
+    onSave,
+    persistDraft,
     isSubmitting,
     title,
     author,
@@ -192,18 +195,66 @@ export default function WriterModal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, isDrawerOpen, handleClose]);
 
-  // 草稿自动存盘
+  // Back up immediately; serialize cloud writes in the workspace to avoid stale versions.
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || isSubmitting) return;
+    const draft = { title, author, authorSeal, topicId, seriesTitle, goldenQuote, content };
+    const backedUp = persistDraft(draft);
+    let active = true;
     const timer = setTimeout(() => {
-      persistDraft({ title, author, authorSeal, topicId, seriesTitle, goldenQuote, content });
-      const now = new Date();
-      setLastSavedTime(
-        `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
-      );
+      setBackupFailed(!backedUp);
+      setLastSavedTime('正在保存到云端…');
+      void onSave(draft)
+        .then(() => {
+          if (active) {
+            setLastSavedTime('已保存到云端');
+            setSaveError('');
+          }
+        })
+        .catch((error) => {
+          if (active) {
+            setLastSavedTime('云端保存失败');
+            setSaveError(error instanceof Error ? error.message : '请稍后重试');
+          }
+        });
     }, 1500);
-    return () => clearTimeout(timer);
-  }, [isOpen, title, author, authorSeal, topicId, seriesTitle, goldenQuote, content]);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [
+    isOpen,
+    isSubmitting,
+    title,
+    author,
+    authorSeal,
+    topicId,
+    seriesTitle,
+    goldenQuote,
+    content,
+    onSave,
+    persistDraft,
+  ]);
+
+  useEffect(() => {
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, []);
+
+  const exportDraft = () => {
+    const url = URL.createObjectURL(
+      new Blob([`${title}\n\n${content}`], { type: 'text/plain;charset=utf-8' }),
+    );
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${title || '未题名文稿'}.txt`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
 
   if (!isOpen) return null;
 
@@ -227,21 +278,19 @@ export default function WriterModal({
   const handleClearDraft = () => {
     if (window.confirm('确定要清空当前草稿内容吗？此操作不可逆。')) {
       setTitle('');
-      setAuthor('');
       setAuthorSeal('');
       setSeriesTitle('');
       setGoldenQuote('');
       setContent('');
       persistDraft({
         title: '',
-        author: '',
+        author,
         authorSeal: '',
         topicId,
         seriesTitle: '',
         goldenQuote: '',
         content: '',
       });
-      setHasRestoredDraft(false);
       setIsDrawerOpen(false);
     }
   };
@@ -285,7 +334,7 @@ export default function WriterModal({
 
       zenAudio.stopAll();
       try {
-        localStorage.removeItem(STORAGE_DRAFT_KEY);
+        localStorage.removeItem(storageKey);
       } catch {
         /* ignore */
       }
@@ -302,7 +351,11 @@ export default function WriterModal({
   const shouldFadeChrome = isTyping && !isDrawerOpen && activeTab === 'edit';
 
   return (
-    <div className="fixed inset-0 z-50 bg-[var(--paper)] text-[var(--ink)] flex flex-col overflow-hidden select-text animate-fade-in">
+    <fieldset
+      disabled={isSubmitting}
+      aria-label="写作室"
+      className="m-0 border-0 p-0 min-w-0 fixed inset-0 z-50 bg-[var(--paper)] text-[var(--ink)] flex flex-col overflow-hidden select-text animate-fade-in"
+    >
       {/* 顶部控制与沉浸导航栏 */}
       <header
         className={`shrink-0 z-30 px-4 sm:px-8 py-3 border-b border-[var(--line)] bg-[var(--paper)]/90 backdrop-blur-md flex flex-wrap lg:flex-nowrap items-center justify-between gap-x-3 gap-y-2 transition-opacity duration-700 ease-in-out ${
@@ -329,7 +382,7 @@ export default function WriterModal({
             </span>
             {lastSavedTime && (
               <span className="hidden md:inline-block text-[11px] font-serif text-[var(--ink-faint)]">
-                · {lastSavedTime} 自动暂存
+                · {lastSavedTime}
               </span>
             )}
           </div>
@@ -438,42 +491,35 @@ export default function WriterModal({
             onClick={() => handleSubmit()}
             disabled={isSubmitting || !title.trim() || !content.trim()}
             className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-serif font-medium text-[var(--paper)] bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] rounded transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-xs active:scale-95"
-            title="发布到文友雅集"
+            title="提交审核"
           >
             <Send className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? '发布中…' : '发布篇章'}</span>
+            <span>{isSubmitting ? '处理中…' : '提交审核'}</span>
           </button>
         </div>
       </header>
 
-      {/* 草稿恢复提示横条 (轻量呼吸感) */}
-      {hasRestoredDraft && (
-        <div className="shrink-0 flex items-center justify-between px-6 py-1.5 bg-[color-mix(in_srgb,var(--ochre)_8%,transparent)] border-b border-[color-mix(in_srgb,var(--ochre)_20%,transparent)] text-xs font-serif text-[var(--ochre)]">
-          <span className="flex items-center gap-1.5">
-            <Sparkles className="w-3 h-3" />
-            <span>已自动为您恢复上次未完草稿</span>
+      {/* 错误提示横条 */}
+      {(saveError || backupFailed) && (
+        <div
+          role="alert"
+          className="px-4 py-3 text-sm border-b border-[var(--line)] bg-[var(--paper-deep)] flex flex-wrap gap-3"
+        >
+          <span>
+            {backupFailed
+              ? '浏览器无法保存本地备份，请在退出前导出当前文稿。'
+              : `${saveError}。请导出备份后重新载入云端版本，避免覆盖其他设备的修改。`}
           </span>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleClearDraft}
-              className="flex items-center gap-1 text-[var(--ink-faint)] hover:text-[var(--cinnabar)] transition-colors cursor-pointer"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>清空草稿</span>
+          <button onClick={exportDraft} className="underline min-h-11">
+            导出当前文稿
+          </button>
+          {!backupFailed && (
+            <button onClick={onClose} className="underline min-h-11">
+              保留本地备份并退出
             </button>
-            <button
-              type="button"
-              onClick={() => setHasRestoredDraft(false)}
-              className="text-[var(--ink-faint)] hover:text-[var(--ink)] cursor-pointer"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          )}
         </div>
       )}
-
-      {/* 错误提示横条 */}
       {submitError && (
         <div
           role="alert"
@@ -537,6 +583,7 @@ export default function WriterModal({
             {/* 大标题无框输入 */}
             <input
               ref={titleInputRef}
+              aria-label="文章标题"
               type="text"
               value={title}
               onChange={(e) => {
@@ -564,6 +611,7 @@ export default function WriterModal({
             <div className="flex-1 flex flex-col mt-6">
               <textarea
                 ref={contentTextareaRef}
+                aria-label="文章正文"
                 value={content}
                 onChange={(e) => {
                   setContent(e.target.value);
@@ -655,7 +703,7 @@ export default function WriterModal({
         </div>
 
         <div className="flex items-center gap-3">
-          <span>{lastSavedTime ? `已自动存盘 (${lastSavedTime})` : '本地自动暂存已就绪'}</span>
+          <span>{lastSavedTime}</span>
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/80 inline-block animate-pulse" />
         </div>
       </footer>
@@ -752,7 +800,8 @@ export default function WriterModal({
                   <input
                     type="text"
                     value={author}
-                    onChange={(e) => setAuthor(e.target.value)}
+                    readOnly
+                    aria-label="笔名（在我的文稿中修改）"
                     placeholder="默认：文友"
                     className="w-full px-3 py-2 text-xs font-serif bg-[var(--paper-deep)] border border-[var(--line)] rounded text-[var(--ink)] focus:border-[var(--ochre)] focus:outline-none transition-colors"
                   />
@@ -824,6 +873,6 @@ export default function WriterModal({
           </div>
         </div>
       )}
-    </div>
+    </fieldset>
   );
 }

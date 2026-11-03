@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ClubAPI } from './api';
-import { INITIAL_ARTICLES } from '../data/initialArticles';
+import { INITIAL_ARTICLES } from '../test/initialArticles';
 
 const storage = new Map<string, string>();
 const fetchMock = vi.fn<typeof fetch>();

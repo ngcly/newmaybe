@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { INITIAL_ARTICLES, INITIAL_COMMENTS } from './test/initialArticles';
 import { DatabaseSync } from 'node:sqlite';
 import worker, { type D1Database, type D1PreparedStatement, type D1Result } from './worker';
 
@@ -24,8 +25,8 @@ class PreparedStatement implements D1PreparedStatement {
   }
 
   async run<T = unknown>(): Promise<D1Result<T>> {
-    this.db.prepare(this.sql).run(...this.values);
-    return { results: [], success: true, meta: {} };
+    const result = this.db.prepare(this.sql).run(...this.values);
+    return { results: [], success: true, meta: { changes: Number(result.changes) } };
   }
 
   async all<T = unknown>(): Promise<D1Result<T>> {
@@ -73,6 +74,48 @@ beforeEach(() => {
       return { count: 0, duration: 0 };
     },
   };
+  sqlite
+    .prepare('INSERT INTO authors(id,email,pen_name) VALUES (?,?,?)')
+    .run('fixture-author', 'fixture@example.test', '文友');
+  for (const a of INITIAL_ARTICLES) {
+    sqlite
+      .prepare(
+        `INSERT INTO articles(id,title,summary,content,author,author_seal,topic_id,topic_name,pub_date,reading_time,word_count,likes,comments_count,series_title,series_order,golden_quote,featured)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      )
+      .run(
+        a.id,
+        a.title,
+        a.summary,
+        a.content,
+        a.author,
+        a.authorSeal || null,
+        a.topicId,
+        a.topicName,
+        a.pubDate,
+        a.readingTime,
+        a.wordCount,
+        a.likes,
+        a.commentsCount,
+        a.seriesTitle || null,
+        a.seriesOrder || null,
+        a.goldenQuote || null,
+        a.featured ? 1 : 0,
+      );
+    sqlite
+      .prepare(
+        "INSERT INTO manuscripts(id,author_id,draft_json,status,is_public,published_revision) VALUES (?,?,'{}','published',1,1)",
+      )
+      .run(a.id, 'fixture-author');
+  }
+  for (const [articleId, comments] of Object.entries(INITIAL_COMMENTS))
+    for (const c of comments) {
+      sqlite
+        .prepare(
+          'INSERT INTO comments(id,article_id,author,content,likes,created_at) VALUES (?,?,?,?,?,?)',
+        )
+        .run(c.id, articleId, c.author, c.content, c.likes, c.createdAt);
+    }
 });
 
 afterEach(() => sqlite.close());
@@ -81,62 +124,18 @@ async function request(path: string, body?: object): Promise<Response> {
   return worker.fetch(
     new Request(`https://club.newmaybe.com/api/${path}`, {
       method: body ? 'POST' : 'GET',
-      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      headers: body ? { 'Content-Type': 'application/json', 'X-Club-Request': '1' } : undefined,
       body: body ? JSON.stringify(body) : undefined,
     }),
     { DB: db },
   );
 }
 
-test('rejects content beyond its limit without publishing a partial article or comment', async () => {
-  const draft = { title: '长文', topicId: 'deep-night', content: '文'.repeat(50_001) };
-  const rejectedArticle = await request('articles', draft);
-  expect(rejectedArticle.status).toBe(400);
-  expect((await rejectedArticle.json()) as { error: string }).toMatchObject({
-    error: expect.stringContaining('50000'),
-  });
-  const articles = (await (await request('articles')).json()) as { articles: { title: string }[] };
-  expect(articles.articles.some((article) => article.title === draft.title)).toBe(false);
-
-  const rejectedComment = await request('articles/club-1/comments', {
-    content: '评'.repeat(1_001),
-  });
-  expect(rejectedComment.status).toBe(400);
-  const detail = (await (await request('articles/club-1')).json()) as {
-    comments: { content: string }[];
-  };
-  expect(detail.comments.some((comment) => comment.content.length === 1_000)).toBe(false);
-});
-
-test('accepts the exact limits and gives new series chapters the next number', async () => {
-  const articleResponse = await request('articles', {
-    title: '林下夜语新篇',
-    topicId: 'deep-night',
-    seriesTitle: '林下夜语',
-    summary: '客户端已有摘要...',
-    content: '文'.repeat(50_000),
-  });
-  expect(articleResponse.status).toBe(201);
-  const { article } = (await articleResponse.json()) as {
-    article: {
-      content: string;
-      summary: string;
-      wordCount: number;
-      seriesOrder: number;
-      id: string;
-    };
-  };
-  expect(article.content).toHaveLength(50_000);
-  expect(article.wordCount).toBe(50_000);
-  expect(article.summary).toBe(`${'文'.repeat(80)}...`);
-  expect(article.seriesOrder).toBe(3);
-
-  const commentResponse = await request(`articles/${article.id}/comments`, {
-    content: '评'.repeat(1_000),
-  });
-  expect(commentResponse.status).toBe(201);
-  const { comment } = (await commentResponse.json()) as { comment: { content: string } };
-  expect(comment.content).toHaveLength(1_000);
+test('anonymous article publishing and seed endpoints have been removed', async () => {
+  expect(
+    (await request('articles', { title: '匿名', content: '正文', topicId: 'deep-night' })).status,
+  ).toBe(404);
+  expect((await request('init-seed', {})).status).toBe(404);
 });
 
 test('upgrades an existing comments table without losing data and accepts replies', async () => {
@@ -172,33 +171,6 @@ test('does not recreate sample comments after the server comment list is cleared
   sqlite.exec('DELETE FROM comments; UPDATE articles SET comments_count = 0;');
   const detail = (await (await request('articles/club-1')).json()) as { comments: unknown[] };
   expect(detail.comments).toEqual([]);
-});
-
-test('validates public write payloads and derives the topic name on the server', async () => {
-  expect(
-    (await request('articles', { title: 42, content: '正文', topicId: 'deep-night' })).status,
-  ).toBe(400);
-  expect(
-    (await request('articles', { title: '标题', content: '正文', topicId: 'unknown' })).status,
-  ).toBe(400);
-  expect(
-    (
-      await request('articles', {
-        title: '标题',
-        content: '正文',
-        topicId: 'deep-night',
-        ignored: 'x'.repeat(250_000),
-      })
-    ).status,
-  ).toBe(413);
-  const response = await request('articles', {
-    title: '标题',
-    content: '正文',
-    topicId: 'deep-night',
-    topicName: '伪造分类',
-  });
-  expect(response.status).toBe(201);
-  expect(await response.json()).toMatchObject({ article: { topicName: '深夜念头' } });
 });
 
 test('rejects missing and foreign reply targets and uses the stored reply author', async () => {
@@ -314,6 +286,14 @@ test('article URLs return article metadata and escaped readable content before J
   expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
   expect(html).toContain('正文 &amp; 留白');
   expect(html).not.toContain('<script>alert(1)</script>');
+  const embedded = html.match(
+    /<script type="application\/json" id="club-initial-article">([^<]*)<\/script>/,
+  );
+  expect(JSON.parse(embedded![1])).toMatchObject({
+    id: 'club-1',
+    title: '标题 <测试> "引号"',
+    content: '第一段\n<script>alert(1)</script>\n正文 & 留白',
+  });
   const head = await worker.fetch(
     new Request('https://club.newmaybe.com/articles/club-1', { method: 'HEAD' }),
     { DB: db, ASSETS: htmlAssets },
@@ -351,7 +331,8 @@ test('article database failures return 503 without leaking internal errors', asy
   const brokenDb: D1Database = {
     ...db,
     prepare: (sql) => {
-      if (sql === 'SELECT * FROM articles WHERE id = ?') throw new Error('private database detail');
+      if (sql === 'SELECT * FROM published_articles WHERE id = ?')
+        throw new Error('private database detail');
       return db.prepare(sql);
     },
   };

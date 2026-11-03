@@ -1,0 +1,27 @@
+{
+  "currentIssue": "issue-002",
+  "issues": [
+    {
+      "slug": "issue-001",
+      "number": "001",
+      "title": "记忆里的雨巷",
+      "author": "newmaybe",
+      "description": "一把油纸伞，一盏街角灯。走进雨声深处，让那些泛黄的字迹，慢慢浮现。",
+      "publishedAt": "2026-10-20",
+      "sourcePost": "rainy_alley_remembered",
+      "articleRevision": "2025-10-10 · 首期定稿",
+      "status": "published"
+    },
+    {
+      "slug": "issue-002",
+      "number": "002",
+      "title": "那年，那人，那条路",
+      "author": "newmaybe",
+      "description": "一个路口，一次挥手。沿着铺满落叶的旧路往下读，看暮色收走背影，听风从身边经过。",
+      "publishedAt": "2026-10-26",
+      "sourcePost": "that_year_that_person_that_road",
+      "articleRevision": "2026-07-11 · 主站定稿",
+      "status": "published"
+    }
+  ]
+}

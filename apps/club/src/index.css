@@ -1,4 +1,5 @@
 @import '@newmaybe/shared-styles/tokens.css';
+@import '@newmaybe/shared-styles/brand.css';
 @import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -25,6 +26,8 @@
     font-family: var(--serif-cn);
     line-height: 1.8;
     letter-spacing: 0.02em;
+    /* Cormorant 默认旧式数字（001 会读成 OOI）；Noto 本就是等高数字，不受影响。 */
+    font-variant-numeric: lining-nums;
     min-height: 100vh;
     background-image:
       radial-gradient(

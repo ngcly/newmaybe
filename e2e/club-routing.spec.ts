@@ -1,6 +1,6 @@
 import { expect, test } from './test';
 import { enabled } from './apps';
-import { INITIAL_ARTICLES } from '../apps/club/src/data/initialArticles';
+import { INITIAL_ARTICLES } from '../apps/club/src/test/initialArticles';
 
 const base = 'http://127.0.0.1:4406';
 

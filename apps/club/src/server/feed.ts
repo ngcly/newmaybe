@@ -41,16 +41,16 @@ export async function readFeed(url: URL, db: D1Database): Promise<ArticlePage> {
     'id, title, summary, author, author_seal, topic_id, topic_name, pub_date, reading_time, word_count, likes, comments_count, series_title, series_order, golden_quote, featured, created_at';
   const { results } = await db
     .prepare(
-      `SELECT ${columns} FROM articles${conditions.length ? ' WHERE ' + conditions.join(' AND ') : ''} ORDER BY ${order} LIMIT ? OFFSET ?`,
+      `SELECT ${columns} FROM published_articles${conditions.length ? ' WHERE ' + conditions.join(' AND ') : ''} ORDER BY ${order} LIMIT ? OFFSET ?`,
     )
     .bind(...bindings, limit + 1, offset)
     .all<RawArticleSummaryRow>();
   const { results: topics } = await db
-    .prepare('SELECT topic_id, count(*) AS count FROM articles GROUP BY topic_id')
+    .prepare('SELECT topic_id, count(*) AS count FROM published_articles GROUP BY topic_id')
     .all<{ topic_id: string; count: number }>();
   const { results: series } = await db
     .prepare(
-      "SELECT series_title AS title, count(*) AS count, MIN(author) AS author FROM articles WHERE series_title IS NOT NULL AND series_title != '' GROUP BY series_title ORDER BY series_title",
+      "SELECT series_title AS title, count(*) AS count, MIN(author) AS author FROM published_articles WHERE series_title IS NOT NULL AND series_title != '' GROUP BY series_title ORDER BY series_title",
     )
     .all<{ title: string; count: number; author: string }>();
   return {

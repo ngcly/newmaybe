@@ -1,0 +1,1289 @@
+/* 那年，那人，那条路: the poem is inscribed into the painting and the reader walks its road.
+   Every scene colour is mixed from the shared design tokens. */
+html {
+  scroll-behavior: smooth;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif-cn);
+}
+a {
+  color: inherit;
+  text-underline-offset: 5px;
+}
+button,
+input {
+  font: inherit;
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--ochre);
+  outline-offset: 4px;
+}
+.skip {
+  position: absolute;
+  top: -100px;
+  left: 20px;
+  z-index: 30;
+  padding: 14px;
+  background: var(--paper);
+}
+.skip:focus {
+  top: 12px;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.club-edition-nav {
+  padding-inline: clamp(20px, 3.2vw, 48px);
+}
+
+/* Without JavaScript the painting opens the page and the poem follows on paper. With it, the
+   painting stays pinned over a scroll track and each stanza is inscribed into its sky. */
+.journey {
+  position: relative;
+}
+.stage {
+  position: relative;
+  isolation: isolate;
+}
+.scene {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--sky-1);
+}
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+svg.layer,
+.layer > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.clouds svg {
+  overflow: visible;
+}
+.scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--black);
+  opacity: 0;
+  pointer-events: none;
+}
+.leaves,
+.track {
+  display: none;
+}
+.js .stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+.js .scene {
+  height: 100%;
+}
+.js .leaves {
+  display: block;
+}
+.js .track {
+  display: block;
+  height: 600vh;
+  height: 600svh;
+}
+.leaf-probe {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  color: var(--tone);
+  transition: color var(--fade) ease;
+}
+/* Walking forward: nearer layers grow faster as the reader scrolls down the road. */
+.js .scene > .layer:not(.leaves) {
+  transform-origin: 50% 52%;
+  will-change: scale;
+}
+.js .sky {
+  scale: calc(1 + var(--walk, 0) * 0.03);
+}
+.js .clouds {
+  scale: calc(1 + var(--walk, 0) * 0.06);
+}
+.js .far {
+  scale: calc(1 + var(--walk, 0) * 0.09);
+}
+.js .land {
+  scale: calc(1 + var(--walk, 0) * 0.2);
+}
+.js .front {
+  scale: calc(1 + var(--walk, 0) * 0.42);
+}
+.js .gust-lines {
+  scale: calc(1 + var(--walk, 0) * 0.1);
+}
+
+/* Palettes: 路口 (title, year) → 落叶 (road) → 暮色 (person) → 而今 (now) → 风 (wind).
+   --ink-on and --glow colour the inscription so it reads against each sky. */
+.stage {
+  --fade: 2.4s;
+  --gold: color-mix(in oklch, var(--cinnabar) 55%, var(--bamboo));
+  --amber: color-mix(in oklch, var(--cinnabar) 72%, var(--bamboo));
+  --rust: color-mix(in oklch, var(--cinnabar) 55%, var(--ochre));
+  --violet: color-mix(in oklch longer hue, var(--cinnabar) 45%, var(--bamboo));
+  --azure: color-mix(in oklch, var(--bamboo) 45%, var(--violet));
+  --mist: color-mix(in oklch, var(--black) 14%, var(--white));
+  --stone: color-mix(in oklch, var(--black) 32%, var(--white));
+
+  --sky-0: color-mix(in oklch, var(--azure) 46%, var(--white));
+  --sky-1: color-mix(in oklch, var(--azure) 20%, var(--white));
+  --sky-2: color-mix(in oklch, var(--gold) 16%, var(--white));
+  --sun: var(--white);
+  --sun-glow: color-mix(in oklch, var(--gold) 30%, var(--white));
+  --sun-x: 640px;
+  --sun-y: 230px;
+  --sun-opacity: 1;
+  --halo-opacity: 0.6;
+  --moon: color-mix(in oklch, var(--gold) 18%, var(--white));
+  --moon-opacity: 0;
+  --stars-opacity: 0;
+  --cloud: var(--white);
+  --cloud-opacity: 0.8;
+  --far: color-mix(in oklch, var(--azure) 30%, var(--white));
+  --mid: color-mix(
+    in oklch,
+    var(--azure) 28%,
+    color-mix(in oklch, var(--bamboo) 44%, var(--white))
+  );
+  --field: color-mix(in oklch, var(--gold) 44%, var(--white));
+  --furrow: color-mix(in oklch, var(--gold) 66%, var(--white));
+  --treeline: color-mix(in oklch, var(--bamboo) 60%, var(--gold));
+  --knoll: color-mix(in oklch, var(--gold) 56%, var(--white));
+  --road: color-mix(in oklch, var(--gold) 12%, var(--white));
+  --road-edge: color-mix(in oklch, var(--gold) 32%, var(--white));
+  --leaf-a: color-mix(in oklch, var(--gold) 58%, var(--white));
+  --leaf-b: color-mix(in oklch, var(--gold) 92%, var(--white));
+  --leaf-c: color-mix(in oklch, var(--amber) 88%, var(--white));
+  --print: color-mix(in oklch, var(--gold) 45%, var(--black));
+  --trunk: color-mix(in oklch, var(--gold) 38%, var(--black));
+  --crown: color-mix(in oklch, var(--gold) 80%, var(--white));
+  --crown-light: color-mix(in oklch, var(--gold) 60%, var(--white));
+  --crown-shade: color-mix(in oklch, var(--gold) 84%, var(--black));
+  --figure: color-mix(in oklch, var(--azure) 28%, var(--black));
+  --scarf: var(--cinnabar);
+  --grass: color-mix(in oklch, var(--gold) 72%, var(--bamboo));
+  --reed: color-mix(in oklch, var(--gold) 20%, var(--white));
+  --haze: var(--sky-2);
+  --haze-opacity: 0.6;
+  --wind-line: color-mix(in srgb, var(--white) 80%, transparent);
+  --ink-on: color-mix(in oklch, var(--azure) 24%, var(--black));
+  --red-on: color-mix(in oklch, var(--cinnabar) 66%, var(--black));
+  --glow: color-mix(in srgb, var(--white) 70%, transparent);
+}
+.stage[data-state='road'] {
+  --sky-0: color-mix(in oklch, var(--azure) 30%, var(--white));
+  --sky-1: color-mix(in oklch, var(--gold) 22%, var(--white));
+  --sky-2: color-mix(in oklch, var(--amber) 36%, var(--white));
+  --sun: color-mix(in oklch, var(--gold) 16%, var(--white));
+  --sun-glow: color-mix(in oklch, var(--amber) 48%, var(--white));
+  --sun-x: 664px;
+  --sun-y: 352px;
+  --halo-opacity: 0.8;
+  --cloud: color-mix(in oklch, var(--gold) 14%, var(--white));
+  --far: color-mix(in oklch, var(--amber) 20%, color-mix(in oklch, var(--azure) 22%, var(--white)));
+  --mid: color-mix(
+    in oklch,
+    var(--amber) 22%,
+    color-mix(in oklch, var(--bamboo) 42%, var(--white))
+  );
+  --field: color-mix(in oklch, var(--gold) 62%, var(--white));
+  --furrow: color-mix(in oklch, var(--gold) 86%, var(--white));
+  --knoll: color-mix(in oklch, var(--gold) 76%, var(--white));
+  --road: color-mix(in oklch, var(--gold) 46%, var(--white));
+  --road-edge: color-mix(in oklch, var(--gold) 70%, var(--white));
+  --leaf-a: color-mix(in oklch, var(--gold) 66%, var(--white));
+  --leaf-b: var(--gold);
+  --leaf-c: var(--amber);
+  --crown: color-mix(in oklch, var(--gold) 88%, var(--amber));
+  --crown-light: color-mix(in oklch, var(--gold) 64%, var(--white));
+  --haze: var(--sky-2);
+  --ink-on: color-mix(in oklch, var(--rust) 32%, var(--black));
+}
+.stage[data-state='person'] {
+  --sky-0: color-mix(in oklch, var(--violet) 44%, var(--black));
+  --sky-1: color-mix(in oklch, var(--violet) 68%, var(--cinnabar));
+  --sky-2: color-mix(in oklch, var(--amber) 76%, var(--white));
+  --sun: color-mix(in oklch, var(--amber) 36%, var(--white));
+  --sun-glow: var(--amber);
+  --sun-x: 930px;
+  --sun-y: 512px;
+  --halo-opacity: 0.95;
+  --cloud: color-mix(in oklch, var(--rust) 52%, var(--violet));
+  --cloud-opacity: 0.55;
+  --far: color-mix(in oklch, var(--violet) 56%, color-mix(in oklch, var(--rust) 20%, var(--black)));
+  --mid: color-mix(in oklch, var(--violet) 34%, var(--black));
+  --field: color-mix(in oklch, var(--rust) 36%, var(--black));
+  --furrow: color-mix(in oklch, var(--rust) 54%, var(--black));
+  --treeline: color-mix(in oklch, var(--violet) 32%, var(--black));
+  --knoll: color-mix(in oklch, var(--rust) 26%, var(--black));
+  --road: color-mix(in oklch, var(--amber) 62%, var(--black));
+  --road-edge: color-mix(in oklch, var(--amber) 44%, var(--black));
+  --leaf-a: color-mix(in oklch, var(--amber) 80%, var(--black));
+  --leaf-b: color-mix(in oklch, var(--rust) 70%, var(--black));
+  --leaf-c: color-mix(in oklch, var(--amber) 62%, var(--white));
+  --print: color-mix(in oklch, var(--violet) 30%, var(--black));
+  --trunk: color-mix(in oklch, var(--violet) 22%, var(--black));
+  --crown: color-mix(in oklch, var(--rust) 50%, var(--black));
+  --crown-light: color-mix(in oklch, var(--amber) 58%, var(--black));
+  --crown-shade: color-mix(in oklch, var(--violet) 28%, var(--black));
+  --figure: color-mix(in oklch, var(--violet) 16%, var(--black));
+  --grass: color-mix(in oklch, var(--rust) 30%, var(--black));
+  --reed: color-mix(in oklch, var(--amber) 58%, var(--white));
+  --haze: var(--sky-2);
+  --haze-opacity: 0.5;
+  --ink-on: color-mix(in oklch, var(--gold) 12%, var(--white));
+  --glow: color-mix(in srgb, var(--black) 55%, transparent);
+}
+.stage[data-state='now'] {
+  --sky-0: color-mix(in oklch, var(--azure) 14%, var(--stone));
+  --sky-1: color-mix(in oklch, var(--black) 10%, var(--white));
+  --sky-2: color-mix(in oklch, var(--black) 5%, var(--white));
+  --sun-opacity: 0;
+  --cloud: color-mix(in oklch, var(--black) 24%, var(--white));
+  --cloud-opacity: 0.75;
+  --far: color-mix(in oklch, var(--azure) 10%, var(--mist));
+  --mid: color-mix(in oklch, var(--bamboo) 18%, var(--stone));
+  --field: color-mix(in oklch, var(--gold) 24%, var(--mist));
+  --furrow: color-mix(in oklch, var(--gold) 24%, var(--stone));
+  --treeline: color-mix(in oklch, var(--bamboo) 26%, var(--stone));
+  --knoll: color-mix(in oklch, var(--gold) 26%, var(--stone));
+  --road: color-mix(in oklch, var(--gold) 14%, var(--mist));
+  --road-edge: color-mix(in oklch, var(--gold) 22%, var(--stone));
+  --leaf-a: color-mix(in oklch, var(--gold) 34%, var(--mist));
+  --leaf-b: color-mix(in oklch, var(--gold) 46%, var(--stone));
+  --leaf-c: color-mix(in oklch, var(--rust) 36%, var(--stone));
+  --print: color-mix(in oklch, var(--azure) 22%, var(--black));
+  --trunk: color-mix(
+    in oklch,
+    var(--azure) 14%,
+    color-mix(in oklch, var(--black) 64%, var(--white))
+  );
+  --crown: color-mix(in oklch, var(--gold) 38%, var(--stone));
+  --crown-light: color-mix(
+    in oklch,
+    var(--gold) 34%,
+    color-mix(in oklch, var(--black) 22%, var(--white))
+  );
+  --crown-shade: color-mix(
+    in oklch,
+    var(--gold) 30%,
+    color-mix(in oklch, var(--black) 52%, var(--white))
+  );
+  --grass: color-mix(
+    in oklch,
+    var(--gold) 26%,
+    color-mix(in oklch, var(--black) 46%, var(--white))
+  );
+  --reed: var(--mist);
+  --haze: var(--sky-2);
+  --ink-on: color-mix(in oklch, var(--azure) 18%, var(--black));
+}
+.stage[data-state='wind'] {
+  --sky-0: color-mix(in oklch, var(--azure) 40%, var(--black));
+  --sky-1: color-mix(
+    in oklch,
+    var(--azure) 52%,
+    color-mix(in oklch, var(--black) 36%, var(--white))
+  );
+  --sky-2: color-mix(
+    in oklch,
+    var(--gold) 20%,
+    color-mix(in oklch, var(--black) 16%, var(--white))
+  );
+  --sun-opacity: 0;
+  --moon-opacity: 0.92;
+  --stars-opacity: 0.85;
+  --cloud: color-mix(in oklch, var(--azure) 36%, var(--black));
+  --cloud-opacity: 0.5;
+  --far: color-mix(in oklch, var(--azure) 46%, color-mix(in oklch, var(--black) 42%, var(--white)));
+  --mid: color-mix(in oklch, var(--azure) 40%, var(--black));
+  --field: color-mix(in oklch, var(--azure) 22%, var(--black));
+  --furrow: color-mix(in oklch, var(--azure) 34%, var(--black));
+  --treeline: color-mix(in oklch, var(--azure) 22%, var(--black));
+  --knoll: color-mix(in oklch, var(--azure) 18%, var(--black));
+  --road: color-mix(
+    in oklch,
+    var(--azure) 26%,
+    color-mix(in oklch, var(--black) 58%, var(--white))
+  );
+  --road-edge: color-mix(in oklch, var(--azure) 30%, var(--black));
+  --leaf-a: color-mix(
+    in oklch,
+    var(--gold) 34%,
+    color-mix(in oklch, var(--black) 44%, var(--white))
+  );
+  --leaf-b: color-mix(in oklch, var(--gold) 40%, var(--black));
+  --leaf-c: color-mix(in oklch, var(--rust) 36%, var(--black));
+  --print: color-mix(in oklch, var(--azure) 30%, var(--black));
+  --trunk: color-mix(in oklch, var(--azure) 20%, var(--black));
+  --crown: color-mix(
+    in oklch,
+    var(--gold) 26%,
+    color-mix(in oklch, var(--black) 76%, var(--white))
+  );
+  --crown-light: color-mix(
+    in oklch,
+    var(--azure) 20%,
+    color-mix(in oklch, var(--black) 68%, var(--white))
+  );
+  --crown-shade: color-mix(in oklch, var(--black) 86%, var(--white));
+  --grass: color-mix(in oklch, var(--azure) 26%, var(--black));
+  --reed: color-mix(in oklch, var(--azure) 20%, var(--stone));
+  --haze: var(--sky-2);
+  --haze-opacity: 0.35;
+  --ink-on: color-mix(in oklch, var(--gold) 10%, var(--white));
+  --glow: color-mix(in srgb, var(--black) 55%, transparent);
+}
+
+/* Scene shapes take their colours from the palette and cross-fade between states. */
+.sky-fill {
+  fill: url(#sky-gradient);
+}
+.sky-0 {
+  stop-color: var(--sky-0);
+}
+.sky-1 {
+  stop-color: var(--sky-1);
+}
+.sky-2 {
+  stop-color: var(--sky-2);
+}
+.glow-0 {
+  stop-color: var(--sun-glow);
+  stop-opacity: var(--halo-opacity);
+}
+.glow-1 {
+  stop-color: var(--sun-glow);
+  stop-opacity: 0;
+}
+.haze-0 {
+  stop-color: var(--haze);
+  stop-opacity: var(--haze-opacity);
+}
+.haze-1 {
+  stop-color: var(--haze);
+  stop-opacity: 0;
+}
+.sky stop,
+.land stop {
+  transition:
+    stop-color var(--fade) ease,
+    stop-opacity var(--fade) ease;
+}
+.sun {
+  transform: translate(var(--sun-x), var(--sun-y));
+  opacity: var(--sun-opacity);
+  transition:
+    transform var(--fade) ease,
+    opacity var(--fade) ease;
+}
+.sun-halo {
+  fill: url(#sun-glow);
+}
+.sun-disc {
+  fill: var(--sun);
+  transition: fill var(--fade) ease;
+}
+.moon {
+  fill: var(--moon);
+  opacity: var(--moon-opacity);
+  transition: opacity var(--fade) ease;
+}
+.stars {
+  fill: var(--white);
+  opacity: var(--stars-opacity);
+  transition: opacity var(--fade) ease;
+}
+.cloud-set {
+  fill: var(--cloud);
+  opacity: var(--cloud-opacity);
+  transition:
+    fill var(--fade) ease,
+    opacity var(--fade) ease;
+}
+.far path,
+.land path,
+.land rect,
+.land g,
+.front path {
+  transition:
+    fill var(--fade) ease,
+    stroke var(--fade) ease;
+}
+.far {
+  fill: var(--far);
+}
+.mid {
+  fill: var(--mid);
+}
+.far-trail {
+  fill: none;
+  stroke: var(--road);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.field {
+  fill: var(--field);
+}
+.furrows {
+  fill: none;
+  stroke: var(--furrow);
+  stroke-width: 1.2;
+  opacity: 0.6;
+}
+.treeline {
+  fill: var(--treeline);
+}
+.road {
+  fill: var(--road);
+}
+.road-edge {
+  fill: var(--road-edge);
+}
+.ruts {
+  fill: var(--road-edge);
+  opacity: 0.45;
+}
+.knoll {
+  fill: var(--knoll);
+}
+.leaf-a {
+  fill: var(--leaf-a);
+}
+.leaf-b {
+  fill: var(--leaf-b);
+}
+.leaf-c {
+  fill: var(--leaf-c);
+}
+.leaves-dense {
+  opacity: 0;
+  transition: opacity var(--fade) ease;
+}
+.stage:not([data-state='title'], [data-state='year']) .leaves-dense {
+  opacity: 1;
+}
+.trunk {
+  fill: var(--trunk);
+}
+.branch {
+  fill: none;
+  stroke: var(--trunk);
+  stroke-linecap: round;
+}
+.crown {
+  fill: var(--crown);
+}
+.crown-light {
+  fill: var(--crown-light);
+}
+.crown-sun {
+  opacity: 0.7;
+}
+.crown-shade {
+  fill: var(--crown-shade);
+}
+.haze {
+  fill: url(#haze-gradient);
+}
+.grass path {
+  fill: none;
+  stroke: var(--grass);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.grass .reed-stem {
+  stroke-width: 1.6;
+}
+.grass .reed-plume {
+  fill: var(--reed);
+  stroke: none;
+}
+
+/* The figure: waves at the crossing, then walks away along the road. */
+.walker {
+  fill: var(--figure);
+  animation: arrive 0.8s ease both;
+}
+.walker .leg,
+.walker .arm {
+  fill: none;
+  stroke: var(--figure);
+  stroke-width: 4.2;
+  stroke-linecap: round;
+}
+.walker .scarf {
+  fill: var(--scarf);
+}
+.walker .figure-shadow {
+  fill: var(--black);
+  opacity: 0.14;
+}
+.arm-wave {
+  transform-box: fill-box;
+  transform-origin: 0 0;
+  transition: transform 0.9s ease;
+}
+.stage:is([data-state='year'], [data-state='road']) .arm-wave {
+  transform: rotate(-100deg);
+}
+.stage[data-state='year'] .arm-wave {
+  animation: wave 3.6s ease-in-out 0.5s backwards;
+}
+.leg {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+}
+.stage[data-state='person'] .walker {
+  animation:
+    walk-away 10s linear 0.5s both,
+    fade-late 10s linear 0.5s both;
+}
+.stage[data-state='person'] .leg-left {
+  animation: stride 0.5s ease-in-out 0.5s 20 alternate;
+}
+.stage[data-state='person'] .leg-right {
+  animation: stride 0.5s ease-in-out 0.5s 20 alternate-reverse;
+}
+.stage:is([data-state='now'], [data-state='wind']) .walker {
+  animation:
+    walk-away 10s linear -10s both,
+    fade-late 10s linear -10s both;
+}
+@keyframes arrive {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes wave {
+  0% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-150deg);
+  }
+  34% {
+    transform: rotate(-120deg);
+  }
+  48% {
+    transform: rotate(-152deg);
+  }
+  62% {
+    transform: rotate(-122deg);
+  }
+  78% {
+    transform: rotate(-142deg);
+  }
+  100% {
+    transform: rotate(-100deg);
+  }
+}
+@keyframes stride {
+  to {
+    transform: scaleY(0.8);
+  }
+}
+/* Waypoints follow the road at a constant walking pace, shrinking with perspective. */
+@keyframes walk-away {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  10.9% {
+    transform: translate(11.5px, -55.4px) scale(0.769);
+  }
+  23.6% {
+    transform: translate(34.4px, -94.5px) scale(0.606);
+  }
+  40% {
+    transform: translate(39.9px, -125.7px) scale(0.476);
+  }
+  60% {
+    transform: translate(13.8px, -149.4px) scale(0.377);
+  }
+  81.8% {
+    transform: translate(-28.9px, -166.2px) scale(0.308);
+  }
+  100% {
+    transform: translate(-65.8px, -176px) scale(0.267);
+  }
+}
+@keyframes fade-late {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Footprints: theirs appear as they walk and are buried by leaves; mine climb the old road. */
+.print {
+  fill: var(--print);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.stage[data-state='person'] .prints-theirs .print {
+  opacity: 0.5;
+  transition: opacity 0.6s ease calc(0.7s + var(--i) * 0.78s);
+}
+.stage:is([data-state='now'], [data-state='wind']) .prints-mine .print {
+  opacity: 0.42;
+  transition: opacity 0.6s ease calc(0.8s + var(--i) * 0.42s);
+}
+.leaves-cover > g {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.stage[data-state='person'] .leaves-cover > g {
+  opacity: 1;
+  transition: opacity 1.6s ease calc(7.4s + var(--i) * 0.6s);
+}
+.stage:is([data-state='now'], [data-state='wind']) .leaves-cover > g {
+  opacity: 1;
+}
+
+/* Breeze: drifting clouds, grasses and trees, and the strokes of the closing gust. */
+.clouds {
+  animation: drift 80s ease-in-out infinite alternate;
+}
+@keyframes drift {
+  from {
+    transform: translateX(-3%);
+  }
+  to {
+    transform: translateX(3%);
+  }
+}
+.grass {
+  animation: grass-idle 6s ease-in-out infinite alternate;
+}
+.stage[data-state='wind'] .grass {
+  animation: grass-gust 10s ease-in-out infinite;
+}
+.stage[data-state='wind'] .sway {
+  animation: tree-sway 10s ease-in-out infinite;
+}
+@keyframes grass-idle {
+  from {
+    transform: skewX(-2deg);
+  }
+  to {
+    transform: skewX(3deg);
+  }
+}
+@keyframes grass-gust {
+  0%,
+  100% {
+    transform: skewX(0deg);
+  }
+  12% {
+    transform: skewX(-16deg);
+  }
+  20% {
+    transform: skewX(-8deg);
+  }
+  28% {
+    transform: skewX(-13deg);
+  }
+  46% {
+    transform: skewX(-1deg);
+  }
+}
+@keyframes tree-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  14% {
+    transform: rotate(calc(var(--sway) * 1.6deg));
+  }
+  22% {
+    transform: rotate(calc(var(--sway) * 0.6deg));
+  }
+  30% {
+    transform: rotate(calc(var(--sway) * 1.2deg));
+  }
+  48% {
+    transform: rotate(0deg);
+  }
+}
+.tone-a {
+  --tone: var(--leaf-a);
+}
+.tone-b {
+  --tone: var(--leaf-b);
+}
+.tone-c {
+  --tone: var(--leaf-c);
+}
+.gust-lines path {
+  fill: none;
+  stroke: var(--wind-line);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 0.24 1.4;
+  stroke-dashoffset: 0.3;
+  opacity: 0;
+}
+.stage[data-state='wind'] .gust-lines path {
+  animation: wind-line 10s ease-in-out infinite;
+}
+.stage[data-state='wind'] .gust-lines path:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.stage[data-state='wind'] .gust-lines path:nth-child(3) {
+  animation-delay: 1s;
+}
+@keyframes wind-line {
+  0% {
+    stroke-dashoffset: 0.3;
+    opacity: 0;
+  }
+  6% {
+    opacity: 0.75;
+  }
+  34% {
+    opacity: 0.5;
+  }
+  42%,
+  100% {
+    stroke-dashoffset: -1.2;
+    opacity: 0;
+  }
+}
+
+/* The poem, inscribed into the painting's open sky as a 题画诗. */
+.poem {
+  position: relative;
+  z-index: 2;
+}
+.plate-title {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+.plate-title,
+.js .poem {
+  color: var(--ink-on);
+  text-shadow:
+    0 0 18px var(--glow),
+    0 0 3px var(--glow);
+  transition:
+    color 1.6s ease,
+    text-shadow 1.6s ease;
+}
+.title-group {
+  position: absolute;
+  top: 12svh;
+  right: 6vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  writing-mode: vertical-rl;
+  font-family: var(--serif-kai);
+}
+.title-group > * {
+  margin: 0;
+}
+h1 {
+  margin-left: 0.2em;
+  font-weight: 400;
+  font-size: clamp(44px, 7.6svh, 86px);
+  line-height: 1.32;
+  letter-spacing: 0.12em;
+}
+h1 span {
+  display: block;
+}
+h1 span:nth-child(2) {
+  padding-top: 0.7em;
+}
+h1 span:nth-child(3) {
+  padding-top: 1.4em;
+}
+h1 i {
+  font-style: normal;
+  color: var(--red-on);
+}
+/* A small caption under the controls, like a label beside a hanging scroll. */
+.title-meta {
+  position: absolute;
+  top: calc(clamp(14px, 2.6svh, 28px) + 66px);
+  left: clamp(16px, 2.6vw, 36px);
+}
+.title-meta p {
+  margin: 0;
+}
+.title-note {
+  margin-bottom: 12px !important;
+  font-family: var(--serif-kai);
+  font-size: clamp(15px, 2.1svh, 18px);
+  letter-spacing: 0.14em;
+}
+.issue-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--red-on);
+}
+.byline {
+  margin-top: 6px;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+}
+.title-meta .title-en {
+  margin-top: 8px;
+  font-family: var(--serif-en);
+  font-style: italic;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+}
+/* Seals keep the painting's colours in either theme: deep cinnabar with a paper-white mark. */
+.seal {
+  margin: 0;
+  padding: 0.5em 0.3em;
+  border-radius: 3px;
+  background: color-mix(in oklch, var(--cinnabar) 76%, var(--black));
+  color: color-mix(in oklch, var(--white) 94%, var(--gold));
+  font-family: var(--serif-kai);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: 0.12em;
+  text-shadow: none;
+  writing-mode: vertical-rl;
+}
+.title-seal {
+  position: absolute;
+  top: calc(100% + 16px);
+  left: -4px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 21px;
+  writing-mode: horizontal-tb;
+}
+.stanza,
+.coda {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 64px 24px;
+}
+.stanza .seal {
+  display: inline-block;
+}
+.verse {
+  margin: 18px 0 0;
+  font-size: clamp(19px, 2.2vw, 24px);
+  line-height: 2.3;
+  letter-spacing: 0.06em;
+}
+.coda-line {
+  font-size: clamp(26px, 4vw, 40px);
+  letter-spacing: 0.2em;
+}
+
+/* Pinned: every plate lies over the painting and only the current one is inscribed. */
+.js .poem {
+  position: absolute;
+  inset: 0;
+}
+.js .plate {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+}
+.js .plate.is-active {
+  pointer-events: auto;
+}
+.js .plate-title > * {
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.js .plate-title.is-active > * {
+  opacity: 1;
+}
+.js .inscription {
+  position: absolute;
+  top: 13svh;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  writing-mode: vertical-rl;
+}
+.js #stanza-year .inscription,
+.js #stanza-person .inscription {
+  right: 9vw;
+}
+.js #stanza-road .inscription,
+.js #stanza-now .inscription {
+  left: 9vw;
+}
+.js #coda .inscription {
+  top: 14svh;
+  right: 17vw;
+}
+.js .inscription .seal {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.js .is-active .inscription .seal {
+  opacity: 1;
+  transition-delay: 0.3s;
+}
+.js .verse {
+  margin: 0;
+  font-family: var(--serif-kai);
+  font-size: clamp(20px, 3.15svh, 32px);
+  line-height: 2.1;
+  letter-spacing: 0.16em;
+}
+.js .coda-line {
+  font-size: clamp(40px, 6.6svh, 72px);
+  line-height: 1.4;
+  letter-spacing: 0.22em;
+}
+/* 叶落成字: each character drifts down as a leaf, turns to ink, and a gust carries it off. */
+.glyphs .line {
+  display: block;
+}
+.glyph {
+  display: inline-block;
+  opacity: 0;
+  color: var(--tone);
+  transform: translate(var(--dx), var(--dy)) rotate(var(--r));
+}
+.is-active .glyph {
+  opacity: 1;
+  color: inherit;
+  transform: none;
+  transition:
+    opacity 0.9s ease,
+    transform 1.6s cubic-bezier(0.2, 0.75, 0.25, 1),
+    color 2.2s ease;
+  transition-delay: calc(0.2s + var(--i) * 45ms);
+}
+.is-leaving .glyph {
+  opacity: 0;
+  transform: translate(var(--bx), var(--by)) rotate(var(--br));
+  transition:
+    opacity 1s ease,
+    transform 1.3s cubic-bezier(0.45, 0, 0.8, 0.5),
+    color 1s ease;
+  transition-delay: calc(var(--i) * 14ms);
+}
+
+/* The opening cue, and the reader's controls. */
+.cue {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: min(calc(100svh - var(--nav, 84px) - 104px), 80svh);
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  translate: -50% 0;
+  transition:
+    opacity 0.6s ease,
+    visibility 0s;
+}
+.js .stage:not([data-state='title']) .cue {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.6s ease,
+    visibility 0s 0.6s;
+}
+.enter {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--paper) 84%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-paper);
+  color: var(--ink);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.enter span {
+  animation: nudge 2.6s ease-in-out infinite;
+}
+@keyframes nudge {
+  50% {
+    transform: translateY(4px);
+  }
+}
+.hint {
+  display: none;
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+  color: var(--ink-on);
+  text-shadow:
+    0 0 10px var(--glow),
+    0 0 2px var(--glow);
+}
+.js .hint {
+  display: block;
+}
+.player {
+  position: absolute;
+  z-index: 4;
+  top: clamp(14px, 2.6svh, 28px);
+  left: clamp(14px, 2.4vw, 32px);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--paper) 84%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-paper);
+  color: var(--ink);
+}
+.player[hidden],
+.player-volume[hidden] {
+  display: none;
+}
+.player-button {
+  min-width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.player-button svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.player-button:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+.player-button[aria-pressed='true'] {
+  color: var(--ochre);
+}
+.player-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+#motion {
+  width: 44px;
+  padding: 0;
+}
+.player-label {
+  font-size: 13px;
+  letter-spacing: 0.14em;
+}
+.player-sound[aria-pressed='true'] svg {
+  animation: breeze 2.4s ease-in-out infinite;
+}
+@keyframes breeze {
+  50% {
+    transform: translateX(2px);
+  }
+}
+.player-volume {
+  display: flex;
+  align-items: center;
+  width: 96px;
+  padding: 0 10px 0 2px;
+  animation: volume-reveal 0.25s ease-out;
+}
+.player-volume input {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  margin: 0;
+  accent-color: var(--ochre);
+  cursor: pointer;
+}
+@keyframes volume-reveal {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+
+/* After the walk, a closing note on paper. */
+.colophon {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 80px 24px 104px;
+}
+.colophon > p {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0.12em;
+}
+.colophon > p span {
+  display: inline-block;
+}
+.colophon > span {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+.colophon-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 28px;
+  margin-top: 28px;
+}
+.colophon-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  text-decoration: none;
+  color: var(--ochre);
+}
+.colophon-links a:hover {
+  text-decoration: underline;
+}
+
+/* Pause button and reduced motion. */
+.motion-paused .stage *,
+.motion-paused .stage *::before {
+  animation-play-state: paused !important;
+}
+
+@media (max-width: 760px) {
+  .title-group {
+    top: max(17svh, 150px);
+    right: 7vw;
+    gap: 10px;
+  }
+  h1 {
+    font-size: clamp(38px, 6.2svh, 54px);
+  }
+  .title-meta .title-en,
+  .title-note {
+    display: none;
+  }
+  .js .stanza .inscription {
+    top: 11svh;
+    right: 7vw;
+    left: auto;
+  }
+  .js #coda .inscription {
+    right: 50%;
+    translate: 50% 0;
+  }
+  .js .verse {
+    font-size: clamp(17px, 2.6svh, 22px);
+  }
+  .js .coda-line {
+    font-size: clamp(34px, 5.8svh, 50px);
+  }
+  .colophon {
+    padding: 56px 24px 80px;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) .scene::after {
+    opacity: 0.18;
+  }
+}
+:root.dark .scene::after {
+  opacity: 0.18;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .clouds,
+  .grass,
+  .sway,
+  .leg,
+  .arm-wave,
+  .enter span,
+  .player-sound svg,
+  .player-volume,
+  .stage[data-state] .grass,
+  .stage[data-state] .sway,
+  .stage[data-state] .leg,
+  .stage[data-state] .arm-wave {
+    animation: none !important;
+    transition: none !important;
+  }
+  .js .scene > .layer:not(.leaves) {
+    scale: none;
+    will-change: auto;
+  }
+  .js .leaves,
+  .gust-lines,
+  .js .hint {
+    display: none;
+  }
+  .glyph {
+    transform: none !important;
+  }
+  .is-active .glyph,
+  .is-leaving .glyph {
+    transition: opacity 0.6s ease !important;
+  }
+  .stage[data-state='person'] .walker {
+    animation: fade-late 4s linear 0.5s both;
+  }
+  .stage:is([data-state='now'], [data-state='wind']) .walker {
+    animation: fade-late 4s linear -4s both;
+  }
+}

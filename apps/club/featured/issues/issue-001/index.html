@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-CN" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- club:head -->
+    <link rel="stylesheet" href="./assets/rain-alley.css" />
+    <script src="./assets/rain-alley.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="/featured/issue-001#poem">跳到诗文</a>
+    <!-- club:nav -->
+    <main>
+      <section class="opening" aria-labelledby="issue-title">
+        <div class="scene" aria-hidden="true">
+          <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="mist" x2="0" y2="1">
+                <stop class="mist-start" />
+                <stop offset="1" class="mist-end" />
+              </linearGradient>
+              <radialGradient id="lamp">
+                <stop class="lamp-core" />
+                <stop offset="1" class="lamp-edge" />
+              </radialGradient>
+              <pattern id="bricks" width="80" height="40" patternUnits="userSpaceOnUse">
+                <path d="M0 0H80M0 40H80M40 0V20M0 20H80M0 20V40M80 20V40" />
+              </pattern>
+              <pattern id="tiles" width="55" height="26" patternUnits="userSpaceOnUse">
+                <path d="M0 26Q27-8 55 26" />
+              </pattern>
+            </defs>
+            <path
+              class="distant"
+              d="M0 280L210 215 260 290 440 370 610 330 780 250 1000 335V1000H0Z"
+            />
+            <path class="alley" d="M460 560H590L920 1000H70Z" />
+            <path class="wall left-wall" d="M0 240L370 375 460 560V1000H0Z" />
+            <path class="wall right-wall" d="M1000 170L680 350 590 560V1000H1000Z" />
+            <path
+              class="brickwork"
+              d="M0 260L370 390 440 560V1000H0ZM1000 200L690 365 610 570V1000H1000Z"
+            />
+            <path
+              class="roof"
+              d="M-40 216L325 345 405 337 460 408 365 397-25 263ZM1040 150L705 310 640 305 590 379 700 356 1040 206Z"
+            />
+            <path
+              class="roof-tiles"
+              d="M-40 216L325 345 405 337 460 408 365 397-25 263ZM1040 150L705 310 640 305 590 379 700 356 1040 206Z"
+            />
+            <g class="architecture">
+              <path d="M110 335V1000M310 416V1000M750 390V1000M920 280V1000" />
+              <path d="M145 470L275 505V770L145 755ZM775 475L895 430V785L775 800Z" />
+              <path
+                d="M165 492V750M190 498V753M215 505V755M240 512V757M800 480V778M830 469V774M860 457V770"
+              />
+            </g>
+            <g class="pavement">
+              <path
+                d="M465 600H605M435 650H640M392 718H690M335 807H755M260 920H840M505 580L440 1000M550 580L655 1000"
+              />
+              <ellipse cx="538" cy="873" rx="95" ry="6" />
+              <ellipse cx="600" cy="955" rx="144" ry="8" />
+            </g>
+            <path class="door" d="M477 495Q523 462 570 495V625H477Z" />
+            <g class="lantern">
+              <circle class="lamp-halo" cx="692" cy="470" r="150" />
+              <path class="lamp-arm" d="M751 385L690 406V437" />
+              <rect class="lamp-box" x="677" y="437" width="28" height="55" rx="8" />
+              <path class="lamp-ribs" d="M691 437V492M679 448H703M679 479H703" />
+              <path class="lamp-tassel" d="M691 492V519" />
+            </g>
+            <path class="reflection" d="M684 690L694 692 732 1000H642Z" />
+            <g class="traveller">
+              <path d="M494 743L483 820M510 743L523 820" />
+              <path class="coat" d="M490 676Q503 668 516 676L528 759H478Z" />
+              <circle cx="502" cy="659" r="12" />
+              <path
+                class="umbrella"
+                d="M437 652Q503 565 569 652Q552 641 536 654Q519 641 503 654Q486 641 470 654Q452 641 437 652Z"
+              />
+              <path d="M503 611V704Q503 715 513 705M503 595V611" />
+            </g>
+            <rect class="fog" width="1000" height="1000" />
+          </svg>
+          <div class="rain rain-far"></div>
+          <div class="rain rain-near"></div>
+        </div>
+        <div class="opening-copy">
+          <p class="issue-eyebrow"><span>一期一文</span><span>NO. 001 / 诗歌</span></p>
+          <p class="english-title" aria-hidden="true">AN ALLEY<br />OF REMEMBERED RAIN</p>
+          <h1 id="issue-title"><span>记忆里的</span><strong>雨巷</strong></h1>
+          <p class="opening-note">有些路，只在记忆里下雨。</p>
+          <p class="byline">文 / newmaybe <span>原作于 2025.10.10</span></p>
+          <a class="enter" href="/featured/issue-001#poem"
+            >循着雨声，往里走 <span aria-hidden="true">↓</span></a
+          >
+        </div>
+        <span class="scene-caption" aria-hidden="true">青石 · 灯火 · 未完成的篇章</span>
+      </section>
+      <article id="poem" class="poem" aria-label="记忆里的雨巷全文">
+        <header class="poem-preface">
+          <span class="small-seal" aria-hidden="true">雨</span>
+          <p>把世界的声音调轻一点，<br />把这一页，读慢一点。</p>
+        </header>
+        <section class="stanza" aria-labelledby="stanza-one">
+          <div class="stanza-aside">
+            <span>01</span>
+            <h2 id="stanza-one">巷口</h2>
+            <p>THE ALLEY</p>
+          </div>
+          <p class="verse">
+            我还撑着油纸伞，<br />走在没有你的雨巷，<br />独自忧伤，彷徨。<br />青石路，灰砖墙，<br />街角灯火昏黄，<br />凄风阵阵，雨微凉。
+          </p>
+          <span class="watermark" aria-hidden="true">巷</span>
+        </section>
+        <div class="interlude" aria-hidden="true"><span></span><i></i><span></span></div>
+        <section class="stanza" aria-labelledby="stanza-two">
+          <div class="stanza-aside">
+            <span>02</span>
+            <h2 id="stanza-two">书页</h2>
+            <p>THE MEMORY</p>
+          </div>
+          <p class="verse">
+            翻开旧书卷，<br />斑驳字迹，<br />依稀记得过往，<br />那丁香般的姑娘，<br />未完成的篇章。<br />墨痕淡，纸泛黄，<br />案上朱笔深藏，<br />再无红袖添新香。
+          </p>
+          <span class="watermark" aria-hidden="true">忆</span>
+        </section>
+        <footer class="colophon">
+          <p>雨会停，文字会留下。</p>
+          <span>第一期 · 记忆里的雨巷</span>
+          <div>
+            <a href="https://newmaybe.com/writing/rainy_alley_remembered/">读主站原文 ↗</a
+            ><a href="/featured/archive">收藏在往期里 →</a>
+          </div>
+        </footer>
+      </article>
+    </main>
+    <div class="reading-controls" role="region" aria-label="雨巷播放器" hidden>
+      <div id="player-panel" class="volume-control" hidden>
+        <label class="volume"
+          ><span class="sound-status">音量</span
+          ><input id="volume" type="range" min="0" max="100" value="30"
+        /></label>
+      </div>
+      <button
+        id="player-options"
+        class="control-button"
+        type="button"
+        aria-label="调节音量"
+        title="调节音量"
+        aria-expanded="false"
+        aria-controls="player-panel"
+      >
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M11 5L6 9H3V15H6L11 19ZM15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14" />
+        </svg>
+      </button>
+      <button
+        id="motion"
+        class="control-button"
+        type="button"
+        aria-label="暂停落雨"
+        title="暂停落雨"
+        aria-pressed="false"
+      >
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M5 13a4 4 0 0 1 0-8 6 6 0 0 1 11-1 4.5 4.5 0 0 1 2 9M7 16l-1 3M12 16l-1 3M17 16l-1 3"
+          />
+        </svg>
+      </button>
+      <button
+        id="sound"
+        class="vinyl-button"
+        type="button"
+        aria-label="开启雨声与配乐"
+        title="开启雨声与配乐"
+        aria-pressed="false"
+      >
+        <span class="record-disc" aria-hidden="true"
+          ><svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <circle cx="12" cy="12" r="2" />
+            <path d="M7 12a5 5 0 0 1 5-5M17 12a5 5 0 0 1-5 5" /></svg
+        ></span>
+      </button>
+      <span id="sound-status" role="status" class="sound-status">声音默认关闭</span>
+    </div>
+  </body>
+</html>

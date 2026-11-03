@@ -4,7 +4,11 @@ import type { Comment } from '../types';
 import SealStamp from './SealStamp';
 
 interface CommentSectionProps {
-  comments: Comment[];
+  /** null while the reader is open but the comments have not arrived yet. */
+  comments: Comment[] | null;
+  /** With comments still null: the request failed, so offer a retry rather than a spinner. */
+  failed?: boolean;
+  onRetry?: () => void;
   onAddComment: (
     author: string,
     content: string,
@@ -31,10 +35,13 @@ function formatChineseIndex(idx: number): string {
 }
 
 export default function CommentSection({
-  comments,
+  comments: loadedComments,
+  failed,
+  onRetry,
   onAddComment,
   onLikeComment,
 }: CommentSectionProps) {
+  const comments = loadedComments ?? [];
   const [authorName, setAuthorName] = useState('');
   const [commentText, setCommentText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -146,53 +153,45 @@ export default function CommentSection({
   };
 
   return (
-    <section className="mt-14 pt-10 border-t border-[var(--line)]/60 font-serif">
+    <section className="club-comments">
       {likeError && (
         <p role="alert" className="text-sm text-[var(--cinnabar)]">
           {likeError}
         </p>
       )}
       {/* 评注区头部：东方典雅题跋刊头 */}
-      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-8">
+      <div className="club-comments__heading">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-serif text-[var(--ochre)] italic tracking-widest uppercase">
-              Colophon & Echoes
-            </span>
-            <span className="text-[var(--line)]">·</span>
-            <span className="text-xs text-[var(--ink-faint)]">字里相逢，行间互映</span>
+          <div className="club-comments__kicker">
+            <span className="club-reader__section-label">读者来信</span>
           </div>
-          <h3 className="font-serif font-medium text-xl sm:text-2xl text-[var(--ink)] tracking-wide flex items-center gap-2.5">
-            <span>文友题跋 · 墨痕回响</span>
-            <span className="text-xs font-sans font-normal px-2 py-0.5 rounded-full border border-[var(--line)] text-[var(--ink-soft)] bg-[var(--paper-deep)]/50">
-              {comments.length}
-            </span>
+          <h3 className="club-comments__title">
+            <span>文友题跋</span>
+            {loadedComments && <span className="club-comments__count">{comments.length}</span>}
           </h3>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-[var(--ink-faint)] italic">
+        <div className="club-comments__intro">
           <Feather className="w-3.5 h-3.5 text-[var(--ochre)]" />
-          <span>提笔落款，共护文雅</span>
+          <span>字里相逢，见字如晤</span>
         </div>
       </div>
 
       {/* 题跋撰写笺纸 (Scholar's Stationery Pad) */}
-      <form
-        onSubmit={handleSubmit}
-        className="mb-12 rounded border border-[var(--line)] bg-[var(--paper)] shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden transition-all duration-300 focus-within:border-[var(--ochre)]/80 focus-within:shadow-[0_4px_16px_rgba(0,0,0,0.04)]"
-      >
+      <form onSubmit={handleSubmit} className="club-comments__form">
         {/* 笺纸顶部：题名署名与动态朱砂印章联动 */}
-        <div className="px-5 py-3.5 bg-[color-mix(in_srgb,var(--paper-deep)_40%,var(--paper))] border-b border-[var(--line)]/60 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="club-comments__form-header">
           <div className="flex items-center gap-2.5">
-            <span className="text-[var(--ink-faint)] text-xs font-serif">题跋落款：</span>
+            <span className="club-comments__field-label">署名</span>
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 value={authorName}
                 onChange={(e) => setAuthorName(e.target.value)}
                 placeholder="文友署名（选填）"
+                aria-label="文友署名（选填）"
                 maxLength={10}
-                className="px-2.5 py-1 text-xs bg-[var(--paper)] border border-[var(--line)]/70 rounded-xs focus:border-[var(--ochre)] focus:outline-none text-[var(--ink)] font-serif w-36 transition-colors"
+                className="club-comments__name"
               />
               {/* 实时朱砂姓名印章预览 */}
               <SealStamp
@@ -204,21 +203,22 @@ export default function CommentSection({
             </div>
           </div>
 
-          <div className="text-[11px] text-[var(--ink-faint)] italic hidden sm:flex items-center gap-1">
-            <span>留签于此卷末 · 公开传阅</span>
+          <div className="club-comments__public-note">
+            <span>留言将公开展示</span>
           </div>
         </div>
 
         {/* 笺纸正文：大面积舒展输入 */}
-        <div className="p-5">
+        <div className="club-comments__form-body">
           <textarea
             ref={textareaRef}
+            aria-label="题跋内容"
             rows={3}
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             placeholder="写下此刻的共鸣、眉批或感悟... 慢笔深思，见字如晤。"
             required
-            className="w-full text-xs sm:text-sm bg-transparent border-none outline-none resize-y text-[var(--ink)] placeholder:text-[var(--ink-faint)]/50 leading-[2.1] font-serif transition-colors"
+            className="club-comments__textarea"
           />
 
           {submitError && (
@@ -228,7 +228,7 @@ export default function CommentSection({
           )}
 
           {/* 快捷雅笺速题词与底部操作条 */}
-          <div className="mt-4 pt-3.5 border-t border-[var(--line)]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="club-comments__form-footer">
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-[11px] text-[var(--ink-faint)] mr-1 flex items-center gap-1">
                 <Sparkles className="w-3 h-3 text-[var(--ochre)]" />
@@ -239,7 +239,7 @@ export default function CommentSection({
                   key={tag}
                   type="button"
                   onClick={() => handleQuickTagClick(tag)}
-                  className="text-[11px] font-serif px-2 py-0.5 rounded-xs border border-[var(--line)]/70 hover:border-[var(--ochre)] hover:text-[var(--ochre)] bg-[var(--paper-deep)]/40 hover:bg-[var(--paper)] text-[var(--ink-soft)] transition-colors cursor-pointer"
+                  className="club-comments__quick-tag"
                 >
                   {tag.slice(0, 4)}
                 </button>
@@ -249,7 +249,7 @@ export default function CommentSection({
             <button
               type="submit"
               disabled={isSubmitting || !commentText.trim()}
-              className="flex items-center justify-center gap-1.5 px-5 py-1.5 text-xs font-serif font-medium text-[var(--paper)] bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] rounded-xs transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 shadow-2xs shrink-0 self-end sm:self-auto"
+              className="club-comments__submit"
             >
               <Send className="w-3.5 h-3.5" />
               <span>{isSubmitting ? '落款中…' : '盖印题跋'}</span>
@@ -259,17 +259,26 @@ export default function CommentSection({
       </form>
 
       {/* 题跋列表：雅致笺条串联与唱和答跋 */}
-      {comments.length === 0 ? (
+      {!loadedComments ? (
+        <div className="club-comments__empty">
+          <p className="club-comments__empty-description" role="status">
+            {failed ? '题跋暂时未能取回。' : '正在取回文友题跋…'}
+          </p>
+          {failed && onRetry && (
+            <button type="button" onClick={onRetry} className="club-text-link">
+              重新取回
+            </button>
+          )}
+        </div>
+      ) : comments.length === 0 ? (
         /* 清雅空卷意境 */
-        <div className="text-center py-14 px-6 border border-dashed border-[var(--line)]/60 rounded bg-[color-mix(in_srgb,var(--paper-deep)_20%,var(--paper))]">
-          <div className="w-12 h-12 mx-auto mb-3 rounded-full border border-[var(--cinnabar)]/30 flex items-center justify-center text-[var(--cinnabar)]/70 bg-[color-mix(in_srgb,var(--cinnabar)_4%,transparent)]">
+        <div className="club-comments__empty">
+          <div className="club-comments__empty-seal">
             <SealStamp text="留白" type="yang" size="sm" tilt={false} />
           </div>
-          <h4 className="font-serif text-sm font-medium text-[var(--ink)] mb-1">
-            案头尚留一泓清墨
-          </h4>
-          <p className="text-xs text-[var(--ink-faint)] font-serif max-w-sm mx-auto leading-relaxed mb-4">
-            此篇章暂未有文友落墨。何不挥毫题跋，留下第一抹与著者的心念回响？
+          <h4 className="club-comments__empty-title">案头尚留一泓清墨</h4>
+          <p className="club-comments__empty-description">
+            还没有人留言。写下你的感受，为这篇文章留下第一封回信。
           </p>
           <button
             type="button"
@@ -281,7 +290,7 @@ export default function CommentSection({
           </button>
         </div>
       ) : (
-        <div className="space-y-5">
+        <div className="club-comments__list">
           {allRenderedTopComments.map((c, index) => {
             const commenterSeal = c.author.length >= 2 ? c.author.slice(0, 2) : c.author || '文友';
             const hasLikedThis = Boolean(likedCommentIds[c.id]);
@@ -289,12 +298,9 @@ export default function CommentSection({
             const isReplyingToThis = activeReplyTarget?.commentId === c.id;
 
             return (
-              <article
-                key={c.id}
-                className="group relative bg-[var(--paper)] border border-[var(--line)]/70 hover:border-[var(--ochre)]/60 rounded p-5 sm:p-6 transition-all duration-300 hover:shadow-[0_2px_12px_rgba(0,0,0,0.02)]"
-              >
+              <article key={c.id} className="club-comments__entry">
                 {/* 题跋头部：题跋序次、印鉴、文友与发布时间 */}
-                <div className="flex items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-[var(--line)]/40">
+                <div className="club-comments__entry-header">
                   <div className="flex items-center gap-2.5 flex-wrap">
                     {/* 文友专属朱砂方印 */}
                     <SealStamp
@@ -358,13 +364,11 @@ export default function CommentSection({
                 </div>
 
                 {/* 题跋正文内容 */}
-                <p className="text-xs sm:text-sm text-[var(--ink-soft)] font-light leading-[2.1] text-justify font-serif tracking-wide select-text">
-                  {c.content}
-                </p>
+                <p className="club-comments__content">{c.content}</p>
 
                 {/* 子级回复：文友唱和 / 答跋列表 */}
                 {subReplies.length > 0 && (
-                  <div className="mt-4 pt-3 border-t border-dashed border-[var(--line)]/50 pl-3 sm:pl-4 border-l-2 border-l-[var(--ochre)]/40 ml-1 space-y-3 bg-[color-mix(in_srgb,var(--paper-deep)_20%,var(--paper))] rounded-r-xs p-3">
+                  <div className="club-comments__replies">
                     <div className="text-[11px] font-serif text-[var(--ochre)] flex items-center gap-1 mb-2 select-none">
                       <CornerDownRight className="w-3 h-3" />
                       <span>文友唱和 · 答跋 ({subReplies.length})</span>
@@ -378,10 +382,7 @@ export default function CommentSection({
                       const replyLiked = Boolean(likedCommentIds[reply.id]);
 
                       return (
-                        <div
-                          key={reply.id}
-                          className="pt-2 first:pt-0 border-b border-[var(--line)]/30 last:border-none pb-2.5 last:pb-0"
-                        >
+                        <div key={reply.id} className="club-comments__reply">
                           <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
                             <div className="flex items-center gap-2">
                               <SealStamp text={replySeal} type="yang" size="xs" />
@@ -433,9 +434,7 @@ export default function CommentSection({
                             </div>
                           </div>
 
-                          <p className="text-xs text-[var(--ink-soft)] leading-relaxed font-serif pl-1 text-justify">
-                            {reply.content}
-                          </p>
+                          <p className="club-comments__reply-content">{reply.content}</p>
                         </div>
                       );
                     })}
@@ -448,7 +447,7 @@ export default function CommentSection({
                     onSubmit={(e) =>
                       handleReplySubmit(e, activeReplyTarget.targetId, activeReplyTarget.author)
                     }
-                    className="mt-4 p-4 rounded border border-[var(--ochre)]/60 bg-[color-mix(in_srgb,var(--paper-deep)_40%,var(--paper))] shadow-xs animate-fade-in"
+                    className="club-comments__reply-form"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-2 pb-2 border-b border-[var(--line)]/50 text-xs">
                       <div className="flex items-center gap-1.5 text-[var(--ochre)] font-serif font-medium">
@@ -462,8 +461,9 @@ export default function CommentSection({
                           value={replyAuthorName}
                           onChange={(e) => setReplyAuthorName(e.target.value)}
                           placeholder="您的署名（选填）"
+                          aria-label="回复署名（选填）"
                           maxLength={10}
-                          className="px-2 py-0.5 text-xs bg-[var(--paper)] border border-[var(--line)]/70 rounded-xs focus:border-[var(--ochre)] focus:outline-none text-[var(--ink)] font-serif w-28"
+                          className="club-comments__name"
                         />
                         <SealStamp
                           text={
@@ -479,12 +479,13 @@ export default function CommentSection({
 
                     <textarea
                       ref={replyTextareaRef}
+                      aria-label={`回复 ${activeReplyTarget.author} 的内容`}
                       rows={2}
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
                       placeholder={`与 @${activeReplyTarget.author} 唱和相答，言简而意深...`}
                       required
-                      className="w-full text-xs sm:text-sm bg-transparent border-none outline-none resize-y text-[var(--ink)] placeholder:text-[var(--ink-faint)]/50 leading-[2.1] font-serif"
+                      className="club-comments__textarea"
                     />
 
                     {replyError && (
@@ -508,7 +509,7 @@ export default function CommentSection({
                       <button
                         type="submit"
                         disabled={isReplying || !replyText.trim()}
-                        className="flex items-center gap-1.5 px-4 py-1 text-xs font-serif font-medium text-[var(--paper)] bg-[var(--ochre)] hover:bg-[var(--ochre-deep)] rounded-xs transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 shadow-2xs"
+                        className="club-comments__submit"
                       >
                         <Send className="w-3 h-3" />
                         <span>{isReplying ? '投递中…' : '发送答跋'}</span>

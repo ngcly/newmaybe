@@ -6,6 +6,42 @@ export interface Topic {
   articleCount: number;
 }
 
+export interface AuthorAccount {
+  id: string;
+  email: string;
+  penName: string;
+  isAdmin: boolean;
+}
+export interface ManuscriptDraft {
+  title: string;
+  content: string;
+  topicId: string;
+  authorSeal: string;
+  seriesTitle: string;
+  goldenQuote: string;
+}
+export type ManuscriptStatus =
+  'draft' | 'pending' | 'changes_requested' | 'published' | 'withdrawn';
+export interface Manuscript {
+  id: string;
+  authorId: string;
+  author: string;
+  draft: ManuscriptDraft;
+  version: number;
+  status: ManuscriptStatus;
+  isPublic: boolean;
+  publishedRevision: number | null;
+  reviewNote: string;
+  updatedAt: number;
+}
+export interface ManuscriptRevision {
+  version: number;
+  draft: ManuscriptDraft;
+  state: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  note: string;
+  createdAt: number;
+}
+
 export interface Comment {
   id: string;
   articleId: string;
