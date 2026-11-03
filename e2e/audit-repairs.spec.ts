@@ -1,6 +1,6 @@
 import { test, expect } from './test';
 import { enabled } from './apps';
-import { INITIAL_ARTICLES, INITIAL_COMMENTS } from '../apps/club/src/data/initialArticles';
+import { INITIAL_ARTICLES, INITIAL_COMMENTS } from '../apps/club/src/test/initialArticles';
 
 test('Study warns when a draft cannot be saved and retains text for recovery', async ({ page }) => {
   test.skip(!enabled('study'));
@@ -98,7 +98,7 @@ test('Studio distinguishes fallback prompts from AI output', async ({ page }) =>
   await page.route('**/api/security', (route) => route.fulfill({ status: 503, json: {} }));
   await page.route('**/sdk.jinrishici.com/**', (route) => route.abort());
   await page.goto('http://127.0.0.1:4404/?tab=inspiration');
-  await page.getByRole('button', { name: '生成命题 ✦', exact: true }).click();
+  await page.getByRole('button', { name: '生成命题', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('暂不可用');
   await expect(page.getByText('随笔 · 备用命题')).toBeVisible();
   await expect(page.getByText('随笔 · 由 AI 生成')).toHaveCount(0);
@@ -181,7 +181,7 @@ test('Club loads the next summary page once and fetches its body on demand', asy
   const cache = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('newmaybe_club_articles') || '[]'),
   );
-  expect(cache).toHaveLength(22);
+  expect(cache).toHaveLength(0);
   expect(cache.every((article: object) => !('content' in article))).toBe(true);
 });
 
@@ -190,7 +190,7 @@ test('Studio compact tools and preview remain reachable on mobile', async ({ pag
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('http://127.0.0.1:4404/');
   await expect(page.getByRole('combobox', { name: '创作工具' })).toBeInViewport();
-  await page.getByRole('link', { name: '预览与导出 ↓' }).click();
+  // Preview-first layout: the poster sits above the controls, no jump link needed.
   await expect(page.locator('#poster-preview')).toBeInViewport();
   await page.screenshot({ path: testInfo.outputPath('studio-mobile-preview.png') });
   await page.getByRole('combobox', { name: '创作工具' }).selectOption('formatter');

@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { expect, test, type Page, type Route } from './test';
 import { enabled } from './apps';
-import { INITIAL_ARTICLES } from '../apps/club/src/data/initialArticles';
+import { INITIAL_ARTICLES } from '../apps/club/src/test/initialArticles';
 import { validateMessages } from '../apps/ai/src/worker';
 
 const graph = {
@@ -125,9 +125,8 @@ test('Club keeps unrelated cloud articles when a like overlaps the initial fetch
     if (path.endsWith('/like')) return route.fulfill({ json: { likes: 999 } });
     return route.fulfill({ json: { article: INITIAL_ARTICLES[0], comments: [] } });
   });
-  await page.goto('http://127.0.0.1:4406/');
+  await page.goto('http://127.0.0.1:4406/articles/club-1');
   await expect.poll(() => Boolean(held)).toBe(true);
-  await page.getByText(INITIAL_ARTICLES[0].title, { exact: true }).click();
   await page
     .locator('button')
     .filter({ has: page.locator('svg.lucide-heart') })

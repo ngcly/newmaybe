@@ -1,7 +1,7 @@
 import { expect, test } from './test';
 import { enabled } from './apps';
 import { dark, light, studyDark, studyLight } from '../packages/design-tokens/src/index';
-import { INITIAL_ARTICLES } from '../apps/club/src/data/initialArticles';
+import { INITIAL_ARTICLES } from '../apps/club/src/test/initialArticles';
 
 const apps = ['main', 'graph', 'ai', 'studio', 'study', 'club', 'lab'];
 
@@ -134,6 +134,7 @@ for (const width of [320, 375, 390, 640, 768, 1024, 1280]) {
       await page.screenshot({ path: testInfo.outputPath('club-dark.png'), animations: 'disabled' });
     }
     await page.getByRole('button', { name: '即刻落笔', exact: true }).click();
-    await expect(page.getByPlaceholder('在此处题写文章标题...')).toBeVisible();
+    await expect(page).toHaveURL('http://127.0.0.1:4406/me');
+    await expect(page.getByRole('button', { name: '发送验证码' })).toBeVisible();
   });
 }
